@@ -1,0 +1,25 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Prototype build/output
+dist/
+.tmp/
+
+# Reference capture output
+screenshots/*.tmp.png
+
+# gymGO design reference — local-only, ~42 MB of generated prototype artifacts.
+# Its design tokens and components are transcribed into prototype/css/tokens.css
+# and documented in docs/design-system.md. Do not commit the vendor dump.
+gymGO (2)/
