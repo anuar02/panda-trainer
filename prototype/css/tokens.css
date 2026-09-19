@@ -1,0 +1,81 @@
+/* ============================================================================
+   tokens.css — design tokens
+   Transcribed 1:1 from the gymGO reference: `gymGO (2)/src/src_ui.jsx` (object `T`)
+   and `gymGO (2)/Design System.md`.
+   Do not invent new tokens here. If a value is missing, document the decision
+   in docs/design-system.md first, then add it here with a comment.
+   ========================================================================== */
+
+:root {
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+  --canvas: #f6f6f7;        /* app background */
+  --surface: #ffffff;       /* cards, sheets, bars */
+  --sunken: #eeeef0;        /* tracks, soft fills, inputs */
+  --scrim: rgba(8, 8, 10, 0.42);
+
+  /* ── Text ─────────────────────────────────────────────────────────────── */
+  --ink: #050505;           /* primary text, CTA fill */
+  --sec: #5e5f60;           /* secondary text */
+  --ter: #9ba1a8;           /* tertiary — NOT for meaningful metadata */
+  --border: #e9e9ec;
+  --hair: #f0f0f2;          /* hairline dividers */
+
+  /* ── Semantic (state only, never decoration) ──────────────────────────── */
+  --mint: #10c22b;
+  --mint-soft: rgba(16, 194, 43, 0.10);
+  --mint-ink: #0a8a23;
+
+  --amber: #f3b84a;
+  --amber-soft: rgba(243, 184, 74, 0.16);
+  --amber-ink: #8a6410;
+
+  --danger: #c22b10;
+  --danger-soft: rgba(194, 43, 16, 0.08);
+
+  /* ── Ember — streak / mascot only ─────────────────────────────────────── */
+  --ember-1: #ffb23d;
+  --ember-2: #ff7a1f;
+  --ember-3: #f0420f;
+  --ember-glow: rgba(255, 120, 40, 0.55);
+
+  /* ── Radii ────────────────────────────────────────────────────────────── */
+  --r-field: 14px;
+  --r-card: 22px;
+  --r-card-lg: 26px;
+  --r-sheet: 30px;
+  --r-pill: 9999px;
+
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --disp: 'Montserrat', system-ui, -apple-system, sans-serif;
+
+  /* ── Elevation ────────────────────────────────────────────────────────── */
+  --shadow-card: 0 1px 2px rgba(8, 8, 10, 0.04);
+  --shadow-sheet: 0 -10px 40px rgba(8, 8, 10, 0.18);
+  --shadow-fab: 0 10px 22px rgba(5, 5, 5, 0.34);
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --ease-standard: cubic-bezier(.2, .7, .2, 1);
+  --ease-sheet: cubic-bezier(.22, .8, .25, 1);
+  --dur-sheet: 340ms;
+
+  /* ── Layout (prototype device) ────────────────────────────────────────── */
+  --device-w: 390px;
+  --device-h: 844px;
+}
+
+/* ── Accessibility exceptions (documented in docs/design-system.md) ────────
+   1. `--ter` (#9ba1a8) is used only for decorative/secondary affordances
+      (chevrons, disabled hints, icon-only affordances). Any metadata a user
+      must read uses `--sec`. This is a deliberate deviation from the gymGO
+      reference, which used `--ter` for Row meta text. Rationale: contrast on
+      #fff is ~2.7:1 for --ter vs ~5.7:1 for --sec.
+   2. `--mint` / `--amber` are never used for text. Text uses the matching
+      `--*-ink` variant. Fills may use the base hue.
+   ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-sheet: 1ms;
+  }
+}
