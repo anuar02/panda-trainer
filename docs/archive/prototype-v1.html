@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Кабинет тренера — кликабельный прототип (демо-данные)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  /* gymGO Design System — Revolut-style, light, monochrome-first */
+  --canvas:#f6f6f7; --surface:#ffffff; --sunken:#eeeef0;
+  --ink:#050505; --ink2:#5e5f60; --ink3:#9ba1a8;
+  --line:#e9e9ec; --hair:#f0f0f2;
+  --ok:#10c22b; --ok-ink:#0a8a23; --ok-soft:rgba(16,194,43,.10);
+  --wait:#f3b84a; --wait-ink:#8a6410; --wait-soft:rgba(243,184,74,.16);
+  --danger:#c22b10; --danger-soft:rgba(194,43,16,.08);
+  --scrim:rgba(8,8,10,.42);
+  --r-field:14px; --r-card:22px; --r-lg:26px; --r-sheet:30px;
+  --shadow-card:0 1px 2px rgba(8,8,10,.04);
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --sheet-ease:cubic-bezier(.22,.8,.25,1);
+}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#161618;color:#f3f3f1;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+
+.wrap{display:grid;grid-template-columns:252px minmax(0,1fr) 368px;min-height:100vh}
+@media (max-width:1180px){.wrap{grid-template-columns:1fr}}
+.rail{border-right:1px solid #2c2c2f;padding:22px 18px;background:#1b1b1e}
+@media (max-width:1180px){.rail{border-right:0;border-bottom:1px solid #2c2c2f}}
+.rail h1{font-family:Montserrat,sans-serif;font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0 0 2px}
+.rail .demo{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#8c8c90;margin-bottom:20px}
+.rail .grp{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#77777b;margin:20px 0 8px}
+.nav{display:flex;flex-direction:column;gap:6px}
+.nav button{text-align:left;border:1px solid transparent;background:transparent;color:#c9c9cc;padding:10px 11px;border-radius:9px;font-size:13.5px;display:flex;gap:9px;align-items:center;transition:background .15s var(--ease)}
+.nav button:hover{background:#242427}
+.nav button.on{background:#f3f3f1;color:#101011;font-weight:600}
+.nav button .ic{width:18px;text-align:center;opacity:.85}
+.seg{display:flex;border:1px solid #35353a;border-radius:9px;overflow:hidden;margin-top:8px}
+.seg button{flex:1;background:transparent;border:0;color:#c9c9cc;padding:9px 6px;font-size:12.5px}
+.seg button.on{background:#f3f3f1;color:#101011;font-weight:600}
+.rail .hint{font-size:11.5px;line-height:1.55;color:#86868a;margin-top:16px}
+
+.stage{display:flex;justify-content:center;align-items:flex-start;padding:34px 20px 60px}
+.device{width:392px;border-radius:44px;padding:12px;background:#0c0c0e;border:1px solid #333337;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.device .screen{position:relative;height:812px;border-radius:34px;overflow:hidden;background:var(--canvas);color:var(--ink);display:flex;flex-direction:column}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;padding:12px 22px 2px;flex:0 0 auto}
+.viewport{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.viewport::-webkit-scrollbar{display:none}
+
+.pad{padding:0 18px}
+.appbar{display:flex;align-items:flex-start;justify-content:space-between;padding:10px 18px 12px;gap:10px}
+.appbar h2{font-family:Montserrat,system-ui,sans-serif;font-size:22px;font-weight:800;letter-spacing:-.4px;margin:0;line-height:1.12}
+.appbar .sub{font-size:12px;color:var(--ink2);margin-top:3px}
+.iconbtn{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:16px;color:var(--ink);flex:0 0 auto}
+.iconbtn.plus{background:var(--ink);color:#fff;border-color:var(--ink)}
+.kicker{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink2)}
+.rule{height:1px;background:var(--line);border:0;margin:14px 0}
+.mt{margin-top:14px}
+.card{background:var(--surface);border-radius:var(--r-card);padding:16px;box-shadow:var(--shadow-card)}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:4px 9px;border-radius:9999px;border:1px solid transparent;white-space:nowrap}
+.st .dot{width:6px;height:6px;border-radius:9999px;background:currentColor;flex:0 0 auto}
+.st.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.st.ok .dot{background:var(--ok)}
+.st.wait{background:var(--wait-soft);color:var(--wait-ink)}
+.st.wait .dot{background:var(--wait)}
+.st.neutral{background:var(--sunken);color:var(--ink2)}
+.st.dang{background:var(--danger-soft);color:var(--danger)}
+.st.ghost{background:transparent;border-color:var(--line);color:var(--ink2)}
+.st.live .dot{animation:pulse 2.4s ease-in-out infinite}
+/* Btn: 56px tall, full-width, 700/16.5 per design system */
+.btn{font-family:inherit;font-weight:700;font-size:16.5px;line-height:1;min-height:56px;padding:0 20px;border-radius:var(--r-field);border:1px solid var(--ink);background:var(--ink);color:#fff;display:inline-flex;align-items:center;justify-content:center;transition:transform .12s var(--ease),opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn.ghost,.btn.outline{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.soft{background:var(--sunken);color:var(--ink);border-color:transparent}
+.btn.mint{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn.danger{background:transparent;color:var(--danger);border-color:var(--danger)}
+.btn.wait{background:var(--ink);border-color:var(--ink)}
+.btn.wide{width:100%}
+.btn.compact{min-height:44px;font-size:14px;font-weight:600;padding:0 15px;width:auto}
+.btn.compact.wide{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;gap:10px;margin-top:14px}
+.btnrow .btn{flex:1}
+.tnum{font-variant-numeric:tabular-nums}
+
+.sess{display:grid;grid-template-columns:58px 1fr auto;gap:12px;padding:13px 0;border-bottom:1px solid var(--hair);width:100%;text-align:left;background:transparent;border-left:0;border-right:0;border-top:0;color:inherit}
+.sess:last-child{border-bottom:0}
+.sess .t{font-variant-numeric:tabular-nums;font-size:13.5px;font-weight:600;line-height:1.25;color:var(--ink)}
+.sess .t small{display:block;font-weight:400;color:var(--ink3);font-size:11.5px}
+.sess .name{font-size:15px;font-weight:600;letter-spacing:-.005em}
+.sess .meta{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.sess .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.sess .chev{color:var(--ink3);align-self:center;font-size:15px}
+.nowline{display:flex;align-items:center;gap:8px;margin:4px 0}
+.nowline .lbl{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--ok-ink);text-transform:uppercase}
+.nowline .bar{flex:1;height:1px;background:var(--ok);opacity:.5}
+.gap{display:flex;align-items:center;gap:8px;padding:9px 0;color:var(--ink3);font-size:11.5px}
+.gap .bar{flex:1;height:1px;background:repeating-linear-gradient(90deg,var(--line) 0 5px,transparent 5px 10px)}
+.overlap{border:1px solid var(--line);border-left:3px solid var(--wait);border-radius:var(--r-field);padding:2px 12px 4px;margin:4px 0;background:var(--surface);box-shadow:var(--shadow-card)}
+.overlap .lbl{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--wait-ink);padding-top:9px}
+.overlap .sess{border-bottom:1px solid var(--hair)}
+.overlap .sess:last-child{border-bottom:0}
+
+.next .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.next .when{font-family:Montserrat,system-ui,sans-serif;font-size:30px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums;margin:12px 0 2px;line-height:1.02}
+.next .dur{font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.next .prog{margin-top:14px;padding-top:13px;border-top:1px solid var(--hair);font-size:13.5px;color:var(--ink2);line-height:1.5}
+.next .prog b{color:var(--ink);font-weight:600}
+.diff{border:1px solid var(--wait);background:var(--wait-soft);border-radius:var(--r-card);padding:13px;margin-top:14px}
+.diff .lbl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--wait-ink)}
+.diff .drail{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-variant-numeric:tabular-nums}
+.diff .old{font-size:13.5px;color:var(--ink2);text-decoration:line-through}
+.diff .arrow{color:var(--wait-ink);font-weight:700}
+.diff .new{font-family:Montserrat,system-ui,sans-serif;font-size:17px;font-weight:700;letter-spacing:-.2px}
+.diff .who{font-size:12px;color:var(--ink2);line-height:1.5}
+.diff.ok{border-color:var(--ok);background:var(--ok-soft)}
+.diff.ok .lbl,.diff.ok .arrow{color:var(--ok-ink)}
+.diff.neutral{border-color:var(--line);background:var(--sunken)}
+.diff.neutral .lbl,.diff.neutral .arrow{color:var(--ink2)}
+.bal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.bal .cell{background:var(--surface);border-radius:var(--r-card);padding:14px;box-shadow:var(--shadow-card)}
+.bal .num{font-family:Montserrat,system-ui,sans-serif;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.4px}
+.bal .cap{font-size:11.5px;color:var(--ink2);margin-top:3px}
+.meter{height:6px;border-radius:999px;background:var(--sunken);overflow:hidden;margin-top:10px}
+.meter > i{display:block;height:100%;background:var(--ok);transition:width .4s var(--ease)}
+
+.strip{display:flex;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface);overflow-x:auto;flex:0 0 auto;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.chip{padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;font-weight:600;color:var(--ink2);white-space:nowrap;display:flex;align-items:center;gap:7px}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip .av{width:20px;height:20px;border-radius:999px;background:var(--sunken);color:var(--ink2);font-size:10px;font-weight:700;display:grid;place-items:center}
+.chip.on .av{background:rgba(255,255,255,.22);color:#fff}
+.ctx{position:sticky;top:0;z-index:3;background:var(--canvas);padding:12px 18px 10px;border-bottom:1px solid var(--line)}
+.ctx .who{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ctx .who h3{font-family:Montserrat,system-ui,sans-serif;font-size:20px;font-weight:800;margin:0;letter-spacing:-.4px}
+.ctx .who .iv{font-size:12.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.ctx .prog{font-size:12.5px;color:var(--ink2);margin-top:3px}
+
+.set{display:grid;grid-template-columns:24px minmax(0,1fr) 132px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--hair)}
+.set .n{font-size:12px;font-weight:700;color:var(--ink3);font-variant-numeric:tabular-nums}
+.set .facts{display:flex;flex-direction:column;gap:2px;min-width:0}
+.set .prev{font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.set .plan{font-size:11px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.set .inputs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.set .field{position:relative}
+.set .field label{position:absolute;top:-6px;left:8px;background:var(--canvas);padding:0 3px;font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--ink3);text-transform:uppercase}
+.set input{width:100%;font:inherit;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;padding:9px 6px;border:1px solid var(--line);border-radius:var(--r-field);background:var(--surface);color:var(--ink);text-align:center}
+.set input::placeholder{color:var(--ink3);font-weight:400}
+.set input.empty{border-style:dashed;background:var(--sunken)}
+.set .badge{grid-column:2/-1;font-size:10.5px;color:var(--ink3);margin-top:-2px}
+.set .badge::after{content:"не записано"}
+.set.filled .badge{color:var(--ok-ink)}
+.set.filled .badge::after{content:"записано"}
+.set.filled input{background:var(--ok-soft);border-color:transparent;color:var(--ok-ink)}
+.exhead{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0 2px}
+.exhead .ex{font-size:15px;font-weight:600}
+.exhead .sub{font-size:12px;color:var(--ink2)}
+.savestate{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);padding:10px 0}
+.savestate .dt{width:7px;height:7px;border-radius:999px;background:var(--ink3)}
+.savestate.saving .dt{background:var(--wait);animation:pulse 1s infinite}
+.savestate.saved .dt{background:var(--ok)}
+.savestate.error .dt{background:var(--danger)}
+@keyframes pulse{50%{opacity:.35}}
+.hintline{font-size:11.5px;color:var(--ink3);line-height:1.5;padding:8px 0}
+
+.tabbar{flex:0 0 auto;display:flex;border-top:1px solid var(--line);background:var(--surface);padding:6px 6px 10px}
+.tabbar button{flex:1;background:transparent;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9.5px;color:var(--ink3);padding:5px 2px;font-weight:600}
+.tabbar button .ic{font-size:16px}
+.tabbar button.on{color:var(--ink)}
+.tabbar .fab .ic{width:52px;height:52px;border-radius:9999px;background:var(--ink);color:#fff;display:grid;place-items:center;margin-top:-22px;font-size:22px;outline:4px solid var(--canvas);box-shadow:0 6px 18px rgba(8,8,10,.28)}
+
+.sheet-scrim{position:absolute;inset:0;background:var(--scrim);display:none;align-items:flex-end;z-index:20}
+.sheet-scrim.on{display:flex}
+.sheet{width:100%;background:var(--surface);border-radius:var(--r-sheet) var(--r-sheet) 0 0;padding:16px 18px 22px;max-height:84%;overflow:auto;animation:up 340ms var(--sheet-ease)}
+@keyframes up{from{transform:translateY(28px)}to{transform:translateY(0)}}
+.sheet .grab{width:38px;height:4px;border-radius:9999px;background:var(--line);margin:0 auto 14px}
+.sheet h3{font-family:Montserrat,system-ui,sans-serif;font-size:20px;font-weight:800;margin:0 0 6px;letter-spacing:-.4px}
+.sheet p{font-size:13px;line-height:1.6;color:var(--ink2);margin:0 0 12px}
+.sheet .consequence{border:1px solid var(--line);border-radius:var(--r-field);padding:11px 12px;font-size:13px;line-height:1.5;margin-bottom:14px}
+.sheet .consequence b{font-weight:600}
+
+.panel{border-left:1px solid #2c2c2f;padding:26px 22px;background:#1b1b1e;overflow:auto}
+@media (max-width:1180px){.panel{border-left:0;border-top:1px solid #2c2c2f}}
+.panel h3{font-family:Montserrat,sans-serif;font-size:15px;font-weight:600;margin:0 0 4px}
+.panel .p-sub{font-size:12px;color:#8c8c90;margin-bottom:16px}
+.panel .box{border:1px solid #35353a;border-radius:12px;padding:14px 15px;background:#212124;margin-bottom:12px}
+.panel .box h4{margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c3c3c6}
+.panel .box p,.panel .box li{font-size:12.5px;line-height:1.6;color:#b0b0b4;margin:0}
+.panel .box ul{margin:6px 0 0;padding-left:16px}
+.panel .box b{color:#e6e6e8;font-weight:600}
+.panel .ok{border-color:#2f4a3c;background:#182420}
+.panel .ok h4{color:#7fc9a5}
+.panel .warn{border-color:#4a3a12;background:#241d09}
+.panel .warn h4{color:#e0b96a}
+.log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.65;color:#9a9a9d;background:#141416;border:1px solid #2c2c2f;border-radius:10px;padding:10px 12px;max-height:200px;overflow:auto}
+.log b{color:#e0b96a;font-weight:500}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="rail">
+    <h1>Кабинет тренера</h1>
+    <div class="demo">Прототип · демо-данные</div>
+
+    <div class="grp">Три ключевых экрана</div>
+    <div class="nav" id="navMain">
+      <button data-screen="today" class="on"><span class="ic">▤</span> Сегодня · тренер</button>
+      <button data-screen="client"><span class="ic">◧</span> Главная · клиент</button>
+      <button data-screen="session"><span class="ic">✎</span> Занятие в работе</button>
+    </div>
+
+    <div class="grp">Сложные сценарии</div>
+    <div class="nav" id="navScen">
+      <button data-screen="reschedule"><span class="ic">⇄</span> Перенос · обе роли</button>
+      <button data-screen="session"><span class="ic">⁘</span> Переключение участников</button>
+      <button data-screen="overlap"><span class="ic">▥</span> Пересечения и группы</button>
+    </div>
+
+    <div class="grp">Роль</div>
+    <div class="seg" id="roleSeg">
+      <button data-role="trainer" class="on">Тренер</button>
+      <button data-role="client">Клиент</button>
+    </div>
+
+    <div class="hint">Переключайте экраны и роль слева, нажимайте кнопки внутри телефона. Данные вымышленные, поведение демонстрационное.</div>
+  </aside>
+
+  <main class="stage">
+    <div class="device">
+      <div class="screen">
+        <div class="statusbar"><span>15:40</span><span>КЗ ▮▮▮</span></div>
+        <div id="stripHost"></div>
+        <div class="viewport" id="viewport"></div>
+        <div id="tabbarHost"></div>
+        <div class="sheet-scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="panel">
+    <h3 id="panelTitle">Экран</h3>
+    <div class="p-sub" id="panelSub"></div>
+    <div id="panelBody"></div>
+    <div class="box">
+      <h4>Журнал состояний</h4>
+      <div class="log" id="log">— прототип запущен</div>
+    </div>
+  </aside>
+</div>
+
+<script>
+/* ============================================================
+   СОСТОЯНИЕ (вымышленные данные)
+   ============================================================ */
+const state = {
+  screen: 'today',
+  role: 'trainer',
+  activeP: 0,
+  save: 'idle',
+  credit: { ali: false, ma: false, da: false },
+  booking: {
+    active: 'Чт, 18 сентября · 18:00–19:00',
+    activeShort: 'чт 18:00',
+    proposal: null,
+    cancelled: false,
+    staleNote: false
+  },
+  finished: false,
+  participants: [
+    {
+      id: 'ali', name: 'Алия', prog: 'Низ А', iv: '16:00–17:00', account: '7 из 12',
+      exercises: [
+        { name: 'Приседания со штангой', sub: 'Низ А · 4 подхода', sets: [
+          { prev: '40 × 10', plan: '40 × 8', w: '40', r: '10' },
+          { prev: '40 × 8', plan: '40 × 8', w: '40', r: '8' },
+          { prev: '45 × 6', plan: '—', w: '', r: '' }
+        ] }
+      ]
+    },
+    {
+      id: 'ma', name: 'Мади', prog: 'Верх', iv: '16:00–17:00', account: '3 из 8',
+      exercises: [
+        { name: 'Жим лёжа', sub: 'Верх · 4 подхода', sets: [
+          { prev: '60 × 10', plan: '60 × 8', w: '60', r: '10' },
+          { prev: '60 × 8', plan: '60 × 8', w: '', r: '' },
+          { prev: '65 × 6', plan: '—', w: '', r: '' }
+        ] }
+      ]
+    },
+    {
+      id: 'da', name: 'Дана', prog: 'Функционал', iv: '16:00–17:00', account: '10 из 10',
+      exercises: [
+        { name: 'Становая тяга', sub: 'Функционал · 3 подхода', sets: [
+          { prev: '50 × 12', plan: '55 × 10', w: '55', r: '10' },
+          { prev: '50 × 10', plan: '55 × 10', w: '', r: '' }
+        ] }
+      ]
+    }
+  ]
+};
+
+/* ============================================================
+   ЖУРНАЛ / УТИЛИТЫ
+   ============================================================ */
+const logs = ['прототип запущен'];
+function log(msg) {
+  const t = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  logs.unshift('[' + t + '] ' + msg);
+  const el = document.getElementById('log');
+  if (el) el.innerHTML = logs.slice(0, 40).map(l => '<div>' + l.replace(/«([^»]+)»/g, '<b>«$1»</b>') + '</div>').join('');
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+const P = () => state.participants[state.activeP];
+
+/* ============================================================
+   ЭКРАН: СЕГОДНЯ (тренер)
+   ============================================================ */
+function viewToday() {
+  let used = {};
+  let rows = '';
+  for (const it of DAY) {
+    if (it.start === '16:00') {
+      rows += '<div class="nowline"><span class="lbl">сейчас 15:40</span><span class="bar"></span></div>';
+      rows += '<div class="gap"><span>Свободно 3 ч</span><span class="bar"></span></div>';
+      rows += '<div class="nowline"><span class="lbl">через 20 минут</span><span class="bar"></span></div>';
+    }
+    if (it.overlap) {
+      if (used[it.overlap]) continue;
+      used[it.overlap] = true;
+      const items = DAY.filter(x => x.overlap === it.overlap);
+      rows += '<div class="overlap"><div class="lbl">Пересечение · разрешил тренер</div>' +
+        items.map(x => sessRow(x, false)).join('') + '</div>';
+      continue;
+    }
+    rows += sessRow(it, true);
+  }
+
+  return '' +
+    '<div class="appbar"><div><h2>Сегодня</h2><div class="sub">пт, 19 сентября · 7 занятий</div></div>' +
+    '<button class="iconbtn plus" data-act="new">＋</button></div>' +
+    '<div class="pad">' +
+      '<div class="st wait" style="margin-bottom:10px"><i class="dot"></i>Требует ответа: 2</div>' +
+      '<div class="kicker">Ближайшее · через 20 минут</div>' +
+      '<div class="card" style="margin-top:8px;padding:12px 13px">' +
+        '<div class="when" style="font-family:Montserrat;font-size:23px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums">16:00–17:00</div>' +
+        '<div class="sess" style="border:0;padding:4px 0 0;grid-template-columns:1fr auto"><div><div class="name">Мини-группа</div><div class="meta">Алия · Мади · Дана</div></div><span class="st ok"><i class="dot"></i>Подтверждено</span></div>' +
+      '</div>' +
+      '<hr class="rule">' +
+      '<div class="kicker">Лента дня</div>' +
+      '<div style="margin-top:4px">' + rows + '</div>' +
+    '</div>' +
+    '<div class="pad" style="padding-bottom:22px"><div class="hintline">Пустой промежуток показан только там, где нет пересечения. Отменённые записи время не занимают.</div></div>';
+}
+
+function sessRow(it, clickable) {
+  const tags = [];
+  if (it.kind === 'group') tags.push('<span class="st neutral">Мини-группа</span>');
+  if (it.status === 'ok') tags.push('<span class="st ok"><i class="dot"></i>Подтверждено</span>');
+  if (it.status === 'next') tags.push('<span class="st ok"><i class="dot"></i>Подтверждено</span>');
+  if (it.status === 'mixed') tags.push('<span class="st ok"><i class="dot"></i>Алия</span><span class="st neutral">Мади отменил</span><span class="st wait"><i class="dot"></i>Дана ждёт</span>');
+  const meta = it.kind === 'group' ? it.members : (it.program + (it.balance ? ' · ' + it.balance : ''));
+  const attr = clickable ? ' data-act="open" data-id="' + it.id + '"' : '';
+  return '<button class="sess"' + attr + '>' +
+    '<div class="t">' + it.start + '<small>' + it.end + '</small></div>' +
+    '<div><div class="name">' + esc(it.who) + '</div><div class="meta">' + esc(meta) + '</div>' +
+      (tags.length ? '<div class="tags">' + tags.join('') + '</div>' : '') + '</div>' +
+    '<span class="chev">›</span></button>';
+}
+
+/* ============================================================
+   ЭКРАН: ГЛАВНАЯ КЛИЕНТА
+   ============================================================ */
+function viewClient() {
+  const b = state.booking;
+  let nextBlock = '';
+  if (b.cancelled) {
+    nextBlock = '<div class="card" style="margin-top:8px"><span class="st neutral">Отменено</span>' +
+      '<div class="prog" style="margin-top:10px">Запись снята. Тренер отдельно решит вопрос списания — вы увидите причину в истории, если занятие будет списано.</div>' +
+      '<div class="btnrow"><button class="btn wide" data-act="newbooking">Предложить время</button></div></div>';
+  } else {
+    nextBlock = '<div class="card next" style="margin-top:8px">' +
+      '<div class="top"><span class="st ok"><i class="dot"></i>Подтверждено</span><span class="st neutral">Индивидуальное</span></div>' +
+      '<div class="when">' + (b.proposal && b.proposal.accepted ? '19:00–20:00' : '18:00–19:00') + '</div>' +
+      '<div class="dur">' + b.active.split('·')[0].trim() + ' · Данияр</div>' +
+      '<div class="prog"><b>Низ А</b> · 6 упражнений<br>Программа появится позже</div>' +
+      '<div class="btnrow"><button class="btn wide" data-act="howto">Как пройти</button><button class="btn ghost wide" data-act="more">Ещё</button></div>' +
+    '</div>';
+
+    if (b.proposal) {
+      const mine = b.proposal.author === state.role;
+      nextBlock += '<div class="diff' + (b.proposal.accepted ? ' ok' : '') + '">' +
+        '<div class="lbl">' + (b.proposal.accepted ? 'Перенос подтверждён' : 'Запрос переноса') + '</div>' +
+        '<div class="drail"><span class="old">' + b.proposal.from + '</span><span class="arrow">→</span><span class="new">' + b.proposal.to + '</span></div>' +
+        '<div class="who">' + (b.proposal.accepted
+            ? 'Действует новое время: ' + b.active
+            : 'Предложил ' + (b.proposal.author === 'trainer' ? 'тренер Данияр' : 'вы') + ' · ' +
+              (mine ? 'ждёт ответа другой стороны' : 'ждёт вашего ответа')) + '</div>' +
+        (b.proposal.accepted ? '' :
+          '<div class="btnrow">' +
+            (mine
+              ? '<button class="btn ghost wide" data-act="rs-withdraw">Отозвать запрос</button>'
+              : '<button class="btn wait wide" data-act="rs-accept">Подтвердить</button><button class="btn ghost wide" data-act="rs-other">Другое</button>') +
+          '</div>') +
+        (b.proposal.accepted ? '' : '<div class="who" style="margin-top:9px">До подтверждения действует прежнее время: ' + b.activeShort + '</div>') +
+      '</div>';
+    }
+    nextBlock += '<div class="hintline">Отмена записи не штрафует автоматически. Тренер решает вопрос списания отдельно.</div>';
+    nextBlock += '<div class="btnrow"><button class="btn danger wide" data-act="cancel">Отменить запись</button></div>';
+  }
+
+  return '' +
+    '<div class="appbar"><div><h2>Здравствуйте,<br>Айгерим</h2><div class="sub">пт, 19 сентября</div></div><button class="iconbtn">⌕</button></div>' +
+    '<div class="pad">' +
+      '<div class="kicker">Ближайшее занятие</div>' + nextBlock +
+      '<div class="bal">' +
+        '<div class="cell"><div class="num">7 / 12</div><div class="cap">Осталось занятий</div><div class="meter"><i></i></div></div>' +
+        '<div class="cell"><div class="num">40 000 ₸</div><div class="cap">К оплате</div></div>' +
+      '</div>' +
+      '<hr class="rule">' +
+      '<div class="kicker">Дальше</div>' +
+      '<div style="margin-top:4px">' +
+        '<div class="sess"><div class="t">пн<small>22.09</small></div><div><div class="name">18:00–19:00</div><div class="meta">Данияр · Низ А · подтверждено</div></div></div>' +
+        '<div class="sess"><div class="t">ср<small>24.09</small></div><div><div class="name">19:00–20:00</div><div class="meta">Данияр · программа не назначена</div></div></div>' +
+      '</div>' +
+      '<hr class="rule">' +
+      '<div class="kicker">Прогресс · жим лёжа</div>' +
+      '<div class="card" style="margin-top:8px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="tnum" style="font-family:Montserrat;font-size:23px;font-weight:800;letter-spacing:-.4px">40 × 10</span><span class="st ghost">12 сентября</span></div>' +
+        '<div class="hintline" style="padding-top:6px">Сравнение с собственной историей. Больший вес не означает автоматически лучший результат.</div>' +
+        '<div class="btnrow"><button class="btn ghost wide" data-act="history">История и прогресс</button></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="pad" style="padding-bottom:22px"></div>';
+}
+
+/* ============================================================
+   ЭКРАН: ЗАНЯТИЕ В РАБОТЕ
+   ============================================================ */
+function setRow(p, ei, si, s) {
+  const filled = s.w !== '' && s.r !== '';
+  const parts = s.prev.split('×').map(x => x.trim());
+  const emptyW = s.w === '' ? ' empty' : '';
+  const emptyR = s.r === '' ? ' empty' : '';
+  return '<div class="set' + (filled ? ' filled' : '') + '" data-row="' + p.id + '-' + ei + '-' + si + '">' +
+    '<div class="n">' + (si + 1) + '</div>' +
+    '<div class="facts"><div class="prev">Прошлый раз: ' + s.prev + '</div><div class="plan">План: ' + s.plan + '</div></div>' +
+    '<div class="inputs">' +
+      '<div class="field"><label>кг</label><input class="tnum' + emptyW + '" inputmode="decimal" data-set="' + p.id + '|' + ei + '|' + si + '|w" value="' + s.w + '" placeholder="' + esc(parts[0] || '—') + '"></div>' +
+      '<div class="field"><label>повт</label><input class="tnum' + emptyR + '" inputmode="numeric" data-set="' + p.id + '|' + ei + '|' + si + '|r" value="' + s.r + '" placeholder="' + esc(parts[1] || '—') + '"></div>' +
+    '</div>' +
+    '<div class="badge">' + (filled ? 'Подтверждено тренером · ' : '') + '</div>' +
+  '</div>';
+}
+
+function viewSession() {
+  const p = P();
+  const ex = p.exercises[0];
+  const total = p.exercises.reduce((a, e) => a + e.sets.length, 0);
+  const filled = p.exercises.reduce((a, e) => a + e.sets.filter(s => s.w !== '' && s.r !== '').length, 0);
+  const saveTxt = { idle: 'Изменений нет', saving: 'Сохранение…', saved: 'Сохранено на сервере · 15:41', error: 'Нет связи · введённое сохранено, повторите' }[state.save];
+
+  let rows = '';
+  p.exercises.forEach((e, ei) => {
+    rows += '<div class="exhead"><div class="ex">' + esc(e.name) + '</div><div class="sub">' + esc(e.sub) + '</div></div>';
+    e.sets.forEach((s, si) => { rows += setRow(p, ei, si, s); });
+  });
+
+  const creditOn = state.credit[p.id];
+  return '' +
+    '<div class="ctx">' +
+      '<div class="who"><h3>' + esc(p.name) + '</h3><span class="iv">' + p.iv + '</span></div>' +
+      '<div class="prog">' + esc(p.prog) + ' · остаток ' + p.account + ' · записано ' + filled + ' из ' + total + ' подходов</div>' +
+    '</div>' +
+    '<div class="pad">' +
+      '<div class="savestate ' + state.save + '"><span class="dt"></span><span>' + saveTxt + '</span></div>' +
+      (state.finished ? '<div class="card" style="box-shadow:0 0 0 1.5px var(--ok)"><span class="st ok"><i class="dot"></i>Тренировка завершена</span><div class="hintline">Незаполненный подход остался незаписанным — он не равен нулю и не считается выполненным.</div></div>' : '') +
+      rows +
+      '<div class="btnrow"><button class="btn soft compact wide" data-act="repeat">Повторить прошлый результат</button></div>' +
+      '<div class="btnrow"><button class="btn soft compact wide" data-act="fail">Проверить ошибку сети</button></div>' +
+      '<hr class="rule">' +
+      '<div class="kicker">Посещение и списание</div>' +
+      '<div class="card" style="margin-top:8px">' +
+        '<div class="hintline" style="padding-top:0">Отметка посещения и списание единицы — разные сущности. Здесь они объединены явным подтверждением.</div>' +
+        (creditOn
+          ? '<div class="st ok" style="margin:6px 0 4px"><i class="dot"></i>Посещение отмечено · списано 1 из «' + esc(p.prog) + '»</div><div class="hintline">Повторное нажатие не создаёт новую операцию.</div>'
+          : '<div class="btnrow"><button class="btn wide" data-act="attend">Отметить посещение и списать</button></div>') +
+      '</div>' +
+      '<div class="btnrow" style="margin-top:16px"><button class="btn wide" data-act="finish">Завершить тренировку</button></div>' +
+      '<div class="hintline" style="padding-bottom:22px">Значения хранятся отдельно для каждого участника. При переключении введённое не теряется и не переносится другому.</div>' +
+    '</div>';
+}
+
+/* ============================================================
+   ЭКРАН: ПЕРЕСЕЧЕНИЯ И ГРУППЫ
+   ============================================================ */
+function viewOverlap() {
+  return '' +
+    '<div class="appbar"><div><h2>Пересечения</h2><div class="sub">пт, 19 сентября</div></div></div>' +
+    '<div class="pad">' +
+      '<div class="kicker">Независимые персональные занятия</div>' +
+      '<div class="card" style="margin-top:8px;padding:12px 13px">' +
+        '<div class="overlap" style="margin:0;border-left-color:var(--wait)">' +
+          '<div class="lbl">Пересечение · разрешил тренер</div>' +
+          '<div class="sess" style="grid-template-columns:58px 1fr"><div class="t">18:00<small>19:00</small></div><div><div class="name">Айгерим</div><div class="meta">Низ А · 7 из 12</div></div></div>' +
+          '<div class="sess" style="grid-template-columns:58px 1fr"><div class="t">18:30<small>19:30</small></div><div><div class="name">Арман</div><div class="meta">Верх · к оплате 40 000 ₸</div></div></div>' +
+        '</div>' +
+        '<div class="hintline">Две отдельные записи с независимыми интервалами. Нельзя объединить в одну сессию, программу или таймер. Ввод всегда показывает выбранного клиента и его интервал.</div>' +
+      '</div>' +
+      '<hr class="rule">' +
+      '<div class="kicker">Мини-группа · общее время</div>' +
+      '<div class="card" style="margin-top:8px;padding:12px 13px">' +
+        '<div class="sess" style="border:0;padding:2px 0;grid-template-columns:58px 1fr auto"><div class="t">20:00<small>21:00</small></div><div><div class="name">Мини-группа</div><div class="meta">одно время, разные программы и остатки</div></div><span class="st neutral">Группа</span></div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><span class="st ok"><i class="dot"></i>Алия · подтвердила</span><span class="st neutral">Мади · отменил</span><span class="st wait"><i class="dot"></i>Дана · ждёт ответа</span></div>' +
+        '<div class="hintline">Отмена или перенос одного участника не меняет остальных. У каждого свой статус, программа, посещение и списание.</div>' +
+      '</div>' +
+      '<div class="btnrow" style="margin-top:16px"><button class="btn wide" data-act="go-session">Открыть группу в работе</button></div>' +
+    '</div>';
+}
+
+/* ============================================================
+   ЭКРАН: ПЕРЕНОС (обе роли)
+   ============================================================ */
+function viewReschedule() {
+  const b = state.booking;
+  const role = state.role;
+  const roleName = role === 'trainer' ? 'тренер Данияр' : 'клиент Айгерим';
+
+  let actions = '';
+  if (b.cancelled) {
+    actions = '<div class="st neutral">Запись отменена</div><div class="hintline">Отмена не списывает занятие автоматически. Тренер может позже списать его с причиной — клиент увидит причину в истории.</div>';
+    if (role === 'trainer') actions += '<div class="btnrow"><button class="btn wide" data-act="credit-cancel">Списать за отмену с причиной</button></div>';
+    actions += '<div class="btnrow"><button class="btn ghost wide" data-act="reset">Сбросить сценарий</button></div>';
+  } else if (!b.proposal) {
+    actions = '<div class="hintline">Сейчас действует: <b>' + b.active + '</b>. Перенос создаётся как отдельный запрос и не меняет это время до согласования.</div>' +
+      '<div class="btnrow"><button class="btn wide" data-act="rs-propose">Предложить ' + (role === 'trainer' ? 'пт 19:00' : 'пт 19:00') + '</button></div>' +
+      '<div class="btnrow"><button class="btn danger wide" data-act="cancel">Отменить запись</button></div>';
+  } else {
+    const mine = b.proposal.author === role;
+    if (b.proposal.accepted) {
+      actions = '<div class="st ok"><i class="dot"></i>Перенос принят</div>' +
+        '<div class="hintline">Теперь действует <b>' + b.active + '</b>. Прежнее время освобождено.</div>' +
+        '<div class="btnrow"><button class="btn ghost wide" data-act="reset">Сбросить сценарий</button></div>';
+    } else {
+      actions = '<div class="st ' + (mine ? 'wait' : 'wait') + '"><i class="dot"></i>' + (mine ? 'Ждёт ответа другой стороны' : 'Ждёт вашего ответа') + '</div>' +
+        '<div class="hintline">Действует прежнее время <b>' + b.activeShort + '</b>, пока запрос не принят.</div>' +
+        '<div class="btnrow">' +
+          (mine
+            ? '<button class="btn ghost wide" data-act="rs-withdraw">Отозвать</button>'
+            : '<button class="btn wait wide" data-act="rs-accept">Принять</button><button class="btn ghost wide" data-act="rs-reject">Отклонить</button>') +
+        '</div>' +
+        '<div class="btnrow"><button class="btn ghost wide" data-act="rs-counter">Встречное предложение</button></div>' +
+        '<div class="btnrow"><button class="btn danger wide" data-act="cancel">Отменить запись</button></div>';
+    }
+  }
+
+  return '' +
+    '<div class="appbar"><div><h2>Перенос</h2><div class="sub">вы действуете как: ' + roleName + '</div></div></div>' +
+    '<div class="pad">' +
+      (b.staleNote
+        ? '<div class="diff neutral"><div class="lbl">Устаревшее уведомление</div><div class="who">Это уведомление больше не актуально. Открыто текущее состояние — повторное действие не выполняется.</div><div class="btnrow"><button class="btn ghost wide" data-act="rs-open">Открыть актуальное</button></div></div>'
+        : '') +
+      '<div class="card">' +
+        '<div class="kicker">Действующая запись</div>' +
+        '<div class="when" style="font-family:Montserrat;font-size:26px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums;margin:8px 0 2px">' + b.active + '</div>' +
+        '<div class="dur" style="font-size:13px;color:var(--ink2)">Айгерим · Низ А · Данияр</div>' +
+        '<div style="margin-top:10px"><span class="st ' + (b.cancelled ? 'neutral' : 'ok') + '"><i class="dot"></i>' + (b.cancelled ? 'Отменено' : 'Подтверждено') + '</span></div>' +
+      '</div>' +
+      (b.proposal
+        ? '<div class="diff' + (b.proposal.accepted ? ' ok' : '') + '">' +
+            '<div class="lbl">' + (b.proposal.accepted ? 'Принятое предложение' : 'Предложенное время') + '</div>' +
+            '<div class="drail"><span class="old">' + b.proposal.from + '</span><span class="arrow">→</span><span class="new">' + b.proposal.to + '</span></div>' +
+            '<div class="who">Автор: ' + (b.proposal.author === 'trainer' ? 'тренер Данияр' : 'клиент Айгерим') + '</div>' +
+          '</div>'
+        : '') +
+      '<hr class="rule">' +
+      actions +
+      '<hr class="rule">' +
+      '<div class="kicker">Проверка устаревшего уведомления</div>' +
+      '<div class="btnrow"><button class="btn ghost wide" data-act="rs-stale">Показать устаревшее уведомление</button></div>' +
+      '<div class="hintline" style="padding-bottom:22px">Один активный запрос. Встречное предложение явно заменяет предыдущее с сохранением истории.</div>' +
+    '</div>';
+}
+
+/* ============================================================
+   ТАББАР
+   ============================================================ */
+function renderTabbar() {
+  const host = document.getElementById('tabbarHost');
+  if (state.role === 'trainer') {
+    const items = [
+      ['today', '▤', 'Сегодня'],
+      ['schedule', '▦', 'Расписание'],
+      ['fab', '＋', ''],
+      ['clients', '☺', 'Клиенты'],
+      ['profile', '◐', 'Профиль']
+    ];
+    host.innerHTML = '<div class="tabbar">' + items.map(i => {
+      const on = i[0] === state.screen ? ' on' : '';
+      const fab = i[0] === 'fab' ? ' fab' : '';
+      return '<button class="' + fab.trim() + on + '" data-screen="' + i[0] + '"><span class="ic">' + i[1] + '</span>' + (i[2] ? '<span>' + i[2] + '</span>' : '') + '</button>';
+    }).join('') + '</div>';
+  } else {
+    const items = [['client', '⌂', 'Главная'], ['program', '▤', 'Программа'], ['progress', '◔', 'Прогресс'], ['profile', '◐', 'Профиль']];
+    host.innerHTML = '<div class="tabbar">' + items.map(i => {
+      const on = i[0] === state.screen ? ' on' : '';
+      return '<button class="' + on + '" data-screen="' + i[0] + '"><span class="ic">' + i[1] + '</span><span>' + i[2] + '</span></button>';
+    }).join('') + '</div>';
+  }
+}
+
+/* ============================================================
+   ПАНЕЛЬ СПРАВКА
+   ============================================================ */
+const PANEL = {
+  today: ['Сегодня · тренер', 'Плотная лента дня. Время — якорь, статус — пилюля, пересечения — рамка.',
+    '<div class="box ok"><h4>Что проверить</h4><p>Ближайшее занятие закреплено. Пересечение 18:00/18:30 — две отдельные строки в рамке. Мини-группа — одна сессия с участниками. Пустой промежуток показан только вне пересечения.</p></div>' +
+    '<div class="box"><h4>Решения</h4><p>Иерархия: время → участник → тип/программа → статус. Цвет не единственный носитель смысла. Касание строки ≥44px.</p></div>'],
+  client: ['Главная · клиент', 'Одна крупная карточка и две числовые плитки, остальное — список.',
+    '<div class="box warn"><h4>Открытый вопрос</h4><p>Кто вводит результаты: в прототипе — тренер, клиент смотрит. Требует интервью.</p></div>' +
+    '<div class="box ok"><h4>Что проверить</h4><p>Клиент отличает действующее время от предложенного и понимает, чей ответ нужен. Отмена не обещает списание заранее.</p></div>'],
+  session: ['Занятие в работе', 'Ввод результатов тренером. Выбранный клиент и его интервал видны всегда.',
+    '<div class="box ok"><h4>Что проверить</h4><p>Прошлый факт, план и сегодняшние значения различимы. Незаполненный подход не становится нулём. Посещение и списание — отдельное подтверждение. Переключение участников не теряет и не переносит данные.</p></div>'],
+  reschedule: ['Перенос · обе роли', 'Переключите роль слева и проведите запрос до принятия.',
+    '<div class="box ok"><h4>Что проверить</h4><p>До согласования действует прежнее время. Автор может отозвать. Принятие меняет время. Устаревшее уведомление открывает актуальное состояние и не повторяет действие.</p></div>' +
+    '<div class="box"><h4>Один активный запрос</h4><p>Встречное предложение явно заменяет предыдущее с сохранением истории.</p></div>'],
+  overlap: ['Пересечения и группы', 'Общая мини-группа против независимых пересечений.',
+    '<div class="box ok"><h4>Что проверить</h4><p>Пересечения нельзя объединить в одну программу или таймер. Отмена одного участника группы не затрагивает остальных.</p></div>']
+};
+
+function renderPanel() {
+  const p = PANEL[state.screen] || ['Экран', '', ''];
+  document.getElementById('panelTitle').textContent = p[0];
+  document.getElementById('panelSub').textContent = p[1];
+  document.getElementById('panelBody').innerHTML = p[2];
+}
+
+/* ============================================================
+   РЕНДЕР
+   ============================================================ */
+const DAY = [
+  { id: 'd1', start: '09:00', end: '10:00', kind: 'solo', who: 'Даулет', program: 'Низ А', status: 'ok' },
+  { id: 'd2', start: '12:00', end: '13:00', kind: 'solo', who: 'Марат', program: 'Верх', status: 'ok' },
+  { id: 'd3', start: '16:00', end: '17:00', kind: 'group', who: 'Мини-группа', members: 'Алия · Мади · Дана', status: 'ok' },
+  { id: 'd4', start: '18:00', end: '19:00', kind: 'solo', who: 'Айгерим', program: 'Низ А', balance: '7 из 12', status: 'ok', overlap: 'o1' },
+  { id: 'd5', start: '18:30', end: '19:30', kind: 'solo', who: 'Арман', program: 'Верх', balance: 'к оплате 40 000 ₸', status: 'ok', overlap: 'o1' },
+  { id: 'd6', start: '20:00', end: '21:00', kind: 'group', who: 'Мини-группа', members: 'Алия ✓ · Мади отменил · Дана ждёт', status: 'mixed' }
+];
+
+function render() {
+  const vp = document.getElementById('viewport');
+  const stripHost = document.getElementById('stripHost');
+  const scr = state.screen;
+
+  if (scr === 'today') vp.innerHTML = viewToday();
+  else if (scr === 'client') vp.innerHTML = viewClient();
+  else if (scr === 'session') vp.innerHTML = viewSession();
+  else if (scr === 'reschedule') vp.innerHTML = viewReschedule();
+  else if (scr === 'overlap') vp.innerHTML = viewOverlap();
+  else vp.innerHTML = viewToday();
+
+  if (scr === 'session') {
+    stripHost.innerHTML = '<div class="strip">' + state.participants.map((p, i) =>
+      '<button class="chip' + (i === state.activeP ? ' on' : '') + '" data-act="pick" data-idx="' + i + '"><span class="av">' + p.name.slice(0, 1) + '</span>' + p.name + '</button>'
+    ).join('') + '</div>';
+  } else {
+    stripHost.innerHTML = '';
+  }
+
+  document.querySelectorAll('#navMain button, #navScen button').forEach(b => {
+    b.classList.toggle('on', b.dataset.screen === scr);
+  });
+  renderTabbar();
+  renderPanel();
+  vp.scrollTop = 0;
+}
+
+/* ============================================================
+   ШТОРКА
+   ============================================================ */
+function openSheet(html) { document.getElementById('sheet').innerHTML = html; document.getElementById('scrim').classList.add('on'); }
+function closeSheet() { document.getElementById('scrim').classList.remove('on'); }
+
+/* ============================================================
+   СОХРАНЕНИЕ
+   ============================================================ */
+let saveTimer = null;
+function simulateSave() {
+  state.save = 'saving';
+  const s = document.querySelector('.savestate');
+  if (s) { s.className = 'savestate saving'; s.querySelector('span:last-child').textContent = 'Сохранение…'; }
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    state.save = 'saved';
+    const el = document.querySelector('.savestate');
+    if (el) { el.className = 'savestate saved'; el.querySelector('span:last-child').textContent = 'Сохранено на сервере · только что'; }
+    log('Сохранено на сервере');
+  }, 700);
+}
+
+function patchRow(rowKey) {
+  const [id, ei, si] = rowKey.split('-');
+  const p = state.participants.find(x => x.id === id);
+  const s = p.exercises[+ei].sets[+si];
+  const filled = s.w !== '' && s.r !== '';
+  const row = document.querySelector('[data-row="' + rowKey + '"]');
+  if (!row) return;
+  row.classList.toggle('filled', filled);
+  row.querySelectorAll('input').forEach(inp => inp.classList.toggle('empty', inp.value === ''));
+}
+
+/* ============================================================
+   СОБЫТИЯ
+   ============================================================ */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (t) {
+    const a = t.dataset.act;
+    if (a === 'open') {
+      const id = t.dataset.id;
+      const item = DAY.find(d => d.id === id);
+      if (!item) return;
+      if (item.id === 'd3') { state.screen = 'session'; log('Открыта группа в работе: Алия · Мади · Дана'); render(); return; }
+      openSheet('<div class="grab"></div><h3>' + esc(item.who) + '</h3>' +
+        '<div class="consequence">' + item.start + '–' + item.end + ' · ' + esc(item.program || '') + (item.balance ? ' · ' + esc(item.balance) : '') + '</div>' +
+        '<p>Детали записи, программа занятия и вход в проведение тренировки. Перенос — отдельным действием, drag-and-drop не единственный способ.</p>' +
+        '<div class="btnrow"><button class="btn wide" data-act="close">Закрыть</button></div>');
+      return;
+    }
+    if (a === 'pick') { state.activeP = +t.dataset.idx; log('Переключение на участника: ' + P().name); render(); return; }
+    if (a === 'go-session') { state.screen = 'session'; render(); return; }
+    if (a === 'repeat') {
+      const p = P();
+      p.exercises.forEach((ex, ei) => ex.sets.forEach((s, si) => {
+        if (s.prev && s.prev.includes('×')) { const [w, r] = s.prev.split('×').map(x => x.trim()); s.w = w; s.r = r; }
+      }));
+      log('Подставлен прошлый результат для ' + p.name + ' — требуется подтверждение');
+      render(); simulateSave(); return;
+    }
+    if (a === 'finish') {
+      const p = P();
+      const empty = p.exercises.reduce((n, ex) => n + ex.sets.filter(s => s.w === '' || s.r === '').length, 0);
+      if (empty > 0) {
+        openSheet('<div class="grab"></div><h3>Есть незаписанные подходы</h3><p>Подходов без записи: <b>' + empty + '</b>. Они останутся незаписанными — не нулевыми и не выполненными.</p>' +
+          '<div class="btnrow"><button class="btn wide" data-act="finish-save">Сохранить записанное и завершить</button></div>' +
+          '<div class="btnrow"><button class="btn ghost wide" data-act="close">Продолжить ввод</button></div>');
+      } else {
+        state.finished = true; log('Тренировка завершена без незаписанных подходов'); closeSheet(); render();
+      }
+      return;
+    }
+    if (a === 'finish-save') { state.finished = true; log('Сохранено записанное · незаполненные подходы не созданы'); closeSheet(); render(); return; }
+    if (a === 'close') { closeSheet(); return; }
+    if (a === 'attend') {
+      const p = P();
+      openSheet('<div class="grab"></div><h3>Посещение и списание</h3>' +
+        '<div class="consequence">Отметить посещение и списать <b>1 занятие</b> из пакета «' + esc(p.prog) + '» для <b>' + esc(p.name) + '</b>.</div>' +
+        '<p>Списание затронет только выбранного участника. Группа не отмечается целиком одним действием.</p>' +
+        '<div class="btnrow"><button class="btn wide" data-act="attend-ok">Подтвердить</button></div>' +
+        '<div class="btnrow"><button class="btn ghost wide" data-act="close">Отмена</button></div>');
+      return;
+    }
+    if (a === 'attend-ok') {
+      const p = P(); state.credit[p.id] = true;
+      log('Посещение отмечено и списано 1 занятие: ' + p.name + ' (идемпотентно)');
+      closeSheet(); render(); return;
+    }
+    if (a === 'fail') { state.save = 'error'; log('Ошибка сети: введённое сохранено, можно повторить'); render(); return; }
+    if (a === 'new' || a === 'newbooking') {
+      openSheet('<div class="grab"></div><h3>Новое занятие</h3><p>Клиент → дата → начало и длительность → программа (можно позже). Пункт «Назначить программу позже» обязателен.</p><div class="btnrow"><button class="btn wide" data-act="close">Понятно</button></div>');
+      return;
+    }
+    if (a === 'howto') { openSheet('<div class="grab"></div><h3>Как пройти</h3><p>Адрес, схема и подтверждение записи. Приглашение и доступ клиента к существующей карточке.</p><div class="btnrow"><button class="btn wide" data-act="close">Закрыть</button></div>'); return; }
+    if (a === 'more') { openSheet('<div class="grab"></div><h3>Действия</h3><p>Предложить перенос, отменить запись, посмотреть историю. Отмена доступна и здесь, и в деталях.</p><div class="btnrow"><button class="btn ghost wide" data-act="cancel">Отменить запись</button></div><div class="btnrow"><button class="btn wide" data-act="close">Закрыть</button></div>'); return; }
+    if (a === 'history') { openSheet('<div class="grab"></div><h3>История и прогресс</h3><p>Фактические подходы по датам, календарь посещений, период и единицы измерения. Отсутствие данных объясняется, а не показывается нулём.</p><div class="btnrow"><button class="btn wide" data-act="close">Закрыть</button></div>'); return; }
+    if (a === 'cancel') {
+      openSheet('<div class="grab"></div><h3>Отменить запись?</h3><p>Запись снимается без автоматического штрафа. При отмене тренер отдельно решает вопрос списания — вы увидите причину в истории, если занятие будет списано.</p>' +
+        '<div class="btnrow"><button class="btn danger wide" data-act="cancel-ok">Да, отменить</button></div>' +
+        '<div class="btnrow"><button class="btn ghost wide" data-act="close">Оставить</button></div>');
+      return;
+    }
+    if (a === 'cancel-ok') { state.booking.cancelled = true; state.booking.proposal = null; log('Запись отменена · списание не выполнено автоматически'); closeSheet(); render(); return; }
+    if (a === 'credit-cancel') {
+      openSheet('<div class="grab"></div><h3>Списать за отмену</h3><p>Обязательно укажите причину — клиент увидит её в истории и внутреннем уведомлении. Такое списание не считается посещением.</p>' +
+        '<div class="consequence">Списать <b>1 занятие</b> из пакета «Низ А» с причиной «Поздняя отмена».</div>' +
+        '<div class="btnrow"><button class="btn wide" data-act="credit-cancel-ok">Списать с причиной</button></div>' +
+        '<div class="btnrow"><button class="btn ghost wide" data-act="close">Отмена</button></div>');
+      return;
+    }
+    if (a === 'credit-cancel-ok') { log('Списано за отмену с причиной · не считается посещением'); closeSheet(); return; }
+    if (a === 'rs-propose') {
+      state.booking.proposal = { from: state.booking.activeShort, to: 'пт 19:00', author: state.role, accepted: false };
+      log('Запрос переноса создан: ' + (state.role === 'trainer' ? 'тренер' : 'клиент') + ' → пт 19:00');
+      render(); return;
+    }
+    if (a === 'rs-accept') {
+      const pr = state.booking.proposal;
+      state.booking.active = 'Пт, 19 сентября · 19:00–20:00';
+      state.booking.activeShort = 'пт 19:00';
+      state.booking.proposal = { from: pr.from, to: pr.to, author: pr.author, accepted: true };
+      log('Перенос принят · действует пт 19:00');
+      render(); return;
+    }
+    if (a === 'rs-reject') { log('Перенос отклонён · исходная запись сохранена (' + state.booking.activeShort + ')'); state.booking.proposal = null; render(); return; }
+    if (a === 'rs-withdraw') { log('Запрос отозван автором'); state.booking.proposal = null; render(); return; }
+    if (a === 'rs-counter') {
+      state.booking.proposal = { from: state.booking.proposal ? state.booking.proposal.to : state.booking.activeShort, to: 'сб 11:00', author: state.role, accepted: false };
+      log('Встречное предложение заменило предыдущий запрос · история сохранена');
+      render(); return;
+    }
+    if (a === 'rs-stale') { state.booking.staleNote = true; log('Получено устаревшее уведомление · показано актуальное состояние'); render(); return; }
+    if (a === 'rs-open') { state.booking.staleNote = false; log('Открыто актуальное состояние · повторное действие не выполнено'); render(); return; }
+    if (a === 'reset') {
+      state.booking = { active: 'Чт, 18 сентября · 18:00–19:00', activeShort: 'чт 18:00', proposal: null, cancelled: false, staleNote: false };
+      log('Сценарий сброшен'); render(); return;
+    }
+  }
+
+  const nav = e.target.closest('[data-screen]');
+  if (nav) {
+    const s = nav.dataset.screen;
+    if (['today', 'client', 'session', 'reschedule', 'overlap'].includes(s)) { state.screen = s; render(); return; }
+    if (s === 'schedule' || s === 'clients' || s === 'program' || s === 'progress' || s === 'profile') {
+      openSheet('<div class="grab"></div><h3>Раздел «' + s + '»</h3><p>Вне объёма трёх ключевых экранов. Показан в плане после утверждения направления.</p><div class="btnrow"><button class="btn wide" data-act="close">Закрыть</button></div>');
+      return;
+    }
+  }
+
+  const role = e.target.closest('#roleSeg button');
+  if (role) {
+    state.role = role.dataset.role;
+    document.querySelectorAll('#roleSeg button').forEach(b => b.classList.toggle('on', b.dataset.role === state.role));
+    log('Роль переключена: ' + (state.role === 'trainer' ? 'тренер' : 'клиент'));
+    render();
+  }
+});
+
+document.addEventListener('input', e => {
+  const inp = e.target.closest('[data-set]');
+  if (!inp) return;
+  const [id, ei, si, key] = inp.dataset.set.split('|');
+  const p = state.participants.find(x => x.id === id);
+  p.exercises[+ei].sets[+si][key] = inp.value.trim();
+  inp.classList.toggle('empty', inp.value.trim() === '');
+  patchRow(id + '-' + ei + '-' + si);
+  simulateSave();
+});
+
+document.getElementById('scrim').addEventListener('click', e => { if (e.target.id === 'scrim') closeSheet(); });
+
+/* демонстрация устаревшего уведомления доступна из панели */
+document.getElementById('panelBody').addEventListener('click', e => {
+  if (e.target.closest('[data-act="rs-open"]')) { state.booking.staleNote = false; render(); }
+});
+
+log('Прототип загружен · 3 ключевых экрана, перенос, переключение участников');
+render();
+</script>
+</body>
+</html>

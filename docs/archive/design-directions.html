@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Кабинет тренера — два направления (демо-данные)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   ОБЩИЙ КАРКАС СРАВНЕНИЯ
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:#1b1b1d;
+  color:#f4f4f2;
+  -webkit-font-smoothing:antialiased;
+}
+.shell{max-width:1440px;margin:0 auto;padding:40px 28px 80px}
+.masthead{border-bottom:1px solid #343437;padding-bottom:24px;margin-bottom:8px}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#8c8c90}
+.masthead h1{font-family:Montserrat,system-ui,sans-serif;font-size:34px;line-height:1.1;letter-spacing:-.02em;margin:8px 0 10px;font-weight:600}
+.masthead p{max-width:72ch;color:#b7b7ba;font-size:14px;line-height:1.6;margin:0}
+.notice{margin-top:16px;border:1px solid #4a3a12;background:#241d09;color:#e8c477;border-radius:10px;padding:10px 14px;font-size:13px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:40px}
+@media (max-width:1080px){.grid{grid-template-columns:1fr}}
+
+.dir-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid #343437;padding-bottom:14px}
+.dir-head .tag{font-size:11px;font-weight:700;letter-spacing:.12em;padding:4px 8px;border-radius:6px}
+.dir-head h2{font-family:Montserrat,system-ui,sans-serif;font-size:22px;line-height:1.2;margin:0;letter-spacing:-.01em;font-weight:600}
+.dir-head .sub{color:#9a9a9d;font-size:13px;margin-left:auto;text-align:right}
+.dA .tag{background:#e7e7e2;color:#141416}
+.dB .tag{background:#4a3a24;color:#f2ddb8}
+
+/* --- телефоны --- */
+.phones{display:flex;gap:28px;flex-wrap:wrap;margin-top:28px;align-items:flex-start}
+.phone{
+  width:340px;flex:0 0 auto;border-radius:34px;padding:10px;
+  background:#0e0e10;border:1px solid #303033;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+}
+.phone .screen{border-radius:26px;overflow:hidden;position:relative;min-height:660px}
+.statusbar{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;padding:10px 18px 4px}
+.statusbar .batt{display:flex;gap:5px;align-items:center;opacity:.85}
+
+/* аннотации */
+.notes{margin-top:26px;display:grid;gap:14px}
+.note{border:1px solid #343437;border-radius:12px;padding:14px 16px;background:#212124}
+.note h4{margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9c9cc}
+.note p{margin:0;font-size:13px;line-height:1.6;color:#b4b4b7}
+.note ul{margin:6px 0 0;padding-left:18px;font-size:13px;line-height:1.65;color:#b4b4b7}
+.kv{display:grid;grid-template-columns:84px 1fr;gap:6px 12px;font-size:13px;line-height:1.55;color:#b4b4b7}
+.kv b{color:#e4e4e6;font-weight:600}
+.verdict{border-radius:12px;padding:16px 18px;margin-top:22px;font-size:13.5px;line-height:1.65}
+.dA .verdict{background:#141416;border:1px solid #3a3a3d;color:#c9c9cc}
+.dB .verdict{background:#241d09;border:1px solid #4a3a12;color:#e8c477}
+
+/* ============================================================
+   НАПРАВЛЕНИЕ A — «ТАБЛО» (прибор, расписание-реестр)
+   ============================================================ */
+.dA{
+  --canvas:#f6f6f7; --surface:#ffffff; --sunken:#eeeef0;
+  --ink:#050505; --ink2:#5e5f60; --ink3:#9ba1a8;
+  --line:#e9e9ec; --hair:#f0f0f2;
+  --ok:#10c22b; --ok-ink:#0a8a23; --ok-soft:rgba(16,194,43,.10);
+  --wait:#f3b84a; --wait-ink:#8a6410; --wait-soft:rgba(243,184,74,.16);
+  --danger:#c22b10; --danger-soft:rgba(194,43,16,.08);
+  --r-field:14px; --r-card:22px; --r-lg:26px; --r-sheet:30px;
+  --shadow-card:0 1px 2px rgba(8,8,10,.04);
+}
+.dA .screen{background:var(--canvas);color:var(--ink);font-family:Inter,sans-serif}
+.dA .statusbar{color:var(--ink)}
+.dA .appbar{display:flex;align-items:center;justify-content:space-between;padding:8px 18px 14px}
+.dA .appbar .who{font-family:Montserrat,system-ui,sans-serif;font-size:19px;font-weight:600;letter-spacing:-.015em}
+.dA .appbar .date{font-size:12px;color:var(--ink2);margin-top:2px}
+.dA .iconbtn{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.dA .body{padding:0 18px 24px}
+.dA .kicker{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink2)}
+.dA .rule{height:1px;background:var(--line);border:0;margin:14px 0}
+
+/* строка занятия */
+.dA .row{display:grid;grid-template-columns:56px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--hair)}
+.dA .row:last-child{border-bottom:0}
+.dA .t{font-variant-numeric:tabular-nums;font-size:13.5px;font-weight:600;color:var(--ink);line-height:1.25}
+.dA .t small{display:block;font-weight:400;color:var(--ink3);font-size:11.5px}
+.dA .row .name{font-size:15px;font-weight:600;letter-spacing:-.005em}
+.dA .row .meta{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.dA .st{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;border:1px solid transparent}
+.dA .st.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.dA .st.wait{background:var(--wait-soft);color:var(--wait-ink)}
+.dA .st.neutral{background:var(--sunken);color:var(--ink2)}
+.dA .st .dot{width:6px;height:6px;border-radius:999px;background:currentColor}
+.dA .st.ok .dot{background:var(--ok)}
+.dA .st.wait .dot{background:var(--wait)}
+.dA .btn{font:inherit;font-weight:600;font-size:13.5px;padding:11px 16px;border-radius:var(--r-field);border:1px solid var(--ink);background:var(--ink);color:#fff}
+.dA .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.dA .btn.wide{width:100%}
+
+/* карточка ближайшего занятия (клиент) */
+.dA .next{background:var(--surface);border-radius:var(--r-card);padding:16px;box-shadow:var(--shadow-card)}
+.dA .next .top{display:flex;justify-content:space-between;align-items:center}
+.dA .next .when{font-family:Montserrat,system-ui,sans-serif;font-size:26px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:10px 0 2px}
+.dA .next .dur{font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.dA .next .prog{margin-top:14px;padding-top:14px;border-top:1px solid var(--hair);font-size:13.5px}
+.dA .next .prog b{font-weight:600}
+.dA .actions{display:flex;gap:8px;margin-top:14px}
+
+/* DiffCard / перенос */
+.dA .diff{border:1px solid var(--wait);background:var(--wait-soft);border-radius:var(--r-card);padding:14px;margin-top:14px}
+.dA .diff .lbl{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--wait-ink)}
+.dA .diff .rail{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-variant-numeric:tabular-nums}
+.dA .diff .old{font-size:13.5px;color:var(--ink2);text-decoration:line-through}
+.dA .diff .arrow{color:var(--wait-ink);font-weight:700}
+.dA .diff .new{font-size:15px;font-weight:600}
+.dA .diff .who{font-size:12px;color:var(--ink2);margin-bottom:10px}
+
+/* остаток / деньги */
+.dA .bal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.dA .bal .cell{background:var(--surface);border-radius:var(--r-card);padding:14px;box-shadow:var(--shadow-card)}
+.dA .bal .num{font-family:Montserrat,system-ui,sans-serif;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.dA .bal .cap{font-size:11.5px;color:var(--ink2);margin-top:2px}
+.dA .meter{height:6px;border-radius:999px;background:var(--sunken);overflow:hidden;margin-top:10px}
+.dA .meter > i{display:block;height:100%;width:58%;background:var(--ok)}
+
+/* переключение участников */
+.dA .strip{display:flex;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface)}
+.dA .chip{padding:7px 12px;border-radius:999px;border:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink2)}
+.dA .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* подход */
+.dA .set{display:grid;grid-template-columns:28px 1fr 1fr;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair)}
+.dA .set .n{font-size:12px;font-weight:700;color:var(--ink3);font-variant-numeric:tabular-nums}
+.dA .set .fact{font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.dA .set input{width:100%;font:inherit;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;padding:9px 10px;border:1px solid var(--line);border-radius:var(--r-field);background:var(--surface);color:var(--ink);text-align:center}
+.dA .set input::placeholder{color:var(--ink3);font-weight:400}
+.dA .set input[data-empty="1"]{border-style:dashed;background:var(--sunken)}
+
+/* ============================================================
+   НАПРАВЛЕНИЕ B — «ДНЕВНИК» (тёплая бумага, редакционность)
+   ============================================================ */
+.dB{
+  --canvas:#f6f6f7; --surface:#ffffff; --sunken:#eeeef0;
+  --ink:#050505; --ink2:#5e5f60; --ink3:#9ba1a8;
+  --line:#e9e9ec; --hair:#f0f0f2;
+  --mark:#050505; --mark-soft:rgba(5,5,5,.06);
+  --ok:#10c22b; --ok-ink:#0a8a23; --ok-soft:rgba(16,194,43,.10);
+  --wait:#f3b84a; --wait-ink:#8a6410; --wait-soft:rgba(243,184,74,.16);
+  --r-card:22px; --r-lg:26px; --r-sheet:30px;
+  --shadow-card:0 1px 2px rgba(8,8,10,.04);
+}
+.dB .screen{background:var(--canvas);color:var(--ink);font-family:Inter,sans-serif}
+.dB .statusbar{color:var(--ink);font-family:Inter,sans-serif}
+.dB .appbar{padding:10px 22px 6px}
+.dB .appbar .who{font-family:Montserrat,system-ui,sans-serif;font-size:28px;font-weight:500;letter-spacing:-.01em;line-height:1.05}
+.dB .appbar .date{font-size:12.5px;color:var(--ink2);margin-top:6px;letter-spacing:.02em}
+.dB .body{padding:0 22px 28px}
+.dB .kicker{font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mark)}
+.dB .rule{height:1px;background:var(--line);border:0;margin:20px 0}
+.dB .row{display:flex;justify-content:space-between;gap:14px;padding:16px 0;border-bottom:1px solid var(--hair)}
+.dB .row .t{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink2)}
+.dB .row .name{font-family:Montserrat,system-ui,sans-serif;font-size:19px;font-weight:500;line-height:1.2;margin-top:2px}
+.dB .row .meta{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.dB .st{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;letter-spacing:.05em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--ink2);background:var(--surface)}
+.dB .st.ok{color:var(--ok-ink);border-color:transparent;background:var(--ok-soft)}
+.dB .st.wait{color:var(--wait-ink);border-color:transparent;background:var(--wait-soft)}
+.dB .btn{font:inherit;font-weight:600;font-size:14px;padding:12px 18px;border-radius:999px;border:1px solid var(--mark);background:transparent;color:var(--mark)}
+.dB .btn.solid{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dB .btn.wide{width:100%}
+.dB .next{background:var(--surface);border-radius:var(--r-card);padding:22px;box-shadow:var(--shadow-card)}
+.dB .next .when{font-family:Montserrat,system-ui,sans-serif;font-size:30px;font-weight:500;letter-spacing:-.015em;font-variant-numeric:tabular-nums;margin:12px 0 2px;line-height:1.05}
+.dB .next .dur{font-size:13.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.dB .next .prog{margin-top:18px;padding-top:16px;border-top:1px solid var(--hair);font-size:14px}
+.dB .actions{display:flex;gap:10px;margin-top:18px}
+.dB .diff{border:1px solid var(--line);background:var(--sunken);border-radius:var(--r-card);padding:18px;margin-top:18px}
+.dB .diff .lbl{font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mark)}
+.dB .diff .rail{display:flex;align-items:center;gap:12px;margin:12px 0 8px;font-variant-numeric:tabular-nums}
+.dB .diff .old{font-size:14px;color:var(--ink2);text-decoration:line-through}
+.dB .diff .arrow{color:var(--mark)}
+.dB .diff .new{font-family:Montserrat,system-ui,sans-serif;font-size:19px;font-weight:500}
+.dB .diff .who{font-size:12.5px;color:var(--ink2);margin-bottom:12px}
+.dB .bal{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.dB .bal .cell{background:var(--surface);border-radius:var(--r-card);padding:16px;box-shadow:var(--shadow-card)}
+.dB .bal .num{font-family:Montserrat,system-ui,sans-serif;font-size:22px;font-weight:800;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+.dB .bal .cap{font-size:12px;color:var(--ink2);margin-top:4px}
+.dB .meter{height:7px;border-radius:999px;background:var(--sunken);overflow:hidden;margin-top:12px}
+.dB .meter > i{display:block;height:100%;width:58%;background:var(--ok);border-radius:999px}
+.dB .strip{display:flex;gap:10px;padding:12px 22px;border-bottom:1px solid var(--line);background:var(--surface);overflow-x:auto}
+.dB .chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:13px;font-weight:500;color:var(--ink2);white-space:nowrap}
+.dB .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dB .set{display:grid;grid-template-columns:26px 1fr 1fr;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--hair)}
+.dB .set .n{font-size:12px;font-weight:600;color:var(--ink3);font-variant-numeric:tabular-nums}
+.dB .set .fact{font-size:12.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.dB .set input{width:100%;font:inherit;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);text-align:center}
+.dB .set input[data-empty="1"]{border-style:dashed;background:var(--sunken)}
+
+.sec-title{margin:56px 0 4px;font-family:Montserrat,system-ui,sans-serif;font-size:24px;font-weight:600;letter-spacing:-.01em}
+.sec-sub{color:#9a9a9d;font-size:13.5px;margin:0 0 20px}
+.footer{margin-top:56px;border-top:1px solid #343437;padding-top:20px;color:#8c8c90;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="masthead">
+    <div class="eyebrow">Демонстрация · не финальные данные</div>
+    <h1>Два композиционных направления в одной дизайн-системе</h1>
+    <p>Один и тот же клиентский экран «Главная» и один и тот же фрагмент дня тренера. Палитра, шрифты (Montserrat + Inter), радиусы 14/22/26/30, тени и motion взяты из дизайн-системы gymGO (Revolut-style, light, monochrome-first). Направления различаются <b>не цветом, а композицией и плотностью</b>: жёсткий реестр против воздушной карточной подачи. Данные вымышленные (Данияр, Айгерим, Арман, Алия, Мади, Дана).</p>
+    <div class="notice">Прототип показывает <b>визуальный язык и композицию</b>, а не финальную вёрстку. Ember-градиент зарезервирован под маскота и серии и в рабочих экранах не используется.</div>
+  </header>
+
+  <div class="grid">
+    <!-- ============ НАПРАВЛЕНИЕ A ============ -->
+    <section class="dA">
+      <div class="dir-head">
+        <span class="tag">A</span>
+        <h2>«Табло» — плотный реестр дня</h2>
+        <span class="sub">Montserrat 800 · табличные цифры · линии вместо карточек</span>
+      </div>
+
+      <div class="phones">
+        <!-- Клиент: Главная -->
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="batt">КЗ ▮▮▮</span></div>
+          <div class="appbar">
+            <div>
+              <div class="who">Здравствуйте, Айгерим</div>
+              <div class="date">Сегодня · пт, 19 сентября</div>
+            </div>
+            <div class="iconbtn">⌕</div>
+          </div>
+          <div class="body">
+            <div class="kicker">Ближайшее занятие</div>
+            <div class="next">
+              <div class="top"><span class="st ok"><i class="dot"></i>Подтверждено</span><span class="st neutral">Индивидуальное</span></div>
+              <div class="when">18:00–19:00</div>
+              <div class="dur">Сегодня · Данияр</div>
+              <div class="prog"><b>Низ А</b> · 6 упражнений<br><span style="color:var(--ink2)">Программа появится позже</span></div>
+              <div class="actions">
+                <button class="btn wide">Как пройти</button>
+                <button class="btn ghost wide">Ещё</button>
+              </div>
+            </div>
+
+            <div class="diff">
+              <div class="lbl">Запрос переноса</div>
+              <div class="rail"><span class="old">чт 18:00</span><span class="arrow">→</span><span class="new">пт 19:00</span></div>
+              <div class="who">Предложил тренер Данияр · ждёт вашего ответа</div>
+              <div class="actions">
+                <button class="btn wide" style="background:var(--ink);border-color:var(--ink)">Подтвердить</button>
+                <button class="btn ghost wide">Другое</button>
+              </div>
+            </div>
+
+            <div class="bal">
+              <div class="cell"><div class="num">7 / 12</div><div class="cap">Осталось занятий</div><div class="meter"><i></i></div></div>
+              <div class="cell"><div class="num">40 000 ₸</div><div class="cap">К оплате</div></div>
+            </div>
+
+            <hr class="rule">
+            <div class="kicker">Дальше</div>
+            <div style="margin-top:6px">
+              <div class="row"><div class="t">пн<small>22.09</small></div><div><div class="name">18:00–19:00</div><div class="meta">Данияр · Низ А · подтверждено</div></div></div>
+              <div class="row"><div class="t">ср<small>24.09</small></div><div><div class="name">19:00–20:00</div><div class="meta">Данияр · программа не назначена</div></div></div>
+            </div>
+          </div>
+        </div></div>
+
+        <!-- Тренер: фрагмент дня -->
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="batt">КЗ ▮▮▮</span></div>
+          <div class="appbar">
+            <div>
+              <div class="who">Сегодня</div>
+              <div class="date">пт, 19 сентября · 7 занятий</div>
+            </div>
+            <div class="iconbtn">＋</div>
+          </div>
+          <div class="body" style="padding-top:0">
+            <div class="st wait" style="margin:2px 0 10px"><i class="dot"></i>Требует ответа: 2</div>
+            <div class="kicker">Сейчас · ближайшее</div>
+            <div class="next" style="margin-top:8px;padding:12px 14px">
+              <div class="when" style="font-size:22px;margin:2px 0">16:00–17:00</div>
+              <div class="dur">Алия · Мини-группа</div>
+            </div>
+            <hr class="rule">
+            <div class="row"><div class="t">18:00<small>19:00</small></div><div><div class="name">Айгерим</div><div class="meta">Низ А · 7 из 12</div></div></div>
+            <div style="border:1px solid var(--line);border-left:3px solid var(--wait);border-radius:8px;padding:4px 10px;margin:6px 0">
+              <div class="kicker" style="color:var(--wait-ink);font-size:9.5px">Пересечение · разрешено</div>
+              <div class="row" style="border-bottom:0;padding:8px 0"><div class="t">18:00<small>19:00</small></div><div><div class="name">Айгерим</div><div class="meta">Низ А</div></div></div>
+              <div class="row" style="border-bottom:0;padding:0 0 8px"><div class="t">18:30<small>19:30</small></div><div><div class="name">Арман</div><div class="meta">Верх · оплата 40 000 ₸</div></div></div>
+            </div>
+            <div class="row"><div class="t">20:00<small>21:00</small></div><div><div class="name">Мини-группа</div><div class="meta">Алия · Мади · Дана</div><div style="display:flex;gap:6px;margin-top:6px"><span class="st ok"><i class="dot"></i>Алия</span><span class="st neutral">Мади отменил</span><span class="st wait"><i class="dot"></i>Дана</span></div></div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <h4>Иерархия</h4>
+          <p>Время — главный вертикальный якорь (левая колонка), затем участник, затем тип/программа, затем статус. Статус — пилюля, а не фон строки: цвет не становится единственным носителем смысла.</p>
+        </div>
+        <div class="note">
+          <h4>Плотность</h4>
+          <p>У тренера — реестр: строки по 44–52 px, разделители-хэйрлайны, никакой «карточной каши». У клиента — ровно одна крупная карточка и две числовые плитки, остальное списком.</p>
+        </div>
+        <div class="note">
+          <h4>Типографика</h4>
+          <ul>
+            <li><b>Montserrat 800</b> — заголовки и крупные числа, трекинг −0.4…−0.6px.</li>
+            <li><b>Inter 400–700</b> — интерфейс и текст.</li>
+            <li>Все время и суммы — <span style="font-variant-numeric:tabular-nums">tabular-nums</span>, чтобы колонки не «плясали».</li>
+            <li>Микро-подписи — uppercase, разрядка .13em.</li>
+          </ul>
+        </div>
+        <div class="note">
+          <h4>Цвет и взаимодействия</h4>
+          <p>Основа ахроматична. Цвет — только смысл: <b>mint #10c22b</b> подтверждено, <b>amber #f3b84a</b> ждёт ответа, <b>danger #c22b10</b> ошибка/отмена. CTA монохромный (ink), цвет статуса не переносится на кнопку. Ember — только маскот/серии. Касание ≥44, фокус видим, листы 340 мс cubic-bezier(.22,.8,.25,1), reduced-motion отключает анимацию.</p>
+        </div>
+      </div>
+
+      <div class="verdict"><b>Сильная сторона.</b> Держит насыщенный день и пересечения без визуального шума, статусы читаются одинаково на обоих экранах, масштабируется на широкий экран как недельная сетка. <b>Риск:</b> клиентской части может не хватать тепла — лечится крупной карточкой ближайшего занятия.</div>
+    </section>
+
+    <!-- ============ НАПРАВЛЕНИЕ B ============ -->
+    <section class="dB">
+      <div class="dir-head">
+        <span class="tag">B</span>
+        <h2>«Карточки» — воздушная подача</h2>
+        <span class="sub">Крупные отступы · карточки-поверхности · тот же токен-набор</span>
+      </div>
+
+      <div class="phones">
+        <!-- Клиент: Главная -->
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="batt">КЗ ▮▮▮</span></div>
+          <div class="appbar">
+            <div class="who">Здравствуйте,<br>Айгерим</div>
+            <div class="date">Сегодня · пт, 19 сентября</div>
+          </div>
+          <div class="body">
+            <div class="kicker">Ближайшее занятие</div>
+            <div class="next">
+              <div class="top" style="display:flex;justify-content:space-between"><span class="st ok">Подтверждено</span><span class="st">Индивидуальное</span></div>
+              <div class="when">18:00<br><span style="font-size:20px">до 19:00</span></div>
+              <div class="dur">Сегодня · Данияр</div>
+              <div class="prog"><b>Низ А</b> · 6 упражнений<br><span style="color:var(--ink2)">Программа появится позже</span></div>
+              <div class="actions">
+                <button class="btn solid wide">Как пройти</button>
+                <button class="btn wide">Ещё</button>
+              </div>
+            </div>
+
+            <div class="diff">
+              <div class="lbl">Тренер предложил перенос</div>
+              <div class="rail"><span class="old">чт 18:00</span><span class="arrow">→</span><span class="new">пт 19:00</span></div>
+              <div class="who">Ждёт вашего ответа · до этого действует четверг</div>
+              <div class="actions">
+                <button class="btn solid wide">Подтвердить</button>
+                <button class="btn wide">Предложить другое</button>
+              </div>
+            </div>
+
+            <div class="bal">
+              <div class="cell"><div class="num">7 из 12</div><div class="cap">Осталось занятий</div><div class="meter"><i></i></div></div>
+              <div class="cell"><div class="num">40 000</div><div class="cap">₸ к оплате</div></div>
+            </div>
+
+            <hr class="rule">
+            <div class="kicker">Дальше</div>
+            <div style="margin-top:4px">
+              <div class="row"><div><div class="t">пн, 22 сентября · 18:00</div><div class="name">Тренировка с Данияром</div><div class="meta">Низ А · подтверждено</div></div></div>
+              <div class="row"><div><div class="t">ср, 24 сентября · 19:00</div><div class="name">Тренировка с Данияром</div><div class="meta">Программа не назначена</div></div></div>
+            </div>
+          </div>
+        </div></div>
+
+        <!-- Тренер: фрагмент дня -->
+        <div class="phone"><div class="screen">
+          <div class="statusbar"><span>9:41</span><span class="batt">КЗ ▮▮▮</span></div>
+          <div class="appbar">
+            <div class="who">Сегодня</div>
+            <div class="date">пт, 19 сентября · 7 занятий · 2 ждут ответа</div>
+          </div>
+          <div class="body" style="padding-top:0">
+            <div class="rule" style="margin-top:4px"></div>
+            <div class="row" style="border-bottom:1px solid var(--hair)"><div><div class="t">16:00–17:00 · сейчас</div><div class="name">Мини-группа</div><div class="meta">Алия · Мади · Дана</div></div><span class="st ok">Идёт</span></div>
+            <div class="row"><div><div class="t">18:00–19:00</div><div class="name">Айгерим</div><div class="meta">Низ А · осталось 7 из 12</div></div></div>
+            <div class="diff" style="margin-top:8px">
+              <div class="lbl">Пересечение · разрешено</div>
+              <div class="rail" style="margin:10px 0 4px"><span class="new" style="font-family:Montserrat,system-ui,sans-serif">18:00–19:00</span><span class="old" style="text-decoration:none">Айгерим</span></div>
+              <div class="rail" style="margin:0"><span class="new" style="font-family:Montserrat,system-ui,sans-serif;font-size:15px">18:30–19:30</span><span class="old" style="text-decoration:none">Арман</span></div>
+            </div>
+            <div class="row"><div><div class="t">20:00–21:00</div><div class="name">Мини-группа</div><div class="meta">Алия подтвердила · Мади отменил · Дана ждёт</div></div></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="notes">
+        <div class="note">
+          <h4>Иерархия</h4>
+          <p>Имя и время набраны крупно Montserrat; статус — тихая пилюля-контур. Отступы больше, строки выше. Крупная карточка ближайшего занятия как единственный визуальный акцент.</p>
+        </div>
+        <div class="note">
+          <h4>Плотность</h4>
+          <p>Воздушнее: строки 56–64 px, крупные отступы, больше белого. День тренера читается мягче, но на 7+ занятиях требует длинного скролла и хуже держит пересечения.</p>
+        </div>
+        <div class="note">
+          <h4>Типографика</h4>
+          <ul>
+            <li><b>Montserrat 700</b> — заголовки, имена, крупные числа.</li>
+            <li><b>Inter</b> — интерфейс и текст (тот же, что в A).</li>
+            <li>Микро-подписи — uppercase с широкой разрядкой .16em.</li>
+            <li>Время — табличные цифры, но в текстовом ритме строки.</li>
+          </ul>
+        </div>
+        <div class="note">
+          <h4>Цвет и взаимодействия</h4>
+          <p>Тот же токен-набор: canvas #f6f6f7, surface #fff, ink #050505, mint/amber/danger. Отличие — в композиции: больше воздуха и крупных поверхностей, мягкая тень карточек. CTA остаётся монохромным.</p>
+        </div>
+      </div>
+
+      <div class="verdict"><b>Сильная сторона.</b> Приятнее и «дороже» на клиентской стороне, история и прогресс читаются как личный журнал. <b>Риск:</b> на рабочем дне тренера теряется плотность, пересечения и статусы хуже держатся, на 7+ занятиях нужен длинный скролл.</div>
+    </section>
+  </div>
+
+  <h2 class="sec-title">Рекомендация</h2>
+  <p class="sec-sub">Одна дизайн-система, одна композиция как основа</p>
+  <div class="note" style="max-width:900px">
+    <p><b>Система — gymGO Design System</b> (Revolut-style, light, monochrome-first): canvas #f6f6f7, ink #050505, mint/amber/danger только для статусов, ember только для маскота и серий, Montserrat + Inter, радиусы 14/22/26/30, листы 340 мс.</p>
+    <p style="margin-top:10px"><b>Композиция — A «Табло».</b> Плотный реестр отвечает главному требованию: тренер работает между подходами в насыщенном дне, где важны плотность, пересечения и однозначные статусы; тот же набор токенов хорошо переносится на широкий экран недельной сетки.</p>
+    <p style="margin-top:10px"><b>Из B берём только приём, не систему:</b> клиентская карточка ближайшего занятия получает больше воздуха и крупный заголовок. Рабочие экраны тренера остаются плотным реестром.</p>
+    <p style="margin-top:10px">Токены зафиксированы в <b>DESIGN.md</b>, интерактивный прототип трёх экранов и сложных сценариев — в <b>prototype.html</b>.</p>
+  </div>
+
+  <div class="footer">Демонстрационный материал · вымышленные данные · 19 сентября 2026</div>
+</div>
+</body>
+</html>
