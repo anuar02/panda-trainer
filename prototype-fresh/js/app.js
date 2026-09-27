@@ -102,6 +102,7 @@
     'voice.text': () => Voice.submitText(),
     'voice.remove': (d) => Voice.remove(d.key),
     'voice.commit': () => Voice.commit(),
+    'voice.more': () => Voice.more(),
     'note.remove': (d) => Store.logging.removeNote(d.cid, Number(d.i)),
     'ex.addSet': (d) => { Store.logging.addSet(d.cid, d.ex); if (Store.get().sheet) Store.ui.closeSheet(); },
     'ex.removeSet': (d) => Store.logging.removeSet(d.cid, d.ex),

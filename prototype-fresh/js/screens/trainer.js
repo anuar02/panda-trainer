@@ -981,7 +981,10 @@ const Trainer = (() => {
           ${lg.quickUndo ? `<button class="log-undo" aria-label="Отменить запись" ${act('setlog.undoQuick', { cid: lg.quickUndo.clientId, ex: lg.quickUndo.exId, si: lg.quickUndo.setId })}>Отменить</button>` : ''}</div>` : ''}
         ${lg.finished || !eligible ? Btn(lg.finished ? 'Вернуться к расписанию' : 'Завершить тренировку', { kind: lg.finished ? 'primary' : 'soft', a: lg.finished ? 'tab' : 'log.finish', args: lg.finished ? { id: 't-schedule' } : {} })
           : `<div class="log-actions">
-            <button class="log-voice" ${act('voice.open')} aria-label="Голосовой ввод подходов и заметок">${Icon.get('mic', { size: 24, sw: 2.2 })}<span>Голос</span></button>
+            <button class="log-voice" data-voice-hold aria-label="Голос: удерживайте и говорите. Короткое нажатие открывает ввод текстом" title="Удерживайте и говорите">
+              <span class="log-voice__face">${Mascot.face('smile', 34)}<span class="log-voice__mic">${Icon.get('mic', { size: 12, sw: 2.6 })}</span></span>
+              <span class="log-voice__txt"><b>Голос</b><small>удерживайте</small></span>
+            </button>
             ${Btn('Завершить тренировку', { kind: 'soft', a: 'log.finish' })}
           </div>`}
       </div>
