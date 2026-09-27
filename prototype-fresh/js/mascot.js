@@ -16,12 +16,14 @@ const Mascot = (() => {
   const LEGACY = { welcome: 'wave', approved: 'thumbs', reading: 'clipboard', waiting: 'sit', rest: 'front' };
 
   function render(pose = 'front', context = 'empty') {
+    const calm = typeof Store !== 'undefined' && Store.preferences.calm();
+    if (calm && !['empty', 'onboarding'].includes(context)) return '';
     pose = LEGACY[pose] || pose;
     if (!Object.hasOwn(POSES, pose)) pose = 'front';
     const p = POSES[pose];
     const box = context === 'onboarding' ? 'onboarding-art' : context === 'hero' ? 'panda-hero' : context === 'inline' ? 'panda-inline' : 'client-empty__mascot';
     const z = pose === 'sleep' ? '<span class="panda__z" aria-hidden="true"><i>z</i><i>z</i><i>z</i></span>' : '';
-    return `<span class="mascot panda ${box}" data-mascot="${pose}" data-motion="${p.motion}" aria-hidden="true">
+    return `<span class="mascot panda ${box}" data-mascot="${pose}" data-motion="${calm ? 'none' : p.motion}" aria-hidden="true">
       <span class="panda__glow"></span>
       <span class="panda__shadow"></span>
       <span class="panda__body"><img class="panda__img" src="${DIR}${pose}.png" width="${p.w}" height="${p.h}" alt="" decoding="async" draggable="false"></span>${z}
@@ -29,6 +31,7 @@ const Mascot = (() => {
   }
 
   function face(mood = 'smile', size = 40, cls = '') {
+    if (typeof Store !== 'undefined' && Store.preferences.calm()) return Icon.get('check', { size });
     if (!FACES.includes(mood)) mood = 'smile';
     return `<img class="panda-face${cls ? ' ' + cls : ''}" src="${DIR}face-${mood}.png" width="${size}" height="${Math.round(size * 0.87)}" alt="" aria-hidden="true" decoding="async" draggable="false">`;
   }

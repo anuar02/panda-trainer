@@ -69,6 +69,7 @@
   const num = (v) => (v == null ? v : Number(v));
 
   const Actions = {
+    'calm.toggle': () => Store.preferences.toggleCalm(),
     'tab': (d) => Store.nav.tab(d.id),
     'nav.go': (d) => { Store.ui.closeSheet(); Store.nav.go(d.id); },
     'nav.back': () => Store.nav.back(),
@@ -333,6 +334,7 @@
   });
   function render() {
     const st = Store.get();
+    document.documentElement.dataset.calm = String(Store.preferences.calm());
     const journalKey = st.screen === 't-session' ? `${st.logging.sessionId}:${st.logging.active}` : null;
     const justFinished = journalKey && lastFrame?.journalKey && lastFrame.sessionId === st.logging.sessionId && !lastFrame.finished && st.logging.finished;
     const focused = document.activeElement;

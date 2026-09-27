@@ -1,11 +1,9 @@
 const Fx = window.Fx = (() => {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const COLORS = ['#e0561b', '#ff7a1f', '#ffb23d', '#5b3a29', '#1f9d55', '#f6d9b8'];
-  const BIG = { 'first.accept': 'jump', 'log.finish': 'jump' };
-  const SMALL = new Set(['session.confirm', 'rs.accept', 'ns.save', 'pay.save', 'invite.connected', 'attendance.charge', 'attendance.markOnly', 'cres.send', 'voice.commit']);
 
   function celebrate(pose = 'jump') {
-    if (reduce.matches) return;
+    if (reduce.matches || Store.preferences.calm()) return;
     const device = document.getElementById('device');
     if (!device) return;
     device.querySelector('.fx-celebrate')?.remove();
@@ -27,7 +25,7 @@ const Fx = window.Fx = (() => {
   }
 
   function sparkle(el) {
-    if (reduce.matches || !el) return;
+    if (reduce.matches || Store.preferences.calm() || !el) return;
     const rect = el.getBoundingClientRect();
     const device = document.getElementById('device');
     const base = device.getBoundingClientRect();
@@ -45,16 +43,18 @@ const Fx = window.Fx = (() => {
   }
 
   function afterAction(name, before, after) {
-    const freshToast = after.toast && after.toast.at !== before.toast?.at && !after.toast.kind;
-    if (name === 'log.finish' && after.logging.finished && !before.logging.finished) return celebrate('jump');
-    if (name === 'first.accept') return celebrate(BIG[name]);
-    if (SMALL.has(name) && freshToast) return celebrate('thumbs');
-    if (name === 'setlog.save' || name === 'setlog.quick') sparkle(document.activeElement);
+    if (Store.preferences.calm()) return;
+    const finished = ['log.finish', 'log.confirmPartial'].includes(name) && after.logging.finished && !before.logging.finished;
+    const connected = (name === 'first.accept' && before.inviteState !== 'accepted' && after.inviteState === 'accepted') || (name === 'invite.connected' && before.invite.state !== 'connected' && after.invite.state === 'connected');
+    if (finished || connected) {
+      if (after.toast && !after.toast.kind) Store.set({ toast: { ...after.toast, celebration: true } });
+      return celebrate('jump');
+    }
   }
 
   document.addEventListener('click', (event) => {
     const panda = event.target.closest('.panda');
-    if (!panda || reduce.matches) return;
+    if (!panda || reduce.matches || Store.preferences.calm()) return;
     panda.classList.remove('is-poked');
     void panda.offsetWidth;
     panda.classList.add('is-poked');

@@ -255,6 +255,7 @@ const Client = (() => {
           ${Lead(c.initials)}
           <div><h2>${esc(c.name)}</h2><p>Начало занятий: ${esc(c.since)}</p></div>
         </div>
+        <button class="btn btn--soft" role="switch" aria-checked="${Store.preferences.calm()}" ${UI.act('calm.toggle')}>Спокойный интерфейс · ${Store.preferences.calm() ? 'вкл' : 'выкл'}</button>
         <section><h2 class="client-section-title">Личные данные</h2>
           ${Card(`<dl class="client-details"><div><dt>Телефон</dt><dd>${esc(c.phone || 'Не указан')}</dd></div><div><dt>Тренер</dt><dd>${esc(DB.trainer.full)}</dd></div></dl>`, { pad: true })}
         </section>

@@ -87,7 +87,7 @@ const UI = (() => {
 
   const Empty = ({ icon = 'dumbbell', title, sub = '', action = '' }) =>
     `<div class="empty">
-      <div class="empty__art empty__art--panda">${typeof Mascot !== 'undefined' ? Mascot.render(icon === 'calendar' ? 'sleep' : 'sit', 'inline') : Icon.get(icon, { size: 38, sw: 1.8 })}</div>
+      <div class="empty__art empty__art--panda">${typeof Mascot !== 'undefined' ? Mascot.render(icon === 'calendar' ? 'sleep' : 'sit', 'empty') : Icon.get(icon, { size: 38, sw: 1.8 })}</div>
       <h3>${esc(title)}</h3>${sub ? `<p>${esc(sub)}</p>` : ''}${action}</div>`;
 
   const Meter = (value, max) =>
@@ -139,7 +139,7 @@ const UI = (() => {
   /* ── Toast ───────────────────────────────────────────────────────────────── */
   const Toast = (toast) =>
     `<div class="toast${toast ? ' is-on' : ''}${toast && toast.kind ? ' is-' + toast.kind : ''}" role="status">
-      ${toast ? `<span class="toast__face">${typeof Mascot !== 'undefined' ? Mascot.face(toast.kind === 'warn' || toast.kind === 'danger' ? 'worried' : 'laugh', 30) : ''}</span>${Icon.get(toast.kind === 'warn' ? 'alert' : 'check', { size: 18, sw: 2.6 })}<span class="toast__text">${esc(toast.text)}</span>` : ''}</div>`;
+      ${toast ? `<span class="toast__face">${toast.celebration && !Store.preferences.calm() ? Mascot.face('laugh', 30) : ''}</span>${Icon.get(toast.kind === 'warn' ? 'alert' : 'check', { size: 18, sw: 2.6 })}<span class="toast__text">${esc(toast.text)}</span>` : ''}</div>`;
 
   /* ── Status bar ──────────────────────────────────────────────────────────── */
   const StatusBar = () => `<div class="device__status">

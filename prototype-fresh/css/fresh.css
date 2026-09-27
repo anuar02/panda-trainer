@@ -1275,3 +1275,9 @@ var(--stage-bg);
 }
 .voice--confirm .voice__list { max-height: 48vh; overflow-y: auto; padding: 2px; }
 .voice__more { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+[data-calm="true"] .panda *, [data-calm="true"] .panda::before, [data-calm="true"] .panda::after { animation: none !important; }
+[data-calm="true"] .panda__z, [data-calm="true"] .panda__glow, [data-calm="true"] .log-voice__mic { display: none; }
+[data-calm="true"] .hold__panda { display: grid; place-items: center; color: var(--accent); }
+.toast__face:empty { display: none; }
+.toast__face:empty + svg { display: block; flex: none; }

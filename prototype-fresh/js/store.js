@@ -122,6 +122,25 @@ const Store = (() => {
 
   /* ── UI helpers ─────────────────────────────────────────────────────────── */
 
+  const calmKey = 'trainer-prototype:calm:v1';
+  const calmFlags = (() => {
+    try {
+      const value = JSON.parse(localStorage.getItem(calmKey));
+      return { trainer: value?.trainer === true, client: value?.client === true };
+    } catch { return { trainer: false, client: false }; }
+  })();
+  const calmOverride = typeof location !== 'undefined' && new URLSearchParams(location.search).get('calm') === '1';
+  const preferences = {
+    calm(role = state.role) { return calmFlags[role] ?? calmOverride; },
+    toggleCalm() {
+      calmFlags[state.role] = !preferences.calm();
+      try { localStorage.setItem(calmKey, JSON.stringify(calmFlags)); }
+      catch { ui.toast('warn', 'Настройка действует до перезагрузки: хранилище недоступно.'); }
+      commit();
+    },
+  };
+  if (calmOverride) { calmFlags.trainer = true; calmFlags.client = true; }
+
   const ui = {
     openSheet(id, data = null) { set({ sheet: { id, data }, toast: null }); },
     closeSheet() { set({ sheet: null }); },
@@ -855,5 +874,5 @@ const Store = (() => {
     },
   };
 
-  return { get, set, update, silent, subscribe, commit, nav, ui, reschedule, logging, attendance, billing, invite, newSession, sessions, hasUnwrittenSets, participantHasGap };
+  return { get, set, update, silent, subscribe, commit, nav, ui, preferences, reschedule, logging, attendance, billing, invite, newSession, sessions, hasUnwrittenSets, participantHasGap };
 })();

@@ -11,7 +11,7 @@ const recognized = `${voice} Voice.state.items = VoiceParse.parse('Присед�
 const replaced = `${journal} Store.logging.replaceExercise('c1','e2',{name:'Жим гантелей лёжа'});`;
 const added = `${replaced} Store.logging.addExercise('c1',{name:'Сгибания на бицепс с гантелями'});`;
 const results = `${added} Store.logging.setValue('c1','e1',0,{kg:80,reps:8}); Store.logging.finish(); Store.logging.confirmPartial();`;
-const screens = [
+let screens = [
   {path:'trainer-today',role:'trainer',screen:'t-today'},
   {path:'client-home',role:'client',screen:'c-home'},
   {path:'onboarding',role:'client',screen:'c-first'},
@@ -31,6 +31,9 @@ const screens = [
   {path:'flex/5-journal-bottom',role:'trainer',screen:'t-session',actions:added,scroll:true},
   {path:'flex/7-results',role:'trainer',screen:'t-session',actions:results},
 ];
+if (task === '02-calm') {
+  screens = screens.filter(s => ['trainer-today', 'client-home', 'hold/0-button', 'hold/1-listening', 'onboarding'].includes(s.path)).flatMap(s => [s, {...s, path:`calm/${s.path}`, calm:true}]);
+}
 let executablePath = process.env.CHROMIUM_PATH;
 if (!executablePath) {
   try { await access(chromium.executablePath()); }
@@ -52,7 +55,7 @@ try {
           abort() {}
         };
       });
-      await page.goto(`${base}?now=18:45`);
+      await page.goto(`${base}?now=18:45${spec.calm ? "&calm=1" : ""}`);
       await page.evaluate(({role,screen,scenario}) => Store.set({role,screen,scenario:scenario || 'normal'}),spec);
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(350);

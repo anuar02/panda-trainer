@@ -235,7 +235,7 @@ const Trainer = (() => {
     const left = live.length - done - ongoing;
     const pending = pendingTrainer().length;
     const pct = live.length ? Math.round(done / live.length * 100) : 0;
-    const mood = left === 0 && live.length ? 'laugh' : pending ? 'excited' : 'smile';
+    const mood = 'calm';
     const line = !live.length ? 'Свободный день — можно восстановиться.'
       : left === 0 && !ongoing ? 'Все занятия позади. Отличная работа!'
       : ongoing ? `Сейчас идёт ${ongoing} ${DB.plural(ongoing, ['занятие', 'занятия', 'занятий'])}.`
@@ -985,7 +985,7 @@ const Trainer = (() => {
         ${lg.finished || !eligible ? Btn(lg.finished ? 'Вернуться к расписанию' : 'Завершить тренировку', { kind: lg.finished ? 'primary' : 'soft', a: lg.finished ? 'tab' : 'log.finish', args: lg.finished ? { id: 't-schedule' } : {} })
           : `<div class="log-actions">
             <button class="log-voice" data-voice-hold aria-label="Голос: удерживайте и говорите. Короткое нажатие открывает ввод текстом" title="Удерживайте и говорите">
-              <span class="log-voice__face">${Mascot.face('smile', 34)}<span class="log-voice__mic">${Icon.get('mic', { size: 12, sw: 2.6 })}</span></span>
+              <span class="log-voice__face">${Store.preferences.calm() ? Icon.get('mic', { size: 28 }) : Mascot.face('smile', 34)}<span class="log-voice__mic">${Icon.get('mic', { size: 12, sw: 2.6 })}</span></span>
               <span class="log-voice__txt"><b>Голос</b><small>удерживайте</small></span>
             </button>
             ${Btn('Завершить тренировку', { kind: 'soft', a: 'log.finish' })}
@@ -1162,6 +1162,7 @@ const Trainer = (() => {
             <div style="font-size:13.5px;font-weight:500;color:var(--sec);margin-top:2px">Независимый тренер</div>
           </div>
         </div>
+        <button class="btn btn--soft" role="switch" aria-checked="${Store.preferences.calm()}" ${act('calm.toggle')}>Спокойный интерфейс · ${Store.preferences.calm() ? 'вкл' : 'выкл'}</button>
         ${Stats([[String(todayCount), 'занятий сегодня'], [String(pending), 'ждут ответа'], [String(count), 'клиентов в базе']])}
         <div style="height:16px"></div>
         ${Card([

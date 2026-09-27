@@ -452,7 +452,7 @@ const Voice = (() => {
     hold.kind = kind;
     if (poseChanged || !layer.querySelector('.hold__bubble')) {
       layer.innerHTML = `<div class="hold__glow"></div>
-        <div class="hold__panda">${Mascot.render(copy.pose, 'inline')}</div>
+        <div class="hold__panda">${Store.preferences.calm() ? Icon.get('mic', { size: 56 }) : Mascot.render(copy.pose, 'inline')}</div>
         <div class="hold__bubble"><b class="hold__title"></b><p class="hold__text" data-voice-interim></p><div class="hold__bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><ul class="hold__list"></ul></div>`;
     }
     layer.querySelector('.hold__title').textContent = copy.title;
