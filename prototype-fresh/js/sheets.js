@@ -385,6 +385,7 @@ const Sheets = (() => {
       session, setlog, finishConfirm, charge, pay,
       notifications, stale, clientActions, search, customEx, assignTemplate,
       cCancel, exercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
+      voice: () => Voice.sheet(),
     };
     const fn = map[sh.id];
     return fn ? fn(st) : '';

@@ -952,6 +952,7 @@ const Trainer = (() => {
           <div class="log-context-meta">${esc(programName || 'Без программы')}</div>${lg.plans[active]?.reply === 'pending' ? '<div class="log-context-meta">Участие пока не подтверждено</div>' : ''}
         </div>`}
         </div>
+        ${notesCard(active, lg)}
         <div style="padding:14px 16px 0">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${ProgramOrEmpty(activeClient, programName, rows)}</div>
         ${lg.finished ? '' : '<p class="log-footnote">Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере, без синхронизации.</p>'}
         <div style="height:20px"></div>
@@ -959,9 +960,22 @@ const Trainer = (() => {
       <div style="padding:12px 16px 26px">
         ${!lg.finished ? `<div class="log-feedback"><div class="log-action-status" role="status">${lg.feedback ? esc(lg.storageError ? 'Изменения только в этой вкладке · ошибка сохранения' : lg.feedback) : ''}</div>
           ${lg.quickUndo ? `<button class="log-undo" aria-label="Отменить запись" ${act('setlog.undoQuick', { cid: lg.quickUndo.clientId, ex: lg.quickUndo.exId, si: lg.quickUndo.setId })}>Отменить</button>` : ''}</div>` : ''}
-        ${Btn(lg.finished ? 'Вернуться к расписанию' : 'Завершить тренировку', { kind: lg.finished ? 'primary' : 'soft', a: lg.finished ? 'tab' : 'log.finish', args: lg.finished ? { id: 't-schedule' } : {} })}
+        ${lg.finished || !eligible ? Btn(lg.finished ? 'Вернуться к расписанию' : 'Завершить тренировку', { kind: lg.finished ? 'primary' : 'soft', a: lg.finished ? 'tab' : 'log.finish', args: lg.finished ? { id: 't-schedule' } : {} })
+          : `<div class="log-actions">
+            <button class="log-voice" ${act('voice.open')} aria-label="Голосовой ввод подходов и заметок">${Icon.get('mic', { size: 24, sw: 2.2 })}<span>Голос</span></button>
+            ${Btn('Завершить тренировку', { kind: 'soft', a: 'log.finish' })}
+          </div>`}
       </div>
     </div>`;
+  }
+
+  function notesCard(clientId, lg) {
+    const notes = lg.notes?.[clientId] || [];
+    if (!notes.length) return '';
+    return `<section class="log-notes" aria-label="Заметки тренера">
+      <div class="log-notes__head">${Icon.get('note', { size: 17 })}<span>Заметки</span><span class="num">${notes.length}</span></div>
+      <ul>${notes.map((n, i) => `<li><span class="log-notes__time num">${esc(n.at)}</span><span class="log-notes__text">${esc(n.text)}</span>${lg.finished ? '' : `<button class="log-notes__x" ${act('note.remove', { cid: clientId, i })} aria-label="Удалить заметку: ${esc(n.text)}">${Icon.get('close', { size: 15, sw: 2.4 })}</button>`}</li>`).join('')}</ul>
+    </section>`;
   }
 
   function ProgramOrEmpty(activeClient, programName, rows) {

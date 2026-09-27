@@ -96,6 +96,13 @@
       Store.ui.openSheet(d.id, d);
     },
     'sheet.close': () => Store.ui.closeSheet(),
+    'voice.open': () => Voice.open(),
+    'voice.toggle': () => Voice.toggle(),
+    'voice.demo': (d) => Voice.demo(d.phrase),
+    'voice.text': () => Voice.submitText(),
+    'voice.remove': (d) => Voice.remove(d.key),
+    'voice.commit': () => Voice.commit(),
+    'note.remove': (d) => Store.logging.removeNote(d.cid, Number(d.i)),
     'toast': (d) => Store.ui.toast('', d.text),
     'role': (d) => Store.nav.role(d.role),
     'width': (d) => Store.set({ deviceW: num(d.w) }),
@@ -292,7 +299,7 @@
         <button class="tool" data-visual-choice="firm" aria-pressed="${document.documentElement.dataset.visual === 'firm'}">Строгий</button>
       </div>
       <div class="toolbar" role="group" aria-label="Палитра">
-        ${[['panda', 'Панда'], ['teal', 'Бирюза'], ['ink', 'Чернила']].map(([id, label]) => `<button class="tool" data-palette-choice="${id}" aria-pressed="${(document.documentElement.dataset.palette || 'panda') === id}">${label}</button>`).join('')}
+        ${[['ink', 'Чернила'], ['teal', 'Бирюза'], ['panda', 'Панда']].map(([id, label]) => `<button class="tool" data-palette-choice="${id}" aria-pressed="${(document.documentElement.dataset.palette || 'panda') === id}">${label}</button>`).join('')}
       </div>
       <div class="toolbar" role="group" aria-label="Ширина">
         ${[320, 375, 390, 430].map(w => `<button class="tool" ${act('width', { w })} aria-pressed="${st.deviceW === w}">${w}</button>`).join('')}

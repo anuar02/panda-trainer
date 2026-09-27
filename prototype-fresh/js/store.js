@@ -41,6 +41,7 @@ const Store = (() => {
       plans: {},
       context: null,
       drafts: {},
+      notes: {},
       editor: null,
       feedback: null,      // Ephemeral confirmation, never persisted as workout data.
       quickUndo: null,     // Only the latest quick entry; never part of a saved journal.
@@ -281,6 +282,8 @@ const Store = (() => {
           const arr = v.values[cid]?.[e.id] || [];
           if (!Array.isArray(arr) || arr.length > e.sets || arr.some(x => x != null && !validSet(x))) throw Error('values');
         }
+        const notes = v.notes?.[cid];
+        if (notes !== undefined && (!Array.isArray(notes) || notes.some(n => !n || typeof n.text !== 'string' || typeof n.at !== 'string'))) throw Error('notes');
         for (const [exId, arr] of Object.entries(v.drafts[cid] || {})) {
           const ex = p.exercises.find(e => e.id === exId);
           if (!ex || !Array.isArray(arr) || arr.length > ex.sets || arr.some(x => x != null && (typeof x.kg !== 'string' || typeof x.reps !== 'string'))) throw Error('drafts');
@@ -307,7 +310,7 @@ const Store = (() => {
   function persistLog() {
     const lg = state.logging;
     const record = clone({ version: 1, sessionId: lg.sessionId, active: lg.active, plans: lg.plans, context: lg.context,
-      values: lg.values, drafts: lg.drafts, finished: lg.finished, startedAt: lg.startedAt, completedAt: lg.completedAt || null });
+      values: lg.values, drafts: lg.drafts, notes: lg.notes || {}, finished: lg.finished, startedAt: lg.startedAt, completedAt: lg.completedAt || null });
     logCache.set(lg.sessionId, record);
     let storageError = false, storageConflict = false;
     try {
@@ -388,7 +391,7 @@ const Store = (() => {
     },
     exportData() {
       return clone({ version: 1, sessionId: state.logging.sessionId, plans: state.logging.plans, context: state.logging.context,
-        values: state.logging.values, drafts: state.logging.drafts, finished: state.logging.finished,
+        values: state.logging.values, drafts: state.logging.drafts, notes: state.logging.notes, finished: state.logging.finished,
         localRecovery: recoveredLogs.get(state.logging.sessionId) || null,
         exportedAt: new Date().toISOString(), source: 'trainer-prototype-local-journal' });
     },
@@ -513,6 +516,21 @@ const Store = (() => {
       changeLog({ drafts, editor: null, feedback: `Подход ${ed.setId + 1} записан · ${DB.client(ed.clientId).short}` });
       ui.closeSheet();
       if (state.logging.storageError) ui.toast('warn', 'Подход записан только в памяти вкладки');
+      return true;
+    },
+    addNote(clientId, text) {
+      const clean = String(text || '').trim().replace(/\s+/g, ' ').slice(0, 500);
+      if (!clean || state.logging.finished || !state.logging.plans[clientId]) return false;
+      const notes = clone(state.logging.notes || {});
+      notes[clientId] = [...(notes[clientId] || []), { text: clean, at: DB.NOW_TIME }];
+      changeLog({ notes }, false);
+      return true;
+    },
+    removeNote(clientId, index) {
+      if (state.logging.finished || !state.logging.notes?.[clientId]?.[index]) return false;
+      const notes = clone(state.logging.notes);
+      notes[clientId].splice(index, 1);
+      changeLog({ notes });
       return true;
     },
     retrySave() { persistLog(); commit(); },

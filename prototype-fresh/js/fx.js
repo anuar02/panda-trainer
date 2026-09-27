@@ -2,7 +2,7 @@ const Fx = window.Fx = (() => {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   const COLORS = ['#e0561b', '#ff7a1f', '#ffb23d', '#5b3a29', '#1f9d55', '#f6d9b8'];
   const BIG = { 'first.accept': 'jump', 'log.finish': 'jump' };
-  const SMALL = new Set(['session.confirm', 'rs.accept', 'ns.save', 'pay.save', 'invite.connected', 'attendance.charge', 'attendance.markOnly', 'cres.send']);
+  const SMALL = new Set(['session.confirm', 'rs.accept', 'ns.save', 'pay.save', 'invite.connected', 'attendance.charge', 'attendance.markOnly', 'cres.send', 'voice.commit']);
 
   function celebrate(pose = 'jump') {
     if (reduce.matches) return;

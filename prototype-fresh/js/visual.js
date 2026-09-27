@@ -27,7 +27,7 @@
   const PALETTES = ['panda', 'teal', 'ink'];
   const apply = () => {
     const value = new URLSearchParams(location.search).get('palette');
-    const palette = PALETTES.includes(value) ? value : 'panda';
+    const palette = PALETTES.includes(value) ? value : 'ink';
     if (palette === 'panda') root.removeAttribute('data-palette');
     else root.dataset.palette = palette;
     document.querySelectorAll('[data-palette-choice]').forEach(button => {
@@ -39,7 +39,7 @@
     const button = event.target.closest('[data-palette-choice]');
     if (!button) return;
     const url = new URL(location.href);
-    if (button.dataset.paletteChoice === 'panda') url.searchParams.delete('palette');
+    if (button.dataset.paletteChoice === 'ink') url.searchParams.delete('palette');
     else url.searchParams.set('palette', button.dataset.paletteChoice);
     history.replaceState(history.state, '', url);
     apply();
