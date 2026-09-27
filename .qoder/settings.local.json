@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -type f -not -path './node_modules/*' -not -path './.git/*' | head -80)",
+      "Bash(wc:*)",
+      "Bash(grep -n '^#' trainer-design-handoff-v2.md docs/prototype-guide.md docs/design-system.md | head -60; cat package.json)",
+      "Bash(cat .gitignore; echo ---; ls \"gymGO \\(2\\)\" 2>/dev/null | head; echo ---; ls \"gymGO \\(2\\)/src\" 2>/dev/null; echo ---; git ls-files | grep -i gymgo | head -3; echo ---; grep -rn \"clientQuery\\\\|data-client-search\\\\|payMethod\" prototype/js --include=*.js | grep -v \"^Binary\")"
+    ]
+  }
+}

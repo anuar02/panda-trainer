@@ -1,0 +1,17 @@
+{
+  "date": "2026-09-26",
+  "source": "GPT Image; original PNG copied without raster edits",
+  "sha256": {
+    "prototype/review/lynx-hello/index.html": "688eb21d4e07e90c329064a3ab58531468619103db37b8962df0239b819025e9",
+    "prototype/review/lynx-hello/hello.css": "54fbb0ff8a6dc853725ba0986f48fd735e317055186d596ee831464a7422cb56",
+    "prototype/review/lynx-hello/hello.js": "e83cbd92a4e9c4df48a827a926b69b49b4bbd4b3e1e551a0761e4c49a99a0e4a",
+    "prototype/review/lynx-hello/verify.cjs": "9e99596499a2dfc917e18a7584ed788ef3b65e1b093100bbb0e9ea05ca316b1e",
+    "prototype/review/lynx-hello/frame-0.png": "5720654c530f8b725777a1c04e847c611a089d6e63da25cee25fb1e942bff863",
+    "prototype/review/lynx-hello/frame-700.png": "3f0c917d77b4139c57af2f9d78103bbb03aa262add5bfe6adccd844b3b943fb0",
+    "prototype/review/lynx-hello/frame-880.png": "ec5252e2c460a5e07fb3811d2b875aad2b6eb6a7419795cbcc1f84b860bd8069",
+    "prototype/review/lynx-hello/review-320.png": "f4350c708ce26a01fc3611953489b800f2c08d4b64c691f19abbd275157b1429",
+    "prototype/review/lynx-hello/review-1280.png": "1ac0f98c145fdba9cbb226ce2f9a249844afe6acbf58626e2ca9bcdf745b655c",
+    "prototype/assets/mascot/lynx-hello-parts-v1.png": "51fd843dd630e016644ab57f13a7e946b99c924c57a77f47844d84ec5a076a67",
+    "design-exploration/lynx-hello-2026-09-26/prompts.json": "7f6e98533c9e36a28f9c841763b53ab0557bf70692accedca635ff499287db92"
+  }
+}

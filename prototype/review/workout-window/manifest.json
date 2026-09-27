@@ -1,0 +1,110 @@
+{
+  "date": "2026-09-24",
+  "captures": [
+    {
+      "file": "320/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-start.png",
+      "sha256": "b93ade4ce2dcaa76abbe7823849d9395a7c7f9356d4b73321b9c2969410e4bc5"
+    },
+    {
+      "file": "320/workout-minimized.png",
+      "source": "output/design-review/results/flows-workout-dock-minimiz-8b12e-and-draft-reload-and-finish-mobile-320/workout-minimized.png",
+      "sha256": "3d873b4f1eaee858486ee56b7d5e77b4b1f7fb844115bb1aa8765bbd2f5cf45a"
+    },
+    {
+      "file": "320/workout-profile-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-minimiz-8b12e-and-draft-reload-and-finish-mobile-320/workout-profile-dock.png",
+      "sha256": "3653cf91bbe6afce546fa3a291002977707516a79d1eff3cee35370f9426b966"
+    },
+    {
+      "file": "320/workout-client-card-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-minimiz-8b12e-and-draft-reload-and-finish-mobile-320/workout-client-card-dock.png",
+      "sha256": "65f978af9ba469542addad6db780f94ba689d59ff14136ab90a701d42adfabbc"
+    },
+    {
+      "file": "320/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-320/workout-group-dock.png",
+      "sha256": "9f251041788c3c38cd97e13ba7c1cf6c8e04147020c0292132b49b0e264abdd2"
+    },
+    {
+      "file": "320/review-draft.png",
+      "source": "output/design-review/results/flows-review-fixes-placeho-44e82-d-client-identity-on-scroll-mobile-320/review-draft.png",
+      "sha256": "d5b80d534fb230bc77a1a842fe872dc539018e3b4393279c27b2239a0c7d9d2e"
+    },
+    {
+      "file": "320/review-scroll.png",
+      "source": "output/design-review/results/flows-review-fixes-placeho-44e82-d-client-identity-on-scroll-mobile-320/review-scroll.png",
+      "sha256": "f56e8e58abe93a328307078d57c0ab8c5fd635fd6d1e90fdc6ad99bc1c3fcedc"
+    },
+    {
+      "file": "320/review-fallback.png",
+      "source": "output/design-review/results/flows-review-fixes-finishi-a81be-s-dock-to-the-earlier-draft-mobile-320/review-fallback.png",
+      "sha256": "71f585fda967805edecdfd1d3e172bc6191011f21ac7cb33bf6dcfb760fff8d3"
+    },
+    {
+      "file": "320/review-stale-completed.png",
+      "source": "output/design-review/results/flows-review-fixes-stale-d-829fa-exports-unsaved-local-draft-mobile-320/review-stale-completed.png",
+      "sha256": "6fbe68b0fc8cdf61fb74f6059efd454802b2c2acab21c4eb24b4b2df7a19e9f5"
+    },
+    {
+      "file": "375/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-375/personal-start.png",
+      "sha256": "382f4aa6684aec583e1e8d60ac4cbe786a2c7a40f9779530e8bf4bc7ee35eaa3"
+    },
+    {
+      "file": "375/workout-minimized.png",
+      "source": "output/design-review/results/flows-workout-dock-minimiz-8b12e-and-draft-reload-and-finish-mobile-375/workout-minimized.png",
+      "sha256": "c3526f484677c8221ea2e72e4069d73bdd71893aa38c33d2a46d20a10718e29e"
+    },
+    {
+      "file": "375/workout-profile-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-minimiz-8b12e-and-draft-reload-and-finish-mobile-375/workout-profile-dock.png",
+      "sha256": "4dca5d147c8eb8cc9feac5fcfdae8439a69758e774d9c3c49885762d81960b3c"
+    },
+    {
+      "file": "375/workout-client-card-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-minimiz-8b12e-and-draft-reload-and-finish-mobile-375/workout-client-card-dock.png",
+      "sha256": "d8c1b73c4a17865344fcdc1a2bff1b7029b5e2be37b424fbd92c27f19b701531"
+    },
+    {
+      "file": "375/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-375/workout-group-dock.png",
+      "sha256": "35fdec84d4ee7d53d058a91971ab1cf916b5d9425406face787041b4cbc5f1ab"
+    },
+    {
+      "file": "375/review-draft.png",
+      "source": "output/design-review/results/flows-review-fixes-placeho-44e82-d-client-identity-on-scroll-mobile-375/review-draft.png",
+      "sha256": "0c7f0fe572b58edb60a1d310b7de2439dddc45b0edbd27292806a311e0fbb64e"
+    },
+    {
+      "file": "375/review-scroll.png",
+      "source": "output/design-review/results/flows-review-fixes-placeho-44e82-d-client-identity-on-scroll-mobile-375/review-scroll.png",
+      "sha256": "048d15e6fe8cd8b3d16cd366a31840734d225e450e6a232fc0d88ec985979595"
+    },
+    {
+      "file": "375/review-fallback.png",
+      "source": "output/design-review/results/flows-review-fixes-finishi-a81be-s-dock-to-the-earlier-draft-mobile-375/review-fallback.png",
+      "sha256": "d75640d1491520d5cda223e06b0f89bad4af190b65ca79b75469e814c8db20c6"
+    },
+    {
+      "file": "375/review-stale-completed.png",
+      "source": "output/design-review/results/flows-review-fixes-stale-d-829fa-exports-unsaved-local-draft-mobile-375/review-stale-completed.png",
+      "sha256": "311658a7244d69984a8ed7913881dab44838a317a05562fd8554c96a9a30ed4e"
+    }
+  ],
+  "source_sha256": {
+    "prototype/js/app.js": "c80432074d2ce7c7c6dbe47fc00ea64cee581fc752d07b4f8a2aa19e4b073da7",
+    "prototype/js/data.js": "8647b8f9da68bf4ebc86265272fc7b482cf23c2988a858062bae3e243578362c",
+    "prototype/js/icons.js": "f2503de272bcd93c05ea68e32cf51f0a518a2b45bfb66df8248f1d34bb246b49",
+    "prototype/js/screens/client.js": "df2f2e725f8fed1bb1ea5829f8e991e7b4ebdb554711ec9f9cf3d8638bc48456",
+    "prototype/js/screens/trainer.js": "51f6a3b8fa4b98102c942265f7923a9038295968e7299c282693fc43e715e564",
+    "prototype/js/session-repository.js": "732e86bac7b2b8ff6786ac9986eeb0324d29179b5a7db28dfd83ead971f03194",
+    "prototype/js/sheets.js": "1ce6a243077f59b31c115d2e2b9427b37acf0015c480a2e82ba9f989bf5c5bcd",
+    "prototype/js/store.js": "25d139a35bbf3804b6d47f34911461d13b7da125d8f3e75133e93f9863bfa0b0",
+    "prototype/js/ui.js": "9a038f5dfd1c3e3894bd1402d7e793cd651174f72841e13c86df3454995d9325",
+    "prototype/css/base.css": "f447f5d7c792b1acdd8fcb8c1ecdc801d323042c03bc0038cba658ce002d3e7c",
+    "prototype/css/components.css": "a478e5c564f186af210e4a70f48c55b9722e337139a3812b0c121a0d53d3921c",
+    "prototype/css/fonts.css": "d3ee1d9fb7e604b3ff6081343118a514d25b82f7180116a8e6299ffced0baf0e",
+    "prototype/css/tokens.css": "66749d729148ae7f82d77090238e3b84b365aa8f026790d2fa32008cfe56a2c6"
+  }
+}

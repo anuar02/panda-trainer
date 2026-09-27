@@ -1,0 +1,103 @@
+- main [ref=f1e3]:
+  - group "Роль" [ref=f1e1661]:
+    - button "Тренер" [pressed] [ref=f1e1662] [cursor=pointer]
+    - button "Клиент" [ref=f1e1667] [cursor=pointer]
+  - generic [ref=f1e17]:
+    - generic [ref=f1e1671]:
+      - generic [ref=f1e1672]:
+        - generic [ref=f1e1673]:
+          - heading "Клиенты" [level=1] [ref=f1e1674]
+          - paragraph [ref=f1e1675]: 6 клиентов в вашей базе
+        - button "Добавить клиента" [ref=f1e1676] [cursor=pointer]
+      - generic [ref=f1e1679]:
+        - searchbox "Поиск клиента по имени или телефону" [ref=f1e1684]
+        - group "Фильтр клиентов" [ref=f1e1685]:
+          - button "Все 6" [pressed] [ref=f1e1686] [cursor=pointer]:
+            - text: Все
+            - generic [ref=f1e1687]: "6"
+          - button "К оплате 2" [ref=f1e1688] [cursor=pointer]:
+            - text: К оплате
+            - generic [ref=f1e1689]: "2"
+          - button "Без записи 1" [ref=f1e1690] [cursor=pointer]:
+            - text: Без записи
+            - generic [ref=f1e1691]: "1"
+      - generic [ref=f1e1692]:
+        - generic [ref=f1e1693]:
+          - generic [ref=f1e1694]: По алфавиту
+          - status [ref=f1e1695]: 6 клиентов
+        - list [ref=f1e1696]:
+          - listitem [ref=f1e1697]:
+            - button "Айгерим Бекова Низ А Осталось 7 занятий Сегодня · 18:00 К оплате 40 000 ₸" [ref=f1e1698] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f1e1699]: АБ
+              - generic [ref=f1e1700]:
+                - strong [ref=f1e1701]: Айгерим Бекова
+                - generic [ref=f1e1702]: Низ А
+              - generic "Осталось 7 занятий" [ref=f1e1703]:
+                - strong [ref=f1e1704]: "7"
+                - generic [ref=f1e1705]: осталось
+              - generic [ref=f1e1706]: Сегодня · 18:00
+              - generic [ref=f1e1713]: К оплате 40 000 ₸
+          - listitem [ref=f1e1715]:
+            - button "Алия Нурлановa Низ А Осталось 9 занятий Сегодня · 20:00 · мини-группа" [ref=f1e1716] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f1e1717]: АН
+              - generic [ref=f1e1718]:
+                - strong [ref=f1e1719]: Алия Нурлановa
+                - generic [ref=f1e1720]: Низ А
+              - generic "Осталось 9 занятий" [ref=f1e1721]:
+                - strong [ref=f1e1722]: "9"
+                - generic [ref=f1e1723]: осталось
+              - generic [ref=f1e1724]: Сегодня · 20:00 · мини-группа
+          - listitem [ref=f1e1731]:
+            - button "Арман Оспанов Сила 5×5 Осталось 2 занятия Сегодня · 14:00" [ref=f1e1732] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f1e1733]: АО
+              - generic [ref=f1e1734]:
+                - strong [ref=f1e1735]: Арман Оспанов
+                - generic [ref=f1e1736]: Сила 5×5
+              - generic "Осталось 2 занятия" [ref=f1e1737]:
+                - strong [ref=f1e1738]: "2"
+                - generic [ref=f1e1739]: осталось
+              - generic [ref=f1e1740]: Сегодня · 14:00
+          - listitem [ref=f1e1747]:
+            - button "Дана Ержанова Full Body Осталось 5 занятий Сегодня · 09:00" [ref=f1e1748] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f1e1749]: ДЕ
+              - generic [ref=f1e1750]:
+                - strong [ref=f1e1751]: Дана Ержанова
+                - generic [ref=f1e1752]: Full Body
+              - generic "Осталось 5 занятий" [ref=f1e1753]:
+                - strong [ref=f1e1754]: "5"
+                - generic [ref=f1e1755]: осталось
+              - generic [ref=f1e1756]: Сегодня · 09:00
+          - listitem [ref=f1e1763]:
+            - button "Мади Касымов Верх Б Осталось 1 занятие Сегодня · 11:30 К оплате 6 000 ₸" [ref=f1e1764] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f1e1765]: МК
+              - generic [ref=f1e1766]:
+                - strong [ref=f1e1767]: Мади Касымов
+                - generic [ref=f1e1768]: Верх Б
+              - generic "Осталось 1 занятие" [ref=f1e1769]:
+                - strong [ref=f1e1770]: "1"
+                - generic [ref=f1e1771]: осталось
+              - generic [ref=f1e1772]: Сегодня · 11:30
+              - generic [ref=f1e1779]: К оплате 6 000 ₸
+          - listitem [ref=f1e1781]:
+            - button "Тимур Ахметов Программа не назначена Нет пакета Нет будущих занятий Не подключён" [ref=f1e1782] [cursor=pointer]:
+              - generic [aria-hidden] [ref=f1e1783]: ТА
+              - generic [ref=f1e1784]:
+                - strong [ref=f1e1785]: Тимур Ахметов
+                - generic [ref=f1e1786]: Программа не назначена
+              - generic "Нет пакета" [ref=f1e1787]: Нетпакета
+              - generic [ref=f1e1789]: Нет будущих занятий
+              - generic [ref=f1e1796]: Не подключён
+      - complementary "Свёрнутая тренировка" [ref=f1e1798]:
+        - 'button "Вернуться к тренировке: Дана Ержанова. 2 из 12 подходов · Есть черновик" [ref=f1e1799] [cursor=pointer]':
+          - generic [ref=f1e1800]:
+            - generic [ref=f1e1801]: Вернуться к тренировке
+            - strong [ref=f1e1802]: Дана Ержанова
+            - generic [ref=f1e1803]: 2 из 12 подходов · Есть черновик
+      - navigation "Основная навигация" [ref=f1e1807]:
+        - button "Сегодня" [ref=f1e1808] [cursor=pointer]
+        - button "Расписание" [ref=f1e1814] [cursor=pointer]
+        - button "Клиенты" [ref=f1e1820] [cursor=pointer]
+        - button "Профиль" [ref=f1e1827] [cursor=pointer]
+    - generic [aria-hidden]:
+      - dialog
+    - status

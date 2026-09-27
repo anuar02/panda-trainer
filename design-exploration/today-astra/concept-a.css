@@ -1,0 +1,51 @@
+/* A / revision 2: contextual requests, one continuous agenda, quiet connections. */
+.a-top { padding: 28px 22px 20px; }
+.a-top h1 { font-size: 26px; letter-spacing: -.7px; }
+.a-top p { margin-top: 8px; }
+.a-top p > span { margin: 0 5px; }
+.a-inbox { position: relative; background: var(--surface); border-radius: 14px; }
+.a-inbox-count { position: absolute; top: -4px; right: -4px; display: grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 9999px; background: var(--attention); color: var(--ink); font-size: 11px; font-weight: 700; border: 2px solid var(--canvas); }
+.a-agenda-heading { display: flex; align-items: baseline; justify-content: space-between; margin: 0 6px 13px; }
+.a-agenda-heading h2 { font-family: var(--ui); font-size: 14px; font-weight: 600; letter-spacing: 0; }
+.a-agenda-heading > span { color: var(--secondary); font-size: 12px; }
+.a-agenda { background: var(--surface); border-radius: 26px; box-shadow: 0 1px 2px rgba(8,8,10,.04); overflow: hidden; }
+.a-session { display: grid; grid-template-columns: 64px minmax(0,1fr); column-gap: 14px; padding: 16px 18px 16px; }
+.a-next { padding-top: 18px; }
+.a-next-caption { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--secondary); margin-bottom: 14px; }
+.a-next-caption strong { color: var(--ink); font-weight: 600; }
+.a-time { padding-top: 6px; font-size: 19px; line-height: 1.3; font-weight: 700; letter-spacing: -.6px; }
+.a-time small { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0; margin-top: 5px; }
+.a-next .a-time { padding-top: 1px; font-size: 23px; letter-spacing: -.9px; }
+.a-person { min-width: 0; }
+.a-person h3 { font-size: 21px; line-height: 1.3; margin-bottom: 7px; }
+.a-person-button { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px; width: 100%; text-align: left; padding: 0; margin-top: -5px; }
+.a-person-button strong { font-size: 16px; font-weight: 700; }
+.a-person-button svg { width: 16px; height: 16px; color: var(--secondary); }
+.a-program { display: flex; flex-wrap: wrap; gap: 4px 8px; font-size: 12px; color: var(--secondary); line-height: 1.5; }
+.a-program strong { color: var(--ink); font-weight: 600; font-size: 13px; }
+.a-person .status { margin-top: 8px; font-size: 12px; }
+.a-request-link { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 0; width: 100%; text-align: left; font-size: 12px; font-weight: 500; color: var(--secondary); }
+.a-request-link.is-pending { color: var(--attention-ink); }
+.a-request-link svg { width: 16px; height: 16px; }
+.a-request-link svg:last-child { width: 13px; margin-left: auto; }
+.a-next > .btn { grid-column: 1 / -1; margin-top: 4px; min-height: 48px; font-size: 14px; }
+.a-conflict-link { display: flex; align-items: center; gap: 10px; min-height: 54px; width: calc(100% - 36px); margin: 0 18px; padding: 10px 0; text-align: left; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.a-conflict-link > svg:first-child { color: var(--secondary); width: 18px; height: 18px; }
+.a-conflict-link > span { flex: 1; }
+.a-conflict-link strong { display: block; font-size: 12px; font-weight: 600; }
+.a-conflict-link small { display: block; font-size: 12px; margin-top: 3px; }
+.a-conflict-link > svg:last-child { width: 15px; height: 15px; color: var(--secondary); }
+.a-gap { display: grid; grid-template-columns: 64px minmax(0,1fr) 22px; align-items: center; gap: 14px; width: 100%; min-height: 74px; padding: 13px 18px; background: var(--canvas); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); text-align: left; }
+.a-gap strong { font-size: 13px; font-weight: 500; }
+.a-gap small { display: block; font-size: 12px; margin-top: 4px; }
+.a-gap-time { color: var(--secondary); font-size: 14px; font-weight: 600; }
+.a-gap-time small { font-weight: 400; }
+.a-gap > svg { width: 19px; height: 19px; color: var(--secondary); }
+.a-group-summary { font-size: 12px; line-height: 1.6; color: var(--secondary); margin-top: 9px; }
+.day-end { font-size: 12px; padding-top: 17px; }
+.a-overlap-program { display: block; margin-top: 3px; }
+@media (max-width: 380px) {
+  .a-session { padding-left: 16px; padding-right: 16px; grid-template-columns: 60px minmax(0,1fr); gap: 0 12px; }
+  .a-gap { grid-template-columns: 60px minmax(0,1fr) 18px; gap: 12px; padding-left: 16px; padding-right: 16px; }
+  .a-conflict-link { width: calc(100% - 32px); margin-left: 16px; margin-right: 16px; }
+}

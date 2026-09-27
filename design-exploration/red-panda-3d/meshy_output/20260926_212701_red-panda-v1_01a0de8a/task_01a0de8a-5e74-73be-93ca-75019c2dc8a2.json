@@ -1,0 +1,33 @@
+{
+  "id": "01a0de8a-5e74-73be-93ca-75019c2dc8a2",
+  "type": "image-to-3d",
+  "name": "",
+  "art_style": "",
+  "object_prompt": "",
+  "style_prompt": "",
+  "negative_prompt": "",
+  "texture_prompt": "Matte flat colors, smooth stylized red panda mascot. Rust red head and ringed tail, dark chocolate torso and headband, cream muzzle cheeks eyebrow dots and ear rims, large black eyes with white sclera, orange wristband on right wrist only. No fur strands, no gritty texture, no glossy plastic.",
+  "texture_image_url": "",
+  "text_style_prompt": "",
+  "image_style_url": "",
+  "status": "SUCCEEDED",
+  "created_at": 1790440008305,
+  "progress": 100,
+  "started_at": 1790440008314,
+  "finished_at": 1790440113598,
+  "expires_at": 1790699313598,
+  "task_error": null,
+  "model_url": "https://assets.meshy.ai/3084fb0c-2675-4212-8fe7-f9c4a6dce35e/tasks/01a0de8a-5e74-73be-93ca-75019c2dc8a2/output/model.glb?Expires=1790699313&Signature=mX03evERY1k5ReO2X~QHceT99Yj6rnKHC16-wRgyHb0rQOjsJiXk4fgacwJSz8SBJsIZNx1pMHOtefdlzHuz~W5Mofl-S3EqvLzqJtRJd6jhnkyfZGZJU5Swcf31X1k2v50F0J97Y-5XJwN4yCYPy9~pguRw528rcumunC-6lJmr~Mkz83g9vimh7yLDU-HtkiCYkMWCPSRm-vinnly3khvur530qGn7RU6Mt0Yq5-omMqLSDByPBlTj4FpKupon8x8TIETpWcK9CNQq~DeR0x~t8WPNqrK2VRbqJXWanJqK7raScHrPmcg3NKBn2fuMJY93WrUvx6MurusFmSDLaw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+  "model_urls": {
+    "glb": "https://assets.meshy.ai/3084fb0c-2675-4212-8fe7-f9c4a6dce35e/tasks/01a0de8a-5e74-73be-93ca-75019c2dc8a2/output/model.glb?Expires=1790699313&Signature=mX03evERY1k5ReO2X~QHceT99Yj6rnKHC16-wRgyHb0rQOjsJiXk4fgacwJSz8SBJsIZNx1pMHOtefdlzHuz~W5Mofl-S3EqvLzqJtRJd6jhnkyfZGZJU5Swcf31X1k2v50F0J97Y-5XJwN4yCYPy9~pguRw528rcumunC-6lJmr~Mkz83g9vimh7yLDU-HtkiCYkMWCPSRm-vinnly3khvur530qGn7RU6Mt0Yq5-omMqLSDByPBlTj4FpKupon8x8TIETpWcK9CNQq~DeR0x~t8WPNqrK2VRbqJXWanJqK7raScHrPmcg3NKBn2fuMJY93WrUvx6MurusFmSDLaw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+  },
+  "thumbnail_url": "https://assets.meshy.ai/3084fb0c-2675-4212-8fe7-f9c4a6dce35e/tasks/01a0de8a-5e74-73be-93ca-75019c2dc8a2/output/preview.png?Expires=1790699313&Signature=Pniry5qNcmksCf~c60f-MRi0zhfWkyv9uhs-7CsGhJGXfQhJN0r1uDWUsrqx2KDXZjxRcr5LQQXm0l0LRFTTJW495lGHif22UL6AxjekfzqQ7C9kmVe4YLx8Z8sSi0wwlp8CLsER9oTQ8dW-DzmNfF7RScXqmDcvCYfUffu6GZKo2OFczAuYB~VuKaOMer7UHU3KPyIwbLrrdihV4TNaM-uPoCSpLNpZUOawNbgTIbckPuCZPRxxfkJ80JM502B1Ewbs6yPN59-L7FB0Iur~0wwQqv9oBXwHg~NxugAp7mvtA6sk8fv5QsCSnr2MH80JScvRW0w1j6l-1pHrByUQAQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+  "texture_urls": [
+    {
+      "base_color": "https://assets.meshy.ai/3084fb0c-2675-4212-8fe7-f9c4a6dce35e/tasks/01a0de8a-5e74-73be-93ca-75019c2dc8a2/output/texture_0.png?Expires=1790699313&Signature=Hw0MDWYOGf21E19O7x6ZlhsRW-06~voHyw25ljf60WDDeQAcCDffwdXXaxPPTzX41mOtJqlJ0C1G~tLzLoHDGTk4t-mygVBUQ~2vF-IqB~vgP7bUIWNKBDLtfXV~9O4gXL6A41SyZOz2gIYsjdmKni7oxBh028I4KqlUhs7To2OAlJWL8JYmNMxgtqHmJAReBzxMMywRvI2tnRytC4LNr7LhGNcg0m-mej2Jxq2Qs629tR3aCb7zpKwT~V6Mph00EcaDlpK4NI-zYtgQVgd06hNARwFnMFgs4vSFhUYuwOFShv9tM2LJPxk8EU7v~gPfRGJhiRu0rJa0Hd0cd1O70w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    }
+  ],
+  "hd_texture": true,
+  "texture_resolution": "4k",
+  "consumed_credits": 30
+}

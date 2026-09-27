@@ -1,0 +1,151 @@
+{
+  "capture_date": "2026-09-23",
+  "viewport_height": 844,
+  "verification": "12 Playwright checks passed in 6.6s; mobile-320 and mobile-390",
+  "captures": [
+    {
+      "file": "captures/320/invitation.png",
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-320/invitation.png",
+      "sha256": "fa96acc598948fdb7baee79b34f14ab77cae997eddd38a65ca045baf1314bc68"
+    },
+    {
+      "file": "captures/390/invitation.png",
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-390/invitation.png",
+      "sha256": "2578c15bb14749ee808c02459b7779226897103506dac3edf08b1de3553b82df"
+    },
+    {
+      "file": "captures/320/first-plan.png",
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-320/first-plan.png",
+      "sha256": "0e44733b42978b590dc26c012c8cd66f9d7710aa6547c2356dcaec7306a4afea"
+    },
+    {
+      "file": "captures/390/first-plan.png",
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-390/first-plan.png",
+      "sha256": "5e7e61b190ecdd9ac2de488821e4c1a1fe6ee18308c373b0520a65113f87a598"
+    },
+    {
+      "file": "captures/320/trainer-home.png",
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-320/trainer-home.png",
+      "sha256": "23e4475c90f4f6fd44c4a1dcf5682bdfe866388124ebaf1eb84d2dbcd0938f33"
+    },
+    {
+      "file": "captures/390/trainer-home.png",
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-390/trainer-home.png",
+      "sha256": "8bba9a914043945d0da3bf12f50eef6734b42f27867d18243ef45eac6982ce53"
+    },
+    {
+      "file": "captures/320/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-start.png",
+      "sha256": "fb68a3a4bc1fde928702da4f57a68a3a89553b896960a6f492e9d4383de541c9"
+    },
+    {
+      "file": "captures/390/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-390/personal-start.png",
+      "sha256": "e189f1276167bfe5fc4ba6a06c7a8e9783d01dd872feecc75bdbe9e1b24834f6"
+    },
+    {
+      "file": "captures/320/set-editor.png",
+      "source": "output/design-review/results/flows-sheet-keyboard-conta-9d6d1-cus-narrow-viewport-capture-mobile-320/set-editor.png",
+      "sha256": "60f3ed855939804363c26a8cf006d1d0eb54c7c49e969e7b158eff8d21db5f45"
+    },
+    {
+      "file": "captures/390/set-editor.png",
+      "source": "output/design-review/results/flows-sheet-keyboard-conta-9d6d1-cus-narrow-viewport-capture-mobile-390/set-editor.png",
+      "sha256": "f4b12e5c0dd1a0753bc99b5cdf3acae6d74d4557f19d3d27ed2ff66db20c7de0"
+    },
+    {
+      "file": "captures/320/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-start.png",
+      "sha256": "8b5ec280cf24ff059a0190e410cb252585df4a71c1c8e6c8ba6269a540eea63a"
+    },
+    {
+      "file": "captures/390/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-390/group-start.png",
+      "sha256": "d7b3676c09e2ae1d848a410d764da3cf3f786a7142f251f0985d36f0065ec99b"
+    },
+    {
+      "file": "captures/320/personal-results.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-results.png",
+      "sha256": "aa63b48303772e362a5adba81fdaed9caf76dd162b041cd7277d33b2572d1167"
+    },
+    {
+      "file": "captures/390/personal-results.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-390/personal-results.png",
+      "sha256": "ca75713aaa9b66329dadae1db5ebe9d1a0fc5d25647d383c7ffd673c4affe189"
+    },
+    {
+      "file": "captures/320/client-home.png",
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-320/client-home.png",
+      "sha256": "2ba6f4a33f02579e5f1f477311ba542b589b37a07effaed7dbcf50f8f4cc8096"
+    },
+    {
+      "file": "captures/390/client-home.png",
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-390/client-home.png",
+      "sha256": "fe59db205c2c06b9559fa07bbb154236280532b11f9220fe83b82677ca193ba7"
+    },
+    {
+      "file": "captures/320/client-program.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-program.png",
+      "sha256": "0abde2a5dd983b2ac222d6ad18ca9f68c299a647cd67859525a27c3dccac81f9"
+    },
+    {
+      "file": "captures/390/client-program.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-program.png",
+      "sha256": "71bce04b93d07edcb361b68e5527a1f949f80a752bd3350c54b3037aa0e00d87"
+    },
+    {
+      "file": "captures/320/client-history.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-history.png",
+      "sha256": "07614304c432de5ef065e9d95be0eb1b802437a16e85d159233746045416dcf1"
+    },
+    {
+      "file": "captures/390/client-history.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-history.png",
+      "sha256": "92876bc29b9763a09d5707a067858b11cc38298c4a9a41bf0343a212a7d8fd67"
+    },
+    {
+      "file": "captures/320/client-progress.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-progress.png",
+      "sha256": "969cfe3cfaf47238725fb8731b465e67fe8d7e7971709b2c48202a3e4e7ff03d"
+    },
+    {
+      "file": "captures/390/client-progress.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-progress.png",
+      "sha256": "01be18495b3400cd6fd7d66d02b6b73097278ecec82d0d9d312ee5937d28b64a"
+    },
+    {
+      "file": "captures/320/client-profile.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-profile.png",
+      "sha256": "c36f0bf6b60a7c35a3114ed6cb0ecdad52924fbbcdb42fa2c40322d5311448fb"
+    },
+    {
+      "file": "captures/390/client-profile.png",
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-profile.png",
+      "sha256": "d56ef96f17d3fcf75744126941fa7289ff1e8da2ad833d21bf6edb1cfd5086ab"
+    }
+  ],
+  "source_sha256": {
+    "prototype/js/app.js": "de02d26692335b9597d5a6043ef46c94ccf41518ea0de6c553609dc33ca8bcd4",
+    "prototype/js/data.js": "79907b98e37345c0ec7ce1bc7cb19f83b5c89f762baeaee1414b54bf3f52f6bd",
+    "prototype/js/icons.js": "f2503de272bcd93c05ea68e32cf51f0a518a2b45bfb66df8248f1d34bb246b49",
+    "prototype/js/screens/client.js": "878df1aec002b6ff699f3e0b27a4a3cdf4362090d74b541b207e1e60fc4fbfb3",
+    "prototype/js/screens/trainer.js": "95b892e6c979b41ce885ac2faa8ce2e369b40f7162199a50e665e1e9a1695139",
+    "prototype/js/session-repository.js": "732e86bac7b2b8ff6786ac9986eeb0324d29179b5a7db28dfd83ead971f03194",
+    "prototype/js/sheets.js": "d662e296adea50fbfabe4b3b8649d4078348c38af6dc163a5c00c8a780937bfa",
+    "prototype/js/store.js": "633b484d98b35b1dc3217d63cf7409e053779b3193594a0aed80da1ee17c9673",
+    "prototype/js/ui.js": "2059326def8a8c8e5d080493cf9a56f417c2ff8ee6f61aa9742f8abdbf2d8226",
+    "prototype/css/base.css": "22e1a19f09609d7bb47049a1a7c742ca19ab67c9aadf3894feafb7638411bde2",
+    "prototype/css/components.css": "823fd22ada6ed6fb0712cec735961f4e9f6856d48a9d565b17de1908282c4958",
+    "prototype/css/fonts.css": "d3ee1d9fb7e604b3ff6081343118a514d25b82f7180116a8e6299ffced0baf0e",
+    "prototype/css/tokens.css": "dd82078aa70d4095319862fac6a0519d65b148183890710f531b8d7f16850300",
+    "prototype/index.html": "216a3029ff176c528fd259ce38a76aec9685c41d5826883c7fa359cb02c4c36f",
+    "prototype/assets/illustrations/README.md": "1903e471b7bc05937646491945cccbffb17204296cb1a6f7a9a7b53cff15c4d8",
+    "prototype/assets/illustrations/blank-notebook.png": "0821b11c59d5c87def4b1eb1fe75d5e4d8ced834f076190d2e858a822e838de6",
+    "prototype/assets/illustrations/shared-plan.png": "4563606fdcbca5b308de5d2f3832836048157c1ecdd336f126223a6186dfeb6a",
+    "prototype/assets/fonts/Inter-variable.ttf": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+    "prototype/assets/fonts/Montserrat-variable.ttf": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+    "prototype/assets/fonts/README.md": "e2f3eea334cb3134b721fdf470a22d3cf97c503f1595f3f4b5fda8683b1114a1",
+    "prototype/assets/fonts/inter-OFL.txt": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+    "prototype/assets/fonts/montserrat-OFL.txt": "e8ea3e532e2fcccd6fc50989bbb31869e424cd5f00dc4f63f866b08a4c2ebd9c"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "checks": [
+    {
+      "images_decoded": 102,
+      "logo_variants": 5,
+      "screen_overlays": 10,
+      "core_marks": 24
+    },
+    "All 40 size proofs displayed at exact intrinsic pixels",
+    "All 10 screen originals and overlays toggle correctly",
+    "No page overflow at 375 px",
+    "No page overflow at 320 px"
+  ],
+  "errors": []
+}

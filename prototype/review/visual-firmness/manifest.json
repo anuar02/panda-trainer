@@ -1,0 +1,314 @@
+{
+  "date": "2026-09-25T00:09:04.911312+05:00",
+  "browser": "153.0.8010.12",
+  "viewport_height": 844,
+  "source_sha256": {
+    "prototype/js/app.js": "fbfadb49ff6368d5a7d46306e4c2fc62cc5676a82f0db81d96821cb0a5fd4e8d",
+    "prototype/js/data.js": "8647b8f9da68bf4ebc86265272fc7b482cf23c2988a858062bae3e243578362c",
+    "prototype/js/icons.js": "f2503de272bcd93c05ea68e32cf51f0a518a2b45bfb66df8248f1d34bb246b49",
+    "prototype/js/screens/client.js": "df2f2e725f8fed1bb1ea5829f8e991e7b4ebdb554711ec9f9cf3d8638bc48456",
+    "prototype/js/screens/trainer.js": "51f6a3b8fa4b98102c942265f7923a9038295968e7299c282693fc43e715e564",
+    "prototype/js/session-repository.js": "732e86bac7b2b8ff6786ac9986eeb0324d29179b5a7db28dfd83ead971f03194",
+    "prototype/js/sheets.js": "1ce6a243077f59b31c115d2e2b9427b37acf0015c480a2e82ba9f989bf5c5bcd",
+    "prototype/js/store.js": "25d139a35bbf3804b6d47f34911461d13b7da125d8f3e75133e93f9863bfa0b0",
+    "prototype/js/ui.js": "9a038f5dfd1c3e3894bd1402d7e793cd651174f72841e13c86df3454995d9325",
+    "prototype/js/visual.js": "1446e4cc811503e4f3a705fc77964f675e1ddf45bee8ce9d5e283836a77a2a03",
+    "prototype/css/base.css": "0ecca6b6bb5fd92242129d9896172d117792811bb5adc660b237dff29da04ccf",
+    "prototype/css/components.css": "410346138d1a00d105fc7f7b17c36b9c762b0aeec67eee7dccc2c203af0d9165",
+    "prototype/css/fonts.css": "d3ee1d9fb7e604b3ff6081343118a514d25b82f7180116a8e6299ffced0baf0e",
+    "prototype/css/tokens-firm.css": "dabb28bf48b5032f7c5ff36158524e246777cd74a2b05fbc5aefa4f2eccb92ff",
+    "prototype/css/tokens.css": "54a86f49acb051414e265b44239ac13ad8d41eb8721729867f254afcd0aea4fb",
+    "prototype/index.html": "f717ff0513fab6c8c2b00d8264e436b0fd5b2fc555328576d79c6e82d1dd2d47",
+    "prototype/review/visual-firmness/capture.cjs": "6d12527e92655913363370e0ea5add5cf0db5bf1eac1cdd260ed5cb08fc8c09a"
+  },
+  "captures": [
+    {
+      "file": "current/375/today.png",
+      "source": "output/playwright/visual-firmness/current/375/today.png",
+      "sha256": "e37ea6f9bbbe091e8724b83d4627e8216af9bd60d598d44a8a924f0d37daf247",
+      "width": 375,
+      "screen": "today",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/375/today.png",
+      "source": "output/playwright/visual-firmness/firm/375/today.png",
+      "sha256": "38502c8196c6f57e787c77a17e40ffe7bb22f84bb63e0b189b8ceadb81148439",
+      "width": 375,
+      "screen": "today",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/375/journal.png",
+      "source": "output/playwright/visual-firmness/current/375/journal.png",
+      "sha256": "9c8331d5e7fbf0ada58b40e2f6680d1835d1334b6de28a297b34aca461e5f52d",
+      "width": 375,
+      "screen": "journal",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/375/journal.png",
+      "source": "output/playwright/visual-firmness/firm/375/journal.png",
+      "sha256": "901c06db9d4d0d8ea70fea290681ec72a04165a5fdd91efefaf73cb166ea6fe0",
+      "width": 375,
+      "screen": "journal",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/375/set-sheet.png",
+      "source": "output/playwright/visual-firmness/current/375/set-sheet.png",
+      "sha256": "c850d6a083a03d6623ffb9a0c1b982ccb88396266af709ba91c94fc792f78b32",
+      "width": 375,
+      "screen": "set-sheet",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/375/set-sheet.png",
+      "source": "output/playwright/visual-firmness/firm/375/set-sheet.png",
+      "sha256": "d159cbd492f9c325a07a62a8ecaf7ee361f02df92e48d6a246fd7455d9459671",
+      "width": 375,
+      "screen": "set-sheet",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/375/workout-dock.png",
+      "source": "output/playwright/visual-firmness/current/375/workout-dock.png",
+      "sha256": "c88a2f91eb425a9b737db3f6564393c9c94610fa52c9aeeb8b14d56bddca4291",
+      "width": 375,
+      "screen": "workout-dock",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/375/workout-dock.png",
+      "source": "output/playwright/visual-firmness/firm/375/workout-dock.png",
+      "sha256": "dcd8ae93c9ccb0a25a3e13a7d2dbc13b0b7d78062a57481fb055c35a5a7333a8",
+      "width": 375,
+      "screen": "workout-dock",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/375/client-card.png",
+      "source": "output/playwright/visual-firmness/current/375/client-card.png",
+      "sha256": "f19b552194a975e05db134ad6f081bd0d8e9ab23fa1bba9a9fc2eb9eb127cf91",
+      "width": 375,
+      "screen": "client-card",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/375/client-card.png",
+      "source": "output/playwright/visual-firmness/firm/375/client-card.png",
+      "sha256": "73052c67285766220561fd84a6501e9468b038383503d78a464fed2c52465f1c",
+      "width": 375,
+      "screen": "client-card",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/375/group-journal.png",
+      "source": "output/playwright/visual-firmness/current/375/group-journal.png",
+      "sha256": "286449c4390d0bd70d4648d96c815fb6e0690ae3080630ceb46124bf0d802cfe",
+      "width": 375,
+      "screen": "group-journal",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=20:30"
+    },
+    {
+      "file": "firm/375/group-journal.png",
+      "source": "output/playwright/visual-firmness/firm/375/group-journal.png",
+      "sha256": "6e3633808efbb644c821babe2f967705a73d7ca26fbc47627434c24a57ff1af3",
+      "width": 375,
+      "screen": "group-journal",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=20:30&visual=firm"
+    },
+    {
+      "file": "current/320/today.png",
+      "source": "output/playwright/visual-firmness/current/320/today.png",
+      "sha256": "8d0c7f4677b8e390e7aab4a58b31bb44a21e9d3df17f8598bd431e1fa16d7497",
+      "width": 320,
+      "screen": "today",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/320/today.png",
+      "source": "output/playwright/visual-firmness/firm/320/today.png",
+      "sha256": "43b39a3afa2355d200d8444e9f186939eb25ca59ee490d3aab98c24e48eba237",
+      "width": 320,
+      "screen": "today",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/320/journal.png",
+      "source": "output/playwright/visual-firmness/current/320/journal.png",
+      "sha256": "609e8682d486d7df00f7c3a1ecb986f6047a19237d7238f92bf13933a62f69d8",
+      "width": 320,
+      "screen": "journal",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/320/journal.png",
+      "source": "output/playwright/visual-firmness/firm/320/journal.png",
+      "sha256": "917a1eb15ed0efc67b8927e43a79281da8d07a8c0f6004bc92cbaccb0fc8bc70",
+      "width": 320,
+      "screen": "journal",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/320/set-sheet.png",
+      "source": "output/playwright/visual-firmness/current/320/set-sheet.png",
+      "sha256": "beccb100472efb550f0da9d981ff06484b040e10408e244f039d3a2c8c3a8ff1",
+      "width": 320,
+      "screen": "set-sheet",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/320/set-sheet.png",
+      "source": "output/playwright/visual-firmness/firm/320/set-sheet.png",
+      "sha256": "8f364045c38f9186b6475bd186d24bd03028e14b7f174f950b8c7212048fa2ec",
+      "width": 320,
+      "screen": "set-sheet",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/320/workout-dock.png",
+      "source": "output/playwright/visual-firmness/current/320/workout-dock.png",
+      "sha256": "82825b6c466b23fefc122627f749e6fb9b25980a0a8c79b42adeb79dcfd2dc3a",
+      "width": 320,
+      "screen": "workout-dock",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/320/workout-dock.png",
+      "source": "output/playwright/visual-firmness/firm/320/workout-dock.png",
+      "sha256": "46f2a28a28f9cc8721c37654e9fb24b475c29385b7d90ebe5bd2c38080b2f1f3",
+      "width": 320,
+      "screen": "workout-dock",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/320/client-card.png",
+      "source": "output/playwright/visual-firmness/current/320/client-card.png",
+      "sha256": "29933459948b4ef1c6fcdd1fc1ccbc1d926333d593e2c59c945f39501b398ffa",
+      "width": 320,
+      "screen": "client-card",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=08:00"
+    },
+    {
+      "file": "firm/320/client-card.png",
+      "source": "output/playwright/visual-firmness/firm/320/client-card.png",
+      "sha256": "63f019ce85868317ee148f3581e8dd07dbaf5c7cb621d366b445d99be0a0fec8",
+      "width": 320,
+      "screen": "client-card",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=08:00&visual=firm"
+    },
+    {
+      "file": "current/320/group-journal.png",
+      "source": "output/playwright/visual-firmness/current/320/group-journal.png",
+      "sha256": "9d800d49dd0b350c61f401a233a7bdaac2149d88a75c553d1f0b8d0d3b335797",
+      "width": 320,
+      "screen": "group-journal",
+      "visual": "current",
+      "url": "http://127.0.0.1:4187/?now=20:30"
+    },
+    {
+      "file": "firm/320/group-journal.png",
+      "source": "output/playwright/visual-firmness/firm/320/group-journal.png",
+      "sha256": "350acefb4978dd2645b70089fc2305a4e5415f8f30ab3bb3fc86bc078610e1a8",
+      "width": 320,
+      "screen": "group-journal",
+      "visual": "firm",
+      "url": "http://127.0.0.1:4187/?now=20:30&visual=firm"
+    },
+    {
+      "file": "evidence/baseline/320/today.png",
+      "source": "output/playwright/visual-firmness/baseline/320/today.png",
+      "sha256": "8d0c7f4677b8e390e7aab4a58b31bb44a21e9d3df17f8598bd431e1fa16d7497",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/320/journal.png",
+      "source": "output/playwright/visual-firmness/baseline/320/journal.png",
+      "sha256": "609e8682d486d7df00f7c3a1ecb986f6047a19237d7238f92bf13933a62f69d8",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/320/set-sheet.png",
+      "source": "output/playwright/visual-firmness/baseline/320/set-sheet.png",
+      "sha256": "beccb100472efb550f0da9d981ff06484b040e10408e244f039d3a2c8c3a8ff1",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/320/workout-dock.png",
+      "source": "output/playwright/visual-firmness/baseline/320/workout-dock.png",
+      "sha256": "82825b6c466b23fefc122627f749e6fb9b25980a0a8c79b42adeb79dcfd2dc3a",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/320/client-card.png",
+      "source": "output/playwright/visual-firmness/baseline/320/client-card.png",
+      "sha256": "29933459948b4ef1c6fcdd1fc1ccbc1d926333d593e2c59c945f39501b398ffa",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/320/group-journal.png",
+      "source": "output/playwright/visual-firmness/baseline/320/group-journal.png",
+      "sha256": "9d800d49dd0b350c61f401a233a7bdaac2149d88a75c553d1f0b8d0d3b335797",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/375/today.png",
+      "source": "output/playwright/visual-firmness/baseline/375/today.png",
+      "sha256": "e37ea6f9bbbe091e8724b83d4627e8216af9bd60d598d44a8a924f0d37daf247",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/375/journal.png",
+      "source": "output/playwright/visual-firmness/baseline/375/journal.png",
+      "sha256": "9c8331d5e7fbf0ada58b40e2f6680d1835d1334b6de28a297b34aca461e5f52d",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/375/set-sheet.png",
+      "source": "output/playwright/visual-firmness/baseline/375/set-sheet.png",
+      "sha256": "c850d6a083a03d6623ffb9a0c1b982ccb88396266af709ba91c94fc792f78b32",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/375/workout-dock.png",
+      "source": "output/playwright/visual-firmness/baseline/375/workout-dock.png",
+      "sha256": "c88a2f91eb425a9b737db3f6564393c9c94610fa52c9aeeb8b14d56bddca4291",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/375/client-card.png",
+      "source": "output/playwright/visual-firmness/baseline/375/client-card.png",
+      "sha256": "f19b552194a975e05db134ad6f081bd0d8e9ab23fa1bba9a9fc2eb9eb127cf91",
+      "visual": "baseline"
+    },
+    {
+      "file": "evidence/baseline/375/group-journal.png",
+      "source": "output/playwright/visual-firmness/baseline/375/group-journal.png",
+      "sha256": "286449c4390d0bd70d4648d96c815fb6e0690ae3080630ceb46124bf0d802cfe",
+      "visual": "baseline"
+    }
+  ]
+}

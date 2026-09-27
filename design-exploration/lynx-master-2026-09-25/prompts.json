@@ -1,0 +1,6 @@
+{
+  "tool": "built-in GPT Image",
+  "reference": "../mascot-casting-2026-09-25/eight-mascots.png",
+  "prompt": "Use case: background-extraction / identity-preserve. Edit target: attached mascot casting sheet. Extract ONLY character number 7, the LYNX in the BOTTOM ROW THIRD COLUMN. Produce one standalone full-body master illustration of EXACTLY this selected lynx in its original relaxed standing pose, one paw on hip with orange wristband, other arm down. Preserve original expressive almond shaped eyes and eyelids, subtly amused small smile, broad cream cheek tufts, high black ear tufts, gray and cream coat with irregular black spots, long adult body, short dark tail, feet and original proportions. Keep the actual face identity and flat ink outlined illustration; do not redesign, simplify into dot eyes, enlarge head, add props or recolor. Remove every other character and all text, numbering and labels. Genuine transparent background with alpha, no checkerboard drawing, no paper backdrop, no shadow. Keep cream fur fully opaque. Center the entire character with a small safe margin around all ear tips, paws and tail. High quality clean edges, portrait canvas. This is a faithful isolation of the approved character, not a new character design.",
+  "output": "lynx-master.png"
+}

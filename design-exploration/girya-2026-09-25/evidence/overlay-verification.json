@@ -1,0 +1,128 @@
+[
+  {
+    "file": "screens/g1-home.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 1780,
+    "max_dimension": 56,
+    "overlay": {
+      "x": 285,
+      "y": 391,
+      "width": 46,
+      "height": 56,
+      "number": 7
+    }
+  },
+  {
+    "file": "screens/g1-empty-program.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 5211,
+    "max_dimension": 96,
+    "overlay": {
+      "x": 234,
+      "y": 166,
+      "width": 79,
+      "height": 96,
+      "number": 0
+    }
+  },
+  {
+    "file": "screens/g1-progress.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 1293,
+    "max_dimension": 48,
+    "overlay": {
+      "x": 297,
+      "y": 565,
+      "width": 39,
+      "height": 48,
+      "number": 0
+    }
+  },
+  {
+    "file": "screens/g2-home.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 1730,
+    "max_dimension": 56,
+    "overlay": {
+      "x": 286,
+      "y": 391,
+      "width": 44,
+      "height": 56,
+      "number": 7
+    }
+  },
+  {
+    "file": "screens/g2-empty-program.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 5243,
+    "max_dimension": 96,
+    "overlay": {
+      "x": 235,
+      "y": 166,
+      "width": 78,
+      "height": 96,
+      "number": 0
+    }
+  },
+  {
+    "file": "screens/g2-progress.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 1306,
+    "max_dimension": 48,
+    "overlay": {
+      "x": 297,
+      "y": 565,
+      "width": 39,
+      "height": 48,
+      "number": 0
+    }
+  },
+  {
+    "file": "screens/g3-home.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 2204,
+    "max_dimension": 56,
+    "overlay": {
+      "x": 280,
+      "y": 391,
+      "width": 56,
+      "height": 55,
+      "number": 7
+    }
+  },
+  {
+    "file": "screens/g3-empty-program.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 6439,
+    "max_dimension": 96,
+    "overlay": {
+      "x": 226,
+      "y": 167,
+      "width": 96,
+      "height": 93,
+      "number": 0
+    }
+  },
+  {
+    "file": "screens/g3-progress.png",
+    "outside_overlay_changed_pixels": 0,
+    "existing_dark_pixels_touched": 0,
+    "mascot_black_pixels": 1626,
+    "max_dimension": 48,
+    "overlay": {
+      "x": 293,
+      "y": 565,
+      "width": 48,
+      "height": 47,
+      "number": 0
+    }
+  }
+]

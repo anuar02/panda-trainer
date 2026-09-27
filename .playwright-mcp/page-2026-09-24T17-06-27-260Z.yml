@@ -1,0 +1,145 @@
+- main [ref=f2e3]:
+  - group "Роль" [ref=f2e1886]:
+    - button "Тренер" [pressed] [ref=f2e1887] [cursor=pointer]
+    - button "Клиент" [ref=f2e1892] [cursor=pointer]
+  - generic [ref=f2e17]:
+    - generic [ref=f2e1896]:
+      - generic [ref=f2e1897]:
+        - generic [ref=f2e1898]:
+          - heading "Сегодня" [level=1] [ref=f2e1899]
+          - paragraph [ref=f2e1900]:
+            - text: пн, 14 сен·
+            - time [ref=f2e1901]: 08:00
+        - generic [ref=f2e1902]:
+          - 'button "Входящие: 2 запроса требуют ответа" [ref=f2e1903] [cursor=pointer]':
+            - generic [ref=f2e1907]: "2"
+          - button "Создать занятие" [ref=f2e1908] [cursor=pointer]
+      - generic [ref=f2e1912]:
+        - generic [ref=f2e1913]:
+          - heading "План дня" [level=2] [ref=f2e1914]
+          - generic [ref=f2e1915]: 7 занятий
+        - generic [ref=f2e1916]:
+          - article [ref=f2e1917]:
+            - generic [ref=f2e1918]:
+              - generic [ref=f2e1919]: Следующая тренировка
+              - strong [ref=f2e1920]: Через 1 ч
+            - generic [ref=f2e1921]:
+              - time [ref=f2e1922]: 09:00
+              - generic [ref=f2e1923]: до 10:00
+            - generic [ref=f2e1924]:
+              - heading "Дана" [level=3] [ref=f2e1925]
+              - paragraph [ref=f2e1926]:
+                - strong [ref=f2e1927]: Full Body
+                - generic [ref=f2e1928]: Индивидуальное
+              - generic [ref=f2e1929]: Подтверждено
+              - generic [ref=f2e1932]: Журнал в работе
+            - button "Продолжить тренировку" [ref=f2e1934] [cursor=pointer]
+          - button "Свободно 10:00–11:30, 1 ч 30 мин. Добавить занятие" [ref=f2e1938] [cursor=pointer]:
+            - generic [ref=f2e1939]:
+              - text: 10:00
+              - generic [ref=f2e1940]: до 11:30
+            - generic [ref=f2e1941]:
+              - strong [ref=f2e1942]: Свободно · 1 ч 30 мин
+              - generic [ref=f2e1943]: Добавить занятие
+          - article [ref=f2e1946]:
+            - generic [ref=f2e1947]:
+              - time [ref=f2e1948]: 11:30
+              - generic [ref=f2e1949]: до 12:30
+            - generic [ref=f2e1950]:
+              - button "Занятие Мади, 11:30–12:30" [ref=f2e1951] [cursor=pointer]:
+                - strong [ref=f2e1952]: Мади
+              - paragraph [ref=f2e1956]:
+                - strong [ref=f2e1957]: Верх Б
+                - generic [ref=f2e1958]: Индивидуальное
+              - generic [ref=f2e1959]: Журнал завершён
+          - button "Свободно 12:30–14:00, 1 ч 30 мин. Добавить занятие" [ref=f2e1961] [cursor=pointer]:
+            - generic [ref=f2e1962]:
+              - text: 12:30
+              - generic [ref=f2e1963]: до 14:00
+            - generic [ref=f2e1964]:
+              - strong [ref=f2e1965]: Свободно · 1 ч 30 мин
+              - generic [ref=f2e1966]: Добавить занятие
+          - article [ref=f2e1969]:
+            - generic [ref=f2e1970]:
+              - time [ref=f2e1971]: 14:00
+              - generic [ref=f2e1972]: до 15:00
+            - generic [ref=f2e1973]:
+              - button "Занятие Арман, 14:00–15:00" [ref=f2e1974] [cursor=pointer]:
+                - strong [ref=f2e1975]: Арман
+              - paragraph [ref=f2e1979]:
+                - strong [ref=f2e1980]: Сила 5×5
+                - generic [ref=f2e1981]: Индивидуальное
+          - button "Свободно 15:00–18:00, 3 ч. Добавить занятие" [ref=f2e1982] [cursor=pointer]:
+            - generic [ref=f2e1983]:
+              - text: 15:00
+              - generic [ref=f2e1984]: до 18:00
+            - generic [ref=f2e1985]:
+              - strong [ref=f2e1986]: Свободно · 3 ч
+              - generic [ref=f2e1987]: Добавить занятие
+          - article [ref=f2e1990]:
+            - generic [ref=f2e1991]:
+              - time [ref=f2e1992]: 18:00
+              - generic [ref=f2e1993]: до 19:00
+            - generic [ref=f2e1994]:
+              - button "Занятие Айгерим, 18:00–19:00" [ref=f2e1995] [cursor=pointer]:
+                - strong [ref=f2e1996]: Айгерим
+              - paragraph [ref=f2e2000]:
+                - strong [ref=f2e2001]: Низ А
+                - generic [ref=f2e2002]: Индивидуальное
+          - 'button "Пересечение: 18:30–19:00, 30 минут. Сведения о конфликтующих записях" [ref=f2e2003] [cursor=pointer]':
+            - generic [ref=f2e2008]:
+              - strong [ref=f2e2009]: Пересечение · 30 мин
+              - generic [ref=f2e2010]: 18:30–19:00 · отдельные занятия
+          - article [ref=f2e2013]:
+            - generic [ref=f2e2014]:
+              - time [ref=f2e2015]: 18:30
+              - generic [ref=f2e2016]: до 19:30
+            - generic [ref=f2e2017]:
+              - button "Занятие Арман, 18:30–19:30" [ref=f2e2018] [cursor=pointer]:
+                - strong [ref=f2e2019]: Арман
+              - paragraph [ref=f2e2023]:
+                - strong [ref=f2e2024]: Сила 5×5
+                - generic [ref=f2e2025]: Индивидуальное
+          - button "Свободно 19:30–20:00, 30 мин. Добавить занятие" [ref=f2e2026] [cursor=pointer]:
+            - generic [ref=f2e2027]:
+              - text: 19:30
+              - generic [ref=f2e2028]: до 20:00
+            - generic [ref=f2e2029]:
+              - strong [ref=f2e2030]: Свободно · 30 мин
+              - generic [ref=f2e2031]: Добавить занятие
+          - article [ref=f2e2034]:
+            - generic [ref=f2e2035]:
+              - time [ref=f2e2036]: 20:00
+              - generic [ref=f2e2037]: до 21:00
+            - generic [ref=f2e2038]:
+              - button "Занятие Мини-группа, 20:00–21:00" [ref=f2e2039] [cursor=pointer]:
+                - strong [ref=f2e2040]: Мини-группа
+              - paragraph [ref=f2e2044]:
+                - strong [ref=f2e2045]: Алия, Мади, Дана
+              - paragraph [ref=f2e2046]: 1 подтвердил · 1 ждёт · 1 отменил
+          - button "Свободно 21:00–21:15, 15 мин. Добавить занятие" [ref=f2e2047] [cursor=pointer]:
+            - generic [ref=f2e2048]:
+              - text: 21:00
+              - generic [ref=f2e2049]: до 21:15
+            - generic [ref=f2e2050]:
+              - strong [ref=f2e2051]: Свободно · 15 мин
+              - generic [ref=f2e2052]: Добавить занятие
+          - article [ref=f2e2055]:
+            - generic [ref=f2e2056]:
+              - time [ref=f2e2057]: 21:15
+              - generic [ref=f2e2058]: до 22:00
+            - generic [ref=f2e2059]:
+              - button "Занятие Айгерим, 21:15–22:00" [ref=f2e2060] [cursor=pointer]:
+                - strong [ref=f2e2061]: Айгерим
+              - paragraph [ref=f2e2065]:
+                - strong [ref=f2e2066]: Программа появится позже
+                - generic [ref=f2e2067]: Индивидуальное
+        - paragraph [ref=f2e2068]: Последнее занятие до 22:00
+      - navigation "Основная навигация" [ref=f2e2069]:
+        - button "Сегодня" [ref=f2e2070] [cursor=pointer]
+        - button "Расписание" [ref=f2e2076] [cursor=pointer]
+        - button "Клиенты" [ref=f2e2082] [cursor=pointer]
+        - button "Профиль" [ref=f2e2089] [cursor=pointer]
+    - generic [aria-hidden]:
+      - dialog
+    - status

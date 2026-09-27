@@ -1,0 +1,25 @@
+{
+  "file": "design-exploration/red-panda-3d/assets/panda-rigged.glb",
+  "sha256": "6aac11cead07a14357d58ade94e25af5728556442cf8cc92eb0724934110efc8",
+  "bytes": 16611492,
+  "face_count": 20658,
+  "face_count_source": "Sum of triangle index accessor counts / 3 in downloaded GLB",
+  "rig_limit": 300000,
+  "rig_limit_passed": true,
+  "textured": true,
+  "skins": [
+    {
+      "joints": 24
+    }
+  ],
+  "animations": [
+    {
+      "name": "Armature|clip0|baselayer",
+      "channels": 72
+    }
+  ],
+  "extensions": [
+    "KHR_materials_specular",
+    "KHR_materials_ior"
+  ]
+}

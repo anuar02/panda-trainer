@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-25",
+  "generator": "built-in GPT Image",
+  "reference": {
+    "file": "design-exploration/mascot-casting-2026-09-25/eight-mascots.png",
+    "sha256": "1c6b121a8fa80e68ba4060a6431bbe8c6130b56652e292f583b0646d5e0da239"
+  },
+  "files": {
+    "design-exploration/lynx-master-2026-09-25/lynx-master.png": "8ad990ab38e9a281ce263b658bb88c67ae0cc4334490d92c03a049383a054f32",
+    "design-exploration/lynx-master-2026-09-25/prompts.json": "a04bd2b7f3efcffc77a570f799099c1ffe76cf696606d5cf8f8067aa347636c9",
+    "prototype/assets/mascot/lynx.png": "8ad990ab38e9a281ce263b658bb88c67ae0cc4334490d92c03a049383a054f32",
+    "prototype/js/screens/client.js": "fdb462cccae27202a6d405791556714308788d011910f05ccd625a5d9481837d",
+    "prototype/css/components.css": "ebfdca3230b13b2416ae05926374bd640b1d5a115256dc763686950ad6a6a96d",
+    "prototype/e2e/flows.spec.ts": "37b77e927c07fdd274861ce2b3b42d92e07b157f13248089ce34f02302a66ed1",
+    "prototype/review/lynx/invitation-320.png": "b386b897cf93600a66f153a2e9962e34301604f0a0fdf929de1dcc4b4ca4f49f",
+    "prototype/review/lynx/first-plan-320.png": "7f6fd5832707efb49895e56ed9874571ee75002b38e6b2f98a8ded421d8227c4",
+    "prototype/review/lynx/client-empty-program-320.png": "608f4a9f15a70ea0d4d6342551fcce1a5c24328d6d02b895016906729a2c75e4",
+    "prototype/review/lynx/client-empty-progress-320.png": "147f0c40b28e9cc4ae9bb64279a7734e0e83d7311e263f3472c1adb0e96eb5fe",
+    "prototype/review/lynx/invitation-375.png": "6901c47878273e0a28d2a22df0b79f4fba4d468c6969d9db00fa871e53c63bb4",
+    "prototype/review/lynx/first-plan-375.png": "280f7de51527acec7b181d4849307e74e0a940e10262327daa82cbe06793c7d3",
+    "prototype/review/lynx/client-empty-program-375.png": "f8ca3a679d2700d4c2415ad406ab3be06e27ffe44bcf77b87a09cea3515cfe2b",
+    "prototype/review/lynx/client-empty-progress-375.png": "1fecb8fb4ba5613e637e2b5cd9e3b10802737ff364b709ae70a1b85ede1b7028"
+  },
+  "checks": "10/10 targeted Chromium tests; desktop1440, mobile320/375/390/430; 7.6s"
+}

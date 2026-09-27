@@ -1,0 +1,267 @@
+[
+  {
+    "selector": ".workout-dock",
+    "before": "14px",
+    "after": "var(--r-panel)"
+  },
+  {
+    "selector": ".workout-dock__button",
+    "before": "12px",
+    "after": "var(--r-button-compact)"
+  },
+  {
+    "selector": ".btn",
+    "before": "var(--r-field)",
+    "after": "var(--r-button)"
+  },
+  {
+    "selector": ".btn--compact",
+    "before": "12px",
+    "after": "var(--r-button-compact)"
+  },
+  {
+    "selector": ".btn--sm",
+    "before": "11px",
+    "after": "var(--r-button-sm)"
+  },
+  {
+    "selector": ".pill",
+    "before": "var(--r-pill)",
+    "after": "var(--r-status)"
+  },
+  {
+    "selector": ".lead--sq",
+    "before": "13px",
+    "after": "var(--r-thumbnail)"
+  },
+  {
+    "selector": ".topbar__btn",
+    "before": "50%",
+    "after": "var(--r-button-icon)"
+  },
+  {
+    "selector": ".tabbar__item::before",
+    "before": "0 0 3px 3px",
+    "after": "0 0 var(--r-marker) var(--r-marker)"
+  },
+  {
+    "selector": ".tabbar__item:focus-visible",
+    "before": "12px",
+    "after": "var(--r-focus)"
+  },
+  {
+    "selector": ".field--search",
+    "before": "var(--r-pill)",
+    "after": "var(--r-search)"
+  },
+  {
+    "selector": ".stepper",
+    "before": "var(--r-pill)",
+    "after": "var(--r-stepper)"
+  },
+  {
+    "selector": ".stepper button",
+    "before": "50%",
+    "after": "var(--r-button-icon)"
+  },
+  {
+    "selector": ".bignum",
+    "before": "20px",
+    "after": "var(--r-number)"
+  },
+  {
+    "selector": ".bignum__step",
+    "before": "50%",
+    "after": "var(--r-button-icon)"
+  },
+  {
+    "selector": ".sk",
+    "before": "10px",
+    "after": "var(--r-skeleton)"
+  },
+  {
+    "selector": ".notice",
+    "before": "16px",
+    "after": "var(--r-notice)"
+  },
+  {
+    "selector": ".diffcard",
+    "before": "18px",
+    "after": "var(--r-card-inset)"
+  },
+  {
+    "selector": ".overlap-frame",
+    "before": "18px",
+    "after": "var(--r-card-inset)"
+  },
+  {
+    "selector": ".today-inbox",
+    "before": "var(--r-field)",
+    "after": "var(--r-button)"
+  },
+  {
+    "selector": ".today-entry__cta",
+    "before": "var(--r-field)",
+    "after": "var(--r-button)"
+  },
+  {
+    "selector": ".today-gap::before",
+    "before": "14px",
+    "after": "var(--r-panel)"
+  },
+  {
+    "selector": ".today-entry.is-expanded::before",
+    "before": "0 3px 3px 0",
+    "after": "0 var(--r-marker) var(--r-marker) 0"
+  },
+  {
+    "selector": ".today :is(button, [tabindex]):focus-visible,\n.sheet :is(button, [tabindex]):focus-visible",
+    "before": "12px",
+    "after": "var(--r-focus)"
+  },
+  {
+    "selector": ".pcard",
+    "before": "16px",
+    "after": "var(--r-card-compact)"
+  },
+  {
+    "selector": "button.setrow:focus-visible",
+    "before": "12px",
+    "after": "var(--r-focus)"
+  },
+  {
+    "selector": ".setrow.is-next::after",
+    "before": "0 3px 3px 0",
+    "after": "0 var(--r-marker) var(--r-marker) 0"
+  },
+  {
+    "selector": ".setrow__quick",
+    "before": "10px",
+    "after": "var(--r-row)"
+  },
+  {
+    "selector": ".setrow__adjust",
+    "before": "12px",
+    "after": "var(--r-button-compact)"
+  },
+  {
+    "selector": ".reschedule-current",
+    "before": "14px",
+    "after": "var(--r-panel)"
+  },
+  {
+    "selector": ".session-journal .topbar__side button",
+    "before": "14px",
+    "after": "var(--r-button)"
+  },
+  {
+    "selector": ".log-editor .bignum",
+    "before": "18px",
+    "after": "var(--r-card-inset)"
+  },
+  {
+    "selector": ".log-repeat",
+    "before": "16px",
+    "after": "var(--r-card-compact)"
+  },
+  {
+    "selector": ".log-number:focus-visible",
+    "before": "6px",
+    "after": "var(--r-focus-number)"
+  },
+  {
+    "selector": ".log-completed",
+    "before": "18px",
+    "after": "var(--r-card-inset)"
+  },
+  {
+    "selector": ".session-journal .pcard",
+    "before": "10px",
+    "after": "var(--r-row)"
+  },
+  {
+    "selector": ".toast",
+    "before": "16px",
+    "after": "var(--r-toast)"
+  },
+  {
+    "selector": ".day",
+    "before": "15px",
+    "after": "var(--r-day)"
+  },
+  {
+    "selector": ".heat__cell",
+    "before": "9px",
+    "after": "var(--r-cell)"
+  },
+  {
+    "selector": ".chart__bar",
+    "before": "7px 7px 3px 3px",
+    "after": "var(--r-chart-top) var(--r-chart-top) var(--r-marker) var(--r-marker)"
+  },
+  {
+    "selector": ".client-offline",
+    "before": "12px",
+    "after": "var(--r-notice-compact)"
+  },
+  {
+    "selector": ".pending",
+    "before": "18px",
+    "after": "var(--r-card-inset)"
+  },
+  {
+    "selector": ".pvsfact__box",
+    "before": "14px",
+    "after": "var(--r-panel)"
+  },
+  {
+    "selector": ".invite-card",
+    "before": "24px",
+    "after": "var(--r-invite)"
+  },
+  {
+    "selector": ".invite-card__seal",
+    "before": "20px",
+    "after": "var(--r-seal)"
+  },
+  {
+    "selector": ".wide__nav",
+    "before": "13px",
+    "after": "var(--r-nav)"
+  },
+  {
+    "selector": ".cal-add",
+    "before": "50%",
+    "after": "var(--r-button-icon)"
+  },
+  {
+    "selector": ".cal-month > button",
+    "before": "var(--r-pill)",
+    "after": "var(--r-button-pill)"
+  },
+  {
+    "selector": ".cal-day",
+    "before": "var(--r-pill)",
+    "after": "var(--r-calendar-strip)"
+  },
+  {
+    "selector": ".cal-overlap",
+    "before": "var(--r-field)",
+    "after": "var(--r-panel)"
+  },
+  {
+    "selector": ".cal-request",
+    "before": "10px",
+    "after": "var(--r-row)"
+  },
+  {
+    "selector": ".directory-add",
+    "before": "50%",
+    "after": "var(--r-button-icon)"
+  },
+  {
+    "selector": ".directory-due,.directory-connection",
+    "before": "6px",
+    "after": "var(--r-status-sm)"
+  }
+]

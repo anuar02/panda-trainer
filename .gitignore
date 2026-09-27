@@ -11,10 +11,14 @@ Thumbs.db
 node_modules/
 npm-debug.log*
 yarn-error.log*
+.env.local
 
 # Prototype build/output
 dist/
 .tmp/
+output/playwright/
+output/design-review/
+output/quick-entry/
 
 # Reference capture output
 screenshots/*.tmp.png
@@ -23,3 +27,6 @@ screenshots/*.tmp.png
 # Its design tokens and components are transcribed into prototype/css/tokens.css
 # and documented in docs/design-system.md. Do not commit the vendor dump.
 gymGO (2)/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

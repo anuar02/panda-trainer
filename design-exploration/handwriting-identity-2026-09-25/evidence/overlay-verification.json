@@ -1,0 +1,62 @@
+[
+  {
+    "file": "screens/ballpoint-today.png",
+    "changed_pixels": 864,
+    "changed_outside_svg_bounds": 0,
+    "marks": 2
+  },
+  {
+    "file": "screens/ballpoint-journal.png",
+    "changed_pixels": 385,
+    "changed_outside_svg_bounds": 0,
+    "marks": 1
+  },
+  {
+    "file": "screens/ballpoint-client-progress.png",
+    "changed_pixels": 1335,
+    "changed_outside_svg_bounds": 0,
+    "marks": 2
+  },
+  {
+    "file": "screens/nib-today.png",
+    "changed_pixels": 804,
+    "changed_outside_svg_bounds": 0,
+    "marks": 2
+  },
+  {
+    "file": "screens/nib-journal.png",
+    "changed_pixels": 365,
+    "changed_outside_svg_bounds": 0,
+    "marks": 1
+  },
+  {
+    "file": "screens/nib-client-progress.png",
+    "changed_pixels": 1243,
+    "changed_outside_svg_bounds": 0,
+    "marks": 2
+  },
+  {
+    "file": "screens/marker-today.png",
+    "changed_pixels": 1083,
+    "changed_outside_svg_bounds": 0,
+    "marks": 2
+  },
+  {
+    "file": "screens/marker-journal.png",
+    "changed_pixels": 579,
+    "changed_outside_svg_bounds": 0,
+    "marks": 1
+  },
+  {
+    "file": "screens/marker-client-progress.png",
+    "changed_pixels": 1685,
+    "changed_outside_svg_bounds": 0,
+    "marks": 2
+  },
+  {
+    "file": "screens/c2-package.png",
+    "changed_pixels": 517,
+    "changed_outside_svg_bounds": 0,
+    "marks": 1
+  }
+]

@@ -1,0 +1,46 @@
+{
+  "date": "2026-09-24",
+  "stage": "After Claude review fixes, before visual polish",
+  "captures": [
+    {
+      "file": "before/320/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-start.png",
+      "sha256": "5a86492327775e9f2be4d4bb45a776421e223300ab6dff93d4c4d5ddde1eb3a0"
+    },
+    {
+      "file": "before/320/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-start.png",
+      "sha256": "4f5fd4ad38f8eee99c91d6ff25013867e8d2ce31044d4b888aa85ed1445a4cfe"
+    },
+    {
+      "file": "before/320/group-draft-return.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-draft-return.png",
+      "sha256": "5932f7cdfd152ab5db6c73060dc31d76d6e622b8a90869bd97ae067bd2648013"
+    },
+    {
+      "file": "before/320/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-320/workout-group-dock.png",
+      "sha256": "cd21b33c82e58ddcbd3724a0b72431729088d4386eb0e6ca5a6b287ab57aa638"
+    },
+    {
+      "file": "before/375/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-375/personal-start.png",
+      "sha256": "e0ecc09ab17f2e6ac67b023a7c8ea2d6841e5c863d9af9f5dd41ec75995c9494"
+    },
+    {
+      "file": "before/375/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-375/group-start.png",
+      "sha256": "1a30a9adea79727385cf2d714e6453b2647582520723b3a43cd4ff9ec92c0628"
+    },
+    {
+      "file": "before/375/group-draft-return.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-375/group-draft-return.png",
+      "sha256": "18f748f81970423104dc012aed7b8a849bbb7f8cadd2e08208bde6a748ae1f9f"
+    },
+    {
+      "file": "before/375/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-375/workout-group-dock.png",
+      "sha256": "fd20d88da884f8f4a1ebb324f007fd1b7957c6ed9cbf67370b818b076d08ccac"
+    }
+  ]
+}

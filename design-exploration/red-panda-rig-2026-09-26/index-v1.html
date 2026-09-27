@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Панда — риг</title>
+<style>
+  :root {
+    --paper: #f7f1e8;
+    --card: #fffaf3;
+    --ink: #2b1d17;
+    --muted: #8a776c;
+    --line: #eadfd2;
+    --ember: #ff7a1f;
+    --chip: #f1e7da;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex; justify-content: center;
+    padding: 24px 16px 48px;
+  }
+  .phone {
+    width: 100%; max-width: 390px;
+    background: var(--card);
+    border-radius: 32px;
+    box-shadow: 0 1px 0 var(--line), 0 20px 60px -30px rgba(60, 30, 10, .35);
+    overflow: hidden;
+  }
+  header { padding: 20px 20px 0; }
+  header small { color: var(--muted); font-size: 13px; }
+  header h1 { margin: 2px 0 0; font-size: 24px; letter-spacing: -.02em; }
+
+  .stage {
+    position: relative;
+    height: 350px;
+    display: flex; align-items: flex-end; justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+  .stage::after { /* soft floor shadow */
+    content: ""; position: absolute; bottom: 22px; left: 50%;
+    width: 150px; height: 14px; margin-left: -75px;
+    background: radial-gradient(closest-side, rgba(84, 41, 26, .18), transparent);
+    transform: scaleX(var(--shadow, 1)); opacity: var(--shadow-o, 1);
+  }
+  .stage svg { position: relative; z-index: 1; width: 260px; height: 325px; overflow: visible; }
+
+  .bubble {
+    margin: 0 20px; padding: 12px 14px;
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    min-height: 48px;
+    transition: opacity .2s ease, transform .35s cubic-bezier(.2, .9, .3, 1.3);
+  }
+  .bubble.swap { opacity: 0; transform: translateY(4px) scale(.98); transition: none; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px 4px; }
+  button {
+    font: inherit; color: var(--ink);
+    border: 0; border-radius: 999px;
+    background: var(--chip);
+    padding: 10px 16px; min-height: 44px;
+    cursor: pointer;
+    transition: transform .12s ease, background .2s;
+  }
+  button:active { transform: scale(.95); }
+  button.primary { background: var(--ink); color: #fff; }
+  .toggles { display: flex; gap: 8px; padding: 8px 20px 20px; }
+  .toggles button { background: transparent; border: 1px solid var(--line); font-size: 13px; min-height: 36px; padding: 6px 12px; }
+  .toggles button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  section.sizes { border-top: 1px solid var(--line); padding: 16px 20px 24px; }
+  section.sizes h2 { margin: 0 0 12px; font-size: 13px; color: var(--muted); font-weight: 500; }
+  .avatars { display: flex; align-items: center; gap: 20px; }
+  .avatar { border-radius: 50%; background: #f3e5d3; overflow: hidden; flex: none; }
+  .avatar svg { width: 100%; height: 100%; display: block; }
+  .avatar-label { font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bubble { transition: opacity .2s ease; }
+  }
+</style>
+</head>
+<body>
+<main class="phone">
+  <header>
+    <small>Сегодня · 18:00</small>
+    <h1>Тренировка с Аней</h1>
+  </header>
+
+  <div class="stage" id="stage" aria-label="Маскот. Нажмите, чтобы потыкать"></div>
+
+  <p class="bubble" id="bubble">Привет! Тапни меня или выбери реакцию.</p>
+
+  <div class="chips">
+    <button data-play="wave" class="primary">👋 Привет</button>
+    <button data-play="cheer">🎉 Ура</button>
+    <button data-play="think">🤔 Думаю</button>
+    <button data-play="concern">🫶 Сочувствует</button>
+  </div>
+  <div class="toggles">
+    <button id="idleBtn" aria-pressed="true">Idle</button>
+    <button id="slowBtn" aria-pressed="false">Замедлить ×4</button>
+  </div>
+
+  <section class="sizes">
+    <h2>Аватар: те же слои, только idle</h2>
+    <div class="avatars" id="avatars"></div>
+  </section>
+</main>
+
+<script>
+/* ------------------------------------------------------------------ *
+ *  Red panda — flat SVG parts + spring rig.
+ *  Every moving part is its own <g data-part>, pivots are listed in
+ *  PIVOT so the same hierarchy can be rebuilt as bones in Rive.
+ * ------------------------------------------------------------------ */
+const C = {
+  rust: '#ae4121', tail: '#c54c22', stripe: '#8a3317',
+  body: '#54291a', arm: '#4a2314', paw: '#834c2f', cream: '#fcecda',
+  band: '#3d1d12', ink: '#1c120e', tongue: '#e8746b', ember: '#ff7a1f',
+};
+const PIVOT = {
+  ground: [200, 470], tail: [182, 402], torso: [200, 428], head: [200, 262],
+  earL: [132, 138], earR: [268, 138],
+  armL: [160, 292], foreL: [106, 340], armR: [240, 292], foreR: [294, 340],
+};
+
+function pandaMarkup(u) {
+  const head = 'M200 78C262 78 306 108 312 158L338 194 314 204 326 224C302 252 252 266 200 266S98 252 74 224L86 204 62 194 88 158C94 108 138 78 200 78Z';
+  const ear = (m) => `<g data-part="ear${m ? 'R' : 'L'}"${m ? ' transform="matrix(-1 0 0 1 400 0)"' : ''}>
+      <path d="M98 164Q88 82 116 46Q154 70 176 112Z" fill="${C.cream}"/>
+      <path d="M112 142Q110 96 122 70Q144 88 158 114Z" fill="${C.body}"/></g>`;
+  const eye = (cx, s) => `
+    <clipPath id="eye${s}${u}"><ellipse cx="${cx}" cy="176" rx="17" ry="19.5"/></clipPath>
+    <g data-part="eye${s}">
+      <g clip-path="url(#eye${s}${u})">
+        <g data-part="ball${s}">
+          <ellipse cx="${cx}" cy="176" rx="17" ry="19.5" fill="${C.ink}"/>
+          <circle cx="${cx + 6}" cy="168" r="5.5" fill="#fff"/>
+          <circle cx="${cx - 5}" cy="185" r="2.2" fill="#fff" opacity=".8"/>
+        </g>
+        <g data-part="lid${s}">
+          <rect x="${cx - 22}" y="112" width="44" height="45" fill="${C.rust}"/>
+          <path d="M${cx - 19} 157Q${cx} 161 ${cx + 19} 157" stroke="${C.ink}" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        </g>
+      </g>
+      <path data-face="happy" d="M${cx - 15} 182Q${cx} 162 ${cx + 15} 182" stroke="${C.ink}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>`;
+  const arm = (s, sh, el, pw, band) => `
+    <g data-part="arm${s}">
+      <path d="M${sh}L${el}" stroke="${C.arm}" stroke-width="31" stroke-linecap="round"/>
+      <g data-part="fore${s}">
+        <path d="M${el}L${pw}" stroke="${C.arm}" stroke-width="29" stroke-linecap="round"/>
+        ${band ? `<path d="M${band}" stroke="${C.ember}" stroke-width="32"/>` : ''}
+        <circle cx="${pw.split(' ')[0]}" cy="${pw.split(' ')[1]}" r="16.5" fill="${C.paw}"/>
+      </g>
+    </g>`;
+  return `
+  <defs>
+    <clipPath id="head${u}"><path d="${head}"/></clipPath>
+  </defs>
+  <g data-part="root">
+    <g data-part="tail" fill="none">
+      <path data-part="tailFur" stroke="${C.tail}" stroke-width="70" stroke-linecap="round"/>
+      <path data-part="tailBands" stroke="${C.stripe}" stroke-width="70" stroke-dasharray="0 30 16 0" stroke-dashoffset="-4"/>
+    </g>
+    <g data-part="legs">
+      <path d="M146 396h50v54a25 25 0 0 1-50 0Z" fill="${C.body}"/>
+      <path d="M204 396h50v54a25 25 0 0 1-50 0Z" fill="${C.body}"/>
+      <ellipse cx="168" cy="462" rx="28" ry="12" fill="${C.paw}"/>
+      <ellipse cx="232" cy="462" rx="28" ry="12" fill="${C.paw}"/>
+      <path d="M160 466v-6M170 467v-7M224 467v-7M234 466v-6" stroke="${C.body}" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+    </g>
+    <g data-part="torso">
+      <path d="M146 258C128 300 128 372 142 406 160 434 240 434 258 406 272 372 272 300 254 258Z" fill="${C.body}"/>
+      <path d="M166 250C164 300 178 334 200 340 222 334 236 300 234 250Z" fill="${C.rust}"/>
+    </g>
+    <g data-part="upper">
+      <g data-part="head">
+        ${ear(false)}${ear(true)}
+        <path d="${head}" fill="${C.rust}"/>
+        <g clip-path="url(#head${u})">
+          <ellipse cx="114" cy="212" rx="30" ry="21" fill="${C.cream}" transform="rotate(24 114 212)"/>
+          <ellipse cx="286" cy="212" rx="30" ry="21" fill="${C.cream}" transform="rotate(-24 286 212)"/>
+          <path data-part="band" d="M80 134Q200 80 320 134" stroke="${C.band}" stroke-width="23" fill="none"/>
+        </g>
+        <ellipse cx="200" cy="223" rx="46" ry="36" fill="${C.cream}"/>
+        <ellipse data-part="browL" cx="160" cy="139" rx="15" ry="8" fill="${C.cream}" transform="rotate(-12 160 139)"/>
+        <ellipse data-part="browR" cx="240" cy="139" rx="15" ry="8" fill="${C.cream}" transform="rotate(12 240 139)"/>
+        ${eye(164, 'L')}${eye(236, 'R')}
+        <path d="M187 205Q200 199 213 205Q209 215 200 217Q191 215 187 205Z" fill="${C.ink}"/>
+        <g stroke="${C.ink}" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path data-face="smile" d="M200 217V224M181 221Q190 232 200 224Q210 232 219 221"/>
+          <g data-face="laugh">
+            <path d="M200 217V222" />
+            <path d="M180 222Q200 256 220 222Q200 230 180 222Z" fill="#4a1a12"/>
+            <path d="M189 238Q200 248 211 238Q200 234 189 238Z" fill="${C.tongue}" stroke="none"/>
+          </g>
+          <ellipse data-face="oh" cx="200" cy="231" rx="5" ry="6.5" fill="#4a1a12"/>
+          <path data-face="frown" d="M200 217V223M187 234Q200 225 213 234"/>
+        </g>
+      </g>
+      ${arm('L', '160 292', '106 340', '152 378', '131 360L141 367')}
+      ${arm('R', '240 292', '294 340', '248 378', '')}
+    </g>
+  </g>`;
+}
+
+/* Tail centerline: base -> 3 joints. Angles in degrees, y points down. */
+function tailD(a0, a1, a2) {
+  const segs = [[78, 186 + a0], [74, 228 + a0 + a1 * .8], [60, 268 + a0 + a1 * .8 + a2 * .9]];
+  const pts = [[182, 402]];
+  for (const [len, deg] of segs) {
+    const r = deg * Math.PI / 180, [x, y] = pts[pts.length - 1];
+    pts.push([x + Math.cos(r) * len, y + Math.sin(r) * len]);
+  }
+  let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) { // Catmull-Rom -> cubic Bezier
+    const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += `C${c1.map((v) => v.toFixed(1))} ${c2.map((v) => v.toFixed(1))} ${p2.map((v) => v.toFixed(1))}`;
+  }
+  return d;
+}
+
+/* ---------- springs ---------- */
+class Spring {
+  constructor(v = 0, k = 170, c = 22) { this.v = v; this.t = v; this.vel = 0; this.k = k; this.c = c; }
+  step(dt) {
+    const a = this.k * (this.t - this.v) - this.c * this.vel;
+    this.vel += a * dt; this.v += this.vel * dt;
+  }
+}
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+function createPanda(host, { viewBox = '0 30 400 460', reactions = true } = {}) {
+  const u = Math.random().toString(36).slice(2, 7);
+  const speed = window.__speed || (window.__speed = { f: 1 });
+  host.insertAdjacentHTML('beforeend', `<svg viewBox="${viewBox}" aria-hidden="true">${pandaMarkup(u)}</svg>`);
+  const svg = host.lastElementChild;
+  const $ = (n) => svg.querySelector(`[data-part="${n}"]`);
+  const el = Object.fromEntries(['root', 'tail', 'torso', 'upper', 'head', 'earL', 'earR', 'armL', 'foreL', 'armR', 'foreR',
+    'ballL', 'ballR', 'lidL', 'lidR', 'browL', 'browR'].map((n) => [n, $(n)]));
+  const faces = [...svg.querySelectorAll('[data-face]')];
+  const tailPath = [$('tailFur'), $('tailBands')];
+
+  const S = (v, k, c) => new Spring(v, k, c);
+  const s = {
+    x: S(0), y: S(0, 320, 22), sx: S(1, 420, 18), sy: S(1, 420, 18),
+    tail: S(0, 60, 7), tailMid: S(0, 45, 6), tailTip: S(0, 32, 5), head: S(0, 120, 14), headY: S(0, 200, 18),
+    earL: S(0, 380, 9), earR: S(0, 380, 9),
+    armL: S(0, 150, 15), foreL: S(0, 180, 14), armR: S(0, 150, 15), foreR: S(0, 180, 14),
+    lookX: S(0, 140, 18), lookY: S(0, 140, 18), lid: S(0, 1400, 60), lidL: S(0, 1400, 60),
+    browY: S(0, 200, 18), browTilt: S(0, 200, 18), browRY: S(0, 200, 18),
+  };
+  let face = 'smile';
+  const setFace = (f) => {
+    face = f;
+    const eyesHappy = f === 'laugh' || f === 'happy';
+    faces.forEach((n) => {
+      const k = n.dataset.face;
+      const on = k === 'happy' ? eyesHappy : k === (f === 'happy' ? 'smile' : f);
+      n.style.display = on ? '' : 'none';
+    });
+    ['ballL', 'ballR', 'lidL', 'lidR'].forEach((n) => { el[n].style.display = eyesHappy ? 'none' : ''; });
+  };
+  setFace('smile');
+
+  /* idle scheduler */
+  let idle = true, busy = false, timers = [];
+  const later = (ms, fn) => { const id = setTimeout(fn, ms * speed.f); timers.push(id); return id; };
+  const clear = () => { timers.forEach(clearTimeout); timers = []; };
+  const rnd = (a, b) => a + Math.random() * (b - a);
+
+  function blink(double) {
+    s.lid.t = 1; s.lidL.t = 1;
+    setTimeout(() => { s.lid.t = 0; s.lidL.t = 0; if (double) setTimeout(() => blink(false), 160 * speed.f); }, 90 * speed.f);
+  }
+  (function blinkLoop() { setTimeout(() => { if (!busy || face === 'smile') blink(Math.random() < .2); blinkLoop(); }, rnd(2200, 5200) * speed.f); })();
+  (function earLoop() {
+    setTimeout(() => {
+      if (idle && !busy && !reduced.matches) {
+        const e = Math.random() < .5 ? s.earL : s.earR; const sign = e === s.earL ? -1 : 1;
+        e.t = sign * 14; setTimeout(() => { e.t = 0; }, 110 * speed.f);
+      }
+      earLoop();
+    }, rnd(3500, 8000) * speed.f);
+  })();
+  (function lookLoop() {
+    setTimeout(() => {
+      if (idle && !busy && !pointer.on) {
+        const home = Math.random() < .4;
+        s.lookX.t = home ? 0 : rnd(-3.5, 3.5); s.lookY.t = home ? 0 : rnd(-2.5, 2);
+      }
+      lookLoop();
+    }, rnd(1800, 4200) * speed.f);
+  })();
+
+  const pointer = { on: false };
+  function lookAt(px, py) {
+    const r = svg.getBoundingClientRect();
+    const dx = (px - (r.left + r.width / 2)) / r.width, dy = (py - (r.top + r.height * .35)) / r.height;
+    s.lookX.t = Math.max(-4, Math.min(4, dx * 9)); s.lookY.t = Math.max(-3, Math.min(3, dy * 7));
+    if (!busy) s.head.t = Math.max(-5, Math.min(5, dx * 8));
+  }
+
+  /* reactions: target keyframes; springs do the in-betweens */
+  function rest() {
+    Object.assign(s.x, { t: 0 }); s.y.t = 0; s.sx.t = 1; s.sy.t = 1;
+    s.head.t = 0; s.headY.t = 0; s.earL.t = 0; s.earR.t = 0;
+    s.armL.t = 0; s.foreL.t = 0; s.armR.t = 0; s.foreR.t = 0;
+    s.lookX.t = 0; s.lookY.t = 0; s.lid.t = 0; s.lidL.t = 0;
+    s.browY.t = 0; s.browTilt.t = 0; s.browRY.t = 0;
+  }
+  const R = reduced.matches;
+  const plays = {
+    poke() {
+      s.sy.t = .9; s.sx.t = 1.07; blink(false); setFace('laugh'); s.earL.t = -10; s.earR.t = 10;
+      later(110, () => { s.sy.t = 1; s.sx.t = 1; s.earL.t = 0; s.earR.t = 0; });
+      later(520, () => setFace('smile'));
+      return 700;
+    },
+    wave() {
+      setFace('laugh'); s.browY.t = -4; s.head.t = -6; s.armR.t = -52; s.foreR.t = -168; s.tail.vel += 40;
+      [0, 1, 2, 3, 4].forEach((i) => later(260 + i * 170, () => { s.foreR.t = i % 2 ? -168 : -140; }));
+      later(1150, () => setFace('smile'));
+      later(1250, rest);
+      return 1600;
+    },
+    cheer() {
+      s.sy.t = .86; s.sx.t = 1.09; s.armL.t = 20; s.armR.t = -20; s.lid.t = .35; s.lidL.t = .35;
+      later(170, () => {
+        setFace('laugh'); s.lid.t = 0; s.lidL.t = 0;
+        s.y.t = R ? 0 : -58; s.sy.t = 1.08; s.sx.t = .95;
+        s.armL.t = 64; s.foreL.t = 132; s.armR.t = -64; s.foreR.t = -132;
+        s.earL.vel -= 250; s.earR.vel += 250; s.tail.t = 18; s.browY.t = -5;
+      });
+      later(460, () => { s.y.t = 0; s.sy.t = 1; s.sx.t = 1; });
+      later(640, () => { s.sy.t = .9; s.sx.t = 1.07; s.tail.t = -8; });
+      later(780, () => { s.sy.t = 1; s.sx.t = 1; });
+      later(1150, () => { rest(); s.tail.t = 0; });
+      later(1400, () => setFace('smile'));
+      return 1700;
+    },
+    think() {
+      setFace('oh'); s.head.t = 9; s.lookX.t = 3.5; s.lookY.t = -4; s.browRY.t = -6; s.browY.t = 0;
+      s.earR.t = 10;
+      later(420, () => { s.head.t = 7; });
+      later(1700, () => { setFace('smile'); rest(); });
+      return 2000;
+    },
+    concern() {
+      setFace('frown'); s.browTilt.t = 1; s.head.t = -5; s.headY.t = 4;
+      s.earL.t = -22; s.earR.t = 22; s.lookY.t = 2.5;
+      s.armL.t = 8; s.armR.t = -8;
+      later(1900, () => { setFace('smile'); rest(); });
+      return 2200;
+    },
+  };
+  function play(name) {
+    if (!reactions && name !== 'poke') return 0;
+    clear(); rest(); setFace('smile');
+    busy = true;
+    const d = plays[name]();
+    later(d, () => { busy = false; });
+    return d;
+  }
+
+  /* frame loop */
+  const rot = (a, [x, y]) => `rotate(${a.toFixed(2)} ${x} ${y})`;
+  const scl = (sx, sy, [x, y]) => `translate(${x} ${y}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${-x} ${-y})`;
+  let last = performance.now(), t0 = last;
+  function frame(now) {
+    let dt = Math.min(.034, (now - last) / 1000) / speed.f; last = now;
+    const time = (now - t0) / 1000 / speed.f;
+    const still = reduced.matches;
+    // idle layers are added on top of the spring values, never written into targets
+    const breathe = idle && !still ? Math.sin(time * 2 * Math.PI / 3.4) : 0;
+    const sway = idle && !still ? Math.sin(time * 2 * Math.PI / 4.6) * 4 : 0;
+    for (const k in s) { if (still && !['lid', 'lidL'].includes(k)) { s[k].v = s[k].t; s[k].vel = 0; } else s[k].step(dt); }
+
+    const b = 1 + breathe * .014;
+    el.root.setAttribute('transform', `translate(${s.x.v.toFixed(2)} ${s.y.v.toFixed(2)}) ${scl(s.sx.v, s.sy.v, PIVOT.ground)}`);
+    s.tailMid.t = s.tail.v; s.tailTip.t = s.tailMid.v; // each joint chases the previous one: follow-through
+    tailPath.forEach((n) => n.setAttribute('d', tailD(s.tail.v + sway, s.tailMid.v + sway * .6, s.tailTip.v + sway * .4)));
+    el.torso.setAttribute('transform', scl(1 + breathe * .006, b, PIVOT.torso));
+    el.upper.setAttribute('transform', `translate(0 ${((1 - b) * 170).toFixed(2)})`);
+    el.head.setAttribute('transform', `translate(0 ${s.headY.v.toFixed(2)}) ${rot(s.head.v + breathe * .6, PIVOT.head)}`);
+    el.earL.setAttribute('transform', rot(s.earL.v, PIVOT.earL));
+    el.earR.setAttribute('transform', `${rot(s.earR.v, PIVOT.earR)} matrix(-1 0 0 1 400 0)`);
+    el.armL.setAttribute('transform', rot(s.armL.v - breathe * 1.5, PIVOT.armL));
+    el.foreL.setAttribute('transform', rot(s.foreL.v, PIVOT.foreL));
+    el.armR.setAttribute('transform', rot(s.armR.v + breathe * 1.5, PIVOT.armR));
+    el.foreR.setAttribute('transform', rot(s.foreR.v, PIVOT.foreR));
+    const look = `translate(${s.lookX.v.toFixed(2)} ${s.lookY.v.toFixed(2)})`;
+    el.ballL.setAttribute('transform', look); el.ballR.setAttribute('transform', look);
+    const lid = (v) => `translate(0 ${(Math.max(0, Math.min(1.05, v)) * 41).toFixed(2)})`;
+    el.lidR.setAttribute('transform', lid(s.lid.v)); el.lidL.setAttribute('transform', lid(s.lidL.v));
+    const tilt = -s.browTilt.v * 18;
+    el.browL.setAttribute('transform', `translate(0 ${(s.browY.v - s.browTilt.v * 2).toFixed(2)}) rotate(${(-12 + tilt).toFixed(2)} 160 139)`);
+    el.browR.setAttribute('transform', `translate(0 ${(s.browY.v + s.browRY.v - s.browTilt.v * 2).toFixed(2)}) rotate(${(12 - tilt).toFixed(2)} 240 139)`);
+
+    if (host.dataset.shadow != null) {
+      const lift = Math.min(1, -s.y.v / 80);
+      host.style.setProperty('--shadow', (1 - lift * .35) * s.sx.v);
+      host.style.setProperty('--shadow-o', 1 - lift * .5);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  return {
+    play, lookAt, pointer,
+    setIdle(v) { idle = v; },
+  };
+}
+
+/* ---------- page ---------- */
+const lines = {
+  wave: 'Привет! Сегодня в 18:00 — я уже размялась.',
+  cheer: 'Тренировка засчитана. Так держать!',
+  think: 'Хм, перенести на четверг или пятницу?',
+  concern: 'Пропустили — бывает. Давай найдём новое время.',
+  poke: 'Эй, щекотно!',
+};
+const stage = document.getElementById('stage');
+stage.dataset.shadow = '';
+const hero = createPanda(stage);
+const bubble = document.getElementById('bubble');
+function say(k) {
+  bubble.classList.add('swap'); bubble.textContent = lines[k];
+  requestAnimationFrame(() => requestAnimationFrame(() => bubble.classList.remove('swap')));
+}
+document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => { hero.play(b.dataset.play); say(b.dataset.play); }));
+stage.addEventListener('click', () => { hero.play('poke'); say('poke'); });
+stage.addEventListener('pointermove', (e) => { hero.pointer.on = true; hero.lookAt(e.clientX, e.clientY); });
+stage.addEventListener('pointerleave', () => { hero.pointer.on = false; });
+
+const avatars = document.getElementById('avatars');
+const avs = [96, 48, 24].map((px) => {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `<div class="avatar" style="width:${px}px;height:${px}px"></div><div class="avatar-label">${px}</div>`;
+  avatars.append(wrap);
+  return createPanda(wrap.firstElementChild, { viewBox: '52 40 296 296', reactions: false });
+});
+
+const idleBtn = document.getElementById('idleBtn');
+idleBtn.addEventListener('click', () => {
+  const on = idleBtn.getAttribute('aria-pressed') !== 'true';
+  idleBtn.setAttribute('aria-pressed', on);
+  [hero, ...avs].forEach((p) => p.setIdle(on));
+});
+const slowBtn = document.getElementById('slowBtn');
+slowBtn.addEventListener('click', () => {
+  const on = slowBtn.getAttribute('aria-pressed') !== 'true';
+  slowBtn.setAttribute('aria-pressed', on);
+  window.__speed.f = on ? 4 : 1;
+});
+</script>
+</body>
+</html>

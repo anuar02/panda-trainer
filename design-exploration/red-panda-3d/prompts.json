@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-26",
+  "reference": {
+    "tool": "built-in image_gen",
+    "master": "design-exploration/mascot-sheets-2026-09-26/red-panda-dark-headband.png",
+    "master_sha256": "27015be9a64fdcf049bbcbad39c1bf7e1b43c9a87c1a39391c5b99f952993ec5",
+    "prompt": "Use case: stylized-concept. Create a single clean full-body FRONT reference image of the exact red panda mascot from the reference character sheet, for image-to-3D and automatic humanoid rigging. One character only, centered, orthographic frontal camera, white background, no text, no grid, no ground shadow. Preserve identity: compact cute red panda with large wide rusty-red head, cream muzzle and cheek patches, two cream eyebrow dots, large open friendly black eyes with white sclera, short happy closed mouth, tall rounded triangular ears with cream rims and dark centers. Thick DARK BROWN headband across forehead, no orange on headband. Dark chocolate brown plump torso and limbs, rust bib, slightly lighter brown rounded paws. A single bright orange wristband on character's right wrist (viewer left). Stand in a symmetric neutral A-pose: both arms straight out diagonally down about 35 degrees from torso, hands clearly separated from hips, palms facing forward, small rounded fingers; two short but clearly defined legs slightly apart with visible gap and feet pointing forward. Keep the original charming compact proportions, but ensure distinct arms and legs suitable for a humanoid skeleton. One large thick plush red panda tail, rusty red with dark rust broad rings, comes from behind the pelvis and curves out to viewer's right, clearly separate from arms and feet. Translate the flat reference into very simple softly rounded 3D toy-like forms with matte flat colored surfaces, minimal gentle volume shading, no fur strands, no sculpted fur, no outlines, no realistic textures, no clothing, no props. The front face must match the reference, not generic raccoon or fox. Whole subject including tail and ears fully visible with white margin.",
+    "output": "reference/a-pose-v1.png"
+  },
+  "meshy": {
+    "cli_version": "0.4.0",
+    "model_type": "standard",
+    "should_texture": true,
+    "enable_pbr": false,
+    "texture_resolution": "4k",
+    "pose_mode": "a-pose",
+    "image_enhancement": false,
+    "remove_lighting": true,
+    "texture_prompt": "Matte flat colors, smooth stylized red panda mascot. Rust red head and ringed tail, dark chocolate torso and headband, cream muzzle cheeks eyebrow dots and ear rims, large black eyes with white sclera, orange wristband on right wrist only. No fur strands, no gritty texture, no glossy plastic."
+  }
+}

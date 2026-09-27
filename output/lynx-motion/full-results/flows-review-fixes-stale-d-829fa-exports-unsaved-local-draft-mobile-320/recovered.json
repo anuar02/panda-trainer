@@ -1,0 +1,181 @@
+{
+  "version": 1,
+  "sessionId": "s1",
+  "plans": {
+    "c5": {
+      "name": "Full Body",
+      "reply": "confirmed",
+      "exercises": [
+        {
+          "id": "e1",
+          "name": "Приседания со штангой",
+          "sets": 3,
+          "reps": "10",
+          "target": 50,
+          "prev": {
+            "kg": 50,
+            "reps": 10
+          },
+          "pr": 70
+        },
+        {
+          "id": "e2",
+          "name": "Отжимания",
+          "sets": 3,
+          "reps": "12",
+          "target": 0,
+          "prev": {
+            "kg": 0,
+            "reps": 12
+          },
+          "pr": 0
+        },
+        {
+          "id": "e3",
+          "name": "Тяга в наклоне",
+          "sets": 3,
+          "reps": "12",
+          "target": 30,
+          "prev": {
+            "kg": 30,
+            "reps": 12
+          },
+          "pr": 40
+        },
+        {
+          "id": "e4",
+          "name": "Планка",
+          "sets": 3,
+          "reps": "40 сек",
+          "target": 0,
+          "prev": {
+            "kg": 0,
+            "reps": 40
+          },
+          "pr": 0
+        }
+      ]
+    }
+  },
+  "context": {
+    "date": "2026-09-14",
+    "start": "09:00",
+    "end": "10:00",
+    "title": "Утренняя сессия",
+    "kind": "personal",
+    "clientId": "c5"
+  },
+  "values": {
+    "c5": {
+      "e1": [
+        {
+          "kg": 50,
+          "reps": 10
+        }
+      ]
+    }
+  },
+  "drafts": {},
+  "finished": true,
+  "localRecovery": {
+    "sessionId": "s1",
+    "active": "c5",
+    "values": {},
+    "finished": false,
+    "dirty": false,
+    "saving": false,
+    "saveError": false,
+    "plans": {
+      "c5": {
+        "name": "Full Body",
+        "reply": "confirmed",
+        "exercises": [
+          {
+            "id": "e1",
+            "name": "Приседания со штангой",
+            "sets": 3,
+            "reps": "10",
+            "target": 50,
+            "prev": {
+              "kg": 50,
+              "reps": 10
+            },
+            "pr": 70
+          },
+          {
+            "id": "e2",
+            "name": "Отжимания",
+            "sets": 3,
+            "reps": "12",
+            "target": 0,
+            "prev": {
+              "kg": 0,
+              "reps": 12
+            },
+            "pr": 0
+          },
+          {
+            "id": "e3",
+            "name": "Тяга в наклоне",
+            "sets": 3,
+            "reps": "12",
+            "target": 30,
+            "prev": {
+              "kg": 30,
+              "reps": 12
+            },
+            "pr": 40
+          },
+          {
+            "id": "e4",
+            "name": "Планка",
+            "sets": 3,
+            "reps": "40 сек",
+            "target": 0,
+            "prev": {
+              "kg": 0,
+              "reps": 40
+            },
+            "pr": 0
+          }
+        ]
+      }
+    },
+    "context": {
+      "date": "2026-09-14",
+      "start": "09:00",
+      "end": "10:00",
+      "title": "Утренняя сессия",
+      "kind": "personal",
+      "clientId": "c5"
+    },
+    "drafts": {
+      "c5": {
+        "e1": [
+          {
+            "kg": "25",
+            "reps": ""
+          }
+        ]
+      }
+    },
+    "editor": {
+      "clientId": "c5",
+      "exId": "e1",
+      "setId": 0,
+      "kg": "25",
+      "reps": "",
+      "error": ""
+    },
+    "feedback": null,
+    "quickUndo": null,
+    "storageError": true,
+    "storageConflict": true,
+    "version": 1,
+    "startedAt": 1790326471598,
+    "completedAt": null,
+    "completedElsewhere": false
+  },
+  "exportedAt": "2026-09-25T08:54:32.415Z",
+  "source": "trainer-prototype-local-journal"
+}

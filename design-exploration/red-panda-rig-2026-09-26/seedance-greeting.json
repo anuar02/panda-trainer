@@ -1,0 +1,26 @@
+{
+  "status": "blocked_not_submitted",
+  "reference_file": "../mascot-sheets-2026-09-26/red-panda-dark-headband.png",
+  "reference_role": "image",
+  "model": "seedance_2_5",
+  "mode": "omni_reference",
+  "duration": 5,
+  "resolution": "720p",
+  "aspect_ratio": "1:1",
+  "generate_audio": false,
+  "count": 1,
+  "estimated_credits": 35,
+  "prompt": "The reference image is a character model sheet showing different views and poses of ONE red panda. Use it only as the exact character identity and drawing style reference. Output ONE single full-body red panda, centered, front three-quarter view, on a plain warm off-white background. Never show a sheet, grid, multiple characters, or multiple views. Preserve the reference's rust-red head, cream cheek crescents and ear rims, dark-brown headband, dark-brown compact body, lighter brown paws, broad striped tail, and a single bright orange #FF7A1F wristband. Preserve its confident adult personality and expressive eyes. This is polished flat 2D character animation with clean curved silhouettes and solid colors. The arms have natural rounded shoulder transitions, gently tapered upper arms, soft elbow bends, and expressive rounded paws: they belong organically to the body. No straight stick arms, no detached circular joints, no puppet construction. Over five seconds: briefly hold a relaxed friendly pose; anticipate the gesture with a subtle weight shift; lift the wristband paw beside the head and wave twice with a soft elbow and small wrist motion; smile and blink once; lower the paw and settle back into the original relaxed pose. The other paw stays relaxed near the hip. A small delayed tail sway and subtle ear follow-through support the gesture. Feet remain planted. Maintain consistent proportions, face markings, accessories and tail stripes throughout. Locked camera, entire character and tail visible with generous margins, no cuts, no zoom, no camera movement. No text, props, speech, audio, gradients, fur texture, photorealism, or 3D rendering. Aim for a finished hand-animated mascot performance.",
+  "blockers": [
+    "Connected Higgsfield account: 0 credits; Seedance 2.5 estimate: 35 credits.",
+    "Local Seedance 2.0 API: sandbox network failure before upload; escalated upload and generation rejected by automatic approval review pending explicit asset transfer and spending authorization."
+  ],
+  "local_api_alternative": {
+    "model": "Seedance 2.0",
+    "duration": 5,
+    "resolution": "720p",
+    "aspect_ratio": "1:1",
+    "generate_audio": false,
+    "cost": "not verified; connector 35-credit estimate does not apply to this API route"
+  }
+}

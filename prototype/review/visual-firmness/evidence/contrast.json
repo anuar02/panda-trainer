@@ -1,0 +1,27 @@
+[
+  {
+    "foreground": "#5c5a55",
+    "background": "#f3f3f1",
+    "ratio": 6.2
+  },
+  {
+    "foreground": "#5c5a55",
+    "background": "#ededeb",
+    "ratio": 5.876
+  },
+  {
+    "foreground": "#8a8a85",
+    "background": "#f3f3f1",
+    "ratio": 3.122
+  },
+  {
+    "foreground": "#8a8a85",
+    "background": "#ffffff",
+    "ratio": 3.468
+  },
+  {
+    "foreground": "#e2e2df",
+    "background": "#f3f3f1",
+    "ratio": 1.168
+  }
+]

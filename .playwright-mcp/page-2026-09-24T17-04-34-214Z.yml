@@ -1,0 +1,150 @@
+- main [ref=f1e3]:
+  - group "Роль" [ref=f1e1444]:
+    - button "Тренер" [pressed] [ref=f1e1445] [cursor=pointer]
+    - button "Клиент" [ref=f1e1450] [cursor=pointer]
+  - generic [ref=f1e17]:
+    - generic [ref=f1e1454]:
+      - generic [ref=f1e1455]:
+        - generic [ref=f1e1456]:
+          - heading "Сегодня" [level=1] [ref=f1e1457]
+          - paragraph [ref=f1e1458]:
+            - text: пн, 14 сен·
+            - time [ref=f1e1459]: 08:00
+        - generic [ref=f1e1460]:
+          - 'button "Входящие: 2 запроса требуют ответа" [ref=f1e1461] [cursor=pointer]':
+            - generic [ref=f1e1465]: "2"
+          - button "Создать занятие" [ref=f1e1466] [cursor=pointer]
+      - generic [ref=f1e1470]:
+        - generic [ref=f1e1471]:
+          - heading "План дня" [level=2] [ref=f1e1472]
+          - generic [ref=f1e1473]: 7 занятий
+        - generic [ref=f1e1474]:
+          - article [ref=f1e1475]:
+            - generic [ref=f1e1476]:
+              - generic [ref=f1e1477]: Следующая тренировка
+              - strong [ref=f1e1478]: Через 1 ч
+            - generic [ref=f1e1479]:
+              - time [ref=f1e1480]: 09:00
+              - generic [ref=f1e1481]: до 10:00
+            - generic [ref=f1e1482]:
+              - heading "Дана" [level=3] [ref=f1e1483]
+              - paragraph [ref=f1e1484]:
+                - strong [ref=f1e1485]: Full Body
+                - generic [ref=f1e1486]: Индивидуальное
+              - generic [ref=f1e1487]: Подтверждено
+              - generic [ref=f1e1490]: Журнал в работе
+            - button "Продолжить тренировку" [ref=f1e1492] [cursor=pointer]
+          - button "Свободно 10:00–11:30, 1 ч 30 мин. Добавить занятие" [ref=f1e1496] [cursor=pointer]:
+            - generic [ref=f1e1497]:
+              - text: 10:00
+              - generic [ref=f1e1498]: до 11:30
+            - generic [ref=f1e1499]:
+              - strong [ref=f1e1500]: Свободно · 1 ч 30 мин
+              - generic [ref=f1e1501]: Добавить занятие
+          - article [ref=f1e1504]:
+            - generic [ref=f1e1505]:
+              - time [ref=f1e1506]: 11:30
+              - generic [ref=f1e1507]: до 12:30
+            - generic [ref=f1e1508]:
+              - button "Занятие Мади, 11:30–12:30" [ref=f1e1509] [cursor=pointer]:
+                - strong [ref=f1e1510]: Мади
+              - paragraph [ref=f1e1514]:
+                - strong [ref=f1e1515]: Верх Б
+                - generic [ref=f1e1516]: Индивидуальное
+          - button "Свободно 12:30–14:00, 1 ч 30 мин. Добавить занятие" [ref=f1e1517] [cursor=pointer]:
+            - generic [ref=f1e1518]:
+              - text: 12:30
+              - generic [ref=f1e1519]: до 14:00
+            - generic [ref=f1e1520]:
+              - strong [ref=f1e1521]: Свободно · 1 ч 30 мин
+              - generic [ref=f1e1522]: Добавить занятие
+          - article [ref=f1e1525]:
+            - generic [ref=f1e1526]:
+              - time [ref=f1e1527]: 14:00
+              - generic [ref=f1e1528]: до 15:00
+            - generic [ref=f1e1529]:
+              - button "Занятие Арман, 14:00–15:00" [ref=f1e1530] [cursor=pointer]:
+                - strong [ref=f1e1531]: Арман
+              - paragraph [ref=f1e1535]:
+                - strong [ref=f1e1536]: Сила 5×5
+                - generic [ref=f1e1537]: Индивидуальное
+          - button "Свободно 15:00–18:00, 3 ч. Добавить занятие" [ref=f1e1538] [cursor=pointer]:
+            - generic [ref=f1e1539]:
+              - text: 15:00
+              - generic [ref=f1e1540]: до 18:00
+            - generic [ref=f1e1541]:
+              - strong [ref=f1e1542]: Свободно · 3 ч
+              - generic [ref=f1e1543]: Добавить занятие
+          - article [ref=f1e1546]:
+            - generic [ref=f1e1547]:
+              - time [ref=f1e1548]: 18:00
+              - generic [ref=f1e1549]: до 19:00
+            - generic [ref=f1e1550]:
+              - button "Занятие Айгерим, 18:00–19:00" [ref=f1e1551] [cursor=pointer]:
+                - strong [ref=f1e1552]: Айгерим
+              - paragraph [ref=f1e1556]:
+                - strong [ref=f1e1557]: Низ А
+                - generic [ref=f1e1558]: Индивидуальное
+          - 'button "Пересечение: 18:30–19:00, 30 минут. Сведения о конфликтующих записях" [ref=f1e1559] [cursor=pointer]':
+            - generic [ref=f1e1564]:
+              - strong [ref=f1e1565]: Пересечение · 30 мин
+              - generic [ref=f1e1566]: 18:30–19:00 · отдельные занятия
+          - article [ref=f1e1569]:
+            - generic [ref=f1e1570]:
+              - time [ref=f1e1571]: 18:30
+              - generic [ref=f1e1572]: до 19:30
+            - generic [ref=f1e1573]:
+              - button "Занятие Арман, 18:30–19:30" [ref=f1e1574] [cursor=pointer]:
+                - strong [ref=f1e1575]: Арман
+              - paragraph [ref=f1e1579]:
+                - strong [ref=f1e1580]: Сила 5×5
+                - generic [ref=f1e1581]: Индивидуальное
+          - button "Свободно 19:30–20:00, 30 мин. Добавить занятие" [ref=f1e1582] [cursor=pointer]:
+            - generic [ref=f1e1583]:
+              - text: 19:30
+              - generic [ref=f1e1584]: до 20:00
+            - generic [ref=f1e1585]:
+              - strong [ref=f1e1586]: Свободно · 30 мин
+              - generic [ref=f1e1587]: Добавить занятие
+          - article [ref=f1e1590]:
+            - generic [ref=f1e1591]:
+              - time [ref=f1e1592]: 20:00
+              - generic [ref=f1e1593]: до 21:00
+            - generic [ref=f1e1594]:
+              - button "Занятие Мини-группа, 20:00–21:00" [ref=f1e1595] [cursor=pointer]:
+                - strong [ref=f1e1596]: Мини-группа
+              - paragraph [ref=f1e1600]:
+                - strong [ref=f1e1601]: Алия, Мади, Дана
+              - paragraph [ref=f1e1602]: 1 подтвердил · 1 ждёт · 1 отменил
+          - button "Свободно 21:00–21:15, 15 мин. Добавить занятие" [ref=f1e1603] [cursor=pointer]:
+            - generic [ref=f1e1604]:
+              - text: 21:00
+              - generic [ref=f1e1605]: до 21:15
+            - generic [ref=f1e1606]:
+              - strong [ref=f1e1607]: Свободно · 15 мин
+              - generic [ref=f1e1608]: Добавить занятие
+          - article [ref=f1e1611]:
+            - generic [ref=f1e1612]:
+              - time [ref=f1e1613]: 21:15
+              - generic [ref=f1e1614]: до 22:00
+            - generic [ref=f1e1615]:
+              - button "Занятие Айгерим, 21:15–22:00" [ref=f1e1616] [cursor=pointer]:
+                - strong [ref=f1e1617]: Айгерим
+              - paragraph [ref=f1e1621]:
+                - strong [ref=f1e1622]: Программа появится позже
+                - generic [ref=f1e1623]: Индивидуальное
+        - paragraph [ref=f1e1624]: Последнее занятие до 22:00
+      - complementary "Свёрнутая тренировка" [ref=f1e1625]:
+        - 'button "Вернуться к тренировке: Дана Ержанова. 2 из 12 подходов · Есть черновик" [active] [ref=f1e1626] [cursor=pointer]':
+          - generic [ref=f1e1627]:
+            - generic [ref=f1e1628]: Вернуться к тренировке
+            - strong [ref=f1e1629]: Дана Ержанова
+            - generic [ref=f1e1630]: 2 из 12 подходов · Есть черновик
+      - navigation "Основная навигация" [ref=f1e1634]:
+        - button "Сегодня" [ref=f1e1635] [cursor=pointer]
+        - button "Расписание" [ref=f1e1641] [cursor=pointer]
+        - button "Клиенты" [ref=f1e1647] [cursor=pointer]
+        - button "Профиль" [ref=f1e1654] [cursor=pointer]
+    - generic [aria-hidden]:
+      - dialog
+    - status

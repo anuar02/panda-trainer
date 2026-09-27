@@ -1,0 +1,36 @@
+{
+  "tool": "built-in image_gen",
+  "purpose": "Material moodboards only; initial and refinement prompts",
+  "prompts": [
+    {
+      "direction": "A",
+      "file": "mood/a-handwriting.png",
+      "prompt": "Use case: stylized-concept. Asset type: editorial material moodboard for identity research, NOT a logo master and NOT an app mockup. Landscape composition, overhead macro photography and restrained ink-study illustration on a continuous flat warm uncoated paper background #f4f2ed, black ink #111110 and graphite #5c5a55. Rich visible paper grain only in this moodboard, soft daylight, plenty of negative space, sophisticated working notebook of a real independent fitness coach. No screen, phone, interface, brand, logo, caption, slogan, emojis, dumbbells, trophies, flame, tape, stickers, collage scraps, crumpled paper, decorative blue fields, robots, AI imagery. Blue #2b48d6 only in marks physically made by the coach. Show material and stroke character, do not imply exact usable vector assets. Three quiet adjacent studies on the same sheet: fine blue ballpoint check beside a small handwritten set count; black fine nib pen with a subtly pressure-varying blue underline beneath a number; a thicker semi-opaque blue felt-tip check. A restrained handwritten note in Russian reads exactly «держи спину». Show pen tips and close-up ink edges, no finished logo. The human coach's record and care are the subject.",
+      "refinement": {
+        "prompt": "Remove every human figure, anatomy drawing, barbell, equipment sketch and botanical drawing. Replace those drawings with untouched warm paper. Keep only the pens, small handwritten recording numbers, blue check marks, blue stroke tests and Russian handwritten «держи спину». This board must study paper and ink only. Keep the same paper and material realism, no new objects.",
+        "referenced_image": "/Users/dilnazzaksylykova/.codex/generated_images/01a0d4ac-198b-7f53-8826-ece2ea6b8d12/exec-fa1520b3-7d2a-4e71-b4a1-bc8ac45eb796.png",
+        "final_source": "/Users/dilnazzaksylykova/.codex/generated_images/01a0d4ac-198b-7f53-8826-ece2ea6b8d12/exec-f6af119b-a425-46d5-8fd4-e6d4d88b8458.png"
+      }
+    },
+    {
+      "direction": "B",
+      "file": "mood/b-multiplication.png",
+      "prompt": "Use case: stylized-concept. Asset type: editorial material moodboard for identity research, NOT a logo master and NOT an app mockup. Landscape composition, overhead macro photography and restrained ink-study illustration on a continuous flat warm uncoated paper background #f4f2ed, black ink #111110 and graphite #5c5a55. Rich visible paper grain only in this moodboard, soft daylight, plenty of negative space, sophisticated working notebook of a real independent fitness coach. No screen, phone, interface, brand, logo, caption, slogan, emojis, dumbbells, trophies, flame, tape, stickers, collage scraps, crumpled paper, decorative blue fields, robots, AI imagery. Blue #2b48d6 only in marks physically made by the coach. Show material and stroke character, do not imply exact usable vector assets. Study of multiplication as a physical notation in a trainer's logbook: the handwritten black inscription «50 × 10» on a spacious paper page. Beside it, two abstract crossing strokes made by the same pen, one in black ink, one in blue ink representing the coach's newly written entry. Close-up of the crossing ink strokes with a black pen nearby. This is material atmosphere only, not branding on an object, not a standalone commercial logo.",
+      "refinement": {
+        "prompt": "Keep the material atmosphere and handwritten «50 × 10». Replace the two large separate scratchy crosses with just one clearly drawn two-stroke crossing mark: one stroke black, the other stroke blue, both smooth single pen passes. No extra writing or drawings.",
+        "referenced_image": "/Users/dilnazzaksylykova/.codex/generated_images/01a0d4ac-198b-7f53-8826-ece2ea6b8d12/exec-41cb17da-75fa-4de2-bac7-72764828f531.png",
+        "final_source": "/Users/dilnazzaksylykova/.codex/generated_images/01a0d4ac-198b-7f53-8826-ece2ea6b8d12/exec-67ac5b6a-11ec-4083-9989-ef5cc12f5758.png"
+      }
+    },
+    {
+      "direction": "C",
+      "file": "mood/c-tallies.png",
+      "prompt": "Use case: stylized-concept. Asset type: editorial material moodboard for identity research, NOT a logo master and NOT an app mockup. Landscape composition, overhead macro photography and restrained ink-study illustration on a continuous flat warm uncoated paper background #f4f2ed, black ink #111110 and graphite #5c5a55. Rich visible paper grain only in this moodboard, soft daylight, plenty of negative space, sophisticated working notebook of a real independent fitness coach. No screen, phone, interface, brand, logo, caption, slogan, emojis, dumbbells, trophies, flame, tape, stickers, collage scraps, crumpled paper, decorative blue fields, robots, AI imagery. Blue #2b48d6 only in marks physically made by the coach. Show material and stroke character, do not imply exact usable vector assets. Study of counted completed training sessions: four upright slim black pen strokes crossed by a fifth blue pen stroke physically recording the completed fifth session; one more group in black farther away. Macro close-up of capillary ink on uncoated paper with a simple unbranded pen. Spacious measured cadence, a real person's consistent yet imperfect marks. No numerals, words, prison imagery or walls.",
+      "refinement": {
+        "prompt": "Remove all human anatomy sketches, botanical sketches and curved decorative lines, replacing with untouched warm paper. Keep only the two tally groups, simple black pen, realistic ink and warm paper material. Preserve the left group of four black vertical strokes crossed by the blue fifth stroke. No new objects or extra drawings.",
+        "referenced_image": "/Users/dilnazzaksylykova/.codex/generated_images/01a0d4ac-198b-7f53-8826-ece2ea6b8d12/exec-f8f4a22a-1bd9-4ee6-8c9c-78c17567255e.png",
+        "final_source": "/Users/dilnazzaksylykova/.codex/generated_images/01a0d4ac-198b-7f53-8826-ece2ea6b8d12/exec-84a4acc4-723c-4b01-a3fe-a9169332f1ea.png"
+      }
+    }
+  ]
+}

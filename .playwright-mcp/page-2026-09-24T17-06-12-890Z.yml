@@ -1,0 +1,146 @@
+- main [ref=f2e3]:
+  - group "Роль" [ref=f2e1670]:
+    - button "Тренер" [pressed] [ref=f2e1671] [cursor=pointer]
+    - button "Клиент" [ref=f2e1676] [cursor=pointer]
+  - generic [ref=f2e17]:
+    - generic [ref=f2e1680]:
+      - generic [ref=f2e1681]:
+        - heading "Расписание" [level=1] [ref=f2e1682]
+        - button "Добавить занятие на выбранный день" [ref=f2e1683] [cursor=pointer]
+      - generic [ref=f2e1686]:
+        - region "Выбор даты" [ref=f2e1687]:
+          - generic [ref=f2e1688]:
+            - heading "сентябрь 2026" [level=2] [ref=f2e1689]
+            - button "Сегодня" [ref=f2e1690] [cursor=pointer]
+          - generic [ref=f2e1691]:
+            - button "Предыдущая неделя" [ref=f2e1692] [cursor=pointer]
+            - generic [ref=f2e1695]: 14 сен — 20 сен
+            - button "Следующая неделя" [ref=f2e1696] [cursor=pointer]
+          - generic [ref=f2e1699]:
+            - button "пн, 14 сен, 7 занятий" [pressed] [ref=f2e1700] [cursor=pointer]:
+              - generic [ref=f2e1701]: пн
+              - strong [ref=f2e1702]: "14"
+              - generic [ref=f2e1703]: "7"
+            - button "вт, 15 сен, 1 занятие" [ref=f2e1704] [cursor=pointer]:
+              - generic [ref=f2e1705]: вт
+              - strong [ref=f2e1706]: "15"
+              - generic [ref=f2e1707]: "1"
+            - button "ср, 16 сен, 0 занятий" [ref=f2e1708] [cursor=pointer]:
+              - generic [ref=f2e1709]: ср
+              - strong [ref=f2e1710]: "16"
+              - generic [ref=f2e1711]: —
+            - button "чт, 17 сен, 1 занятие" [ref=f2e1712] [cursor=pointer]:
+              - generic [ref=f2e1713]: чт
+              - strong [ref=f2e1714]: "17"
+              - generic [ref=f2e1715]: "1"
+            - button "пт, 18 сен, 0 занятий" [ref=f2e1716] [cursor=pointer]:
+              - generic [ref=f2e1717]: пт
+              - strong [ref=f2e1718]: "18"
+              - generic [ref=f2e1719]: —
+            - button "сб, 19 сен, 0 занятий" [ref=f2e1720] [cursor=pointer]:
+              - generic [ref=f2e1721]: сб
+              - strong [ref=f2e1722]: "19"
+              - generic [ref=f2e1723]: —
+            - button "вс, 20 сен, 0 занятий" [ref=f2e1724] [cursor=pointer]:
+              - generic [ref=f2e1725]: вс
+              - strong [ref=f2e1726]: "20"
+              - generic [ref=f2e1727]: —
+          - paragraph [ref=f2e1728]:
+            - text: Количество занятий под датой
+            - generic [ref=f2e1729]: Алматы
+        - region "Занятия выбранного дня" [ref=f2e1730]:
+          - generic [ref=f2e1731]:
+            - heading "понедельник, 14 сентября" [level=2] [ref=f2e1732]
+            - paragraph [ref=f2e1733]: 7 занятий · 6 ч 45 мин занятий
+          - generic [ref=f2e1734]:
+            - article [ref=f2e1735]:
+              - button "Дана, 09:00–10:00. Открыть занятие" [ref=f2e1736] [cursor=pointer]:
+                - generic [ref=f2e1737]:
+                  - strong [ref=f2e1738]: 09:00
+                  - generic [ref=f2e1739]: 10:00
+                - generic [ref=f2e1740]:
+                  - strong [ref=f2e1741]: Дана
+                  - generic [ref=f2e1742]: Full Body
+                  - generic [ref=f2e1743]: Журнал в работе
+                  - generic [ref=f2e1744]: Подтверждено
+            - button "10:00–11:30 Свободно · 1 ч 30 мин" [ref=f2e1749] [cursor=pointer]:
+              - generic [ref=f2e1750]: 10:00–11:30
+              - generic [ref=f2e1751]: Свободно · 1 ч 30 мин
+            - article [ref=f2e1754]:
+              - button "Мади, 11:30–12:30. Открыть занятие" [ref=f2e1755] [cursor=pointer]:
+                - generic [ref=f2e1756]:
+                  - strong [ref=f2e1757]: 11:30
+                  - generic [ref=f2e1758]: 12:30
+                - generic [ref=f2e1759]:
+                  - strong [ref=f2e1760]: Мади
+                  - generic [ref=f2e1761]: Верх Б
+                  - generic [ref=f2e1762]: Журнал завершён
+                  - generic [ref=f2e1763]: Подтверждено
+            - button "12:30–14:00 Свободно · 1 ч 30 мин" [ref=f2e1768] [cursor=pointer]:
+              - generic [ref=f2e1769]: 12:30–14:00
+              - generic [ref=f2e1770]: Свободно · 1 ч 30 мин
+            - article [ref=f2e1773]:
+              - button "Арман, 14:00–15:00. Открыть занятие" [ref=f2e1774] [cursor=pointer]:
+                - generic [ref=f2e1775]:
+                  - strong [ref=f2e1776]: 14:00
+                  - generic [ref=f2e1777]: 15:00
+                - generic [ref=f2e1778]:
+                  - strong [ref=f2e1779]: Арман
+                  - generic [ref=f2e1780]: Сила 5×5
+                  - generic [ref=f2e1781]: Подтверждено
+            - button "15:00–18:00 Свободно · 3 ч" [ref=f2e1786] [cursor=pointer]:
+              - generic [ref=f2e1787]: 15:00–18:00
+              - generic [ref=f2e1788]: Свободно · 3 ч
+            - generic [ref=f2e1791]:
+              - generic [ref=f2e1792]: Пересечение · 2 занятия
+              - article [ref=f2e1796]:
+                - button "Айгерим, 18:00–19:00. Открыть занятие" [ref=f2e1797] [cursor=pointer]:
+                  - generic [ref=f2e1798]:
+                    - strong [ref=f2e1799]: 18:00
+                    - generic [ref=f2e1800]: 19:00
+                  - generic [ref=f2e1801]:
+                    - strong [ref=f2e1802]: Айгерим
+                    - generic [ref=f2e1803]: Низ А
+                    - generic [ref=f2e1804]: Подтверждено
+              - article [ref=f2e1809]:
+                - button "Арман, 18:30–19:30. Открыть занятие" [ref=f2e1810] [cursor=pointer]:
+                  - generic [ref=f2e1811]:
+                    - strong [ref=f2e1812]: 18:30
+                    - generic [ref=f2e1813]: 19:30
+                  - generic [ref=f2e1814]:
+                    - strong [ref=f2e1815]: Арман
+                    - generic [ref=f2e1816]: Сила 5×5
+                    - generic [ref=f2e1817]: Подтверждено
+            - button "19:30–20:00 Свободно · 30 мин" [ref=f2e1822] [cursor=pointer]:
+              - generic [ref=f2e1823]: 19:30–20:00
+              - generic [ref=f2e1824]: Свободно · 30 мин
+            - article [ref=f2e1827]:
+              - button "Мини-группа, 20:00–21:00. Открыть занятие" [ref=f2e1828] [cursor=pointer]:
+                - generic [ref=f2e1829]:
+                  - strong [ref=f2e1830]: 20:00
+                  - generic [ref=f2e1831]: 21:00
+                - generic [ref=f2e1832]:
+                  - strong [ref=f2e1833]: Мини-группа
+                  - generic [ref=f2e1834]: Алия, Мади, Дана
+                  - generic [ref=f2e1835]: 1 подтвердил · 1 ждёт · 1 отменил
+                  - generic [ref=f2e1836]: Общее занятие
+            - button "21:00–21:15 Свободно · 15 мин" [ref=f2e1841] [cursor=pointer]:
+              - generic [ref=f2e1842]: 21:00–21:15
+              - generic [ref=f2e1843]: Свободно · 15 мин
+            - article [ref=f2e1846]:
+              - button "Айгерим, 21:15–22:00. Открыть занятие" [ref=f2e1847] [cursor=pointer]:
+                - generic [ref=f2e1848]:
+                  - strong [ref=f2e1849]: 21:15
+                  - generic [ref=f2e1850]: 22:00
+                - generic [ref=f2e1851]:
+                  - strong [ref=f2e1852]: Айгерим
+                  - generic [ref=f2e1853]: Программа пока не назначена
+                  - generic [ref=f2e1854]: Подтверждено
+      - navigation "Основная навигация" [ref=f2e1859]:
+        - button "Сегодня" [ref=f2e1860] [cursor=pointer]
+        - button "Расписание" [ref=f2e1866] [cursor=pointer]
+        - button "Клиенты" [ref=f2e1872] [cursor=pointer]
+        - button "Профиль" [ref=f2e1879] [cursor=pointer]
+    - generic [aria-hidden]:
+      - dialog
+    - status

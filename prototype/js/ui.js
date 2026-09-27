@@ -104,7 +104,6 @@ const UI = (() => {
     trainer: [
       { id: 't-today', label: 'Сегодня', icon: 'home' },
       { id: 't-schedule', label: 'Расписание', icon: 'calendar' },
-      { center: true, id: 't-new', label: 'Занятие', icon: 'plus' },
       { id: 't-clients', label: 'Клиенты', icon: 'users' },
       { id: 't-profile', label: 'Профиль', icon: 'user' },
     ],
@@ -120,23 +119,18 @@ const UI = (() => {
   const TabBar = (role, active, badge = 0) => {
     const items = TABS[role];
     return `<nav class="tabbar" aria-label="Основная навигация">${items.map(t => {
-      if (t.center) {
-        return `<button class="tabbar__center" ${act('tab', { id: t.id })}>
-          <span class="tabbar__fab${active === t.id ? ' is-on' : ''}">${Icon.get('plus', { size: 26, sw: 2.4 })}</span>
-          <span>${esc(t.label)}</span></button>`;
-      }
       const on = active === t.id;
       return `<button class="tabbar__item${on ? ' is-on' : ''}" ${act('tab', { id: t.id })} aria-current="${on}">
-        <span style="position:relative">${Icon.get(t.icon, { size: 23, sw: on ? 2.4 : 1.9 })}${t.id === 't-today' && badge ? `<span class="count">${badge}</span>` : ''}</span>
-        <span>${esc(t.label)}</span></button>`;
+        <span class="tabbar__icon">${Icon.get(t.icon, { size: 22, sw: on ? 2.3 : 1.8 })}${t.id === 't-today' && badge ? `<span class="count">${badge}</span>` : ''}</span>
+        <span class="tabbar__label">${esc(t.label)}</span></button>`;
     }).join('')}</nav>`;
   };
 
   /* ── Sheet shell ─────────────────────────────────────────────────────────── */
-  const Sheet = (open, inner) =>
+  const Sheet = (open, inner, kind = '') =>
     `<div class="sheet-layer${open ? ' is-open' : ''}" aria-hidden="${!open}">
       <div class="sheet__scrim" ${act('sheet.close')}></div>
-      <div class="sheet" role="dialog" aria-modal="true">
+      <div class="sheet" data-sheet="${esc(kind)}" role="dialog" aria-modal="true" tabindex="-1">
         <div class="sheet__grip"><i></i></div>
         <div class="sheet__body">${inner}</div>
       </div>
@@ -149,7 +143,7 @@ const UI = (() => {
 
   /* ── Status bar ──────────────────────────────────────────────────────────── */
   const StatusBar = () => `<div class="device__status">
-    <span class="num">9:41</span>
+    <span class="num">${esc(DB.NOW_TIME)}</span>
     <span class="status__icons">${Icon.get('wifi', { size: 15, sw: 2.2 })}${Icon.get('battery', { size: 22, sw: 1.6 })}</span>
   </div>`;
 
@@ -160,5 +154,22 @@ const UI = (() => {
         <div class="row__main"><div class="sk" style="width:60%;height:14px"></div><div class="sk" style="width:40%;height:12px;margin-top:8px"></div></div></div>`
     ).join(''), { rows: true });
 
-  return { esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton };
+  const WorkoutDock = () => {
+    const st = Store.get();
+    if (st.role !== 'trainer' || st.screen === 't-session') return '';
+    const workout = Store.logging.resumable();
+    if (!workout) return '';
+    const draftDetail = workout.group && workout.draftParticipants ? ` · Черновики: ${workout.draftParticipants} участн.` : workout.drafts ? ' · Есть черновик' : '';
+    const detail = workout.storageError ? 'Ошибка сохранения · вернитесь к журналу'
+      : !workout.participating ? 'Участник не участвует'
+      : workout.total ? `${workout.done} из ${workout.total} подходов` : 'Без программы';
+    const description = detail + draftDetail;
+    return `<aside class="workout-dock" aria-label="Свёрнутая тренировка">
+      <button class="workout-dock__button" ${act('log.resume', { id: workout.sessionId })} aria-label="Вернуться к тренировке: ${esc(workout.name)}, ${workout.start}. ${esc(description)}">
+        <span class="workout-dock__text"><span class="workout-dock__action">Вернуться к тренировке</span><strong>${esc(workout.name)}</strong><span class="workout-dock__time num">${workout.start} · Не завершена</span><span class="workout-dock__detail${workout.storageError ? ' is-error' : ''}">${esc(description)}</span></span>
+        <span class="workout-dock__expand" aria-hidden="true">${Icon.get('chevD', { size: 22 })}</span>
+      </button></aside>`;
+  };
+
+  return { esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton, WorkoutDock };
 })();

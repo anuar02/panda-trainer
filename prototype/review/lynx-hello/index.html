@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Рысь · Приветствие</title>
+<link rel="stylesheet" href="../../css/fonts.css">
+<link rel="stylesheet" href="hello.css">
+<body>
+<main>
+  <header><a href="../lynx-diversity/index.html">← Все позы</a><span>Проба движения · 01</span></header>
+  <section class="intro"><p class="eyebrow">Рысь, которая здоровается</p><h1>О, привет.</h1><p>Небольшой наклон навстречу, взмах лапой и улыбка.<br>Один жест — и снова спокойствие.</p></section>
+  <section class="workspace" aria-label="Просмотр анимации">
+    <div class="stage" data-hello aria-label="Пятнистая рысь приветственно машет лапой" role="img"></div>
+    <div class="controls">
+      <div class="buttons"><button type="button" id="play">Повторить</button><button type="button" id="slow" class="secondary">Медленно × 0,5</button><button type="button" id="pause" class="secondary">Пауза</button></div>
+      <label class="scrubber">Момент жеста <output id="time">0,00 с</output><input id="seek" type="range" min="0" max="2600" value="0" step="10"></label>
+      <p id="status" role="status">Один цикл · 2,6 секунды</p>
+    </div>
+  </section>
+  <section class="context"><div><p class="eyebrow">В масштабе приложения</p><h2>Приглашение от тренера</h2><p>Тот же жест в компактном размере. Текст и кнопка остаются на месте.</p><p class="note">Это просмотр анимации. Приглашение здесь не отправляется и не принимается.</p></div>
+    <article class="phone"><div class="phone-top">9:41 <span>● ▰</span></div><div class="stage stage--small" data-hello aria-hidden="true"></div><p class="eyebrow">Личное приглашение</p><h3>Дана, начнём?</h3><p>Тренер подготовил для вас<br>первую тренировку.</p><button type="button" id="context-play">Посмотреть приветствие</button><p class="phone-note">Ваш план всегда под рукой</p></article>
+  </section>
+  <footer><p>Первая проба плавного движения. Рисунок — GPT Image, движение — отдельные части персонажа. Клавиатура и настройка уменьшения движения останавливают анимацию.</p><a href="../../LYNX-HELLO.md">Что сделано и что оценить ↗</a></footer>
+</main>
+<script src="hello.js"></script>
+</body>
+</html>

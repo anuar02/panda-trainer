@@ -1,0 +1,15 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "red-panda-sheet.png",
+  "variants": [
+    {
+      "file": "red-panda-cream-headband.png",
+      "prompt": "Use case: precise-object-edit. Edit this exact red panda model sheet. Make ONLY ONE COLOR CHANGE: recolor every ORANGE HEADBAND on every head in all three rows to solid LIGHT WARM CREAM, matching the cream ear and face markings (approximately #F6E5CD). Include the rear view headband.\nKeep all WRISTBANDS bright ORANGE #FF7A1F. Orange remains the sporty wristband accent only. Do not recolor the rust-red fur or striped tail, do not change facial markings, cream eyebrows, expressions, anatomy, proportions, or any pose.\nPreserve the exact original 19-drawing model sheet composition: row 1 four turnarounds, row 2 eight expression heads, row 3 seven poses. Same character identity, exact facial features, reddish rust fur, dark brown limbs, lighter brown paws, large striped tail, blank clipboard, warm off-white background. Keep image landscape at 1536x1024. No labels, no text. Clean flat vector look, simple rounded shapes, flat uniform fills, no gradients or textures. All changes strictly limited to headband color; no redesign."
+    },
+    {
+      "file": "red-panda-dark-headband.png",
+      "prompt": "Use case: precise-object-edit. Edit this exact red panda model sheet. Make ONLY ONE COLOR CHANGE: recolor every ORANGE HEADBAND on every head in all three rows to solid DEEP DARK CHOCOLATE BROWN (approximately #38251F), darker than the rust-red head fur and harmonious with the dark brown limbs. Include the rear view headband.\nKeep all WRISTBANDS bright ORANGE #FF7A1F. Orange remains the sporty wristband accent only. Do not recolor the rust-red fur or striped tail, do not change facial markings, cream eyebrows, expressions, anatomy, proportions, or any pose.\nPreserve the exact original 19-drawing model sheet composition: row 1 four turnarounds, row 2 eight expression heads, row 3 seven poses. Same character identity, exact facial features, reddish rust fur, dark brown limbs, lighter brown paws, large striped tail, blank clipboard, warm off-white background. Keep image landscape at 1536x1024. No labels, no text. Clean flat vector look, simple rounded shapes, flat uniform fills, no gradients or textures. All changes strictly limited to headband color; no redesign."
+    }
+  ],
+  "note": "Original red panda sheet retained. Exploratory headband color variants; orange wristband preserved."
+}

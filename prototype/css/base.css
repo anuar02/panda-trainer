@@ -23,7 +23,7 @@ h1, h2, h3, p { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
 
 :focus-visible {
-  outline: 2.5px solid var(--ink);
+  outline: 2.5px solid var(--accent);
   outline-offset: 2px;
   border-radius: 6px;
 }
@@ -145,7 +145,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   align-items: center;
   gap: 7px;
 }
-.rolebar button[aria-pressed='true'] { background: var(--ink); color: #fff; }
+.rolebar button[aria-pressed='true'] { background: var(--sunken); color: var(--ink); }
 
 .toolbar {
   display: flex;
@@ -229,6 +229,26 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 
 /* ── Right: inspector / annotations ───────────────────────────────────────── */
+
+/* On an actual narrow viewport, use the phone's space instead of a phone frame.
+   The role switch belongs to the prototype viewer, not the product navigation. */
+@media (max-width: 600px) {
+  body { overflow: hidden; background: var(--canvas); }
+  .stage { position: fixed; inset: var(--app-viewport-top, 0px) 0 auto; height: var(--app-viewport-height, 100dvh); min-height: 0; display: flex; }
+  .canvas-col { flex: 1; padding: 0; gap: 0; width: 100%; min-height: 0; }
+  .rail, .inspector, .prototype-disclaimer { display: none; }
+  #toolbar { height: 56px; flex-shrink: 0; padding: 4px 8px; background: var(--surface); border-bottom: 1px solid var(--border); width: 100%; }
+  #toolbar [aria-label="Состояние"], #toolbar [aria-label="Ширина"], #toolbar [aria-label="Оформление"] { display: none; }
+  #toolbar .rolebar { border: 0; box-shadow: none; }
+  #toolbar .rolebar button { min-height: 44px; padding-block: 8px; }
+  .is-compact-viewport #toolbar { display: none; }
+  .device, .device--wide { width: 100%; height: auto; flex: 1; min-height: 0; padding: 0; border-radius: 0; box-shadow: none; }
+  .device__screen, .device--wide .device__screen { border-radius: 0; }
+  .device__status, .device__home { display: none; }
+  .sheet { max-height: 100%; }
+  .sheet[data-sheet="setlog"] { height: 100%; max-height: 100%; }
+  .log-editor-footer { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+}
 
 .inspector {
   background: var(--surface);

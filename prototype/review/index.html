@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymGO — обзор визуального направления</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<style>
+:root{font-family:Inter,sans-serif;color:#111110;background:#f4f2ed;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}main{max-width:1320px;margin:auto;padding:56px 32px 80px}
+h1,h2,h3{font-family:Montserrat,sans-serif;letter-spacing:-.035em}h1{font-size:clamp(30px,4.5vw,58px);line-height:1.08;max-width:900px;margin:16px 0 24px;font-weight:800}
+h2{font-size:30px;margin:0 0 12px}h3{font-size:18px;margin:0 0 10px}p{font-size:15px;line-height:1.6;max-width:70ch;color:#5e5f60;margin:0 0 16px}
+a{color:inherit;text-underline-offset:4px}a:focus-visible,input:focus-visible{outline:3px solid #2b48d6;outline-offset:5px}
+.brand{font-family:Montserrat,sans-serif;font-size:24px;font-weight:800;letter-spacing:-.07em}.brand span{color:#0c8d20}
+.meta{font-size:13px;margin-top:8px}.intro{max-width:70ch}.lead{font-size:18px;max-width:65ch}
+nav{display:flex;gap:12px 24px;flex-wrap:wrap;padding:20px 0 28px}nav a{font-size:14px}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;background:white;border-radius:16px;padding:18px 24px;margin:12px 0 48px}
+fieldset{display:flex;gap:16px;border:0;padding:0;margin:0;flex-wrap:wrap}legend{font-size:13px;color:#5e5f60;margin-bottom:10px}label{display:flex;align-items:center;gap:8px;min-height:32px;font-size:14px;cursor:pointer}input{accent-color:#050505;width:18px;height:18px}
+.toolbar p{margin:0;font-size:13px}section{margin:0 0 64px}.screens{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:40px 32px;align-items:start;margin-top:28px}
+figure{margin:0;max-width:430px}figcaption{min-height:138px}figcaption p{font-size:14px;line-height:1.55}.capture{display:block;width:100%;max-width:390px;border:1px solid #dedee1;border-radius:12px;overflow:hidden;background:white}.capture img{display:block;width:100%;height:auto}
+.decisions{background:white;padding:32px;border-radius:20px}.decisions ol{padding-left:22px;max-width:75ch}.decisions li{padding:0 0 18px 8px;font-size:16px;line-height:1.5}.decisions li:last-child{padding-bottom:0}.decisions li span{display:block;color:#5e5f60;font-size:14px;margin-top:4px}
+footer{border-top:1px solid #dedee1;padding-top:24px}footer p{font-size:13px}
+@media(max-width:600px){main{padding:28px 16px 40px}h2{font-size:26px}.toolbar{padding:16px;margin-bottom:36px}figcaption{min-height:0}.screens{gap:32px}.decisions{padding:24px 20px}}
+</style>
+<main><header><div class="brand">gym<span>GO</span></div><p class="meta">Рабочее название · Обзор от 24 сентября 2026</p>
+<h1>Чернильный блокнот</h1>
+<p class="lead">Тёплая бумага, синие чернила и строки подходов. Сравните реальные экраны до и после визуального прохода.</p>
+<p>Это материалы для выбора направления. Бренд и иллюстрации ещё не утверждены; Swift или React Native пока не выбран.</p>
+<nav aria-label="Разделы обзора"><a href="#part-0">Знакомство</a><a href="#part-1">Работа тренера</a><a href="#part-2">У клиента</a><a href="#part-3">Дополнительные состояния</a><a href="#decisions">Что решить</a><a href="../index.html">Открыть прототип</a></nav></header>
+<div class="toolbar"><fieldset><legend>Визуальный проход</legend><label><input type="radio" name="version" value="after" checked>После</label><label><input type="radio" name="version" value="before">До</label></fieldset><fieldset><legend>Ширина исходного экрана</legend><label><input type="radio" name="width" value="390" checked>390 px</label><label><input type="radio" name="width" value="320">320 px</label></fieldset><p id="width-note" aria-live="polite">После · 390 × 844 px. Нажмите на экран, чтобы открыть оригинал.</p></div>
+<section id="part-0"><h2>Знакомство</h2><p class="intro">Иллюстрации GPT Image появляются до первой тренировки. В повторяющейся работе внимание остаётся на данных.</p><div class="screens"><figure>
+          <figcaption><h3>Приглашение</h3><p>Общий блокнот связывает тренера и клиента. Название gymGO пока рабочее.</p></figcaption>
+          <a class="capture" href="captures/390/invitation.png" target="_blank" rel="noopener" aria-label="Приглашение: открыть снимок целиком">
+            <img src="captures/390/invitation.png" data-name="invitation" data-current-only="false" width="390" height="844" loading="lazy" alt="Приглашение, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Первый план</h3><p>Пустое состояние объясняет следующий шаг; иллюстрация поддерживает знакомство.</p></figcaption>
+          <a class="capture" href="captures/390/first-plan.png" target="_blank" rel="noopener" aria-label="Первый план: открыть снимок целиком">
+            <img src="captures/390/first-plan.png" data-name="first-plan" data-current-only="false" width="390" height="844" loading="lazy" alt="Первый план, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure></div></section><section id="part-1"><h2>Работа тренера</h2><p class="intro">От расписания к записи подхода и результатам. Главный критерий — быстро записать факт и вернуться к клиенту.</p><div class="screens"><figure>
+          <figcaption><h3>Сегодня</h3><p>Время отделено от имени; статусы помогают выбрать следующее действие.</p></figcaption>
+          <a class="capture" href="captures/390/trainer-home.png" target="_blank" rel="noopener" aria-label="Сегодня: открыть снимок целиком">
+            <img src="captures/390/trainer-home.png" data-name="trainer-home" data-current-only="false" width="390" height="844" loading="lazy" alt="Сегодня, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Журнал тренировки</h3><p>Показанный прошлый результат записывается одним нажатием; карандаш открывает изменение. Посещение и списание — отдельно.</p></figcaption>
+          <a class="capture" href="captures/390/personal-start.png" target="_blank" rel="noopener" aria-label="Журнал тренировки: открыть снимок целиком">
+            <img src="captures/390/personal-start.png" data-name="personal-start" data-current-only="false" width="390" height="844" loading="lazy" alt="Журнал тренировки, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Один подход</h3><p>Контекст клиента и упражнения остаётся рядом с полями и действием записи.</p></figcaption>
+          <a class="capture" href="captures/390/set-editor.png" target="_blank" rel="noopener" aria-label="Один подход: открыть снимок целиком">
+            <img src="captures/390/set-editor.png" data-name="set-editor" data-current-only="false" width="390" height="844" loading="lazy" alt="Один подход, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Мини-группа</h3><p>Активный участник виден явно; черновики и факты у каждого свои.</p></figcaption>
+          <a class="capture" href="captures/390/group-start.png" target="_blank" rel="noopener" aria-label="Мини-группа: открыть снимок целиком">
+            <img src="captures/390/group-start.png" data-name="group-start" data-current-only="false" width="390" height="844" loading="lazy" alt="Мини-группа, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Результаты</h3><p>Частичный результат остаётся частичным. Завершение не дописывает отсутствующие подходы.</p></figcaption>
+          <a class="capture" href="captures/390/personal-results.png" target="_blank" rel="noopener" aria-label="Результаты: открыть снимок целиком">
+            <img src="captures/390/personal-results.png" data-name="personal-results" data-current-only="false" width="390" height="844" loading="lazy" alt="Результаты, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure></div></section><section id="part-2"><h2>У клиента</h2><p class="intro">Следующее занятие, программа и история используют одну типографику и спокойную иерархию.</p><div class="screens"><figure>
+          <figcaption><h3>Ближайшее занятие</h3><p>Время — главный ориентир. Действующее и предложенное время переноса показаны раздельно.</p></figcaption>
+          <a class="capture" href="captures/390/client-home.png" target="_blank" rel="noopener" aria-label="Ближайшее занятие: открыть снимок целиком">
+            <img src="captures/390/client-home.png" data-name="client-home" data-current-only="false" width="390" height="844" loading="lazy" alt="Ближайшее занятие, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Программа</h3><p>Полные названия упражнений и назначенная программа; отсутствие плана не скрывается подстановкой.</p></figcaption>
+          <a class="capture" href="captures/390/client-program.png" target="_blank" rel="noopener" aria-label="Программа: открыть снимок целиком">
+            <img src="captures/390/client-program.png" data-name="client-program" data-current-only="false" width="390" height="844" loading="lazy" alt="Программа, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>История</h3><p>Запись в расписании, посещение и операция пакета — разные факты.</p></figcaption>
+          <a class="capture" href="captures/390/client-history.png" target="_blank" rel="noopener" aria-label="История: открыть снимок целиком">
+            <img src="captures/390/client-history.png" data-name="client-history" data-current-only="false" width="390" height="844" loading="lazy" alt="История, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Прогресс</h3><p>Значения и даты читаются явно. Пока это демонстрационная история, без новых журналов.</p></figcaption>
+          <a class="capture" href="captures/390/client-progress.png" target="_blank" rel="noopener" aria-label="Прогресс: открыть снимок целиком">
+            <img src="captures/390/client-progress.png" data-name="client-progress" data-current-only="false" width="390" height="844" loading="lazy" alt="Прогресс, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Профиль</h3><p>Личные данные и остаток пакета видны сразу. Баланс остаётся данными демосеанса.</p></figcaption>
+          <a class="capture" href="captures/390/client-profile.png" target="_blank" rel="noopener" aria-label="Профиль: открыть снимок целиком">
+            <img src="captures/390/client-profile.png" data-name="client-profile" data-current-only="false" width="390" height="844" loading="lazy" alt="Профиль, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure></div></section><section id="part-3"><h2>Дополнительные состояния</h2><p class="intro">Только текущая версия: для этих состояний старые снимки не создавались. История снята в демовремя 20:30, пустые экраны — в сценарии без данных.</p><div class="screens"><figure>
+          <figcaption><h3>История к вечеру</h3><p>Дата и время на полях реестра. Прошедшее занятие само по себе не означает посещение.</p></figcaption>
+          <a class="capture" href="captures/390/client-history-ledger.png" target="_blank" rel="noopener" aria-label="История к вечеру: открыть снимок целиком">
+            <img src="captures/390/client-history-ledger.png" data-name="client-history-ledger" data-current-only="true" width="390" height="844" loading="lazy" alt="История к вечеру, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Пока нет программы</h3><p>Готовый рисунок GPT Image поддерживает начало работы; переход к расписанию остаётся явным.</p></figcaption>
+          <a class="capture" href="captures/390/client-empty-program.png" target="_blank" rel="noopener" aria-label="Пока нет программы: открыть снимок целиком">
+            <img src="captures/390/client-empty-program.png" data-name="client-empty-program" data-current-only="true" width="390" height="844" loading="lazy" alt="Пока нет программы, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure><figure>
+          <figcaption><h3>Пока нет результатов</h3><p>Пустой блокнот вместо выдуманного графика. Посещения по-прежнему учитываются отдельно.</p></figcaption>
+          <a class="capture" href="captures/390/client-empty-progress.png" target="_blank" rel="noopener" aria-label="Пока нет результатов: открыть снимок целиком">
+            <img src="captures/390/client-empty-progress.png" data-name="client-empty-progress" data-current-only="true" width="390" height="844" loading="lazy" alt="Пока нет результатов, снимок прототипа на ширине 390 пикселей">
+          </a>
+        </figure></div></section>
+<section class="decisions" id="decisions"><h2>Что решить по этому обзору</h2>
+<ol><li>Подходит ли характер «Чернильного блокнота»?<span>Сравните температуру фона, синий акцент и новый таб-бар. В журнале оцените различие предложения «Как в прошлый раз» и записанного факта.</span></li>
+<li>Подходит ли характер иллюстраций GPT Image?<span>Общий блокнот и взаимодействие людей — в приглашении и первом плане. Выбор касается стиля, а не добавления картинок во все разделы.</span></li>
+<li>Оставляем ли gymGO рабочим названием?<span>Текущее написание не является утверждённым логотипом. Его можно отложить и отдельно принять UX-направление.</span></li></ol>
+<p>Для обратной связи достаточно назвать экран и конкретное изменение. Решение о нативном стеке не требуется для обсуждения этих экранов.</p></section>
+<footer><p><a href="workout-polish/index.html">Журнал спокойнее и компактнее: сравнение до / после</a></p><p><a href="workout-window/index.html">Свернуть и вернуть тренировку: экраны на 320 и 375 px</a></p><p><a href="quick-entry/index.html">Отдельное сравнение быстрого ввода: до / после на 320 и 375 px</a></p><p>110 браузерных проверок на desktop и 320/375/390/430 px прошли. На странице 12 состояний на 320/390 px до и после прохода, ещё три — только в текущей версии. Это снимки Chromium, не проверка физического телефона. Работа анимаций оценивается в прототипе.</p>
+<p>Данные демонстрационные. Реальной авторизации, доставки уведомлений, синхронизации и финансового учёта нет. Прогресс пока не объединён с новыми журналами.</p>
+<p><a href="manifest.json">Источники новых снимков</a> · <a href="before/manifest.json">Источники снимков до прохода</a></p></footer></main>
+<script>
+function updateCaptures() {
+  const width = document.querySelector('input[name="width"]:checked').value;
+  const before = document.querySelector('input[name="version"]:checked').value === 'before';
+  const version = before ? 'До' : 'После';
+  document.querySelectorAll('img[data-name]').forEach(img => {
+    const showBefore = before && img.dataset.currentOnly !== 'true';
+    const source = `${showBefore ? 'before/' : ''}captures/${width}/${img.dataset.name}.png`;
+    img.src = source; img.width = Number(width);
+    const title = img.closest('figure').querySelector('h3').textContent;
+    img.alt = `${title}, ${showBefore ? 'до визуального прохода' : 'текущая версия'}, ширина ${width} пикселей`;
+    img.parentElement.href = source; img.parentElement.style.maxWidth = `${width}px`;
+  });
+  document.getElementById('width-note').textContent = `${version} · ${width} × 844 px. Дополнительные состояния — только текущие. Нажмите на экран, чтобы открыть оригинал.`;
+}
+document.querySelectorAll('input[name="width"], input[name="version"]').forEach(input => input.addEventListener('change', updateCaptures));
+updateCaptures();
+</script></html>

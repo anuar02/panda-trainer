@@ -1,0 +1,146 @@
+{
+  "browser": "153.0.8010.12",
+  "deviceScaleFactor": 1,
+  "renders": [
+    {
+      "file": "sizes/k1-paper-16.png",
+      "source": "mark/k1.svg",
+      "size": 16,
+      "background": "#f4f2ed",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-white-16.png",
+      "source": "mark/k1.svg",
+      "size": 16,
+      "background": "#ffffff",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-paper-24.png",
+      "source": "mark/k1.svg",
+      "size": 24,
+      "background": "#f4f2ed",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-white-24.png",
+      "source": "mark/k1.svg",
+      "size": 24,
+      "background": "#ffffff",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-paper-48.png",
+      "source": "mark/k1.svg",
+      "size": 48,
+      "background": "#f4f2ed",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-white-48.png",
+      "source": "mark/k1.svg",
+      "size": 48,
+      "background": "#ffffff",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-paper-96.png",
+      "source": "mark/k1.svg",
+      "size": 96,
+      "background": "#f4f2ed",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-white-96.png",
+      "source": "mark/k1.svg",
+      "size": 96,
+      "background": "#ffffff",
+      "source_sha256": "6f1d1ca552a25fc0ca575c8ae74b57c77ae80e5993dac776a3237a45246be42d"
+    },
+    {
+      "file": "sizes/k1-icon-light.png",
+      "source": "mark/k1-icon-light.svg",
+      "size": 60,
+      "background": "transparent",
+      "source_sha256": "6c5fc4cf4589442a9986e105b18351f8dcf72bca782c560dbda86dc68dbd366b"
+    },
+    {
+      "file": "sizes/k1-icon-dark.png",
+      "source": "mark/k1-icon-dark.svg",
+      "size": 60,
+      "background": "transparent",
+      "source_sha256": "44da780667bb4d30c7b9c9dd7c86c27121b98497df0bcbe387e98b79beea0f75"
+    },
+    {
+      "file": "sizes/k2-paper-16.png",
+      "source": "mark/k2.svg",
+      "size": 16,
+      "background": "#f4f2ed",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-white-16.png",
+      "source": "mark/k2.svg",
+      "size": 16,
+      "background": "#ffffff",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-paper-24.png",
+      "source": "mark/k2.svg",
+      "size": 24,
+      "background": "#f4f2ed",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-white-24.png",
+      "source": "mark/k2.svg",
+      "size": 24,
+      "background": "#ffffff",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-paper-48.png",
+      "source": "mark/k2.svg",
+      "size": 48,
+      "background": "#f4f2ed",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-white-48.png",
+      "source": "mark/k2.svg",
+      "size": 48,
+      "background": "#ffffff",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-paper-96.png",
+      "source": "mark/k2.svg",
+      "size": 96,
+      "background": "#f4f2ed",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-white-96.png",
+      "source": "mark/k2.svg",
+      "size": 96,
+      "background": "#ffffff",
+      "source_sha256": "9f1ce5315a23f39611bee9eaa3882e46737ea892f18b25b75aacb078b2439a8e"
+    },
+    {
+      "file": "sizes/k2-icon-light.png",
+      "source": "mark/k2-icon-light.svg",
+      "size": 60,
+      "background": "transparent",
+      "source_sha256": "d2c8a9be7eca8da65067c10c66d996663e49ee51d56ace456135854a7c1a4b36"
+    },
+    {
+      "file": "sizes/k2-icon-dark.png",
+      "source": "mark/k2-icon-dark.svg",
+      "size": 60,
+      "background": "transparent",
+      "source_sha256": "5e6ad7a86550831b3ac96bb4ef7a7380e78e38b2fe4e805b170dfdc96cb0c202"
+    }
+  ]
+}

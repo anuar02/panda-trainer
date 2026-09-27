@@ -1,0 +1,86 @@
+{
+  "ready": true,
+  "size": [
+    1.0000000643930202,
+    0.9772877986475014,
+    0.7093644076049486
+  ],
+  "bones": [
+    "Hips",
+    "LeftUpLeg",
+    "LeftLeg",
+    "LeftFoot",
+    "LeftToeBase",
+    "RightUpLeg",
+    "RightLeg",
+    "RightFoot",
+    "RightToeBase",
+    "Spine02",
+    "Spine01",
+    "Spine",
+    "LeftShoulder",
+    "LeftArm",
+    "LeftForeArm",
+    "LeftHand",
+    "RightShoulder",
+    "RightArm",
+    "RightForeArm",
+    "RightHand",
+    "neck",
+    "Head",
+    "head_end",
+    "headfront"
+  ],
+  "clips": [
+    {
+      "id": "idle",
+      "label": "Рядом",
+      "file": "assets/idle.glb",
+      "title": "Привет, я рядом.",
+      "description": "Можно начать с маленького шага.",
+      "duration": 4.0333333015441895
+    },
+    {
+      "id": "wave",
+      "label": "Привет",
+      "file": "assets/wave.glb",
+      "title": "Рад тебя видеть!",
+      "description": "Ну что, позанимаемся?",
+      "duration": 5.366666793823242
+    },
+    {
+      "id": "cheer",
+      "label": "Ура!",
+      "file": "assets/cheer.glb",
+      "title": "Вот это результат!",
+      "description": "Ещё одна тренировка в копилку.",
+      "duration": 9.366666793823242
+    },
+    {
+      "id": "jump",
+      "label": "Прыжок",
+      "file": "assets/jump.glb",
+      "title": "Получилось!",
+      "description": "Маленькая победа. Большая радость.",
+      "duration": 9.866666793823242
+    },
+    {
+      "id": "walk",
+      "label": "Шагать",
+      "file": "assets/walking.glb",
+      "title": "В своём темпе.",
+      "description": "Двигаемся к следующей тренировке.",
+      "duration": 1.0666667222976685
+    },
+    {
+      "id": "run",
+      "label": "Бежать",
+      "file": "assets/running.glb",
+      "title": "Поймали ритм.",
+      "description": "Движение заряжает.",
+      "duration": 0.6666666865348816
+    }
+  ],
+  "errors": [],
+  "overflow": false
+}

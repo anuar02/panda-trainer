@@ -1,0 +1,14 @@
+{
+  "checks": [
+    {
+      "sheets": 7,
+      "client_overlays": 9,
+      "size_proofs_native": 48,
+      "images_decoded": 73
+    },
+    "All nine overlays toggle to originals and back",
+    "No horizontal overflow at 375",
+    "No horizontal overflow at 320"
+  ],
+  "errors": []
+}

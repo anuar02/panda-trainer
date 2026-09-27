@@ -1,0 +1,112 @@
+{
+  "date": "2026-09-24",
+  "verification": "82 unit; 110 browser; both type checks",
+  "captures": [
+    {
+      "file": "before/320/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-start.png",
+      "sha256": "5a86492327775e9f2be4d4bb45a776421e223300ab6dff93d4c4d5ddde1eb3a0"
+    },
+    {
+      "file": "before/320/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-start.png",
+      "sha256": "4f5fd4ad38f8eee99c91d6ff25013867e8d2ce31044d4b888aa85ed1445a4cfe"
+    },
+    {
+      "file": "before/320/group-draft-return.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-draft-return.png",
+      "sha256": "5932f7cdfd152ab5db6c73060dc31d76d6e622b8a90869bd97ae067bd2648013"
+    },
+    {
+      "file": "before/320/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-320/workout-group-dock.png",
+      "sha256": "cd21b33c82e58ddcbd3724a0b72431729088d4386eb0e6ca5a6b287ab57aa638"
+    },
+    {
+      "file": "before/375/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-375/personal-start.png",
+      "sha256": "e0ecc09ab17f2e6ac67b023a7c8ea2d6841e5c863d9af9f5dd41ec75995c9494"
+    },
+    {
+      "file": "before/375/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-375/group-start.png",
+      "sha256": "1a30a9adea79727385cf2d714e6453b2647582520723b3a43cd4ff9ec92c0628"
+    },
+    {
+      "file": "before/375/group-draft-return.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-375/group-draft-return.png",
+      "sha256": "18f748f81970423104dc012aed7b8a849bbb7f8cadd2e08208bde6a748ae1f9f"
+    },
+    {
+      "file": "before/375/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-375/workout-group-dock.png",
+      "sha256": "fd20d88da884f8f4a1ebb324f007fd1b7957c6ed9cbf67370b818b076d08ccac"
+    },
+    {
+      "file": "after/320/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-start.png",
+      "sha256": "b93ade4ce2dcaa76abbe7823849d9395a7c7f9356d4b73321b9c2969410e4bc5"
+    },
+    {
+      "file": "after/320/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-start.png",
+      "sha256": "9d800d49dd0b350c61f401a233a7bdaac2149d88a75c553d1f0b8d0d3b335797"
+    },
+    {
+      "file": "after/320/group-draft-return.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-draft-return.png",
+      "sha256": "e3a4dac52d893c7d4594a3be26009482b7722b1f046a042170ca06de086ca008"
+    },
+    {
+      "file": "after/320/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-320/workout-group-dock.png",
+      "sha256": "9f251041788c3c38cd97e13ba7c1cf6c8e04147020c0292132b49b0e264abdd2"
+    },
+    {
+      "file": "after/320/polish-group-short.png",
+      "source": "output/design-review/results/flows-workout-polish-group-f7932-ant-context-after-scrolling-mobile-320/polish-group-short.png",
+      "sha256": "067c0500d5c5b8437e8021564f437f4f6816c17ba70e1eadce402081667cca2c"
+    },
+    {
+      "file": "after/375/personal-start.png",
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-375/personal-start.png",
+      "sha256": "382f4aa6684aec583e1e8d60ac4cbe786a2c7a40f9779530e8bf4bc7ee35eaa3"
+    },
+    {
+      "file": "after/375/group-start.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-375/group-start.png",
+      "sha256": "286449c4390d0bd70d4648d96c815fb6e0690ae3080630ceb46124bf0d802cfe"
+    },
+    {
+      "file": "after/375/group-draft-return.png",
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-375/group-draft-return.png",
+      "sha256": "84f240945100af7d80f0e5876a77770432e4f6c924dc8c990415944e4c7b556a"
+    },
+    {
+      "file": "after/375/workout-group-dock.png",
+      "source": "output/design-review/results/flows-workout-dock-group-m-65144-icipant-and-separate-drafts-mobile-375/workout-group-dock.png",
+      "sha256": "35fdec84d4ee7d53d058a91971ab1cf916b5d9425406face787041b4cbc5f1ab"
+    },
+    {
+      "file": "after/375/polish-group-short.png",
+      "source": "output/design-review/results/flows-workout-polish-group-f7932-ant-context-after-scrolling-mobile-375/polish-group-short.png",
+      "sha256": "49153992a48d4ac66747b4ab5e1b66ee936af1e29b597f17c16e4556ffe51923"
+    }
+  ],
+  "source_sha256": {
+    "prototype/js/app.js": "c80432074d2ce7c7c6dbe47fc00ea64cee581fc752d07b4f8a2aa19e4b073da7",
+    "prototype/js/data.js": "8647b8f9da68bf4ebc86265272fc7b482cf23c2988a858062bae3e243578362c",
+    "prototype/js/icons.js": "f2503de272bcd93c05ea68e32cf51f0a518a2b45bfb66df8248f1d34bb246b49",
+    "prototype/js/screens/client.js": "df2f2e725f8fed1bb1ea5829f8e991e7b4ebdb554711ec9f9cf3d8638bc48456",
+    "prototype/js/screens/trainer.js": "51f6a3b8fa4b98102c942265f7923a9038295968e7299c282693fc43e715e564",
+    "prototype/js/session-repository.js": "732e86bac7b2b8ff6786ac9986eeb0324d29179b5a7db28dfd83ead971f03194",
+    "prototype/js/sheets.js": "1ce6a243077f59b31c115d2e2b9427b37acf0015c480a2e82ba9f989bf5c5bcd",
+    "prototype/js/store.js": "25d139a35bbf3804b6d47f34911461d13b7da125d8f3e75133e93f9863bfa0b0",
+    "prototype/js/ui.js": "9a038f5dfd1c3e3894bd1402d7e793cd651174f72841e13c86df3454995d9325",
+    "prototype/css/base.css": "f447f5d7c792b1acdd8fcb8c1ecdc801d323042c03bc0038cba658ce002d3e7c",
+    "prototype/css/components.css": "a478e5c564f186af210e4a70f48c55b9722e337139a3812b0c121a0d53d3921c",
+    "prototype/css/fonts.css": "d3ee1d9fb7e604b3ff6081343118a514d25b82f7180116a8e6299ffced0baf0e",
+    "prototype/css/tokens.css": "66749d729148ae7f82d77090238e3b84b365aa8f026790d2fa32008cfe56a2c6",
+    "prototype/e2e/flows.spec.ts": "eb2d0f09601ce95b81aed1baa156ebbe697b852fec463f48f6e272b3b4d2fbd9"
+  }
+}

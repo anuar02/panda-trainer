@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Панда — риг</title>
+<style>
+  :root {
+    --paper: #f7f1e8;
+    --card: #fffaf3;
+    --ink: #2b1d17;
+    --muted: #8a776c;
+    --line: #eadfd2;
+    --ember: #ff7a1f;
+    --chip: #f1e7da;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: flex; justify-content: center;
+    padding: 24px 16px 48px;
+  }
+  .phone {
+    width: 100%; max-width: 390px;
+    background: var(--card);
+    border-radius: 32px;
+    box-shadow: 0 1px 0 var(--line), 0 20px 60px -30px rgba(60, 30, 10, .35);
+    overflow: hidden;
+  }
+  header { padding: 20px 20px 0; }
+  header small { color: var(--muted); font-size: 13px; }
+  header h1 { margin: 2px 0 0; font-size: 24px; letter-spacing: -.02em; }
+
+  .stage {
+    position: relative;
+    height: 350px;
+    display: flex; align-items: flex-end; justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+  .stage::after { /* soft floor shadow */
+    content: ""; position: absolute; bottom: 22px; left: 50%;
+    width: 150px; height: 14px; margin-left: -75px;
+    background: radial-gradient(closest-side, rgba(84, 41, 26, .18), transparent);
+    transform: scaleX(var(--shadow, 1)); opacity: var(--shadow-o, 1);
+  }
+  .stage svg { position: relative; z-index: 1; width: 260px; height: 325px; overflow: visible; }
+
+  .bubble {
+    margin: 0 20px; padding: 12px 14px;
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    min-height: 48px;
+    transition: opacity .2s ease, transform .35s cubic-bezier(.2, .9, .3, 1.3);
+  }
+  .bubble.swap { opacity: 0; transform: translateY(4px) scale(.98); transition: none; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px 4px; }
+  button {
+    font: inherit; color: var(--ink);
+    border: 0; border-radius: 999px;
+    background: var(--chip);
+    padding: 10px 16px; min-height: 44px;
+    cursor: pointer;
+    transition: transform .12s ease, background .2s;
+  }
+  button:active { transform: scale(.95); }
+  button.primary { background: var(--ink); color: #fff; }
+  .toggles { display: flex; gap: 8px; padding: 8px 20px 20px; }
+  .toggles button { background: transparent; border: 1px solid var(--line); font-size: 13px; min-height: 36px; padding: 6px 12px; }
+  .toggles button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  section.sizes { border-top: 1px solid var(--line); padding: 16px 20px 24px; }
+  section.sizes h2 { margin: 0 0 12px; font-size: 13px; color: var(--muted); font-weight: 500; }
+  .avatars { display: flex; align-items: center; gap: 20px; }
+  .avatar { border-radius: 50%; background: #f3e5d3; overflow: hidden; flex: none; }
+  .avatar svg { width: 100%; height: 100%; display: block; }
+  .avatar-label { font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bubble { transition: opacity .2s ease; }
+  }
+</style>
+</head>
+<body>
+<main class="phone">
+  <header>
+    <small>Сегодня · 18:00</small>
+    <h1>Тренировка с Аней</h1>
+  </header>
+
+  <div class="stage" id="stage" aria-label="Маскот. Нажмите, чтобы потыкать"></div>
+
+  <p class="bubble" id="bubble">Привет! Тапни меня или выбери реакцию.</p>
+
+  <div class="chips">
+    <button data-play="wave" class="primary">👋 Привет</button>
+    <button data-play="cheer">🎉 Ура</button>
+    <button data-play="think">🤔 Думаю</button>
+    <button data-play="concern">🫶 Сочувствует</button>
+  </div>
+  <div class="toggles">
+    <button id="idleBtn" aria-pressed="true">Idle</button>
+    <button id="slowBtn" aria-pressed="false">Замедлить ×4</button>
+  </div>
+
+  <section class="sizes">
+    <h2>Аватар: те же слои, только idle</h2>
+    <div class="avatars" id="avatars"></div>
+  </section>
+</main>
+
+<script>
+/* ------------------------------------------------------------------ *
+ *  Red panda, Duolingo-style construction:
+ *  head + body are ONE shape, arms are stubs that only rotate at the
+ *  shoulder, feet are ovals, tail is one piece. Eyes and brows act.
+ *  Every moving part is a <g data-part>; pivots are in PIVOT (Rive bones).
+ * ------------------------------------------------------------------ */
+const C = {
+  rust: '#bf4a24', rustDark: '#a13d1c', body: '#5a2c1b', paw: '#7a4428', cream: '#fdebd5',
+  band: '#46241a', ink: '#1d1612', white: '#fffdf8', tongue: '#ef7a70', mouth: '#5a1a12',
+  ember: '#ff7a1f', emberLight: '#ffc08f', stripe: '#8f3419', pad: '#4a2518',
+};
+const PIVOT = {
+  ground: [200, 420], armL: [100, 256], armR: [300, 256], tail: [292, 372],
+  earL: [118, 92], earR: [282, 92], ribbon: [322, 112],
+};
+const BODY = 'M200 64C288 64 334 110 334 206C334 318 300 404 200 404S66 318 66 206C66 110 112 64 200 64Z';
+
+function pandaMarkup(u) {
+  const ear = (side) => {
+    const m = side === 'R' ? ' transform="matrix(-1 0 0 1 400 0)"' : '';
+    return `<g data-part="ear${side}"><g${m}>
+      <path d="M84 118C78 76 90 42 104 36Q140 48 158 86Z" fill="${C.cream}"/>
+      <path d="M98 104C95 78 101 60 108 56Q130 66 142 88Z" fill="${C.body}"/></g></g>`;
+  };
+  const eye = (cx, s) => `
+    <clipPath id="eye${s}${u}"><circle cx="${cx}" cy="178" r="31"/></clipPath>
+    <g data-part="eyeOpen${s}" clip-path="url(#eye${s}${u})">
+      <circle cx="${cx}" cy="178" r="31" fill="${C.white}"/>
+      <g data-part="pupil${s}">
+        <circle cx="${cx}" cy="182" r="17" fill="${C.ink}"/>
+        <circle cx="${cx + 6}" cy="175" r="5.5" fill="#fff"/>
+      </g>
+      <g data-part="lid${s}"><rect x="${cx - 34}" y="80" width="68" height="67" fill="${C.rust}"/></g>
+    </g>
+    <path data-face="happy" d="M${cx - 20} 186Q${cx} 160 ${cx + 20} 186" stroke="${C.ink}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+  const arm = (s, band) => `
+    <g data-part="arm${s}">
+      <rect x="-19" y="-14" width="38" height="92" rx="19" fill="${C.body}"/>
+      ${band ? `<rect x="-20" y="42" width="40" height="15" fill="${C.ember}"/><rect x="-20" y="48" width="40" height="3" fill="${C.emberLight}"/>` : ''}
+      <g data-part="palm${s}" fill="${C.pad}" style="display:none">
+        <ellipse cx="0" cy="66" rx="8" ry="7"/><circle cx="-9" cy="55" r="3.6"/><circle cx="0" cy="52" r="3.6"/><circle cx="9" cy="55" r="3.6"/>
+      </g>
+    </g>`;
+  return `
+  <defs><clipPath id="body${u}"><path d="${BODY}"/></clipPath>
+    <clipPath id="tail${u}"><rect x="-32" y="-176" width="64" height="190" rx="32"/></clipPath></defs>
+  <g data-part="root">
+    <g data-part="tail">
+      <rect x="-32" y="-176" width="64" height="190" rx="32" fill="${C.rust}"/>
+      <g clip-path="url(#tail${u})" fill="${C.stripe}">
+        <rect x="-40" y="-62" width="80" height="20"/><rect x="-40" y="-106" width="80" height="20"/>
+        <rect x="-40" y="-150" width="80" height="20"/><rect x="-40" y="-190" width="80" height="18"/>
+      </g>
+    </g>
+    <g data-part="feet" fill="${C.body}">
+      <ellipse cx="156" cy="404" rx="34" ry="18"/><ellipse cx="244" cy="404" rx="34" ry="18"/>
+      <path d="M144 414v-8M156 416v-9M168 414v-8M232 414v-8M244 416v-9M256 414v-8" stroke="${C.paw}" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <g data-part="bodyG">
+      ${ear('L')}${ear('R')}
+      <g data-part="ribbon" fill="${C.band}">
+        <path d="M322 106Q348 112 362 134L352 140Q342 124 320 118Z"/>
+        <path d="M322 114Q340 132 342 158L331 158Q330 136 318 122Z"/>
+      </g>
+      <path d="${BODY}" fill="${C.rust}"/>
+      <g clip-path="url(#body${u})">
+        <path d="M40 292Q200 330 360 292V440H40Z" fill="${C.body}"/>
+        <path d="M136 300 148 322 162 306 174 328 188 310 200 332 212 310 226 328 238 306 252 322 264 300Q200 312 136 300Z" fill="${C.rust}"/>
+        <path d="M40 116Q200 56 360 116" stroke="${C.band}" stroke-width="24" fill="none"/>
+      </g>
+      <ellipse cx="324" cy="112" rx="10" ry="12" fill="${C.band}"/>
+      <g data-part="face">
+        <path d="M92 196C80 230 98 262 140 268Q124 246 132 222Z" fill="${C.cream}"/>
+        <path d="M308 196C320 230 302 262 260 268Q276 246 268 222Z" fill="${C.cream}"/>
+        <ellipse cx="200" cy="238" rx="44" ry="30" fill="${C.cream}"/>
+        <ellipse data-part="browL" cx="156" cy="132" rx="17" ry="8.5" fill="${C.cream}"/>
+        <ellipse data-part="browR" cx="244" cy="132" rx="17" ry="8.5" fill="${C.cream}"/>
+        ${eye(158, 'L')}${eye(242, 'R')}
+        <path d="M186 222Q200 215 214 222Q210 233 200 235Q190 233 186 222Z" fill="${C.ink}"/>
+        <g stroke="${C.ink}" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path data-face="smile" d="M200 235V240M184 238Q192 248 200 240Q208 248 216 238"/>
+          <g data-face="laugh"><path d="M182 238Q200 272 218 238Q200 246 182 238Z" fill="${C.mouth}"/>
+            <path d="M191 254Q200 262 209 254Q200 250 191 254Z" fill="${C.tongue}" stroke="none"/></g>
+          <ellipse data-face="oh" cx="200" cy="248" rx="6" ry="8" fill="${C.mouth}"/>
+          <path data-face="frown" d="M186 250Q200 240 214 250"/>
+        </g>
+      </g>
+    </g>
+    <g transform="translate(${PIVOT.armL})">${arm('L', true)}</g>
+    <g transform="translate(${PIVOT.armR})">${arm('R', false)}</g>
+  </g>`;
+}
+
+/* ---------- springs ---------- */
+class Spring {
+  constructor(v = 0, k = 170, c = 22) { this.v = v; this.t = v; this.vel = 0; this.k = k; this.c = c; }
+  step(dt) { const a = this.k * (this.t - this.v) - this.c * this.vel; this.vel += a * dt; this.v += this.vel * dt; }
+}
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+function createPanda(host, { viewBox = '20 20 360 410', reactions = true } = {}) {
+  const u = Math.random().toString(36).slice(2, 7);
+  const speed = window.__speed || (window.__speed = { f: 1 });
+  host.insertAdjacentHTML('beforeend', `<svg viewBox="${viewBox}" aria-hidden="true">${pandaMarkup(u)}</svg>`);
+  const svg = host.lastElementChild;
+  const $ = (n) => svg.querySelector(`[data-part="${n}"]`);
+  const el = Object.fromEntries(['root', 'tail', 'bodyG', 'face', 'earL', 'earR', 'armL', 'armR', 'ribbon', 'palmR',
+    'pupilL', 'pupilR', 'lidL', 'lidR', 'browL', 'browR', 'eyeOpenL', 'eyeOpenR'].map((n) => [n, $(n)]));
+  const faces = [...svg.querySelectorAll('[data-face]')];
+
+  const S = (v, k, c) => new Spring(v, k, c);
+  const s = {
+    y: S(0, 320, 22), sx: S(1, 480, 16), sy: S(1, 480, 16), tilt: S(0, 160, 14),
+    armL: S(0, 220, 13), armR: S(0, 220, 13), tail: S(0, 70, 7), ribbon: S(0, 90, 6),
+    earL: S(0, 380, 9), earR: S(0, 380, 9),
+    lookX: S(0, 160, 18), lookY: S(0, 160, 18), lid: S(0, 1400, 60),
+    browY: S(0, 220, 18), browTilt: S(0, 220, 18), browRY: S(0, 220, 18),
+  };
+  let face = 'smile';
+  const setFace = (f) => {
+    face = f;
+    const happy = f === 'laugh';
+    faces.forEach((n) => { const k = n.dataset.face; n.style.display = (k === 'happy' ? happy : k === f) ? '' : 'none'; });
+    el.eyeOpenL.style.display = el.eyeOpenR.style.display = happy ? 'none' : '';
+  };
+  setFace('smile');
+  const palm = (on) => { el.palmR.style.display = on ? '' : 'none'; };
+
+  let idle = true, busy = false, timers = [];
+  const later = (ms, fn) => { timers.push(setTimeout(fn, ms * speed.f)); };
+  const clear = () => { timers.forEach(clearTimeout); timers = []; };
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  function blink(double) {
+    s.lid.t = 1;
+    setTimeout(() => { s.lid.t = 0; if (double) setTimeout(() => blink(false), 160 * speed.f); }, 90 * speed.f);
+  }
+  (function blinkLoop() { setTimeout(() => { if (face === 'smile') blink(Math.random() < .2); blinkLoop(); }, rnd(2200, 5200) * speed.f); })();
+  (function earLoop() {
+    setTimeout(() => {
+      if (idle && !busy && !reduced.matches) { const L = Math.random() < .5; const e = L ? s.earL : s.earR; e.t = L ? -14 : 14; setTimeout(() => { e.t = 0; }, 110 * speed.f); }
+      earLoop();
+    }, rnd(3500, 8000) * speed.f);
+  })();
+  const pointer = { on: false };
+  (function lookLoop() {
+    setTimeout(() => {
+      if (idle && !busy && !pointer.on) { const home = Math.random() < .4; s.lookX.t = home ? 0 : rnd(-6, 6); s.lookY.t = home ? 0 : rnd(-4, 3); }
+      lookLoop();
+    }, rnd(1800, 4200) * speed.f);
+  })();
+  function lookAt(px, py) {
+    const r = svg.getBoundingClientRect();
+    const dx = (px - (r.left + r.width / 2)) / r.width, dy = (py - (r.top + r.height * .4)) / r.height;
+    s.lookX.t = Math.max(-7, Math.min(7, dx * 16)); s.lookY.t = Math.max(-5, Math.min(5, dy * 12));
+  }
+
+  function rest() {
+    s.y.t = 0; s.sx.t = 1; s.sy.t = 1; s.tilt.t = 0; s.armL.t = 0; s.armR.t = 0; s.tail.t = 0;
+    s.earL.t = 0; s.earR.t = 0; s.lookX.t = 0; s.lookY.t = 0; s.lid.t = 0;
+    s.browY.t = 0; s.browTilt.t = 0; s.browRY.t = 0;
+  }
+  const squash = (x, y) => { s.sx.t = x; s.sy.t = y; };
+  const plays = {
+    poke() {
+      squash(1.1, .88); blink(false); setFace('laugh'); s.earL.t = -12; s.earR.t = 12;
+      later(110, () => { squash(1, 1); s.earL.t = 0; s.earR.t = 0; });
+      later(520, () => setFace('smile'));
+      return 700;
+    },
+    wave() {
+      setFace('laugh'); palm(true); s.browY.t = -5; s.tilt.t = -5; s.armR.t = -150; s.tail.vel += 60;
+      [0, 1, 2, 3, 4].forEach((i) => later(240 + i * 160, () => { s.armR.t = i % 2 ? -150 : -120; }));
+      later(1100, () => { setFace('smile'); palm(false); rest(); });
+      return 1400;
+    },
+    cheer() {
+      squash(1.12, .84); s.lid.t = .4;
+      later(160, () => {
+        setFace('laugh'); s.lid.t = 0; s.y.t = reduced.matches ? 0 : -70; squash(.92, 1.1);
+        s.armL.t = 140; s.armR.t = -140; s.earL.vel -= 300; s.earR.vel += 300; s.tail.t = 20; s.browY.t = -6;
+      });
+      later(440, () => { s.y.t = 0; squash(1, 1); });
+      later(610, () => { squash(1.12, .86); s.tail.t = -10; s.armL.t = 60; s.armR.t = -60; });
+      later(760, () => squash(1, 1));
+      later(1100, () => { rest(); });
+      later(1300, () => setFace('smile'));
+      return 1600;
+    },
+    think() {
+      setFace('oh'); s.tilt.t = 7; s.lookX.t = 6; s.lookY.t = -7; s.browRY.t = -8; s.earR.t = 10; s.armR.t = -20;
+      later(1700, () => { setFace('smile'); rest(); });
+      return 2000;
+    },
+    concern() {
+      setFace('frown'); s.browTilt.t = 1; s.tilt.t = -4; squash(1.03, .97);
+      s.earL.t = -24; s.earR.t = 24; s.lookY.t = 4; s.armL.t = -18; s.armR.t = 18;
+      later(1900, () => { setFace('smile'); rest(); });
+      return 2200;
+    },
+  };
+  function play(name) {
+    if (!reactions && name !== 'poke') return 0;
+    clear(); rest(); setFace('smile'); palm(false); busy = true;
+    later(plays[name](), () => { busy = false; });
+  }
+
+  const rot = (a, [x, y]) => `rotate(${a.toFixed(2)} ${x} ${y})`;
+  let last = performance.now(); const t0 = last;
+  function frame(now) {
+    const dt = Math.min(.034, (now - last) / 1000) / speed.f; last = now;
+    const time = (now - t0) / 1000 / speed.f, still = reduced.matches;
+    const breathe = idle && !still ? Math.sin(time * 2 * Math.PI / 3.2) : 0;
+    const sway = idle && !still ? Math.sin(time * 2 * Math.PI / 4.4) : 0;
+    for (const k in s) { if (still && k !== 'lid') { s[k].v = s[k].t; s[k].vel = 0; } else s[k].step(dt); }
+
+    // whole character: jump, squash & stretch from the feet, lean
+    const sx = s.sx.v * (1 - breathe * .008), sy = s.sy.v * (1 + breathe * .012), [gx, gy] = PIVOT.ground;
+    el.root.setAttribute('transform', `translate(0 ${s.y.v.toFixed(2)}) ${rot(s.tilt.v, PIVOT.ground)} translate(${gx} ${gy}) scale(${sx.toFixed(4)} ${sy.toFixed(4)}) translate(${-gx} ${-gy})`);
+    el.tail.setAttribute('transform', `translate(${PIVOT.tail}) rotate(${(26 + s.tail.v + sway * 5).toFixed(2)})`);
+    el.armL.setAttribute('transform', `rotate(${(22 + s.armL.v + breathe * 2).toFixed(2)})`);
+    el.armR.setAttribute('transform', `rotate(${(-22 + s.armR.v - breathe * 2).toFixed(2)})`);
+    el.earL.setAttribute('transform', rot(s.earL.v, PIVOT.earL));
+    el.earR.setAttribute('transform', rot(s.earR.v, PIVOT.earR));
+    s.ribbon.t = Math.max(-40, Math.min(40, s.tilt.v * 1.5 - s.y.vel * .1 + sway * 3));
+    el.ribbon.setAttribute('transform', rot(s.ribbon.v, PIVOT.ribbon));
+    // face slides a little toward where the eyes look: cheap 3D turn, the Duolingo trick
+    el.face.setAttribute('transform', `translate(${(s.lookX.v * .6).toFixed(2)} ${(s.lookY.v * .4).toFixed(2)})`);
+    const look = `translate(${(s.lookX.v * .9).toFixed(2)} ${(s.lookY.v * .9).toFixed(2)})`;
+    el.pupilL.setAttribute('transform', look); el.pupilR.setAttribute('transform', look);
+    const lid = `translate(0 ${(Math.max(0, Math.min(1.05, s.lid.v)) * 64).toFixed(2)})`;
+    el.lidL.setAttribute('transform', lid); el.lidR.setAttribute('transform', lid);
+    const tilt = s.browTilt.v * 20, by = s.browY.v - s.browTilt.v * 3;
+    el.browL.setAttribute('transform', `translate(0 ${by.toFixed(2)}) rotate(${(-tilt).toFixed(2)} 156 132)`);
+    el.browR.setAttribute('transform', `translate(0 ${(by + s.browRY.v).toFixed(2)}) rotate(${tilt.toFixed(2)} 244 132)`);
+
+    if (host.dataset.shadow != null) {
+      const lift = Math.min(1, -s.y.v / 80);
+      host.style.setProperty('--shadow', (1 - lift * .35) * s.sx.v);
+      host.style.setProperty('--shadow-o', 1 - lift * .5);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return { play, lookAt, pointer, setIdle(v) { idle = v; } };
+}
+
+/* ---------- page ---------- */
+const lines = {
+  wave: 'Привет! Сегодня в 18:00 — я уже размялась.',
+  cheer: 'Тренировка засчитана. Так держать!',
+  think: 'Хм, перенести на четверг или пятницу?',
+  concern: 'Пропустили — бывает. Давай найдём новое время.',
+  poke: 'Эй, щекотно!',
+};
+const stage = document.getElementById('stage');
+stage.dataset.shadow = '';
+const hero = createPanda(stage);
+const bubble = document.getElementById('bubble');
+function say(k) {
+  bubble.classList.add('swap'); bubble.textContent = lines[k];
+  requestAnimationFrame(() => requestAnimationFrame(() => bubble.classList.remove('swap')));
+}
+document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => { hero.play(b.dataset.play); say(b.dataset.play); }));
+stage.addEventListener('click', () => { hero.play('poke'); say('poke'); });
+stage.addEventListener('pointermove', (e) => { hero.pointer.on = true; hero.lookAt(e.clientX, e.clientY); });
+stage.addEventListener('pointerleave', () => { hero.pointer.on = false; });
+
+const avatars = document.getElementById('avatars');
+const avs = [96, 48, 24].map((px) => {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `<div class="avatar" style="width:${px}px;height:${px}px"></div><div class="avatar-label">${px}</div>`;
+  avatars.append(wrap);
+  return createPanda(wrap.firstElementChild, { viewBox: '62 30 276 276', reactions: false });
+});
+
+const idleBtn = document.getElementById('idleBtn');
+idleBtn.addEventListener('click', () => {
+  const on = idleBtn.getAttribute('aria-pressed') !== 'true';
+  idleBtn.setAttribute('aria-pressed', on);
+  [hero, ...avs].forEach((p) => p.setIdle(on));
+});
+const slowBtn = document.getElementById('slowBtn');
+slowBtn.addEventListener('click', () => {
+  const on = slowBtn.getAttribute('aria-pressed') !== 'true';
+  slowBtn.setAttribute('aria-pressed', on);
+  window.__speed.f = on ? 4 : 1;
+});
+</script>
+</body>
+</html>

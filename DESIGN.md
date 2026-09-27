@@ -175,6 +175,7 @@ Btn 56px — для основных CTA; в плотных рабочих сп�
 | Рамка пересечения | Daylish (06add84a) | отдельные строки, свои интервалы | нельзя слить персональные пересечения в одну сессию |
 | Переключатель участников | handoff §4,13 | ввод не теряется и не переносится | ключевой критерий приёмки |
 | Тихая тень карточек, крупный радиус | gymGO Design System | Card 22 + 0 1px 2px rgba(8,8,10,.04) | поверхности читаются без тяжёлых границ, воздух на клиентских экранах |
+| Главный маскот — рысь №7 | Прямой выбор пользователя, 25.09.2026; [решение и точный референс](design-exploration/MASCOT-DECISION.md) | пятнистая рысь с кисточками и Ember-напульсником из листа восьми маскотов | выбран конкретный образ; внедрение в прототип и иконка приложения пока не определены |
 
 ---
 
@@ -233,3 +234,11 @@ open docs/archive/design-directions.html  # архив: сравнение ко�
 Дальше: после утверждения — этап 1 (один сквозной сценарий: карточка клиента → одноразовое
 приглашение → предложение времени → взаимное подтверждение → сохранение и изоляция данных),
 затем шаблоны, группы/переносы, учёт занятий и оплат, прогресс.
+
+### Calendar redesign · September 22, 2026
+
+The schedule retains gymGO canvas #f6f6f7, surface #ffffff, ink #050505, secondary #5e5f60, and semantic amber #f3b84a. Montserrat sets dates and headings; Inter sets appointment rows. A black selected date anchors the white week navigator above a continuous agenda. Time is left-aligned, with client and program to its right. Compact planning rows replace repeated workout buttons. Week navigation crosses months and years. Free windows use the union of occupied intervals; cancelled appointments do not occupy time.
+
+### Clients directory redesign · September 22, 2026
+
+The client directory follows the same monochrome gymGO palette and type system as the calendar. One page title, inline search, and three count filters lead into an alphabetical roster. Each row prioritizes identity, program, next appointment, and a right-aligned remaining-session balance. Neutral initials replace status-colored avatars; amber denotes an actual unpaid amount. No low-balance threshold is inferred. The displayed total reflects the actual roster rather than the unrelated trainer summary fixture.

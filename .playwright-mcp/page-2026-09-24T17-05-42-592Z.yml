@@ -1,0 +1,120 @@
+- main [ref=f2e3]:
+  - group "Роль" [ref=f2e479]:
+    - button "Тренер" [pressed] [ref=f2e480] [cursor=pointer]
+    - button "Клиент" [ref=f2e485] [cursor=pointer]
+  - generic [ref=f2e17]:
+    - generic [ref=f2e489]:
+      - generic [ref=f2e490]:
+        - button "Свернуть тренировку" [ref=f2e492] [cursor=pointer]:
+          - generic [ref=f2e495]: Свернуть
+        - generic [ref=f2e496]: Журнал тренировки
+        - button "Ещё" [ref=f2e498] [cursor=pointer]
+      - generic [ref=f2e503]:
+        - generic [ref=f2e504]:
+          - heading "Мади Касымов" [active] [level=1] [ref=f2e505]
+          - generic [ref=f2e506]: пн, 14 сен · 11:30–12:30
+        - generic [ref=f2e509]:
+          - generic [ref=f2e510]: Верх Б
+          - generic [ref=f2e511]: 0/13
+        - generic [ref=f2e514]:
+          - generic [ref=f2e515]:
+            - generic [ref=f2e516]:
+              - generic [ref=f2e517]: Жим лёжа
+              - generic [ref=f2e518]: цель 4 × 8 · 40 кг
+            - generic [ref=f2e519]:
+              - generic [ref=f2e520]: "1"
+              - 'button "Записать как в прошлый раз: 40 кг × 10, подход 1: Жим лёжа" [ref=f2e521] [cursor=pointer]':
+                - generic [ref=f2e522]: Как в прошлый раз
+                - generic [ref=f2e523]: Записать 40 кг × 10
+              - 'button "Записать подход 1: Жим лёжа" [ref=f2e527] [cursor=pointer]'
+            - generic [ref=f2e530]:
+              - generic [ref=f2e531]: "2"
+              - 'button "Записать как в прошлый раз: 40 кг × 10, подход 2: Жим лёжа" [ref=f2e532] [cursor=pointer]':
+                - generic [ref=f2e533]: Как в прошлый раз
+                - generic [ref=f2e534]: Записать 40 кг × 10
+              - 'button "Записать подход 2: Жим лёжа" [ref=f2e538] [cursor=pointer]'
+            - generic [ref=f2e541]:
+              - generic [ref=f2e542]: "3"
+              - 'button "Записать как в прошлый раз: 40 кг × 10, подход 3: Жим лёжа" [ref=f2e543] [cursor=pointer]':
+                - generic [ref=f2e544]: Как в прошлый раз
+                - generic [ref=f2e545]: Записать 40 кг × 10
+              - 'button "Записать подход 3: Жим лёжа" [ref=f2e549] [cursor=pointer]'
+            - generic [ref=f2e552]:
+              - generic [ref=f2e553]: "4"
+              - 'button "Записать как в прошлый раз: 40 кг × 10, подход 4: Жим лёжа" [ref=f2e554] [cursor=pointer]':
+                - generic [ref=f2e555]: Как в прошлый раз
+                - generic [ref=f2e556]: Записать 40 кг × 10
+              - 'button "Записать подход 4: Жим лёжа" [ref=f2e560] [cursor=pointer]'
+          - generic [ref=f2e564]:
+            - generic [ref=f2e565]:
+              - generic [ref=f2e566]: Жим гантелей под углом
+              - generic [ref=f2e567]: цель 3 × 10 · 22 кг
+            - generic [ref=f2e568]:
+              - generic [ref=f2e569]: "1"
+              - 'button "Записать как в прошлый раз: 22 кг × 10, подход 1: Жим гантелей под углом" [ref=f2e570] [cursor=pointer]':
+                - generic [ref=f2e571]: Как в прошлый раз
+                - generic [ref=f2e572]: Записать 22 кг × 10
+              - 'button "Записать подход 1: Жим гантелей под углом" [ref=f2e576] [cursor=pointer]'
+            - generic [ref=f2e579]:
+              - generic [ref=f2e580]: "2"
+              - 'button "Записать как в прошлый раз: 22 кг × 10, подход 2: Жим гантелей под углом" [ref=f2e581] [cursor=pointer]':
+                - generic [ref=f2e582]: Как в прошлый раз
+                - generic [ref=f2e583]: Записать 22 кг × 10
+              - 'button "Записать подход 2: Жим гантелей под углом" [ref=f2e587] [cursor=pointer]'
+            - generic [ref=f2e590]:
+              - generic [ref=f2e591]: "3"
+              - 'button "Записать как в прошлый раз: 22 кг × 10, подход 3: Жим гантелей под углом" [ref=f2e592] [cursor=pointer]':
+                - generic [ref=f2e593]: Как в прошлый раз
+                - generic [ref=f2e594]: Записать 22 кг × 10
+              - 'button "Записать подход 3: Жим гантелей под углом" [ref=f2e598] [cursor=pointer]'
+          - generic [ref=f2e602]:
+            - generic [ref=f2e603]:
+              - generic [ref=f2e604]: Тяга блока к поясу
+              - generic [ref=f2e605]: цель 3 × 12 · 45 кг
+            - generic [ref=f2e606]:
+              - generic [ref=f2e607]: "1"
+              - 'button "Записать как в прошлый раз: 45 кг × 12, подход 1: Тяга блока к поясу" [ref=f2e608] [cursor=pointer]':
+                - generic [ref=f2e609]: Как в прошлый раз
+                - generic [ref=f2e610]: Записать 45 кг × 12
+              - 'button "Записать подход 1: Тяга блока к поясу" [ref=f2e614] [cursor=pointer]'
+            - generic [ref=f2e617]:
+              - generic [ref=f2e618]: "2"
+              - 'button "Записать как в прошлый раз: 45 кг × 12, подход 2: Тяга блока к поясу" [ref=f2e619] [cursor=pointer]':
+                - generic [ref=f2e620]: Как в прошлый раз
+                - generic [ref=f2e621]: Записать 45 кг × 12
+              - 'button "Записать подход 2: Тяга блока к поясу" [ref=f2e625] [cursor=pointer]'
+            - generic [ref=f2e628]:
+              - generic [ref=f2e629]: "3"
+              - 'button "Записать как в прошлый раз: 45 кг × 12, подход 3: Тяга блока к поясу" [ref=f2e630] [cursor=pointer]':
+                - generic [ref=f2e631]: Как в прошлый раз
+                - generic [ref=f2e632]: Записать 45 кг × 12
+              - 'button "Записать подход 3: Тяга блока к поясу" [ref=f2e636] [cursor=pointer]'
+          - generic [ref=f2e640]:
+            - generic [ref=f2e641]:
+              - generic [ref=f2e642]: Махи в стороны
+              - generic [ref=f2e643]: цель 3 × 15 · 10 кг
+            - generic [ref=f2e644]:
+              - generic [ref=f2e645]: "1"
+              - 'button "Записать как в прошлый раз: 10 кг × 15, подход 1: Махи в стороны" [ref=f2e646] [cursor=pointer]':
+                - generic [ref=f2e647]: Как в прошлый раз
+                - generic [ref=f2e648]: Записать 10 кг × 15
+              - 'button "Записать подход 1: Махи в стороны" [ref=f2e652] [cursor=pointer]'
+            - generic [ref=f2e655]:
+              - generic [ref=f2e656]: "2"
+              - 'button "Записать как в прошлый раз: 10 кг × 15, подход 2: Махи в стороны" [ref=f2e657] [cursor=pointer]':
+                - generic [ref=f2e658]: Как в прошлый раз
+                - generic [ref=f2e659]: Записать 10 кг × 15
+              - 'button "Записать подход 2: Махи в стороны" [ref=f2e663] [cursor=pointer]'
+            - generic [ref=f2e666]:
+              - generic [ref=f2e667]: "3"
+              - 'button "Записать как в прошлый раз: 10 кг × 15, подход 3: Махи в стороны" [ref=f2e668] [cursor=pointer]':
+                - generic [ref=f2e669]: Как в прошлый раз
+                - generic [ref=f2e670]: Записать 10 кг × 15
+              - 'button "Записать подход 3: Махи в стороны" [ref=f2e674] [cursor=pointer]'
+        - paragraph [ref=f2e677]: Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере, без синхронизации.
+      - generic [ref=f2e679]:
+        - status [ref=f2e681]
+        - button "Завершить тренировку" [ref=f2e682] [cursor=pointer]
+    - generic [aria-hidden]:
+      - dialog
+    - status

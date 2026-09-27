@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <base href="../../">
+  <title>Рысь — разные силуэты</title>
+  <link rel="stylesheet" href="css/fonts.css"><link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.6 Inter, sans-serif; padding: 32px; }
+    main { max-width: 1280px; margin: auto; }
+    h1 { font: 800 clamp(28px,5vw,40px)/1.15 Montserrat,sans-serif; margin: 0 0 16px; }
+    h2 { font-size: 22px; margin-top: 40px; }
+    p { max-width: 760px; }
+    a { color: var(--accent); }
+    .poses { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 16px; }
+    .pose-card { padding: 20px; border: 1px solid var(--border); border-radius: 18px; }
+    .pose-card h3 { font-size: 17px; margin: 0; }
+    .pose-demo { height: 260px; display: grid; place-items: center; }
+    .pose-demo .mascot { width: 160px; height: 240px; margin: 0; }
+    .pose-demo .mascot--square { width: min(190px, 100%); height: auto; aspect-ratio: 1; }
+    .pose-card p { min-height: 72px; font-size: 13px; color: var(--sec); }
+    button { font: inherit; min-height: 44px; padding: 8px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--ink); cursor: pointer; }
+    button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .shots { display: flex; flex-wrap: wrap; gap: 24px; }
+    figure { margin: 0 0 20px; max-width: 100%; width: 320px; }
+    figure img { width: 100%; height: auto; border: 1px solid var(--border); }
+    figcaption { color: var(--sec); font-size: 13px; margin-top: 8px; }
+    #motion-note { color: var(--sec); }
+    @media(max-width:500px) { body { padding: 18px; } }
+  </style>
+</head>
+<body><main>
+  <h1>Разные позы, одна рысь</h1>
+  <p>Пять разных силуэтов: приветствие в движении, чтение сидя, радость, задумчивое ожидание и исходная стойка. Каждая реакция длится 1,2 секунды и останавливается. В приложении — один показ на состояние за открытие страницы.</p>
+  <p><a href="index.html">Открыть прототип</a> · <a href="LYNX-DIVERSITY.md">Решения и ограничения</a> · <a href="../design-exploration/lynx-master-2026-09-25/index.html">Исходный образ</a></p>
+  <p id="motion-note" role="status"></p>
+  <div class="poses">
+    <article class="pose-card" data-pose="welcome"><h3>Приветствие</h3><div class="pose-demo"></div><p>В приглашении: шаг навстречу, наклон корпуса и широкий взмах. Кнопка подключения доступна сразу.</p><button type="button" data-replay aria-label="Повторить приветствие">Повторить</button></article>
+    <article class="pose-card" data-pose="reading"><h3>Знакомство с планом</h3><div class="pose-demo"></div><p>В пустой программе: рысь сидит со скрещёнными лапами и читает раскрытый блокнот. Это иллюстрация ожидания, не индикатор загрузки.</p><button type="button" data-replay aria-label="Повторить взгляд в блокнот">Повторить</button></article>
+    <article class="pose-card" data-pose="approved"><h3>Приглашение принято</h3><div class="pose-demo"></div><p>Поднятые руки, согнутая лапа и улыбка: выразительная поза радости. Только в соответствующем демосостоянии приглашения.</p><button type="button" data-replay aria-label="Повторить одобрение">Повторить</button></article>
+    <article class="pose-card" data-pose="waiting"><h3>Задумалась</h3><div class="pose-demo"></div><p>Занятий пока нет: сидит боком, опираясь щекой на лапу. Спокойное ожидание без движения.</p></article>
+    <article class="pose-card" data-pose="rest"><h3>Всё впереди</h3><div class="pose-demo"></div><p>Пустой прогресс: знакомая исходная стойка. Результатов ещё нет — празднования тоже.</p></article>
+  </div>
+  <p><button type="button" id="stop-motion">Остановить движение</button></p>
+  <p>Это покадровая проба GPT Image, не готовая скелетная анимация: в деталях шерсти и лица заметна небольшая разница между кадрами. Сидячие позы показаны в широком окне; фигура не сжата в узкую рамку. Системное уменьшение движения отключает воспроизведение.</p>
+  <p><a href="review/lynx-motion/index.html">Сравнить с первой пробой</a></p><h2>В интерфейсе · 320 px</h2>
+  <div class="shots">
+    <figure><img src="review/lynx-diversity/invitation-320.png" width="320" height="844" alt="Рысь приветствует в приглашении"><figcaption>Активное приглашение</figcaption></figure>
+    <figure><img src="review/lynx-diversity/client-empty-program-320.png" width="320" height="844" alt="Рысь с блокнотом в программе"><figcaption>Программа появится здесь</figcaption></figure>
+    <figure><img src="review/lynx-diversity/accepted-320.png" width="320" height="640" alt="Рысь одобряет принятое приглашение"><figcaption>Принято · короткий экран 320×640</figcaption></figure><figure><img src="review/lynx-diversity/first-plan-320.png" width="320" height="844" alt="Рысь сидит в ожидании"><figcaption>Нет занятий · задумчивое ожидание</figcaption></figure>
+  </div>
+  <h2>В интерфейсе · 375 px</h2>
+  <div class="shots">
+    <figure><img src="review/lynx-diversity/invitation-375.png" width="375" height="844" alt="Приглашение на 375 пикселях"><figcaption>Приглашение</figcaption></figure>
+    <figure><img src="review/lynx-diversity/client-empty-program-375.png" width="375" height="844" alt="Пустая программа на 375 пикселях"><figcaption>Пустая программа</figcaption></figure>
+  </div>
+</main>
+<script src="js/mascot.js"></script>
+<script>
+  const preference = matchMedia('(prefers-reduced-motion: reduce)');
+  const note = document.querySelector('#motion-note');
+  function updateNote() { note.textContent = preference.matches ? 'В системе включено уменьшение движения: показываем статичные позы.' : 'Нажмите «Повторить» под нужной реакцией. Tab или «Остановить движение» прервут её.'; }
+  updateNote(); preference.addEventListener('change', updateNote);
+  document.querySelectorAll('[data-pose]').forEach(card => {
+    card.querySelector('.pose-demo').innerHTML = Mascot.render(card.dataset.pose);
+    card.querySelector('[data-replay]')?.addEventListener('click', () => Mascot.sync(card, { key: 'review', replay: true }));
+  });
+  document.querySelector('#stop-motion').addEventListener('click', Mascot.stop);
+</script>
+</body></html>

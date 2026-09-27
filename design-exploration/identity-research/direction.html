@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Кабинет тренера — исследование направления</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="direction.css">
+</head>
+<body>
+  <header class="mast wrap"><a href="#" class="wordmark">Кабинет тренера<span>Исследование идентичности</span></a><nav aria-label="Разделы исследования"><a href="#routes">Направления</a><a href="#screens">Экраны</a><a href="#illustrations">Иллюстрации</a><a href="DIRECTION.md">Обоснование</a></nav></header>
+  <main>
+    <section class="hero wrap">
+      <div><p class="intro">Предложение для обсуждения</p><h1>Общий план.<br>Личный подход.</h1><p class="lede">Рабочий инструмент тренера, в котором клиент чувствует участие. Точное расписание и записи — в основе. Живые рисованные персонажи — в моменты знакомства.</p><a class="button primary" href="#screens">Попробовать экраны</a><p class="fine">Изолированное исследование. Основной прототип не изменён.</p></div>
+      <figure><img src="assets/shared-plan-v2.png" width="1536" height="1024" alt="Рисованные тренер и клиент вместе рассматривают открытый блокнот"><figcaption>Новая иллюстрация GPT Image. Не фотография и не портрет реального тренера.</figcaption></figure>
+    </section>
+
+    <section id="routes" class="wrap chapter">
+      <div class="section-head"><h2>Три характера.<br>Одна основа.</h2><p>Сохраняем утверждённые цвета, шрифты и компоненты gymGO. Сравниваем характер продукта, а не придумываем ему новое имя.</p></div>
+      <div class="routes">
+        <article class="route"><div class="route-sample schedule-sample" aria-hidden="true"><span>Понедельник</span><div><b>18:00</b><span>Айгерим<br><small>Низ А</small></span></div><div><b>18:30</b><span>Арман<br><small>Верх Б</small></span></div></div><h3>Студийное расписание</h3><p>Точность времени и плотность списка. Хорошо для рабочего дня, но клиент может чувствовать себя строкой в расписании.</p><span class="route-verdict">Сильная операционная основа</span></article>
+        <article class="route recommended"><div class="route-sample notebook-sample" aria-hidden="true"><img src="assets/blank-notebook-v2.png" width="1024" height="1024" alt=""><span>Ваш план<br>на следующую встречу</span></div><h3>Общий блокнот</h3><p>Записи и договорённости, которые связывают двух людей. Точный интерфейс и небольшая рисованная история рядом с ним.</p><span class="route-verdict">Рекомендуемое направление</span></article>
+        <article class="route"><div class="route-sample rhythm-sample" aria-hidden="true"><span>В вашем темпе</span><div class="rhythm-marks"><i></i><i></i><i></i><i></i><i></i></div><small>Каждая встреча — часть пути</small></div><h3>Личный ритм</h3><p>Больше воздуха и внимания к личному опыту. Подходит клиенту, но сложнее переносится на насыщенное расписание тренера.</p><span class="route-verdict">Приём для спокойных состояний</span></article>
+      </div>
+    </section>
+
+    <section id="screens" class="chapter screen-chapter">
+      <div class="wrap">
+        <div class="section-head"><h2>Характер проявляется<br>в действии.</h2><div><p>Три интерактивных фрагмента. Данные вымышленные; всё сохраняется только в памяти этой страницы и сбрасывается при обновлении.</p><label class="reduce-control"><input type="checkbox" id="reduce-motion"> Без анимации</label></div></div>
+        <div class="study-controls"><button id="reset-scenario">Повторить сценарий переноса</button><span id="scenario-status" role="status">Клиент смотрит запрос. Тренер отвечает во входящих.</span></div>
+        <div class="screen-grid">
+          <article class="screen-study"><div class="study-caption"><h3>День тренера</h3><p>Сначала — то, что происходит сейчас.</p></div>
+            <div class="phone" id="today-phone"><div class="phone-top"><span>20:30</span><span>Демо</span></div><div class="phone-content">
+              <div class="title-row"><h4>Сегодня</h4><button class="icon-button" id="inbox" aria-label="Входящие: один запрос на перенос">↔<span class="count">1</span></button></div><p class="muted">Понедельник, 14 сентября</p>
+              <details class="earlier"><summary>Ранее сегодня · 5 занятий</summary><div class="past-row"><b>09:00</b> Дана <small>до 10:00</small></div><div class="past-row"><b>11:30</b> Мади <small>до 12:30</small></div><div class="past-row"><b>14:00</b> Арман <small>до 15:00</small></div><div class="past-row"><b>18:00</b> Айгерим <small>до 19:00</small></div><div class="past-row"><b>18:30</b> Арман <small>до 19:30</small></div></details>
+              <div class="now-label"><span class="status-dot"></span> Идёт сейчас <span class="hairline"></span>20:30</div>
+              <section class="session-card"><div class="title-row"><strong class="session-time">20:00<span>–21:00</span></strong><span class="badge">Мини-группа</span></div><h5>Силовая А</h5><div class="people"><span>Алия</span><span>Мади</span><span>Дана</span></div><p class="muted small">Результаты отдельно для каждого</p><button class="primary full" id="go-record">Записать подходы</button></section>
+              <div class="up-next"><span class="muted small">Следующее занятие</span><div class="agenda-line"><b>21:15<small>22:00</small></b><div><strong>Айгерим</strong><p class="muted small">Персональная · Низ А</p></div></div></div>
+              <p class="screen-note">Время зафиксировано для сравнения экранов.</p>
+            </div><div class="phone-bottom" aria-hidden="true"><b>Сегодня</b><span>Расписание</span><span>Клиенты</span></div></div>
+            <p class="design-note">Прошедшие занятия доступны, но не отодвигают текущее. В рабочем расписании нет декоративной иллюстрации.</p>
+          </article>
+
+          <article class="screen-study"><div class="study-caption"><h3>Главная клиента</h3><p>Ближайшая встреча всегда на своём месте.</p></div>
+            <div class="phone"><div class="phone-top"><span>20:30</span><span>Демо</span></div><div class="phone-content">
+              <div class="title-row"><h4>Айгерим,<br>добрый вечер</h4><span class="avatar" aria-hidden="true">А</span></div>
+              <section class="client-session"><p class="small muted">Ближайшая тренировка</p><div class="date-line">Сегодня <span>14 сентября</span></div><strong class="big-time">21:15<span>–22:00</span></strong><p>Низ А <span class="muted">· С Данияром</span></p><span class="confirmed">✓ Время подтверждено</span><button class="primary full" id="view-program">Посмотреть программу</button></section>
+              <section class="transfer-card" aria-labelledby="transfer-card-title"><div class="title-row"><h5 id="transfer-card-title">Запрос на перенос</h5><span class="pending-icon" aria-hidden="true">↔</span></div><div id="transfer-summary"><p class="small muted">Для другой тренировки</p><dl class="date-pair"><div><dt>Действует</dt><dd>Чт, 17 сентября<br><b>18:00–19:00</b></dd></div><div><dt>Предложено</dt><dd>Пт, 18 сентября<br><b>19:00–20:00</b></dd></div></dl><p class="small">Ждём ответа тренера.<br>Прежнее время остаётся в силе.</p></div><button class="text-button" id="view-transfer">Открыть запрос</button></section>
+            </div><div class="phone-bottom" aria-hidden="true"><b>Главная</b><span>Программа</span><span>История</span></div></div>
+            <p class="design-note">Запрос на будущий перенос не подменяет ближайшую встречу. Цвет поддерживает текст, а не заменяет его.</p>
+          </article>
+
+          <article class="screen-study"><div class="study-caption"><h3>Запись мини-группы</h3><p>Кто, что и сколько — без потери контекста.</p></div>
+            <div class="phone" id="record-phone"><div class="phone-top"><span>20:30</span><span>Демо</span></div><div class="phone-content">
+              <h4>Запись подходов</h4><p class="small muted">Силовая А · 20:00–21:00</p>
+              <div class="participants" role="group" aria-label="Участник тренировки"><button data-person="0" aria-pressed="true">Алия <span>0/2</span></button><button data-person="1" aria-pressed="false">Мади <span>0/2</span></button><button data-person="2" aria-pressed="false">Дана <span>0/2</span></button></div>
+              <div class="record-heading"><h5>Жим гантелей сидя</h5><p class="small muted" id="previous">В прошлый раз: 8 кг × 12</p></div>
+              <form id="set-form" novalidate><div class="set-labels" aria-hidden="true"><span>Подход</span><span>кг</span><span>Повторы</span><span></span></div><div id="set-rows"></div></form>
+              <p class="record-help small muted">Вес одной гантели. Значения предыдущего занятия не записываются автоматически.</p>
+              <div class="record-summary"><span id="total-recorded">Записано 0 из 6 подходов</span><div class="progress-track" aria-hidden="true"><span id="record-progress"></span></div></div>
+              <button id="finish" class="primary full">Проверить и завершить</button><p id="record-status" class="inline-status" role="status">Начните с первого подхода.</p>
+            </div><div class="phone-bottom recording-footer"><span>Черновик только в этом демо</span><button id="reset-record" class="text-button">Сбросить</button></div></div>
+            <p class="design-note">Попробуйте переключить участника и вернуться. Завершение проверяет всю группу; изменение записанного значения снова делает строку черновиком.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="illustrations" class="wrap chapter">
+      <div class="section-head"><h2>Иллюстрации,<br>у которых есть роль.</h2><p>Не украшение каждого экрана. Небольшая семья рисунков для знакомства и первого шага. Без фотографичности, спортивного пафоса и выдуманных достижений.</p></div>
+      <div class="art-grid">
+        <article class="art-study"><div class="invite-preview"><img src="assets/shared-plan-v2.png" alt="" width="1536" height="1024"><span class="avatar" aria-hidden="true">Д</span><h3>Данияр<br>приглашает вас</h3><p>Расписание, программа и результаты<br>ваших тренировок — в одном месте.</p><button class="primary" id="join">Подключиться к тренеру</button><p class="small muted" id="join-note" role="status">Для клиентов бесплатно · Демо</p></div><h3>Знакомство</h3><p>Рисунок показывает совместное планирование. Имя реального приглашающего тренера остаётся отдельным и главным.</p></article>
+        <article class="art-study"><div class="empty-preview"><img src="assets/blank-notebook-v2.png" alt="" width="1024" height="1024"><h3>Здесь будет<br>ваша программа</h3><p>Тренер добавит упражнения<br>перед первой тренировкой.</p><span class="empty-state-label">Сейчас ничего заполнять не нужно</span></div><h3>Первый шаг</h3><p>Пустой блокнот объясняет отсутствие программы. Клиенту не предлагается действие, которое может выполнить только тренер.</p></article>
+      </div>
+      <p class="footnote">Новые изображения созданы встроенным GPT Image. Исходный реалистичный вариант и его видео исключены из текущего направления; сохранены только в архиве исследования. <a href="ASSETS.md">Промпты и происхождение файлов</a>.</p>
+      <div class="film-study"><video controls playsinline muted preload="none" poster="assets/shared-plan-v2.png" aria-label="Пятисекундная рисованная сцена совместного планирования"><source src="assets/shared-plan-seedance-v2.mp4" type="video/mp4"><a href="assets/shared-plan-seedance-v2.mp4">Скачать анимационную пробу</a></video><div><h3>Один небольшой жест</h3><p>Новая проба Seedance 2.0 на основе рисованной иллюстрации. Без звука, автозапуска и зацикливания. Рисунок остаётся полноценным вариантом без видео.</p><p class="small muted">Фактически: 5,042 с, 1112 × 834, 24 кадра/с. Сервис изменил формат на 4:3; видео показано без обрезки. Детали лиц и текстура слегка меняются — это проба, не утверждённый финальный материал.</p><a href="assets/shared-plan-seedance-v2.mp4">Открыть видео отдельно</a></div></div>
+    </section>
+
+    <section class="wrap chapter" id="motion"><div class="section-head"><h2>Движение объясняет.<br>Не отвлекает.</h2><p>Шторка появляется, потому что вы открыли запрос. Подход получает отметку, потому что вы его записали. Ожидание человека не пульсирует бесконечно.</p></div><div class="motion-grid"><article><h3>Мгновенно</h3><p>Переключение участника и ввод значений. Никаких выезжающих форм между подходами.</p></article><article><h3>240 / 180 мс</h3><p>Предложенное появление и закрытие шторки. Сохраняем исходную кривую, возвращаем фокус на кнопку. С клавиатуры — мгновенно.</p></article><article><h3>Статика по умолчанию</h3><p>Рисунок уже завершён без видео. Анимационная проба запускается только по вашему действию; она не объясняет технику упражнений.</p></article></div><button id="motion-open">Попробовать шторку переноса</button><p class="footnote">Системное «Уменьшение движения» действует всегда. Переключатель над экранами позволяет сравнить поведение вручную. Интервалы — предложение для проверки, а не результат пользовательского теста.</p></section>
+    <section class="wrap chapter next-step"><h2>Что проверяем дальше</h2><p>Понимает ли клиент, какое время действительно? Видит ли тренер незаписанные подходы у другого участника? Помогают ли рисунки почувствовать участие — или только занимают место?</p><p>Это гипотезы, не результаты интервью. В <a href="REPORT.md">подробном аудите</a> — 16 находок с доказательствами. В <a href="DIRECTION.md">обосновании направления</a> — альтернативы, ограничения и план проверки.</p></section>
+  </main>
+  <footer class="wrap footer">Обновлено 23 сентября 2026. Не утверждённый редизайн. <a href="../../prototype/index.html">Исходный прототип</a> · <a href="responsive.html">Проверка ширины</a> · <a href="README.md">Состав материалов</a></footer>
+
+  <dialog id="decision-dialog" aria-labelledby="dialog-title"><div class="dialog-handle" aria-hidden="true"></div><div class="title-row"><h2 id="dialog-title">Запрос на перенос</h2><button id="dialog-close" class="icon-button" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog>
+  <script src="study-model.js"></script>
+  <script src="direction.js"></script>
+</body>
+</html>

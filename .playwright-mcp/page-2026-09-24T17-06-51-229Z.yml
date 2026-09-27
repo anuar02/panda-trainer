@@ -1,0 +1,109 @@
+- main [ref=f2e3]:
+  - group "Роль" [ref=f2e2691]:
+    - button "Тренер" [pressed] [ref=f2e2692] [cursor=pointer]
+    - button "Клиент" [ref=f2e2697] [cursor=pointer]
+  - generic [ref=f2e17]:
+    - generic [ref=f2e2701]:
+      - generic [ref=f2e2702]:
+        - button "Свернуть тренировку" [ref=f2e2704] [cursor=pointer]:
+          - generic [ref=f2e2707]: Свернуть
+        - generic [ref=f2e2708]: Журнал тренировки
+        - button "Ещё" [ref=f2e2710] [cursor=pointer]
+      - generic [ref=f2e2715]:
+        - generic [ref=f2e2716]:
+          - heading "Дана Ержанова" [level=1] [ref=f2e2717]
+          - generic [ref=f2e2718]: пн, 14 сен · 09:00–10:00
+          - generic [ref=f2e2719]: Журнал изменён в другой вкладке · местные правки не отправлены
+          - generic [ref=f2e2722]:
+            - paragraph [ref=f2e2723]: Скачайте копию этой вкладки перед перезагрузкой. Автоматическое объединение не поддерживается.
+            - button "Скачать копию журнала" [ref=f2e2724] [cursor=pointer]
+        - generic [ref=f2e2728]:
+          - generic [ref=f2e2729]: Full Body
+          - generic [ref=f2e2730]: 3/12
+        - generic [ref=f2e2734]:
+          - generic [ref=f2e2735]:
+            - generic [ref=f2e2736]:
+              - generic [ref=f2e2737]: Приседания со штангой
+              - generic [ref=f2e2738]: цель 3 × 10 · 50 кг
+            - 'button "Изменить подход 1: Приседания со штангой" [ref=f2e2739] [cursor=pointer]':
+              - generic [ref=f2e2740]: "1"
+              - generic [ref=f2e2741]:
+                - generic [ref=f2e2742]: 50 кг × 10
+                - generic [ref=f2e2743]: прошлый раз 50 кг × 10
+            - 'button "Продолжить подход 2: Приседания со штангой" [ref=f2e2747] [cursor=pointer]':
+              - generic [ref=f2e2748]: "2"
+              - generic [ref=f2e2749]:
+                - generic [ref=f2e2750]: 50 кг × 10
+                - generic [ref=f2e2751]: прошлый раз
+                - generic [ref=f2e2752]: Черновик
+            - 'button "Изменить подход 3: Приседания со штангой" [ref=f2e2756] [cursor=pointer]':
+              - generic [ref=f2e2757]: "3"
+              - generic [ref=f2e2758]:
+                - generic [ref=f2e2759]: 50 кг × 10
+                - generic [ref=f2e2760]: прошлый раз 50 кг × 10
+          - generic [ref=f2e2765]:
+            - generic [ref=f2e2766]:
+              - generic [ref=f2e2767]: Отжимания
+              - generic [ref=f2e2768]: цель 3 × 12
+            - 'button "Изменить подход 1: Отжимания" [active] [ref=f2e2769] [cursor=pointer]':
+              - generic [ref=f2e2770]: "1"
+              - generic [ref=f2e2771]:
+                - generic [ref=f2e2772]: 12 повт
+                - generic [ref=f2e2773]: прошлый раз 12 повт
+            - 'button "Записать подход 2: Отжимания" [ref=f2e2777] [cursor=pointer]':
+              - generic [ref=f2e2778]: "2"
+              - generic [ref=f2e2779]:
+                - generic [ref=f2e2780]: 12 повт
+                - generic [ref=f2e2781]: прошлый раз
+            - 'button "Записать подход 3: Отжимания" [ref=f2e2785] [cursor=pointer]':
+              - generic [ref=f2e2786]: "3"
+              - generic [ref=f2e2787]:
+                - generic [ref=f2e2788]: 12 повт
+                - generic [ref=f2e2789]: прошлый раз
+          - generic [ref=f2e2794]:
+            - generic [ref=f2e2795]:
+              - generic [ref=f2e2796]: Тяга в наклоне
+              - generic [ref=f2e2797]: цель 3 × 12 · 30 кг
+            - 'button "Записать подход 1: Тяга в наклоне" [ref=f2e2798] [cursor=pointer]':
+              - generic [ref=f2e2799]: "1"
+              - generic [ref=f2e2800]:
+                - generic [ref=f2e2801]: 30 кг × 12
+                - generic [ref=f2e2802]: прошлый раз
+            - 'button "Записать подход 2: Тяга в наклоне" [ref=f2e2806] [cursor=pointer]':
+              - generic [ref=f2e2807]: "2"
+              - generic [ref=f2e2808]:
+                - generic [ref=f2e2809]: 30 кг × 12
+                - generic [ref=f2e2810]: прошлый раз
+            - 'button "Записать подход 3: Тяга в наклоне" [ref=f2e2814] [cursor=pointer]':
+              - generic [ref=f2e2815]: "3"
+              - generic [ref=f2e2816]:
+                - generic [ref=f2e2817]: 30 кг × 12
+                - generic [ref=f2e2818]: прошлый раз
+          - generic [ref=f2e2823]:
+            - generic [ref=f2e2824]:
+              - generic [ref=f2e2825]: Планка
+              - generic [ref=f2e2826]: цель 3 × 40 сек
+            - 'button "Записать подход 1: Планка" [ref=f2e2827] [cursor=pointer]':
+              - generic [ref=f2e2828]: "1"
+              - generic [ref=f2e2829]:
+                - generic [ref=f2e2830]: 40 сек
+                - generic [ref=f2e2831]: прошлый раз
+            - 'button "Записать подход 2: Планка" [ref=f2e2835] [cursor=pointer]':
+              - generic [ref=f2e2836]: "2"
+              - generic [ref=f2e2837]:
+                - generic [ref=f2e2838]: 40 сек
+                - generic [ref=f2e2839]: прошлый раз
+            - 'button "Записать подход 3: Планка" [ref=f2e2843] [cursor=pointer]':
+              - generic [ref=f2e2844]: "3"
+              - generic [ref=f2e2845]:
+                - generic [ref=f2e2846]: 40 сек
+                - generic [ref=f2e2847]: прошлый раз
+        - paragraph [ref=f2e2851]: Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере, без синхронизации.
+      - generic [ref=f2e2853]:
+        - generic [ref=f2e2854]:
+          - status [ref=f2e2855]: Изменения только в этой вкладке · ошибка сохранения
+          - button "Отменить запись" [ref=f2e2856] [cursor=pointer]: Отменить
+        - button "Завершить тренировку" [ref=f2e2857] [cursor=pointer]
+    - generic [aria-hidden]:
+      - dialog
+    - status

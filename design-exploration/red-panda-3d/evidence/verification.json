@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "errors": [],
+  "responses": [],
+  "pause": true,
+  "play": true,
+  "speed": true,
+  "transitions": [
+    {
+      "id": "wave",
+      "weight": 0.8537667393684387,
+      "time": 0.2561299999833107
+    },
+    {
+      "id": "cheer",
+      "weight": 0.8565667271614075,
+      "time": 0.2569699999332428
+    },
+    {
+      "id": "jump",
+      "weight": 0.8556334376335144,
+      "time": 0.2566899999499321
+    },
+    {
+      "id": "walk",
+      "weight": 0.8593666553497314,
+      "time": 0.25781000005006793
+    },
+    {
+      "id": "run",
+      "weight": 0.8579666614532471,
+      "time": 0.25739000003337864
+    },
+    {
+      "id": "idle",
+      "weight": 0.8946002721786499,
+      "time": 0.26837999998331075
+    }
+  ],
+  "oneShotReturnsToIdle": true,
+  "rotation": true,
+  "reducedMotion": true,
+  "noHorizontalOverflow320": true,
+  "rigCorrection": [
+    {
+      "mesh": "char1",
+      "headVertices": 7179
+    }
+  ]
+}

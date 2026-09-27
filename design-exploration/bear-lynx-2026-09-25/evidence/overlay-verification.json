@@ -1,0 +1,74 @@
+[
+  {
+    "file": "screens/b-home.png",
+    "mascot_max_size": 52,
+    "overlay_bbox": [
+      33,
+      169,
+      85,
+      217
+    ],
+    "removed_art_bbox": [
+      36,
+      170,
+      78,
+      212
+    ],
+    "changed_outside_art_and_overlay": 0,
+    "protected_text_and_button_rectangles_unchanged": true
+  },
+  {
+    "file": "screens/l-home.png",
+    "mascot_max_size": 52,
+    "overlay_bbox": [
+      33,
+      167,
+      85,
+      218
+    ],
+    "removed_art_bbox": [
+      36,
+      170,
+      78,
+      212
+    ],
+    "changed_outside_art_and_overlay": 0,
+    "protected_text_and_button_rectangles_unchanged": true
+  },
+  {
+    "file": "screens/b-empty-program.png",
+    "mascot_max_size": 110,
+    "overlay_bbox": [
+      31,
+      165,
+      141,
+      267
+    ],
+    "removed_art_bbox": [
+      33,
+      174,
+      140,
+      256
+    ],
+    "changed_outside_art_and_overlay": 0,
+    "protected_text_and_button_rectangles_unchanged": true
+  },
+  {
+    "file": "screens/l-empty-program.png",
+    "mascot_max_size": 110,
+    "overlay_bbox": [
+      31,
+      162,
+      141,
+      270
+    ],
+    "removed_art_bbox": [
+      33,
+      174,
+      140,
+      256
+    ],
+    "changed_outside_art_and_overlay": 0,
+    "protected_text_and_button_rectangles_unchanged": true
+  }
+]

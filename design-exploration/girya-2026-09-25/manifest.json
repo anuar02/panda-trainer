@@ -1,0 +1,2125 @@
+{
+  "study": "Гиря",
+  "date": "2026-09-25",
+  "handoff": "../CODEX-GIRYA-HANDOFF.md",
+  "handoff_sha256": "536a98aa97efcb308dfa3db08735aeb6b60ddfebe9af1e766011fdb1e87d7f71",
+  "prototype_unchanged": true,
+  "prototype_sources": {
+    "prototype/WORKOUT-POLISH.md": "694802f53838ffb33d92265e42f1d47070caa328c4bd7590dbd1c358bc8b8241",
+    "prototype/CODEX-FIRM-VISUAL-HANDOFF.md": "607a7eb2933f89c65bf25cd74b87edc3e57481564a6397a041a39f760ec01f42",
+    "prototype/INK-NOTEBOOK-HANDOFF.md": "ad4dca0e291797a1b2acea6d676184e87b80f3fdb8f55e7d9b14ebe71946a94e",
+    "prototype/WORKOUT-UX-REVIEW.md": "5dd07a86caaf9a3a0730c2755f6954fc960985849184060864915ff5ce256504",
+    "prototype/index.html": "f717ff0513fab6c8c2b00d8264e436b0fd5b2fc555328576d79c6e82d1dd2d47",
+    "prototype/TRAINING-WINDOW.md": "0011a519e5956e089a0651d60cd2bdff943d6a8ae0c8079606360068bb238648",
+    "prototype/IMPLEMENTATION-CHECKPOINT.md": "7f6b8147394fd605afffa568b89f6f4139fb26d543e3b76ace3b41d889ed2d8e",
+    "prototype/SECONDARY-SCREENS-REVIEW.md": "5817541f14b95e06f9c7ebc78f1f0b32cafcbcb8344bbd3ea3707ecba7963817",
+    "prototype/VISUAL-REVIEW.md": "afad3f328d5a235758e5e6a1636bf458d8572924e3350f30d5352773d5595266",
+    "prototype/WORKOUT-REVIEW-FIXES.md": "c77bbb4aa16446834af621a79e7f0f98f8405f80c9d7077ab8e3ee71b09e71b7",
+    "prototype/CLAUDE-WORKOUT-HANDOFF.md": "186f0eeb6403b15e7e2d159cb5275b9cd445aa7beb6e54ed04563d6c849a5136",
+    "prototype/NATIVE-DESIGN-HANDOFF.md": "df69a5729a599fdad6c933242ade54890214bba9b81acdc64d8579c523259a79",
+    "prototype/QUICK-ENTRY-REVIEW.md": "89edc9b52e2109f6d85ebce7002c6c2983c8686d6e98950e741c6d5ac174f890",
+    "prototype/VISUAL-FIRMNESS.md": "b0badea0a7b2de9cf67bc8a8756bf1b8292655ec1859a8457b4691741dc3d865",
+    "prototype/START-FLOW.md": "5c9eb41e269942daf44add45c952f848f84d59add7903a7a95a3e0c5c9c80ca0",
+    "prototype/CLAUDE-WORKOUT-REVIEW.md": "1b423fb5fbf217cbc04db9e68949604d42b4ed539819dce183e92261004bec8e",
+    "prototype/css/tokens-firm.css": "dabb28bf48b5032f7c5ff36158524e246777cd74a2b05fbc5aefa4f2eccb92ff",
+    "prototype/css/tokens.css": "54a86f49acb051414e265b44239ac13ad8d41eb8721729867f254afcd0aea4fb",
+    "prototype/css/fonts.css": "d3ee1d9fb7e604b3ff6081343118a514d25b82f7180116a8e6299ffced0baf0e",
+    "prototype/css/components.css": "410346138d1a00d105fc7f7b17c36b9c762b0aeec67eee7dccc2c203af0d9165",
+    "prototype/css/base.css": "0ecca6b6bb5fd92242129d9896172d117792811bb5adc660b237dff29da04ccf",
+    "prototype/js/icons.js": "f2503de272bcd93c05ea68e32cf51f0a518a2b45bfb66df8248f1d34bb246b49",
+    "prototype/js/ui.js": "9a038f5dfd1c3e3894bd1402d7e793cd651174f72841e13c86df3454995d9325",
+    "prototype/js/store.js": "25d139a35bbf3804b6d47f34911461d13b7da125d8f3e75133e93f9863bfa0b0",
+    "prototype/js/sheets.js": "1ce6a243077f59b31c115d2e2b9427b37acf0015c480a2e82ba9f989bf5c5bcd",
+    "prototype/js/session-repository.js": "732e86bac7b2b8ff6786ac9986eeb0324d29179b5a7db28dfd83ead971f03194",
+    "prototype/js/data.js": "8647b8f9da68bf4ebc86265272fc7b482cf23c2988a858062bae3e243578362c",
+    "prototype/js/visual.js": "1446e4cc811503e4f3a705fc77964f675e1ddf45bee8ce9d5e283836a77a2a03",
+    "prototype/js/app.js": "fbfadb49ff6368d5a7d46306e4c2fc62cc5676a82f0db81d96821cb0a5fd4e8d",
+    "prototype/js/screens/client.js": "df2f2e725f8fed1bb1ea5829f8e991e7b4ebdb554711ec9f9cf3d8638bc48456",
+    "prototype/js/screens/trainer.js": "51f6a3b8fa4b98102c942265f7923a9038295968e7299c282693fc43e715e564",
+    "prototype/tests/actions.test.cjs": "96ee6645b720a23311880e933e9a0b1043f597caa1b9d4ad7aa5030fb2604667",
+    "prototype/tests/journal.test.cjs": "cbdaf281dcfdd8752607094aba10a9ef1625cdc80fa6e747f9a39e42c92b28fe",
+    "prototype/tests/notebook.test.cjs": "05003f7bb15dd5bfaf5887722174575cce99d739f2838c97298d208b41fd0e58",
+    "prototype/tests/reschedule.test.cjs": "f20f97b0d25ebe73ce5ce55d72356268a790c98558d45b4646e4af2d70d2a445",
+    "prototype/review/build.py": "e523d78fed64cbd479d688902e926dfc4d8e12fa53f367c782dde455b9e9cb37",
+    "prototype/review/index.html": "4bf2d1da0c2c0442ca07cf7b8288fb53ca3d08a914ff024b16d18af426656d41",
+    "prototype/review/README.md": "9c38803443ed60deafe7286d46723c5dd33537adddea004a0f0e731ba6d93194",
+    "prototype/review/manifest.json": "0c7d857f5838e2acaa3218fe868654f64d0ec798d57089d88d0d5a22055ba52b",
+    "prototype/review/CLAUDE-DESIGN-REVIEW-PROMPT.md": "016baae7e8252d72d16bc4af98d80e8050cff368bdcdf96ee4ee0cfb77fbb53d",
+    "prototype/review/captures/390/client-history-ledger.png": "1593a5c7d1537cc10d49889b0b0033bd61feb9db89ac8bd295db65cdeb7da150",
+    "prototype/review/captures/390/trainer-home.png": "68527a0e79c8302027f0ce267e09a74c59a0fd916af08687878e5f355210d1db",
+    "prototype/review/captures/390/client-empty-program.png": "42df635f2bcf6861fbde3d09893bdb57849744eed9ea0dfba928e167bb848274",
+    "prototype/review/captures/390/client-progress.png": "bed51267b8e951cc5c42432140283485d253801569f5588b6438c3f751eabc43",
+    "prototype/review/captures/390/first-plan.png": "e9233395e3d1efcb7f82b28e0c89155a79df7b84d5996d33ab07d29b9735cef6",
+    "prototype/review/captures/390/client-empty-progress.png": "05536819cb616ffb8a21fa49c6f99f12d8ef19707194d8a22c8caf47fa56bc6f",
+    "prototype/review/captures/390/client-home.png": "81c9d0035869fe73be6314b81f442b248f0874ee69fd5c523915d7d0d5f67ffa",
+    "prototype/review/captures/390/personal-start.png": "e1d26da65af9a483415ea045ea69070cf84285c24a752ec6295837c39e34b733",
+    "prototype/review/captures/390/set-editor.png": "503165ef4c0ff5aefacf9bf165839cb3c83a51cd9f5eeab026815442ab80faaa",
+    "prototype/review/captures/390/client-program.png": "9379034fe0a7537d11f177dd8673f2601dcdb72a9b7b319a04cd48128cad47fa",
+    "prototype/review/captures/390/personal-results.png": "01539c645f43c53e3f17c2a2c20dae71ed4450ae67b6b211d07fc37aab9f9034",
+    "prototype/review/captures/390/client-profile.png": "ed676139a2266fa93fd043f30e74e2f149814ab2d098f6b8dd1858e89db49c3f",
+    "prototype/review/captures/390/group-start.png": "738630d7bc18069b1ad8e7cc60930d520a8ecd6ae7ecaa6c13769e2969d515ec",
+    "prototype/review/captures/390/invitation.png": "35a46d22f6800916781689e452d191662b2c8da174a356d6ea52b36276a86a74",
+    "prototype/review/captures/390/client-history.png": "03ff5b78751ce66603c7b6d8b9416e235068098868b0ab8d4738df5ff15798a4",
+    "prototype/review/captures/320/client-history-ledger.png": "2ed030cb4b1f4d95e88ad09afbf2368d4f2901457e27ca7883526658fece4b53",
+    "prototype/review/captures/320/trainer-home.png": "8d0c7f4677b8e390e7aab4a58b31bb44a21e9d3df17f8598bd431e1fa16d7497",
+    "prototype/review/captures/320/client-empty-program.png": "fb7e13353345c261bd30d4e6b11c253fa7666a4c6f77b2fa8a8f84cdcfb50de3",
+    "prototype/review/captures/320/client-progress.png": "707cb74a47ebd0ce339fb14ff7a4a4bd4e192fc2de5bf90fcf3d3bc7d1f1ca0f",
+    "prototype/review/captures/320/first-plan.png": "a50dd85edd65a191477b20d7ef024f7760c18be5acbad7fda0458227b5f0f572",
+    "prototype/review/captures/320/client-empty-progress.png": "fb20e79c700dbd4cf13c8ffe13aeb0d39400bfe0900390deda41de78779aa909",
+    "prototype/review/captures/320/client-home.png": "29ce6262e623164cbbdac393580b04ed6d5280ac676c164a025e4853c6b2fcdb",
+    "prototype/review/captures/320/personal-start.png": "b93ade4ce2dcaa76abbe7823849d9395a7c7f9356d4b73321b9c2969410e4bc5",
+    "prototype/review/captures/320/set-editor.png": "496c8afaced4297636015671da5702bf444621cb84b347e3cea0a07a7ceff1f3",
+    "prototype/review/captures/320/client-program.png": "c3a53a6fc85833fe5ec25d55b472ab4e0d63c8b9730ab787b818bc18f19a3733",
+    "prototype/review/captures/320/personal-results.png": "b20d470ed1b8799ea7c7b38c9abb6f8ccbd82aca6bd8b5ac0d4d60a4dd47fe9f",
+    "prototype/review/captures/320/client-profile.png": "826bb37076b1de49c6fdf3b872ae4b118bdad43374697275ee260cbde82f7907",
+    "prototype/review/captures/320/group-start.png": "9d800d49dd0b350c61f401a233a7bdaac2149d88a75c553d1f0b8d0d3b335797",
+    "prototype/review/captures/320/invitation.png": "bdc904b066f6235e2db97cdc8fe95f2bf05e54b03bd6c7090d2d38f66f1cb4fe",
+    "prototype/review/captures/320/client-history.png": "1245e4e6e8e61cfc5bce56bf92e7ca01fd473eacc97a5ff0d740a9f46d26e3a5",
+    "prototype/review/workout-window/build.py": "5011dd0036adb33d7835bb79d720d793b45b8cfd0d399df34cab382e16a8e1f7",
+    "prototype/review/workout-window/index.html": "689a69e1454357bf893667643fe8a4d86d83f8ef1a25c63a536610f283b80028",
+    "prototype/review/workout-window/manifest.json": "c8478d477e9bdca30c2fb775a903540da85384c339bc906206805c8b3015aa4f",
+    "prototype/review/workout-window/320/workout-profile-dock.png": "3653cf91bbe6afce546fa3a291002977707516a79d1eff3cee35370f9426b966",
+    "prototype/review/workout-window/320/workout-group-dock.png": "9f251041788c3c38cd97e13ba7c1cf6c8e04147020c0292132b49b0e264abdd2",
+    "prototype/review/workout-window/320/review-fallback.png": "71f585fda967805edecdfd1d3e172bc6191011f21ac7cb33bf6dcfb760fff8d3",
+    "prototype/review/workout-window/320/workout-minimized.png": "3d873b4f1eaee858486ee56b7d5e77b4b1f7fb844115bb1aa8765bbd2f5cf45a",
+    "prototype/review/workout-window/320/personal-start.png": "b93ade4ce2dcaa76abbe7823849d9395a7c7f9356d4b73321b9c2969410e4bc5",
+    "prototype/review/workout-window/320/review-stale-completed.png": "6fbe68b0fc8cdf61fb74f6059efd454802b2c2acab21c4eb24b4b2df7a19e9f5",
+    "prototype/review/workout-window/320/review-draft.png": "d5b80d534fb230bc77a1a842fe872dc539018e3b4393279c27b2239a0c7d9d2e",
+    "prototype/review/workout-window/320/review-scroll.png": "f56e8e58abe93a328307078d57c0ab8c5fd635fd6d1e90fdc6ad99bc1c3fcedc",
+    "prototype/review/workout-window/320/workout-client-card-dock.png": "65f978af9ba469542addad6db780f94ba689d59ff14136ab90a701d42adfabbc",
+    "prototype/review/workout-window/375/workout-profile-dock.png": "4dca5d147c8eb8cc9feac5fcfdae8439a69758e774d9c3c49885762d81960b3c",
+    "prototype/review/workout-window/375/workout-group-dock.png": "35fdec84d4ee7d53d058a91971ab1cf916b5d9425406face787041b4cbc5f1ab",
+    "prototype/review/workout-window/375/review-fallback.png": "d75640d1491520d5cda223e06b0f89bad4af190b65ca79b75469e814c8db20c6",
+    "prototype/review/workout-window/375/workout-minimized.png": "c3526f484677c8221ea2e72e4069d73bdd71893aa38c33d2a46d20a10718e29e",
+    "prototype/review/workout-window/375/personal-start.png": "382f4aa6684aec583e1e8d60ac4cbe786a2c7a40f9779530e8bf4bc7ee35eaa3",
+    "prototype/review/workout-window/375/review-stale-completed.png": "311658a7244d69984a8ed7913881dab44838a317a05562fd8554c96a9a30ed4e",
+    "prototype/review/workout-window/375/review-draft.png": "0c7f0fe572b58edb60a1d310b7de2439dddc45b0edbd27292806a311e0fbb64e",
+    "prototype/review/workout-window/375/review-scroll.png": "048d15e6fe8cd8b3d16cd366a31840734d225e450e6a232fc0d88ec985979595",
+    "prototype/review/workout-window/375/workout-client-card-dock.png": "d8c1b73c4a17865344fcdc1a2bff1b7029b5e2be37b424fbd92c27f19b701531",
+    "prototype/review/workout-polish/build.py": "cb3f1113d623c8812664f959e2a2caf249d9ca39a8e2cc94bd0a734af8cfe463",
+    "prototype/review/workout-polish/baseline-manifest.json": "ac2c83126176c5f4771a920e04e61f710ba2b5367a305a94d71cd01bbfb79761",
+    "prototype/review/workout-polish/index.html": "6541714f867589f18bf64ada2151664ceb35b2e80e2c26d0b58a11628d629491",
+    "prototype/review/workout-polish/manifest.json": "094e00287e65ac02eb2d71d640b929e27c3b68b4ad51099dca1da6c43322f31f",
+    "prototype/review/workout-polish/before/320/group-draft-return.png": "5932f7cdfd152ab5db6c73060dc31d76d6e622b8a90869bd97ae067bd2648013",
+    "prototype/review/workout-polish/before/320/workout-group-dock.png": "cd21b33c82e58ddcbd3724a0b72431729088d4386eb0e6ca5a6b287ab57aa638",
+    "prototype/review/workout-polish/before/320/personal-start.png": "5a86492327775e9f2be4d4bb45a776421e223300ab6dff93d4c4d5ddde1eb3a0",
+    "prototype/review/workout-polish/before/320/group-start.png": "4f5fd4ad38f8eee99c91d6ff25013867e8d2ce31044d4b888aa85ed1445a4cfe",
+    "prototype/review/workout-polish/before/375/group-draft-return.png": "18f748f81970423104dc012aed7b8a849bbb7f8cadd2e08208bde6a748ae1f9f",
+    "prototype/review/workout-polish/before/375/workout-group-dock.png": "fd20d88da884f8f4a1ebb324f007fd1b7957c6ed9cbf67370b818b076d08ccac",
+    "prototype/review/workout-polish/before/375/personal-start.png": "e0ecc09ab17f2e6ac67b023a7c8ea2d6841e5c863d9af9f5dd41ec75995c9494",
+    "prototype/review/workout-polish/before/375/group-start.png": "1a30a9adea79727385cf2d714e6453b2647582520723b3a43cd4ff9ec92c0628",
+    "prototype/review/workout-polish/after/320/group-draft-return.png": "e3a4dac52d893c7d4594a3be26009482b7722b1f046a042170ca06de086ca008",
+    "prototype/review/workout-polish/after/320/workout-group-dock.png": "9f251041788c3c38cd97e13ba7c1cf6c8e04147020c0292132b49b0e264abdd2",
+    "prototype/review/workout-polish/after/320/personal-start.png": "b93ade4ce2dcaa76abbe7823849d9395a7c7f9356d4b73321b9c2969410e4bc5",
+    "prototype/review/workout-polish/after/320/group-start.png": "9d800d49dd0b350c61f401a233a7bdaac2149d88a75c553d1f0b8d0d3b335797",
+    "prototype/review/workout-polish/after/320/polish-group-short.png": "067c0500d5c5b8437e8021564f437f4f6816c17ba70e1eadce402081667cca2c",
+    "prototype/review/workout-polish/after/375/group-draft-return.png": "84f240945100af7d80f0e5876a77770432e4f6c924dc8c990415944e4c7b556a",
+    "prototype/review/workout-polish/after/375/workout-group-dock.png": "35fdec84d4ee7d53d058a91971ab1cf916b5d9425406face787041b4cbc5f1ab",
+    "prototype/review/workout-polish/after/375/personal-start.png": "382f4aa6684aec583e1e8d60ac4cbe786a2c7a40f9779530e8bf4bc7ee35eaa3",
+    "prototype/review/workout-polish/after/375/group-start.png": "286449c4390d0bd70d4648d96c815fb6e0690ae3080630ceb46124bf0d802cfe",
+    "prototype/review/workout-polish/after/375/polish-group-short.png": "49153992a48d4ac66747b4ab5e1b66ee936af1e29b597f17c16e4556ffe51923",
+    "prototype/review/quick-entry/build.py": "96fbb2c26923a44e6495d1d09fc6bacdf485ca906a3ae7a5c03f0b77d8e07040",
+    "prototype/review/quick-entry/before-source-manifest.json": "caf4b6a736362d41742fee6effda0828b292f6f1a3b63ca8025ea2f9a78e04ea",
+    "prototype/review/quick-entry/index.html": "99338ffee2c2e7720760eb3d8a714233eb7afbdc8a80045f710890be038c36e7",
+    "prototype/review/quick-entry/manifest.json": "f741b98dcd4596cf3d422ee7f6a9da263896ad616dc90b04ee9309434cb8f7bc",
+    "prototype/review/quick-entry/before/320/personal-start.png": "739863780a078ceb1c69b5be366f5fe27fcc19b39b7dedb091f864feb726c1f8",
+    "prototype/review/quick-entry/before/375/personal-start.png": "88f974cc030aadfce0ba86ed7c76579e710994bae7d16c01eb584acaf4daa9f4",
+    "prototype/review/quick-entry/after/320/quick-start.png": "b93ade4ce2dcaa76abbe7823849d9395a7c7f9356d4b73321b9c2969410e4bc5",
+    "prototype/review/quick-entry/after/320/set-editor.png": "496c8afaced4297636015671da5702bf444621cb84b347e3cea0a07a7ceff1f3",
+    "prototype/review/quick-entry/after/320/quick-short.png": "5189e78c867fa7ec920a4dcaae732fd1ff99660c28262932496a96e3aebda40c",
+    "prototype/review/quick-entry/after/320/quick-saved.png": "b7a988a956a0f17f4de09aaf417d68135c22edb86306b150820b027a1412b318",
+    "prototype/review/quick-entry/after/320/quick-three-sets.png": "272239bdfa9d90d7ab091bfbbf10d0e334699a9216f93d205c7f5efd23587355",
+    "prototype/review/quick-entry/after/375/quick-start.png": "382f4aa6684aec583e1e8d60ac4cbe786a2c7a40f9779530e8bf4bc7ee35eaa3",
+    "prototype/review/quick-entry/after/375/set-editor.png": "206d3505912160347c7d3ac26091631b6576dedff8332ab2458a0555ff504586",
+    "prototype/review/quick-entry/after/375/quick-short.png": "e1f9b82eccae78378a51203dcd7b8a160803f96ac2767adb0199942c24997d08",
+    "prototype/review/quick-entry/after/375/quick-saved.png": "d74521b33bd8c79e17375efe762b2625301951bca0ccda46a224d1c1d8e132f7",
+    "prototype/review/quick-entry/after/375/quick-three-sets.png": "93b5bc650f0a217aca152adeae2b94c1fb3c33debf553709bbf392428022cb41",
+    "prototype/review/visual-firmness/build.py": "ccf4dbd5cb954c287249d703403b1686bf7d9671167b6d1b659d5f497175b7f7",
+    "prototype/review/visual-firmness/index.html": "fdf1155b33298d070ea5a363780ef9debfe52c9ed5db5e4989acffc1f4b72f40",
+    "prototype/review/visual-firmness/capture.cjs": "6d12527e92655913363370e0ea5add5cf0db5bf1eac1cdd260ed5cb08fc8c09a",
+    "prototype/review/visual-firmness/verify.cjs": "2f2a886f7d332a1a2256588054a8e5b7647dbe639a685d90981fc21df31fbe28",
+    "prototype/review/visual-firmness/manifest.json": "0ee0b51b3333012ca2613b1622824c10a7fd329fb98cc57235e5cf2b188fa90c",
+    "prototype/review/visual-firmness/evidence/pixel-verification.json": "868e8a42b3736cce160a4b5737c0bf38a96dfe342da411723609ba149fe21950",
+    "prototype/review/visual-firmness/evidence/radius-map.json": "b2c617622eefe9e1dac25ee9370740f9974ec7db6bf0d0ed8780ebe057e00a28",
+    "prototype/review/visual-firmness/evidence/tokenized-capture.json": "87ed963e5298cfd007f520580d08d167196a15cc470d06616e7d4a6e2525e778",
+    "prototype/review/visual-firmness/evidence/interaction-verification.json": "df39de40b3753350b60062129a4acbfb3f4616b84fc8061e607619345db94dd9",
+    "prototype/review/visual-firmness/evidence/current-capture.json": "84be883b0905c1257760c43a444edab06a358ed8392dc9be743e8b0336bb8cd9",
+    "prototype/review/visual-firmness/evidence/contrast.json": "bb9a411862742781c756da808aa889e1d2e45f2148f46f59d0ceeac1c450b6ab",
+    "prototype/review/visual-firmness/evidence/baseline-capture.json": "6ed6d91957f1a954b4918a193761cee1ea1e2d457e14714c5b7886a86f249f03",
+    "prototype/review/visual-firmness/evidence/firm-capture.json": "2df36788e1b3728b17770c642c8a0691a0e8446de22a339f5018f200c0e85177",
+    "prototype/review/visual-firmness/evidence/baseline/320/today.png": "8d0c7f4677b8e390e7aab4a58b31bb44a21e9d3df17f8598bd431e1fa16d7497",
+    "prototype/review/visual-firmness/evidence/baseline/320/client-card.png": "29933459948b4ef1c6fcdd1fc1ccbc1d926333d593e2c59c945f39501b398ffa",
+    "prototype/review/visual-firmness/evidence/baseline/320/workout-dock.png": "82825b6c466b23fefc122627f749e6fb9b25980a0a8c79b42adeb79dcfd2dc3a",
+    "prototype/review/visual-firmness/evidence/baseline/320/set-sheet.png": "beccb100472efb550f0da9d981ff06484b040e10408e244f039d3a2c8c3a8ff1",
+    "prototype/review/visual-firmness/evidence/baseline/320/journal.png": "609e8682d486d7df00f7c3a1ecb986f6047a19237d7238f92bf13933a62f69d8",
+    "prototype/review/visual-firmness/evidence/baseline/320/group-journal.png": "9d800d49dd0b350c61f401a233a7bdaac2149d88a75c553d1f0b8d0d3b335797",
+    "prototype/review/visual-firmness/evidence/baseline/375/today.png": "e37ea6f9bbbe091e8724b83d4627e8216af9bd60d598d44a8a924f0d37daf247",
+    "prototype/review/visual-firmness/evidence/baseline/375/client-card.png": "f19b552194a975e05db134ad6f081bd0d8e9ab23fa1bba9a9fc2eb9eb127cf91",
+    "prototype/review/visual-firmness/evidence/baseline/375/workout-dock.png": "c88a2f91eb425a9b737db3f6564393c9c94610fa52c9aeeb8b14d56bddca4291",
+    "prototype/review/visual-firmness/evidence/baseline/375/set-sheet.png": "c850d6a083a03d6623ffb9a0c1b982ccb88396266af709ba91c94fc792f78b32",
+    "prototype/review/visual-firmness/evidence/baseline/375/journal.png": "9c8331d5e7fbf0ada58b40e2f6680d1835d1334b6de28a297b34aca461e5f52d",
+    "prototype/review/visual-firmness/evidence/baseline/375/group-journal.png": "286449c4390d0bd70d4648d96c815fb6e0690ae3080630ceb46124bf0d802cfe",
+    "prototype/review/visual-firmness/firm/320/today.png": "43b39a3afa2355d200d8444e9f186939eb25ca59ee490d3aab98c24e48eba237",
+    "prototype/review/visual-firmness/firm/320/client-card.png": "63f019ce85868317ee148f3581e8dd07dbaf5c7cb621d366b445d99be0a0fec8",
+    "prototype/review/visual-firmness/firm/320/workout-dock.png": "46f2a28a28f9cc8721c37654e9fb24b475c29385b7d90ebe5bd2c38080b2f1f3",
+    "prototype/review/visual-firmness/firm/320/set-sheet.png": "8f364045c38f9186b6475bd186d24bd03028e14b7f174f950b8c7212048fa2ec",
+    "prototype/review/visual-firmness/firm/320/journal.png": "917a1eb15ed0efc67b8927e43a79281da8d07a8c0f6004bc92cbaccb0fc8bc70",
+    "prototype/review/visual-firmness/firm/320/group-journal.png": "350acefb4978dd2645b70089fc2305a4e5415f8f30ab3bb3fc86bc078610e1a8",
+    "prototype/review/visual-firmness/firm/375/today.png": "38502c8196c6f57e787c77a17e40ffe7bb22f84bb63e0b189b8ceadb81148439",
+    "prototype/review/visual-firmness/firm/375/client-card.png": "73052c67285766220561fd84a6501e9468b038383503d78a464fed2c52465f1c",
+    "prototype/review/visual-firmness/firm/375/workout-dock.png": "dcd8ae93c9ccb0a25a3e13a7d2dbc13b0b7d78062a57481fb055c35a5a7333a8",
+    "prototype/review/visual-firmness/firm/375/set-sheet.png": "d159cbd492f9c325a07a62a8ecaf7ee361f02df92e48d6a246fd7455d9459671",
+    "prototype/review/visual-firmness/firm/375/journal.png": "901c06db9d4d0d8ea70fea290681ec72a04165a5fdd91efefaf73cb166ea6fe0",
+    "prototype/review/visual-firmness/firm/375/group-journal.png": "6e3633808efbb644c821babe2f967705a73d7ca26fbc47627434c24a57ff1af3",
+    "prototype/review/visual-firmness/current/320/today.png": "8d0c7f4677b8e390e7aab4a58b31bb44a21e9d3df17f8598bd431e1fa16d7497",
+    "prototype/review/visual-firmness/current/320/client-card.png": "29933459948b4ef1c6fcdd1fc1ccbc1d926333d593e2c59c945f39501b398ffa",
+    "prototype/review/visual-firmness/current/320/workout-dock.png": "82825b6c466b23fefc122627f749e6fb9b25980a0a8c79b42adeb79dcfd2dc3a",
+    "prototype/review/visual-firmness/current/320/set-sheet.png": "beccb100472efb550f0da9d981ff06484b040e10408e244f039d3a2c8c3a8ff1",
+    "prototype/review/visual-firmness/current/320/journal.png": "609e8682d486d7df00f7c3a1ecb986f6047a19237d7238f92bf13933a62f69d8",
+    "prototype/review/visual-firmness/current/320/group-journal.png": "9d800d49dd0b350c61f401a233a7bdaac2149d88a75c553d1f0b8d0d3b335797",
+    "prototype/review/visual-firmness/current/375/today.png": "e37ea6f9bbbe091e8724b83d4627e8216af9bd60d598d44a8a924f0d37daf247",
+    "prototype/review/visual-firmness/current/375/client-card.png": "f19b552194a975e05db134ad6f081bd0d8e9ab23fa1bba9a9fc2eb9eb127cf91",
+    "prototype/review/visual-firmness/current/375/workout-dock.png": "c88a2f91eb425a9b737db3f6564393c9c94610fa52c9aeeb8b14d56bddca4291",
+    "prototype/review/visual-firmness/current/375/set-sheet.png": "c850d6a083a03d6623ffb9a0c1b982ccb88396266af709ba91c94fc792f78b32",
+    "prototype/review/visual-firmness/current/375/journal.png": "9c8331d5e7fbf0ada58b40e2f6680d1835d1334b6de28a297b34aca461e5f52d",
+    "prototype/review/visual-firmness/current/375/group-journal.png": "286449c4390d0bd70d4648d96c815fb6e0690ae3080630ceb46124bf0d802cfe",
+    "prototype/review/before/manifest.json": "144e6455a2525098f05fa6e5ba9725e085e354e03e64429b545da9805cef48b4",
+    "prototype/review/before/captures/390/trainer-home.png": "8bba9a914043945d0da3bf12f50eef6734b42f27867d18243ef45eac6982ce53",
+    "prototype/review/before/captures/390/client-progress.png": "01be18495b3400cd6fd7d66d02b6b73097278ecec82d0d9d312ee5937d28b64a",
+    "prototype/review/before/captures/390/first-plan.png": "5e7e61b190ecdd9ac2de488821e4c1a1fe6ee18308c373b0520a65113f87a598",
+    "prototype/review/before/captures/390/client-home.png": "fe59db205c2c06b9559fa07bbb154236280532b11f9220fe83b82677ca193ba7",
+    "prototype/review/before/captures/390/personal-start.png": "e189f1276167bfe5fc4ba6a06c7a8e9783d01dd872feecc75bdbe9e1b24834f6",
+    "prototype/review/before/captures/390/set-editor.png": "f4b12e5c0dd1a0753bc99b5cdf3acae6d74d4557f19d3d27ed2ff66db20c7de0",
+    "prototype/review/before/captures/390/client-program.png": "71bce04b93d07edcb361b68e5527a1f949f80a752bd3350c54b3037aa0e00d87",
+    "prototype/review/before/captures/390/personal-results.png": "ca75713aaa9b66329dadae1db5ebe9d1a0fc5d25647d383c7ffd673c4affe189",
+    "prototype/review/before/captures/390/client-profile.png": "d56ef96f17d3fcf75744126941fa7289ff1e8da2ad833d21bf6edb1cfd5086ab",
+    "prototype/review/before/captures/390/group-start.png": "d7b3676c09e2ae1d848a410d764da3cf3f786a7142f251f0985d36f0065ec99b",
+    "prototype/review/before/captures/390/invitation.png": "2578c15bb14749ee808c02459b7779226897103506dac3edf08b1de3553b82df",
+    "prototype/review/before/captures/390/client-history.png": "92876bc29b9763a09d5707a067858b11cc38298c4a9a41bf0343a212a7d8fd67",
+    "prototype/review/before/captures/320/trainer-home.png": "23e4475c90f4f6fd44c4a1dcf5682bdfe866388124ebaf1eb84d2dbcd0938f33",
+    "prototype/review/before/captures/320/client-progress.png": "969cfe3cfaf47238725fb8731b465e67fe8d7e7971709b2c48202a3e4e7ff03d",
+    "prototype/review/before/captures/320/first-plan.png": "0e44733b42978b590dc26c012c8cd66f9d7710aa6547c2356dcaec7306a4afea",
+    "prototype/review/before/captures/320/client-home.png": "2ba6f4a33f02579e5f1f477311ba542b589b37a07effaed7dbcf50f8f4cc8096",
+    "prototype/review/before/captures/320/personal-start.png": "fb68a3a4bc1fde928702da4f57a68a3a89553b896960a6f492e9d4383de541c9",
+    "prototype/review/before/captures/320/set-editor.png": "60f3ed855939804363c26a8cf006d1d0eb54c7c49e969e7b158eff8d21db5f45",
+    "prototype/review/before/captures/320/client-program.png": "0abde2a5dd983b2ac222d6ad18ca9f68c299a647cd67859525a27c3dccac81f9",
+    "prototype/review/before/captures/320/personal-results.png": "aa63b48303772e362a5adba81fdaed9caf76dd162b041cd7277d33b2572d1167",
+    "prototype/review/before/captures/320/client-profile.png": "c36f0bf6b60a7c35a3114ed6cb0ecdad52924fbbcdb42fa2c40322d5311448fb",
+    "prototype/review/before/captures/320/group-start.png": "8b5ec280cf24ff059a0190e410cb252585df4a71c1c8e6c8ba6269a540eea63a",
+    "prototype/review/before/captures/320/invitation.png": "fa96acc598948fdb7baee79b34f14ab77cae997eddd38a65ca045baf1314bc68",
+    "prototype/review/before/captures/320/client-history.png": "07614304c432de5ef065e9d95be0eb1b802437a16e85d159233746045416dcf1",
+    "prototype/e2e/flows.spec.ts": "eb2d0f09601ce95b81aed1baa156ebbe697b852fec463f48f6e272b3b4d2fbd9",
+    "prototype/e2e/README.md": "d1c1718ed17b82e5c8c16ca2dc4bce2a7ee378f68403c4e14c42f901ff54b330",
+    "prototype/assets/illustrations/shared-plan.png": "4563606fdcbca5b308de5d2f3832836048157c1ecdd336f126223a6186dfeb6a",
+    "prototype/assets/illustrations/README.md": "acbb468566d12f5a331c9e3fba2e03f89cd8920115854d72af9ed367f188d0b3",
+    "prototype/assets/illustrations/blank-notebook.png": "0821b11c59d5c87def4b1eb1fe75d5e4d8ced834f076190d2e858a822e838de6",
+    "prototype/assets/fonts/inter-OFL.txt": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+    "prototype/assets/fonts/Montserrat-variable.ttf": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+    "prototype/assets/fonts/Inter-variable.ttf": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+    "prototype/assets/fonts/README.md": "e2f3eea334cb3134b721fdf470a22d3cf97c503f1595f3f4b5fda8683b1114a1",
+    "prototype/assets/fonts/montserrat-OFL.txt": "e8ea3e532e2fcccd6fc50989bbb31869e424cd5f00dc4f63f866b08a4c2ebd9c"
+  },
+  "capture_browser": "153.0.8010.12",
+  "source_sha256": {
+    "build.py": "ebf938d9a4ff70bbe82d9f760ba3583448f362727463f0e48190aa082182a853",
+    "index.html": "eb7161ee2e191efcfcb7c7ca39c6cfe0827693a80b4e560e011ebf4460cd6a64",
+    "capture.cjs": "582c43cfacf5ce96838c42997c14b1b3ae13337389a6c641de4b9e8338341325",
+    "verify.cjs": "5bc453ae31a495d2caafeb93061e9094b6502b678c51f89885a651c0ba2f7251",
+    "NOTES.md": "14a26b75be61c3a8965b96c191eabb7e3601a67fe2079f7ce63798dbeeac77e5",
+    "extract.py": "8bdc7c8d0f82df0748c2320799c26226509a7c908a6c4f81e27efe29a4b95b4d"
+  },
+  "png": [
+    {
+      "file": "assets/g1-hero-crop.png",
+      "sha256": "a078e23dc3faae59b1aaf26e81915175d6112593b181baaa435496b57114288d",
+      "width": 435,
+      "height": 525,
+      "source": {
+        "method": "Pillow crop of generated sheet",
+        "inputs": [
+          {
+            "file": "sheets/g1.png",
+            "sha256": "a5d61bc280ba83986af1e61e5b3d88e90cfb4a226e700bc8c28b883226c4d7eb"
+          }
+        ],
+        "crop": [
+          85,
+          210,
+          520,
+          735
+        ]
+      }
+    },
+    {
+      "file": "assets/g1-hero.png",
+      "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162",
+      "width": 400,
+      "height": 488,
+      "source": {
+        "method": "Paper matting: retain eyes/number, open largest enclosed handle hole",
+        "inputs": [
+          {
+            "file": "assets/g1-hero-crop.png",
+            "sha256": "a078e23dc3faae59b1aaf26e81915175d6112593b181baaa435496b57114288d"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g1-seven-source.png",
+      "sha256": "b80befc361214e4bf6078e8d0c8a7e5145b4d60e0fa30c9f62c283904978f8b1",
+      "width": 1141,
+      "height": 1378,
+      "source": {
+        "method": "Built-in GPT Image number edit",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          },
+          {
+            "file": "assets/g1-hero-crop.png",
+            "sha256": "a078e23dc3faae59b1aaf26e81915175d6112593b181baaa435496b57114288d"
+          }
+        ],
+        "prompt_id": "g1-seven"
+      }
+    },
+    {
+      "file": "assets/g1-seven.png",
+      "sha256": "1ea8b3b4a6cde4508cc848c689b395a5f982207ef8fb82ea790c0788c3b05e9e",
+      "width": 1047,
+      "height": 1284,
+      "source": {
+        "method": "Paper matting of GPT Image number edit",
+        "inputs": [
+          {
+            "file": "assets/g1-seven-source.png",
+            "sha256": "b80befc361214e4bf6078e8d0c8a7e5145b4d60e0fa30c9f62c283904978f8b1"
+          }
+        ],
+        "matting": {
+          "handle_hole_pixels": 110061,
+          "trim_bbox": [
+            46,
+            51,
+            1093,
+            1335
+          ]
+        }
+      }
+    },
+    {
+      "file": "assets/g1-silhouette.png",
+      "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c",
+      "width": 400,
+      "height": 488,
+      "source": {
+        "method": "Solid ink silhouette from original hero alpha",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g1-waiting-crop.png",
+      "sha256": "3173188501fc8eedab23facd6767670bf2656625ed1c1117aad6f23cd31a1010",
+      "width": 230,
+      "height": 270,
+      "source": {
+        "method": "Pillow crop of generated sheet",
+        "inputs": [
+          {
+            "file": "sheets/g1.png",
+            "sha256": "a5d61bc280ba83986af1e61e5b3d88e90cfb4a226e700bc8c28b883226c4d7eb"
+          }
+        ],
+        "crop": [
+          930,
+          420,
+          1160,
+          690
+        ]
+      }
+    },
+    {
+      "file": "assets/g1-waiting.png",
+      "sha256": "c2d886857f7739e02332544c8c81bc5c4b291dfc1dcca543a8b701de15b2f02c",
+      "width": 204,
+      "height": 249,
+      "source": {
+        "method": "Paper matting: retain eyes/number, open largest enclosed handle hole",
+        "inputs": [
+          {
+            "file": "assets/g1-waiting-crop.png",
+            "sha256": "3173188501fc8eedab23facd6767670bf2656625ed1c1117aad6f23cd31a1010"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g2-hero-crop.png",
+      "sha256": "362056e3466c3ed30171e4d827be8f8fde545bf6bbd445a3fb7e1e28e714c2e4",
+      "width": 440,
+      "height": 555,
+      "source": {
+        "method": "Pillow crop of generated sheet",
+        "inputs": [
+          {
+            "file": "sheets/g2.png",
+            "sha256": "cb185b69a866ab2f8e515d9bb7cfab55cf5d08fefd9af5dcd922af56b361ff35"
+          }
+        ],
+        "crop": [
+          55,
+          180,
+          495,
+          735
+        ]
+      }
+    },
+    {
+      "file": "assets/g2-hero.png",
+      "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7",
+      "width": 409,
+      "height": 523,
+      "source": {
+        "method": "Paper matting: retain eyes/number, open largest enclosed handle hole",
+        "inputs": [
+          {
+            "file": "assets/g2-hero-crop.png",
+            "sha256": "362056e3466c3ed30171e4d827be8f8fde545bf6bbd445a3fb7e1e28e714c2e4"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g2-seven-source.png",
+      "sha256": "be065117166a07eeb90bdcd468ebcb80399f2bc8ac473f192962618c2c367944",
+      "width": 1116,
+      "height": 1409,
+      "source": {
+        "method": "Built-in GPT Image number edit",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          },
+          {
+            "file": "assets/g2-hero-crop.png",
+            "sha256": "362056e3466c3ed30171e4d827be8f8fde545bf6bbd445a3fb7e1e28e714c2e4"
+          }
+        ],
+        "prompt_id": "g2-seven"
+      }
+    },
+    {
+      "file": "assets/g2-seven.png",
+      "sha256": "385a4eaf23fbd859bd95e00066baf9c17eaae8273fc3953eb8fc938c137bcd07",
+      "width": 1036,
+      "height": 1329,
+      "source": {
+        "method": "Paper matting of GPT Image number edit",
+        "inputs": [
+          {
+            "file": "assets/g2-seven-source.png",
+            "sha256": "be065117166a07eeb90bdcd468ebcb80399f2bc8ac473f192962618c2c367944"
+          }
+        ],
+        "matting": {
+          "handle_hole_pixels": 142590,
+          "trim_bbox": [
+            44,
+            48,
+            1080,
+            1377
+          ]
+        }
+      }
+    },
+    {
+      "file": "assets/g2-silhouette.png",
+      "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010",
+      "width": 409,
+      "height": 523,
+      "source": {
+        "method": "Solid ink silhouette from original hero alpha",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g2-waiting-crop.png",
+      "sha256": "4f2178b0a2854f78ca8ff195d34c2a44f5156a4559e6e78467416e77f7264b13",
+      "width": 230,
+      "height": 270,
+      "source": {
+        "method": "Pillow crop of generated sheet",
+        "inputs": [
+          {
+            "file": "sheets/g2.png",
+            "sha256": "cb185b69a866ab2f8e515d9bb7cfab55cf5d08fefd9af5dcd922af56b361ff35"
+          }
+        ],
+        "crop": [
+          900,
+          455,
+          1130,
+          725
+        ]
+      }
+    },
+    {
+      "file": "assets/g2-waiting.png",
+      "sha256": "dd764ab2d5bc41f10cbd11e16fcd58a72b747db74ad9a5f01437bd80e7191fea",
+      "width": 196,
+      "height": 240,
+      "source": {
+        "method": "Paper matting: retain eyes/number, open largest enclosed handle hole",
+        "inputs": [
+          {
+            "file": "assets/g2-waiting-crop.png",
+            "sha256": "4f2178b0a2854f78ca8ff195d34c2a44f5156a4559e6e78467416e77f7264b13"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g3-hero-crop.png",
+      "sha256": "4d0282e08ff2814c9cd46ae6cf7dcdb396f65cb4c19240efe76cae91354a9f40",
+      "width": 505,
+      "height": 500,
+      "source": {
+        "method": "Pillow crop of generated sheet",
+        "inputs": [
+          {
+            "file": "sheets/g3.png",
+            "sha256": "d3388d79c7a9ccf33e68487295aa8426e829b3c7958134f968ec64077da138f0"
+          }
+        ],
+        "crop": [
+          85,
+          265,
+          590,
+          765
+        ]
+      }
+    },
+    {
+      "file": "assets/g3-hero.png",
+      "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce",
+      "width": 465,
+      "height": 463,
+      "source": {
+        "method": "Paper matting: retain eyes/number, open largest enclosed handle hole",
+        "inputs": [
+          {
+            "file": "assets/g3-hero-crop.png",
+            "sha256": "4d0282e08ff2814c9cd46ae6cf7dcdb396f65cb4c19240efe76cae91354a9f40"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g3-seven-source.png",
+      "sha256": "a9fc38ec4219454fa5ea3bdc0cd795dea5cb403d9728ab113d188254a35bf385",
+      "width": 1268,
+      "height": 1241,
+      "source": {
+        "method": "Built-in GPT Image number edit",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          },
+          {
+            "file": "assets/g3-hero-crop.png",
+            "sha256": "4d0282e08ff2814c9cd46ae6cf7dcdb396f65cb4c19240efe76cae91354a9f40"
+          }
+        ],
+        "prompt_id": "g3-seven"
+      }
+    },
+    {
+      "file": "assets/g3-seven.png",
+      "sha256": "49ce90e60b7e6175a6e813056d688a3377432ca021423d4496c1642b8aee830e",
+      "width": 1168,
+      "height": 1154,
+      "source": {
+        "method": "Paper matting of GPT Image number edit",
+        "inputs": [
+          {
+            "file": "assets/g3-seven-source.png",
+            "sha256": "a9fc38ec4219454fa5ea3bdc0cd795dea5cb403d9728ab113d188254a35bf385"
+          }
+        ],
+        "matting": {
+          "handle_hole_pixels": 118653,
+          "trim_bbox": [
+            55,
+            50,
+            1223,
+            1204
+          ]
+        }
+      }
+    },
+    {
+      "file": "assets/g3-silhouette.png",
+      "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d",
+      "width": 465,
+      "height": 463,
+      "source": {
+        "method": "Solid ink silhouette from original hero alpha",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ]
+      }
+    },
+    {
+      "file": "assets/g3-waiting-crop.png",
+      "sha256": "193f50cbcaedc573355feea1b789e8d9dec63b3681d6238fe7236f64acf5927a",
+      "width": 230,
+      "height": 225,
+      "source": {
+        "method": "Pillow crop of generated sheet",
+        "inputs": [
+          {
+            "file": "sheets/g3.png",
+            "sha256": "d3388d79c7a9ccf33e68487295aa8426e829b3c7958134f968ec64077da138f0"
+          }
+        ],
+        "crop": [
+          965,
+          455,
+          1195,
+          680
+        ]
+      }
+    },
+    {
+      "file": "assets/g3-waiting.png",
+      "sha256": "1064d6b53e0c8adec520ff8b9ca163f4c55fd7845915b45cd8fd32e9c4a24b6d",
+      "width": 200,
+      "height": 194,
+      "source": {
+        "method": "Paper matting: retain eyes/number, open largest enclosed handle hole",
+        "inputs": [
+          {
+            "file": "assets/g3-waiting-crop.png",
+            "sha256": "193f50cbcaedc573355feea1b789e8d9dec63b3681d6238fe7236f64acf5927a"
+          }
+        ]
+      }
+    },
+    {
+      "file": "evidence/page-desktop.png",
+      "sha256": "7a4c9f46d0b35759e155d4bee02b54e9db6e7b97467cd760985ec9e56b0b3fa7",
+      "width": 1440,
+      "height": 1000,
+      "source": {
+        "method": "Chromium verification screenshot of comparison page",
+        "inputs": [
+          {
+            "file": "index.html",
+            "sha256": "eb7161ee2e191efcfcb7c7ca39c6cfe0827693a80b4e560e011ebf4460cd6a64"
+          }
+        ]
+      }
+    },
+    {
+      "file": "evidence/page-mobile.png",
+      "sha256": "0fa83e5412c845d8f5d2483cc31c7d07acd1b02314d64ef96cbecc025e06a6bf",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "Chromium verification screenshot of comparison page",
+        "inputs": [
+          {
+            "file": "index.html",
+            "sha256": "eb7161ee2e191efcfcb7c7ca39c6cfe0827693a80b4e560e011ebf4460cd6a64"
+          }
+        ]
+      }
+    },
+    {
+      "file": "evidence/size-comparison.png",
+      "sha256": "a1e5d6ec48a8ae5c1318d61e12856f8372fd91fb8d06faf9930cc8e5b24ab35f",
+      "width": 1202,
+      "height": 1309,
+      "source": {
+        "method": "Chromium verification screenshot of comparison page",
+        "inputs": [
+          {
+            "file": "index.html",
+            "sha256": "eb7161ee2e191efcfcb7c7ca39c6cfe0827693a80b4e560e011ebf4460cd6a64"
+          }
+        ]
+      }
+    },
+    {
+      "file": "screens/base/empty-program.png",
+      "sha256": "c1e3677c1d4314b772b9bfd1b0f97e6e083afc4aa46c5b2fa7c9bf129ff2fcf6",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "Playwright clean client context, UI actions; viewport 375x844, DPR1",
+        "inputs": [
+          {
+            "file": "capture.cjs",
+            "sha256": "582c43cfacf5ce96838c42997c14b1b3ae13337389a6c641de4b9e8338341325"
+          },
+          {
+            "file": "evidence/capture.json",
+            "sha256": "240033beb925c4ddf6c9fa272f0f1af4f18fc0b55e3dd441be49fd99e869c02a"
+          }
+        ],
+        "url": "http://127.0.0.1:4188/prototype/?now=08:00"
+      }
+    },
+    {
+      "file": "screens/base/home-top.png",
+      "sha256": "07bba7b2dc462913296c385e98e1c48222353c75ed67192f75e5c7b6be85ba24",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "Playwright clean client context, UI actions; viewport 375x844, DPR1",
+        "inputs": [
+          {
+            "file": "capture.cjs",
+            "sha256": "582c43cfacf5ce96838c42997c14b1b3ae13337389a6c641de4b9e8338341325"
+          },
+          {
+            "file": "evidence/capture.json",
+            "sha256": "240033beb925c4ddf6c9fa272f0f1af4f18fc0b55e3dd441be49fd99e869c02a"
+          }
+        ],
+        "url": "http://127.0.0.1:4188/prototype/?now=08:00"
+      }
+    },
+    {
+      "file": "screens/base/home.png",
+      "sha256": "600c4bc22bca8996656971d977e3ad439ada12980e62346e9ec316910e4c4e1a",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "Playwright clean client context, UI actions; viewport 375x844, DPR1",
+        "inputs": [
+          {
+            "file": "capture.cjs",
+            "sha256": "582c43cfacf5ce96838c42997c14b1b3ae13337389a6c641de4b9e8338341325"
+          },
+          {
+            "file": "evidence/capture.json",
+            "sha256": "240033beb925c4ddf6c9fa272f0f1af4f18fc0b55e3dd441be49fd99e869c02a"
+          }
+        ],
+        "url": "http://127.0.0.1:4188/prototype/?now=08:00"
+      }
+    },
+    {
+      "file": "screens/base/progress-top.png",
+      "sha256": "45d2580fdcf550b3cdbcde49752cc297dfe4b046d0eea438004dcf4a00bd8d8e",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "Playwright clean client context, UI actions; viewport 375x844, DPR1",
+        "inputs": [
+          {
+            "file": "capture.cjs",
+            "sha256": "582c43cfacf5ce96838c42997c14b1b3ae13337389a6c641de4b9e8338341325"
+          },
+          {
+            "file": "evidence/capture.json",
+            "sha256": "240033beb925c4ddf6c9fa272f0f1af4f18fc0b55e3dd441be49fd99e869c02a"
+          }
+        ],
+        "url": "http://127.0.0.1:4188/prototype/?now=08:00"
+      }
+    },
+    {
+      "file": "screens/base/progress.png",
+      "sha256": "6fddd4c88cb09ef1077c93783bb5f0796fce3c0cf2906846587160d47606d4f0",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "Playwright clean client context, UI actions; viewport 375x844, DPR1",
+        "inputs": [
+          {
+            "file": "capture.cjs",
+            "sha256": "582c43cfacf5ce96838c42997c14b1b3ae13337389a6c641de4b9e8338341325"
+          },
+          {
+            "file": "evidence/capture.json",
+            "sha256": "240033beb925c4ddf6c9fa272f0f1af4f18fc0b55e3dd441be49fd99e869c02a"
+          }
+        ],
+        "url": "http://127.0.0.1:4188/prototype/?now=08:00"
+      }
+    },
+    {
+      "file": "screens/g1-empty-program.png",
+      "sha256": "b42f6dddea2b81302592eceedaf0ee53e17f85992940d40685aad01678d0b97d",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/empty-program.png",
+            "sha256": "c1e3677c1d4314b772b9bfd1b0f97e6e083afc4aa46c5b2fa7c9bf129ff2fcf6"
+          },
+          {
+            "file": "assets/g1-waiting.png",
+            "sha256": "c2d886857f7739e02332544c8c81bc5c4b291dfc1dcca543a8b701de15b2f02c"
+          }
+        ],
+        "overlay": {
+          "x": 234,
+          "y": 166,
+          "width": 79,
+          "height": 96,
+          "number": 0
+        }
+      }
+    },
+    {
+      "file": "screens/g1-home.png",
+      "sha256": "2e404363c4cee4e8d3b3b76d88580c4276ba1e3b1ec19954b0f448adc7839b93",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/home.png",
+            "sha256": "600c4bc22bca8996656971d977e3ad439ada12980e62346e9ec316910e4c4e1a"
+          },
+          {
+            "file": "assets/g1-seven.png",
+            "sha256": "1ea8b3b4a6cde4508cc848c689b395a5f982207ef8fb82ea790c0788c3b05e9e"
+          }
+        ],
+        "overlay": {
+          "x": 285,
+          "y": 391,
+          "width": 46,
+          "height": 56,
+          "number": 7
+        }
+      }
+    },
+    {
+      "file": "screens/g1-progress.png",
+      "sha256": "7bcdf4035e7793a38347731e418e8bafb258d01089e9a2241cfc9d2c678bfc64",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/progress.png",
+            "sha256": "6fddd4c88cb09ef1077c93783bb5f0796fce3c0cf2906846587160d47606d4f0"
+          },
+          {
+            "file": "assets/g1-waiting.png",
+            "sha256": "c2d886857f7739e02332544c8c81bc5c4b291dfc1dcca543a8b701de15b2f02c"
+          }
+        ],
+        "overlay": {
+          "x": 297,
+          "y": 565,
+          "width": 39,
+          "height": 48,
+          "number": 0
+        }
+      }
+    },
+    {
+      "file": "screens/g2-empty-program.png",
+      "sha256": "803e53723468ef029ddadce9898192ae421b6a27c1a6f953c49840bdf7a9ffc9",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/empty-program.png",
+            "sha256": "c1e3677c1d4314b772b9bfd1b0f97e6e083afc4aa46c5b2fa7c9bf129ff2fcf6"
+          },
+          {
+            "file": "assets/g2-waiting.png",
+            "sha256": "dd764ab2d5bc41f10cbd11e16fcd58a72b747db74ad9a5f01437bd80e7191fea"
+          }
+        ],
+        "overlay": {
+          "x": 235,
+          "y": 166,
+          "width": 78,
+          "height": 96,
+          "number": 0
+        }
+      }
+    },
+    {
+      "file": "screens/g2-home.png",
+      "sha256": "50ab681b4478b2673d7f7d792ecc3e027f8399a78f1851596707d2f44a35ae16",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/home.png",
+            "sha256": "600c4bc22bca8996656971d977e3ad439ada12980e62346e9ec316910e4c4e1a"
+          },
+          {
+            "file": "assets/g2-seven.png",
+            "sha256": "385a4eaf23fbd859bd95e00066baf9c17eaae8273fc3953eb8fc938c137bcd07"
+          }
+        ],
+        "overlay": {
+          "x": 286,
+          "y": 391,
+          "width": 44,
+          "height": 56,
+          "number": 7
+        }
+      }
+    },
+    {
+      "file": "screens/g2-progress.png",
+      "sha256": "2d9db33d8a5112171905f493027f4e2d8d79a4f18256a505d1ab1fcb8d91bffc",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/progress.png",
+            "sha256": "6fddd4c88cb09ef1077c93783bb5f0796fce3c0cf2906846587160d47606d4f0"
+          },
+          {
+            "file": "assets/g2-waiting.png",
+            "sha256": "dd764ab2d5bc41f10cbd11e16fcd58a72b747db74ad9a5f01437bd80e7191fea"
+          }
+        ],
+        "overlay": {
+          "x": 297,
+          "y": 565,
+          "width": 39,
+          "height": 48,
+          "number": 0
+        }
+      }
+    },
+    {
+      "file": "screens/g3-empty-program.png",
+      "sha256": "361bcf01fe8e1c6d519dad655f07571a3ebc1acfadab6f735d2a0f9345784b21",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/empty-program.png",
+            "sha256": "c1e3677c1d4314b772b9bfd1b0f97e6e083afc4aa46c5b2fa7c9bf129ff2fcf6"
+          },
+          {
+            "file": "assets/g3-waiting.png",
+            "sha256": "1064d6b53e0c8adec520ff8b9ca163f4c55fd7845915b45cd8fd32e9c4a24b6d"
+          }
+        ],
+        "overlay": {
+          "x": 226,
+          "y": 167,
+          "width": 96,
+          "height": 93,
+          "number": 0
+        }
+      }
+    },
+    {
+      "file": "screens/g3-home.png",
+      "sha256": "3f0a3ef789a2e99f2ba23cfcdc4ab8444fb2cf27d899b21d2e869e49bf299204",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/home.png",
+            "sha256": "600c4bc22bca8996656971d977e3ad439ada12980e62346e9ec316910e4c4e1a"
+          },
+          {
+            "file": "assets/g3-seven.png",
+            "sha256": "49ce90e60b7e6175a6e813056d688a3377432ca021423d4496c1642b8aee830e"
+          }
+        ],
+        "overlay": {
+          "x": 280,
+          "y": 391,
+          "width": 56,
+          "height": 55,
+          "number": 7
+        }
+      }
+    },
+    {
+      "file": "screens/g3-progress.png",
+      "sha256": "49eb724caee668508654b4e2893b32b777f92e062d4ea0b5a6e369dd270b3a5f",
+      "width": 375,
+      "height": 844,
+      "source": {
+        "method": "One alpha-composited mascot, Pillow Lanczos; base pixels preserved",
+        "inputs": [
+          {
+            "file": "screens/base/progress.png",
+            "sha256": "6fddd4c88cb09ef1077c93783bb5f0796fce3c0cf2906846587160d47606d4f0"
+          },
+          {
+            "file": "assets/g3-waiting.png",
+            "sha256": "1064d6b53e0c8adec520ff8b9ca163f4c55fd7845915b45cd8fd32e9c4a24b6d"
+          }
+        ],
+        "overlay": {
+          "x": 293,
+          "y": 565,
+          "width": 48,
+          "height": 47,
+          "number": 0
+        }
+      }
+    },
+    {
+      "file": "sheets/d1.png",
+      "sha256": "9258af9a5063f6009238cfd264dc365359a424853a2123f1f26cde5faa9a832e",
+      "width": 1774,
+      "height": 887,
+      "source": {
+        "method": "Built-in GPT Image generation/refinement",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          }
+        ],
+        "prompt_id": "D1"
+      }
+    },
+    {
+      "file": "sheets/d2.png",
+      "sha256": "813431f6e457e5491af149df2ebb1b329c6d9fda8b3ccecf35c5bb70f61c448c",
+      "width": 1774,
+      "height": 887,
+      "source": {
+        "method": "Built-in GPT Image generation/refinement",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          }
+        ],
+        "prompt_id": "D2"
+      }
+    },
+    {
+      "file": "sheets/g1.png",
+      "sha256": "a5d61bc280ba83986af1e61e5b3d88e90cfb4a226e700bc8c28b883226c4d7eb",
+      "width": 1536,
+      "height": 1024,
+      "source": {
+        "method": "Built-in GPT Image generation/refinement",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          }
+        ],
+        "prompt_id": "G1"
+      }
+    },
+    {
+      "file": "sheets/g2.png",
+      "sha256": "cb185b69a866ab2f8e515d9bb7cfab55cf5d08fefd9af5dcd922af56b361ff35",
+      "width": 1536,
+      "height": 1024,
+      "source": {
+        "method": "Built-in GPT Image generation/refinement",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          }
+        ],
+        "prompt_id": "G2"
+      }
+    },
+    {
+      "file": "sheets/g3.png",
+      "sha256": "d3388d79c7a9ccf33e68487295aa8426e829b3c7958134f968ec64077da138f0",
+      "width": 1536,
+      "height": 1024,
+      "source": {
+        "method": "Built-in GPT Image generation/refinement",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          }
+        ],
+        "prompt_id": "G3"
+      }
+    },
+    {
+      "file": "sheets/s1.png",
+      "sha256": "ca8f8fb4213ed8eb21d0010a0283c7ae28d3dddb1100ab0b25b8c55ed2ad8856",
+      "width": 1536,
+      "height": 1024,
+      "source": {
+        "method": "Built-in GPT Image generation/refinement",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          }
+        ],
+        "prompt_id": "S1"
+      }
+    },
+    {
+      "file": "sheets/s2.png",
+      "sha256": "b8f595dfa1edddf1e2df1feb6ebdbf73779c68f0b4fe71c3230ac71335e723e2",
+      "width": 1536,
+      "height": 1024,
+      "source": {
+        "method": "Built-in GPT Image generation/refinement",
+        "inputs": [
+          {
+            "file": "prompts.json",
+            "sha256": "20a7061c063a5f7705fda215589632cc0d5c108dece0b2c685fb17ab490917f8"
+          }
+        ],
+        "prompt_id": "S2"
+      }
+    },
+    {
+      "file": "sizes/g1-grid-dark.png",
+      "sha256": "abfd4712764d7d48a9f7238e640bc534d2215d16cfec925e504636d215be4ab0",
+      "width": 260,
+      "height": 172,
+      "source": {
+        "method": "App icon among five schematic gray placeholders",
+        "inputs": [
+          {
+            "file": "sizes/g1-icon-dark.png",
+            "sha256": "645015b0d92a12e6cff1c2df3efb4efbc5a8d952bb43d4c397fb12fe332c442b"
+          }
+        ]
+      }
+    },
+    {
+      "file": "sizes/g1-grid-light.png",
+      "sha256": "f35612330d41158e44155c3f48c0560790da47c50fb3c1f5552bf931300d8930",
+      "width": 260,
+      "height": 172,
+      "source": {
+        "method": "App icon among five schematic gray placeholders",
+        "inputs": [
+          {
+            "file": "sizes/g1-icon-light.png",
+            "sha256": "20d66a6385d48cad923271e892db37cece4edc8d3d12255720a78931c6cc8199"
+          }
+        ]
+      }
+    },
+    {
+      "file": "sizes/g1-hero-paper-16.png",
+      "sha256": "f1eee51112ad877cfc700790f487bd3507baa0bdeb5e50a1e759829618e84fd2",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 16,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-hero-paper-24.png",
+      "sha256": "b7da37223d42a0357d2c84ea57b4601d9d5c2b3391817e37f7845e6edf9a89c1",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 24,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-hero-paper-48.png",
+      "sha256": "b92eb71ed0359bf0a43a035fdbaacbfe182354e7f0137238fc9ef0d62371fcbf",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 48,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-hero-paper-96.png",
+      "sha256": "d7341c0cf1e8bc1dbe9f74badfaede7aa2c7d65b97aaaa0381a5e1253c46cefa",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 96,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-hero-white-16.png",
+      "sha256": "0ae54447dddd3faa66841bdba73aca30eeba7cb964044184a02f879c8bf4514f",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g1-hero-white-24.png",
+      "sha256": "314c3ab4295d7a97249cd866c239ec9b38f41149fd04dacc3359002c451e1a6d",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 24,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g1-hero-white-48.png",
+      "sha256": "ad9ac95ccda74b2f6c481ebd68c5d43251ba43a4c2d9ebae92ec06073c558a9d",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 48,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g1-hero-white-96.png",
+      "sha256": "d5575661f0e94dfeb5747dfdc620dbf010c614b3c5314c5f06cb1c34d61924d0",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-hero.png",
+            "sha256": "479248b061e9888bb044b04484a28239dada5f831f0db9179ce18386bea82162"
+          }
+        ],
+        "pixels": 96,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g1-icon-dark.png",
+      "sha256": "645015b0d92a12e6cff1c2df3efb4efbc5a8d952bb43d4c397fb12fe332c442b",
+      "width": 60,
+      "height": 60,
+      "source": {
+        "method": "60 px rounded app icon from hero silhouette",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "background": "#111110",
+        "foreground": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-icon-light.png",
+      "sha256": "20d66a6385d48cad923271e892db37cece4edc8d3d12255720a78931c6cc8199",
+      "width": 60,
+      "height": 60,
+      "source": {
+        "method": "60 px rounded app icon from hero silhouette",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "background": "#f4f2ed",
+        "foreground": "#111110"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-paper-16.png",
+      "sha256": "5dee4b9899ef2979f4dfc7b758ea352e2aadb7abbb07710f326f616f088ea2bb",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 16,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-paper-24.png",
+      "sha256": "c3ad62f2c0273c8de1dfc324e312d29d64bdf72c499b77b999fb2ba93a98a761",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 24,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-paper-48.png",
+      "sha256": "4ac001a636f0fbe885ec947f21c0ae7ccd1a8168912711a278f4bc33d735fb67",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 48,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-paper-96.png",
+      "sha256": "0fcb9292711dbcda6037b922d376014fe27d594d504dc9f42d438ea736246fc3",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 96,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-white-16.png",
+      "sha256": "ffd7f9248cbc62b947a6a53c20e3807abf07597dfd2317b0929b2a85f1a5d1d5",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-white-24.png",
+      "sha256": "71628c6ce828fac59830485ef03f690b0c6e797dd8fae0c43f35389167da3b6e",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 24,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-white-48.png",
+      "sha256": "9d3cf34b6bf4291b3e0e5834372c86ff7802501c02065259eea5cd8a66d7a687",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 48,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g1-silhouette-white-96.png",
+      "sha256": "a1c0f1b57f3253316bdafcc36afb1a203da07719c85738b597c9258ba6dc9db9",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g1-silhouette.png",
+            "sha256": "a376cacfa23c66325fa588a9d3f241bc469170fede82dded8361f8043ae13a8c"
+          }
+        ],
+        "pixels": 96,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-grid-dark.png",
+      "sha256": "fc46f08b0c38426033a4afc0fe6d0d49c7a6d7a5112affb66678083b06b267a0",
+      "width": 260,
+      "height": 172,
+      "source": {
+        "method": "App icon among five schematic gray placeholders",
+        "inputs": [
+          {
+            "file": "sizes/g2-icon-dark.png",
+            "sha256": "f8442ce49e6d4f74301b10c132b0d04951c01fad6d47947d16534a2257e0089a"
+          }
+        ]
+      }
+    },
+    {
+      "file": "sizes/g2-grid-light.png",
+      "sha256": "b095ff3aba568b46de36d386fb44be4e7b9ff63235dbb8e3f2d9e5aa98ef8538",
+      "width": 260,
+      "height": 172,
+      "source": {
+        "method": "App icon among five schematic gray placeholders",
+        "inputs": [
+          {
+            "file": "sizes/g2-icon-light.png",
+            "sha256": "082351291aff11d38652d52476943a3f531e13f794b9b7cf949b6a8ea612ffb8"
+          }
+        ]
+      }
+    },
+    {
+      "file": "sizes/g2-hero-paper-16.png",
+      "sha256": "ce7f8dcdc6d6f16826347a1cad4d94e9356d890e99a32b328ae6de20f4ee1f18",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 16,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-hero-paper-24.png",
+      "sha256": "5a33c6f1f7855cfd951693039ba7c01738c27c34a8769c908d2c9775a2cb758f",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 24,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-hero-paper-48.png",
+      "sha256": "760a61a964ed8b8428d161432a7257ebcc375d1923d90521d7415424a2fffe52",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 48,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-hero-paper-96.png",
+      "sha256": "fd2b046692dd742ebea52647bd66bd9834a174076ab029aeee469f170b884d1c",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 96,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-hero-white-16.png",
+      "sha256": "d3ea5ca769c9d7b532350aaf7f8a2d7c222d4cc5c2c2366625ad652a18672ed5",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-hero-white-24.png",
+      "sha256": "edbdddd163c46a2d461ff871ff0160214de51035ad11a3f6a87777aa39df183d",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 24,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-hero-white-48.png",
+      "sha256": "f14e8c127dc1c3e25676c2429889f010592d0e3950b0830c765662f26ec6bbe9",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 48,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-hero-white-96.png",
+      "sha256": "c6d58f0a3e7b11c77c982dfb1d86952f417f2ab9f88f2117b389b81bd71c61ac",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-hero.png",
+            "sha256": "5782f1538be15b4ce3f258d163229c778fbbdbec2f9bc16d2527b1ebd04d10f7"
+          }
+        ],
+        "pixels": 96,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-icon-dark.png",
+      "sha256": "f8442ce49e6d4f74301b10c132b0d04951c01fad6d47947d16534a2257e0089a",
+      "width": 60,
+      "height": 60,
+      "source": {
+        "method": "60 px rounded app icon from hero silhouette",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "background": "#111110",
+        "foreground": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-icon-light.png",
+      "sha256": "082351291aff11d38652d52476943a3f531e13f794b9b7cf949b6a8ea612ffb8",
+      "width": 60,
+      "height": 60,
+      "source": {
+        "method": "60 px rounded app icon from hero silhouette",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "background": "#f4f2ed",
+        "foreground": "#111110"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-paper-16.png",
+      "sha256": "f951f047e6f23f3a7c7b148ba6172f6fc903d4c3dfe96f3a89cd773549bc2e70",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 16,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-paper-24.png",
+      "sha256": "384a2061825b97af9af0a7dfbfd9a6e2fd49413144f54a4fa674ba616bf0c1a9",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 24,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-paper-48.png",
+      "sha256": "f63d700a08b23e0bfa1d20350e5c783d338ff61dd4393c4ace58a99e6e91eed2",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 48,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-paper-96.png",
+      "sha256": "43dcd4ae14d4255c15422700f00cf3f9bcb4d90ee05c1c136f606cb1e51cbf37",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 96,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-white-16.png",
+      "sha256": "97438423cf0781f867570b94b806ccc6de9f1265fa9d47f010e0a283fc5fff92",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-white-24.png",
+      "sha256": "911bf12ce5e9b6f2d1c72f7ac9f9c0e030636c67b80357e218c32db85bad42c5",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 24,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-white-48.png",
+      "sha256": "b3eb306c46244fc8882aa76db75903b81170cc471dc44aa1df0960cefda4381d",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 48,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g2-silhouette-white-96.png",
+      "sha256": "c105f24c7841fe14b4edff21d19f511d387591a27f3b37de6a74cf2ffaf700a6",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g2-silhouette.png",
+            "sha256": "94fdecdc29ac161cb660b9118ae5b2b8d96305ec3947d2975ecc17ff3faa0010"
+          }
+        ],
+        "pixels": 96,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-grid-dark.png",
+      "sha256": "8c663a33e797af58fcf895bf9470d1c9b9353a9714eb39881a8ddfb89bb871c7",
+      "width": 260,
+      "height": 172,
+      "source": {
+        "method": "App icon among five schematic gray placeholders",
+        "inputs": [
+          {
+            "file": "sizes/g3-icon-dark.png",
+            "sha256": "b19a5028734a27656f137ca614be51421f3be8dafc9257cee78ceb080681c6bc"
+          }
+        ]
+      }
+    },
+    {
+      "file": "sizes/g3-grid-light.png",
+      "sha256": "81492bba51cb679b948f0d68b4d2548f9a45c459b273c8a5f7deddcdbe585957",
+      "width": 260,
+      "height": 172,
+      "source": {
+        "method": "App icon among five schematic gray placeholders",
+        "inputs": [
+          {
+            "file": "sizes/g3-icon-light.png",
+            "sha256": "464964a8b455c429fb2502dadd50424793466732eda7799b44c57ee475d7f926"
+          }
+        ]
+      }
+    },
+    {
+      "file": "sizes/g3-hero-paper-16.png",
+      "sha256": "a7fccf7a184484a456193b80878fc9cb03d1de08b8c5114a7150a26e0d7d72c0",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 16,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-hero-paper-24.png",
+      "sha256": "f0f3c4eaab241c791e6188d0e9ea64b345c7fb6756527f5e41025d04bdaf35f8",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 24,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-hero-paper-48.png",
+      "sha256": "92bef02ca0f127e6d981d4da4390e9170ca63c636f07f7ed5c68f540ea28e218",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 48,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-hero-paper-96.png",
+      "sha256": "032c203db1f8c6c80907dfe98172f8ad404bc992f834f7e41e21655f5cb20b72",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 96,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-hero-white-16.png",
+      "sha256": "ba366717f2643ffe7c1291a9a13146a26ed299c5ec6cf3bf5247928458665a56",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-hero-white-24.png",
+      "sha256": "f7e339bc87353628eb1f7a8161c5f8bb889fe48574b61d68ac9d724c5900ef79",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 24,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-hero-white-48.png",
+      "sha256": "0eaf92f5d9c8f047299761447c16b04a1c2a57a0545e54c4d2f68ff56c9cc70e",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 48,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-hero-white-96.png",
+      "sha256": "eb7032b4818f6e81c30eebf11f7f6c0e4f988faf7400dc5d629fe4032d5f6839",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-hero.png",
+            "sha256": "0906c24c72125b16ba3dcccd83c5260d4aff146775d8dfadbe3fe31282cc55ce"
+          }
+        ],
+        "pixels": 96,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-icon-dark.png",
+      "sha256": "b19a5028734a27656f137ca614be51421f3be8dafc9257cee78ceb080681c6bc",
+      "width": 60,
+      "height": 60,
+      "source": {
+        "method": "60 px rounded app icon from hero silhouette",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "background": "#111110",
+        "foreground": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-icon-light.png",
+      "sha256": "464964a8b455c429fb2502dadd50424793466732eda7799b44c57ee475d7f926",
+      "width": 60,
+      "height": 60,
+      "source": {
+        "method": "60 px rounded app icon from hero silhouette",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "background": "#f4f2ed",
+        "foreground": "#111110"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-paper-16.png",
+      "sha256": "6d646465b5fa9f48c748e28681fbfe800fa61d4da1e1529b9ff0f656072f98c2",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 16,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-paper-24.png",
+      "sha256": "3b6620c8eb2d2916eaa19b8522f2c3da159a22a145aa16dd5eac86f9084c02ee",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 24,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-paper-48.png",
+      "sha256": "216fe3ad0e8b42356a51788d951dc475cb4866251d0315658f643709c58579eb",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 48,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-paper-96.png",
+      "sha256": "5f1ee24eeffb6e8c34fa9c51ac5c3442c5d891032f973d9a132e239175f4fee4",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 96,
+        "background": "#f4f2ed"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-white-16.png",
+      "sha256": "ce32432150811c25316761dbfac53c341341e0c458e39ec29a3d4d1e7af1fd00",
+      "width": 16,
+      "height": 16,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 16,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-white-24.png",
+      "sha256": "de9a1f360e00f6318da7f188c0137751bf1f41db599fc8fa6c6919df86fa283c",
+      "width": 24,
+      "height": 24,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 24,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-white-48.png",
+      "sha256": "e8590661cbf00bcf4ac1ce31a1ccf8e626fd07e6fa46f890a231325032dee9a6",
+      "width": 48,
+      "height": 48,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 48,
+        "background": "#ffffff"
+      }
+    },
+    {
+      "file": "sizes/g3-silhouette-white-96.png",
+      "sha256": "7213fc1a05801bb1ab135ddb4468b6c55d19b383c6d163a97cba0b78556e842b",
+      "width": 96,
+      "height": 96,
+      "source": {
+        "method": "Pillow Lanczos, aspect preserved, 1 px outer margin",
+        "inputs": [
+          {
+            "file": "assets/g3-silhouette.png",
+            "sha256": "cdcf9e68e9a9aabe5484f178da5968307df844bcbb6fc8f112775743ee8bd17d"
+          }
+        ],
+        "pixels": 96,
+        "background": "#ffffff"
+      }
+    }
+  ]
+}

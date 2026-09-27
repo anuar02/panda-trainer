@@ -2,17 +2,18 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
   <title>Кабинет тренера — прототип</title>
   <meta name="description" content="Кликабельный прототип приложения тренера и клиента в дизайн-системе gymGO.">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <script src="js/visual.js"></script>
+
+  <link rel="stylesheet" href="css/fonts.css">
 
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/tokens-firm.css">
 </head>
 <body>
   <div class="stage">
@@ -25,7 +26,7 @@
         <div class="device__screen" id="screen"></div>
       </div>
 
-      <p style="max-width:560px;text-align:center;font-size:12.5px;color:var(--sec);line-height:1.6;margin:0">
+      <p class="prototype-disclaimer" style="max-width:560px;text-align:center;font-size:12.5px;color:var(--sec);line-height:1.6;margin:0">
         Прототип интерфейса. Данные вымышленные, действия не меняют реальные записи.
         Дизайн-токены и компоненты перенесены из референса gymGO —
         см. <b>docs/design-system.md</b>.
@@ -37,8 +38,10 @@
 
   <script src="js/icons.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/session-repository.js"></script>
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/mascot.js"></script>
   <script src="js/sheets.js"></script>
   <script src="js/screens/trainer.js"></script>
   <script src="js/screens/client.js"></script>

@@ -1,0 +1,42 @@
+[
+  {
+    "mark": "k1",
+    "size": 16,
+    "enclosed_handle_hole_pixels": 12
+  },
+  {
+    "mark": "k1",
+    "size": 24,
+    "enclosed_handle_hole_pixels": 28
+  },
+  {
+    "mark": "k1",
+    "size": 48,
+    "enclosed_handle_hole_pixels": 133
+  },
+  {
+    "mark": "k1",
+    "size": 96,
+    "enclosed_handle_hole_pixels": 517
+  },
+  {
+    "mark": "k2",
+    "size": 16,
+    "enclosed_handle_hole_pixels": 10
+  },
+  {
+    "mark": "k2",
+    "size": 24,
+    "enclosed_handle_hole_pixels": 20
+  },
+  {
+    "mark": "k2",
+    "size": 48,
+    "enclosed_handle_hole_pixels": 95
+  },
+  {
+    "mark": "k2",
+    "size": 96,
+    "enclosed_handle_hole_pixels": 423
+  }
+]

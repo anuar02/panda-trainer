@@ -1,0 +1,77 @@
+[
+  {
+    "file": "assets/cheer.glb",
+    "bytes": 16724448,
+    "sha256": "e0fdbf52fb218566dacfdeebf7bff2e081099fd1a93d9a6f7dda8dcefe9ac3b3"
+  },
+  {
+    "file": "assets/clips/cheer.json",
+    "bytes": 691184,
+    "sha256": "9413bf8b78dab869b3b79e583c39323e1c5ac470b5ff96c50b380b972ae2b82b"
+  },
+  {
+    "file": "assets/clips/idle.json",
+    "bytes": 305152,
+    "sha256": "538564715ce6cdfb6cdc8a375dd415915671382759d30349b05a7c7a0e7ba472"
+  },
+  {
+    "file": "assets/clips/jump.json",
+    "bytes": 669233,
+    "sha256": "cf3821e5b7c96d53b42a1cc45f4893e457af24a6fc54c6c791c0198f7d5081e7"
+  },
+  {
+    "file": "assets/clips/run.json",
+    "bytes": 58995,
+    "sha256": "e8527e182caf530c9c3974a4b45632e0040e6e18fd465af616f4ad1118800c98"
+  },
+  {
+    "file": "assets/clips/walk.json",
+    "bytes": 86969,
+    "sha256": "2e40303dc467f3d68ca194475f533f0f44ab016cfe4fc4f7dfd83597b805b7c6"
+  },
+  {
+    "file": "assets/clips/wave.json",
+    "bytes": 402309,
+    "sha256": "4e235f2f568e26fd72be76f9c1fd341c6b7e975a6b97f077089a3bc95ba86e99"
+  },
+  {
+    "file": "assets/idle.glb",
+    "bytes": 16660436,
+    "sha256": "f1d154c9c172ed240db98fc3c1c92981f2cbad12f488dbfd03c3986e0829bc67"
+  },
+  {
+    "file": "assets/jump.glb",
+    "bytes": 16721032,
+    "sha256": "dd95a337f8188cf1352f8ade39721dbbdcedd0a7a7fafecc935d09dc455e3fc4"
+  },
+  {
+    "file": "assets/panda-20k.glb",
+    "bytes": 24116788,
+    "sha256": "532222c0dbd49867ed1be3fb2ae8ad48e36472a7d2d8f50a381704f866307c2d"
+  },
+  {
+    "file": "assets/panda-rigged.glb",
+    "bytes": 16611492,
+    "sha256": "6aac11cead07a14357d58ade94e25af5728556442cf8cc92eb0724934110efc8"
+  },
+  {
+    "file": "assets/panda-v1.glb",
+    "bytes": 15005176,
+    "sha256": "d141058d87011876198b590e3198e900afcd25952754bc5880b7fe1800d683bf"
+  },
+  {
+    "file": "assets/running.glb",
+    "bytes": 16619664,
+    "sha256": "3e0f0bb927a748500447a96e6fb9a0d07501b9ec9cb4a104ad26ebc0de401f42"
+  },
+  {
+    "file": "assets/walking.glb",
+    "bytes": 16624280,
+    "sha256": "45c1d651a2e62b5387f3700d9c996050f22b9b7c9e5deadf77a1ebd6237ab7d8"
+  },
+  {
+    "file": "assets/wave.glb",
+    "bytes": 16676452,
+    "sha256": "dbf545897598e2ea4615cab62d0be94792112436ac6344c5b89c0bfb69d3254e"
+  }
+]

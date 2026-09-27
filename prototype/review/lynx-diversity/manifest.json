@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-25",
+  "generator": "built-in GPT Image, four independent reference edits",
+  "reference": "prototype/assets/mascot/lynx.png",
+  "reference_sha256": "8ad990ab38e9a281ce263b658bb88c67ae0cc4334490d92c03a049383a054f32",
+  "sources": {
+    "prototype/js/mascot.js": "422d6446512b83da444cc33b0784481ca1cbae50f81661038d285886afa96be2",
+    "prototype/js/screens/client.js": "9e95a01424c3a5f32294785f8573b384fe464e74b35563820ec8ada004fe2e51",
+    "prototype/css/components.css": "3ac8fb3929b87b77fdfdbc6b0e2ecdc4569d6a15d734ca42312ecc37b8c240f9",
+    "prototype/e2e/mascot.spec.ts": "fff76045e81d7bcba4be1d66df880d6f05e9d168556bc421d7ae26dc614f3061",
+    "prototype/e2e/flows.spec.ts": "e0ed2a6abbae2683ff0e30c567ff247a6e5fc54bbe97c1bf3ebf2da0b33cdc38",
+    "design-exploration/lynx-master-2026-09-25/diverse-prompts.json": "e91d973f9fe0ae3843389199aada743cf2b11cbca2da1282b079b553de4b679c",
+    "prototype/assets/mascot/lynx-approved-v2-sheet.png": "cba9627612c870a485aec1ad7916257397fd0ef9ce5a05b590500c65bed683a8",
+    "prototype/assets/mascot/lynx-welcome-v2-sheet.png": "3af2dc35a7fef2ffb5a64f9c5e1b8f6db17f01b5cf70842b16a16bde0da07dc9",
+    "prototype/assets/mascot/lynx-reading-v2-sheet.png": "7b573b7ff6e08fea079464264bea57b6c00940b7d8012f0d25255ea2461f69ac",
+    "prototype/assets/mascot/lynx-waiting-v2.png": "510ba5ea17f41a8b7a01f277b4b96c98e32d4a0ad75634bc21b63eec8e17b272",
+    "prototype/review/lynx-diversity/invitation-320.png": "3ae445c6ae390a98b04778b97558b6d26e9fb5aa52b06d75774158ed72bef9ad",
+    "prototype/review/lynx-diversity/first-plan-375.png": "a36aa376769686ec5412bc15d6f09884abbecc832f7fd00de2f03dc01897f575",
+    "prototype/review/lynx-diversity/client-empty-progress-320.png": "147f0c40b28e9cc4ae9bb64279a7734e0e83d7311e263f3472c1adb0e96eb5fe",
+    "prototype/review/lynx-diversity/client-empty-program-375.png": "931831afd7191e7884d37728d3975874308099913e05eda213ee1fe51ab20ec4",
+    "prototype/review/lynx-diversity/invitation-375.png": "7ffa55e04161f81456e7881de8605a92bbd65811fcecb8d29cd42cd8cec9c638",
+    "prototype/review/lynx-diversity/accepted-320.png": "cb30d9afa94aab983017e4f1e675b07c14042f5ff06b9908fbd81e3ecd5147b6",
+    "prototype/review/lynx-diversity/first-plan-320.png": "c91bbe27278570a6dada1948762410b8dbef23e901cff7a5400ab0c998e3330c",
+    "prototype/review/lynx-diversity/client-empty-progress-375.png": "1fecb8fb4ba5613e637e2b5cd9e3b10802737ff364b709ae70a1b85ede1b7028",
+    "prototype/review/lynx-diversity/client-empty-program-320.png": "2d4976e1f43ce6cf311c216cef23c2aa3d30e69cdae6f8e5aa20c4969a3f8f45",
+    "prototype/review/lynx-diversity/frames/approved-frame-0.png": "29a6e7681db1dcd96e4cc51691a02e1ed29a3c4c82caa608b27428d09d358319",
+    "prototype/review/lynx-diversity/frames/approved-frame-1.png": "c893fb7c7dbb942a0ffff0c8e33a9aeee5c85b49e4cc35417d737b5b7a95c9bc",
+    "prototype/review/lynx-diversity/frames/approved-frame-3.png": "1c661b22ff0c0de1d171cede567b608cdc36ed812d95055955c7b5dd3e04ec90",
+    "prototype/review/lynx-diversity/frames/approved-frame-2.png": "d6e709ec270d5069cb1ba3a9079995c52648c4e806fea94c01c7010924914c43",
+    "prototype/review/lynx-diversity/frames/welcome-frame-3.png": "28eb0797b2613dc15f5ec84926d11f4c286966015e6312f91e2e953014e5072b",
+    "prototype/review/lynx-diversity/frames/reading-frame-2.png": "1bf5554f5a5544d3ee8db8e278356f646b8f69b23b52d92d64619a1c54d64675",
+    "prototype/review/lynx-diversity/frames/welcome-frame-2.png": "43542b092d9e8441fccf2fb37b850152a6ca7bdcad8bba10d720eabd76fe3685",
+    "prototype/review/lynx-diversity/frames/reading-frame-3.png": "6282af7c6edded47176d6298df95b8db679c093ae78be092ead6696caa749b15",
+    "prototype/review/lynx-diversity/frames/reading-frame-1.png": "11b00c2d17cb0e4ec2111183020d21f4bae8725ea0e4de63858f88242f233e46",
+    "prototype/review/lynx-diversity/frames/welcome-frame-0.png": "15117aea503979dd9c3f27591f009e5bd2eb1aff2f81576c0a114ea104033e9c",
+    "prototype/review/lynx-diversity/frames/reading-frame-0.png": "9f16f598024761f481cbaba20f357dbaafea9726f0820164131ac8eade8bcfe2",
+    "prototype/review/lynx-diversity/frames/welcome-frame-1.png": "396b0e1b4401863554fb34604297293571937fd81c8b6ffcc8191acd5a07976b",
+    "prototype/review/lynx-diversity/index.html": "710c803134af6047cf424bc24a2819da4c0f0ebaabc87e6f318eb4c11a7a2869"
+  },
+  "checks": {
+    "unit": 82,
+    "targeted_browser": 15,
+    "seconds": 15.4,
+    "gallery_widths": [
+      320,
+      1440
+    ],
+    "physical_phone": false
+  },
+  "registration": "Per-frame clip-path prevents adjacent cel bleed; static 92% scale adds safe margin; held transforms align frames",
+  "captures": "Chromium screenshots; final-results, paused WAAPI frame samples"
+}

@@ -1,0 +1,213 @@
+{
+  "capture_date": "2026-09-24",
+  "viewport_height": 844,
+  "direction": "Чернильный блокнот",
+  "baseline_manifest": "before/manifest.json",
+  "verification": "75 Playwright checks passed in 43.3s; desktop and mobile-320/375/390/430",
+  "captures": [
+    {
+      "file": "captures/320/invitation.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-320/invitation.png",
+      "sha256": "bdc904b066f6235e2db97cdc8fe95f2bf05e54b03bd6c7090d2d38f66f1cb4fe"
+    },
+    {
+      "file": "captures/390/invitation.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-390/invitation.png",
+      "sha256": "35a46d22f6800916781689e452d191662b2c8da174a356d6ea52b36276a86a74"
+    },
+    {
+      "file": "captures/320/first-plan.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-320/first-plan.png",
+      "sha256": "a50dd85edd65a191477b20d7ef024f7760c18be5acbad7fda0458227b5f0f572"
+    },
+    {
+      "file": "captures/390/first-plan.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-invitation-GPT-illus-9a14e-yout-and-honest-demo-states-mobile-390/first-plan.png",
+      "sha256": "e9233395e3d1efcb7f82b28e0c89155a79df7b84d5996d33ab07d29b9735cef6"
+    },
+    {
+      "file": "captures/320/trainer-home.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-320/trainer-home.png",
+      "sha256": "8d0c7f4677b8e390e7aab4a58b31bb44a21e9d3df17f8598bd431e1fa16d7497"
+    },
+    {
+      "file": "captures/390/trainer-home.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-390/trainer-home.png",
+      "sha256": "68527a0e79c8302027f0ce267e09a74c59a0fd916af08687878e5f355210d1db"
+    },
+    {
+      "file": "captures/320/personal-start.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-start.png",
+      "sha256": "739863780a078ceb1c69b5be366f5fe27fcc19b39b7dedb091f864feb726c1f8"
+    },
+    {
+      "file": "captures/390/personal-start.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-390/personal-start.png",
+      "sha256": "0021cf2a8d5ec5ce7cb7430116f99095b98d286aea6c14adcac388c976bdae06"
+    },
+    {
+      "file": "captures/320/set-editor.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-sheet-keyboard-conta-9d6d1-cus-narrow-viewport-capture-mobile-320/set-editor.png",
+      "sha256": "b05715091976c020841a2792bc1388de0b6c64b7845ec74f84ad98d128c18588"
+    },
+    {
+      "file": "captures/390/set-editor.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-sheet-keyboard-conta-9d6d1-cus-narrow-viewport-capture-mobile-390/set-editor.png",
+      "sha256": "5621db2808fcffbc2bf18b10d943ec6bfbbfedc1508a0c4c9ba3ce204e0dca9a"
+    },
+    {
+      "file": "captures/320/group-start.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-320/group-start.png",
+      "sha256": "d1591133a9c6345d1a15b43b5b142f0ae1482547fba36ffb68584440daa68350"
+    },
+    {
+      "file": "captures/390/group-start.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-workout-UX-group-con-d078c-ching-and-completion-review-mobile-390/group-start.png",
+      "sha256": "4f4c1661679e7934298824705d4955bab62e8b1824546929c8e87994f6beee7a"
+    },
+    {
+      "file": "captures/320/personal-results.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-320/personal-results.png",
+      "sha256": "539dea482d309fb304a2affe5dd3149e53825948bf4b12087a4f8957fceeebe5"
+    },
+    {
+      "file": "captures/390/personal-results.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-workout-UX-multiple--0744f--and-return-partial-results-mobile-390/personal-results.png",
+      "sha256": "a9ac23ffeadabe62bdcd447972840675f82c91aac83f14ec3f5ac91331dc1473"
+    },
+    {
+      "file": "captures/320/client-home.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-320/client-home.png",
+      "sha256": "29ce6262e623164cbbdac393580b04ed6d5280ac676c164a025e4853c6b2fcdb"
+    },
+    {
+      "file": "captures/390/client-home.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-local-typography-rea-46d9e-trainer-and-client-captures-mobile-390/client-home.png",
+      "sha256": "81c9d0035869fe73be6314b81f442b248f0874ee69fd5c523915d7d0d5f67ffa"
+    },
+    {
+      "file": "captures/320/client-program.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-program.png",
+      "sha256": "c3a53a6fc85833fe5ec25d55b472ab4e0d63c8b9730ab787b818bc18f19a3733"
+    },
+    {
+      "file": "captures/390/client-program.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-program.png",
+      "sha256": "9379034fe0a7537d11f177dd8673f2601dcdb72a9b7b319a04cd48128cad47fa"
+    },
+    {
+      "file": "captures/320/client-history.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-history.png",
+      "sha256": "1245e4e6e8e61cfc5bce56bf92e7ca01fd473eacc97a5ff0d740a9f46d26e3a5"
+    },
+    {
+      "file": "captures/390/client-history.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-history.png",
+      "sha256": "03ff5b78751ce66603c7b6d8b9416e235068098868b0ab8d4738df5ff15798a4"
+    },
+    {
+      "file": "captures/320/client-progress.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-progress.png",
+      "sha256": "707cb74a47ebd0ce339fb14ff7a4a4bd4e192fc2de5bf90fcf3d3bc7d1f1ca0f"
+    },
+    {
+      "file": "captures/390/client-progress.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-progress.png",
+      "sha256": "bed51267b8e951cc5c42432140283485d253801569f5588b6438c3f751eabc43"
+    },
+    {
+      "file": "captures/320/client-profile.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-profile.png",
+      "sha256": "826bb37076b1de49c6fdf3b872ae4b118bdad43374697275ee260cbde82f7907"
+    },
+    {
+      "file": "captures/390/client-profile.png",
+      "current_only": false,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-profile.png",
+      "sha256": "ed676139a2266fa93fd043f30e74e2f149814ab2d098f6b8dd1858e89db49c3f"
+    },
+    {
+      "file": "captures/320/client-history-ledger.png",
+      "current_only": true,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-history-ledger.png",
+      "sha256": "2ed030cb4b1f4d95e88ad09afbf2368d4f2901457e27ca7883526658fece4b53"
+    },
+    {
+      "file": "captures/390/client-history-ledger.png",
+      "current_only": true,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-history-ledger.png",
+      "sha256": "1593a5c7d1537cc10d49889b0b0033bd61feb9db89ac8bd295db65cdeb7da150"
+    },
+    {
+      "file": "captures/320/client-empty-program.png",
+      "current_only": true,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-empty-program.png",
+      "sha256": "fb7e13353345c261bd30d4e6b11c253fa7666a4c6f77b2fa8a8f84cdcfb50de3"
+    },
+    {
+      "file": "captures/390/client-empty-program.png",
+      "current_only": true,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-empty-program.png",
+      "sha256": "42df635f2bcf6861fbde3d09893bdb57849744eed9ea0dfba928e167bb848274"
+    },
+    {
+      "file": "captures/320/client-empty-progress.png",
+      "current_only": true,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-320/client-empty-progress.png",
+      "sha256": "fb20e79c700dbd4cf13c8ffe13aeb0d39400bfe0900390deda41de78779aa909"
+    },
+    {
+      "file": "captures/390/client-empty-progress.png",
+      "current_only": true,
+      "source": "output/design-review/results/flows-client-secondary-pro-86f63-and-profile-remain-readable-mobile-390/client-empty-progress.png",
+      "sha256": "05536819cb616ffb8a21fa49c6f99f12d8ef19707194d8a22c8caf47fa56bc6f"
+    }
+  ],
+  "source_sha256": {
+    "prototype/js/app.js": "de02d26692335b9597d5a6043ef46c94ccf41518ea0de6c553609dc33ca8bcd4",
+    "prototype/js/data.js": "8647b8f9da68bf4ebc86265272fc7b482cf23c2988a858062bae3e243578362c",
+    "prototype/js/icons.js": "f2503de272bcd93c05ea68e32cf51f0a518a2b45bfb66df8248f1d34bb246b49",
+    "prototype/js/screens/client.js": "df2f2e725f8fed1bb1ea5829f8e991e7b4ebdb554711ec9f9cf3d8638bc48456",
+    "prototype/js/screens/trainer.js": "1e1320df58a5cec866b7d427ba45086ec1f3b642289b195be97dcae3c978eb04",
+    "prototype/js/session-repository.js": "732e86bac7b2b8ff6786ac9986eeb0324d29179b5a7db28dfd83ead971f03194",
+    "prototype/js/sheets.js": "1ce6a243077f59b31c115d2e2b9427b37acf0015c480a2e82ba9f989bf5c5bcd",
+    "prototype/js/store.js": "633b484d98b35b1dc3217d63cf7409e053779b3193594a0aed80da1ee17c9673",
+    "prototype/js/ui.js": "825f26bccaded9a5d3f5896f5d6cd66e41e1d89c12068d012352133c3316cb12",
+    "prototype/css/base.css": "f447f5d7c792b1acdd8fcb8c1ecdc801d323042c03bc0038cba658ce002d3e7c",
+    "prototype/css/components.css": "c52fc7c156c873ddcc618a4301d642e5892fb8baaca619d765ced33acb542845",
+    "prototype/css/fonts.css": "d3ee1d9fb7e604b3ff6081343118a514d25b82f7180116a8e6299ffced0baf0e",
+    "prototype/css/tokens.css": "66749d729148ae7f82d77090238e3b84b365aa8f026790d2fa32008cfe56a2c6",
+    "prototype/index.html": "216a3029ff176c528fd259ce38a76aec9685c41d5826883c7fa359cb02c4c36f",
+    "prototype/assets/illustrations/README.md": "acbb468566d12f5a331c9e3fba2e03f89cd8920115854d72af9ed367f188d0b3",
+    "prototype/assets/illustrations/blank-notebook.png": "0821b11c59d5c87def4b1eb1fe75d5e4d8ced834f076190d2e858a822e838de6",
+    "prototype/assets/illustrations/shared-plan.png": "4563606fdcbca5b308de5d2f3832836048157c1ecdd336f126223a6186dfeb6a",
+    "prototype/assets/fonts/Inter-variable.ttf": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031",
+    "prototype/assets/fonts/Montserrat-variable.ttf": "0f7b311b2f3279e4eef9b2f968bcdbab6e28f4daeb1f049f4f278a902bcd82f7",
+    "prototype/assets/fonts/README.md": "e2f3eea334cb3134b721fdf470a22d3cf97c503f1595f3f4b5fda8683b1114a1",
+    "prototype/assets/fonts/inter-OFL.txt": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+    "prototype/assets/fonts/montserrat-OFL.txt": "e8ea3e532e2fcccd6fc50989bbb31869e424cd5f00dc4f63f866b08a4c2ebd9c"
+  }
+}

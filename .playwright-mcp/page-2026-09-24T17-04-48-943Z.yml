@@ -1,0 +1,50 @@
+- main [ref=f1e3]:
+  - group "Роль" [ref=f1e1834]:
+    - button "Тренер" [pressed] [ref=f1e1835] [cursor=pointer]
+    - button "Клиент" [ref=f1e1840] [cursor=pointer]
+  - generic [ref=f1e17]:
+    - generic [ref=f1e1844]:
+      - button "Назад" [ref=f1e1847] [cursor=pointer]
+      - generic [ref=f1e1850]:
+        - generic [ref=f1e1851]:
+          - generic [ref=f1e1852]:
+            - generic [ref=f1e1853]: ДЕ
+            - generic [ref=f1e1854]:
+              - generic [ref=f1e1855]: Дана Ержанова
+              - generic [ref=f1e1856]: Пакет 12 занятий
+            - button "Действия" [ref=f1e1857] [cursor=pointer]
+          - generic [ref=f1e1862]:
+            - generic [ref=f1e1863]:
+              - generic [ref=f1e1864]: Остаток
+              - generic [ref=f1e1865]: "5"
+            - generic [ref=f1e1866]:
+              - generic [ref=f1e1867]: К оплате
+              - generic [ref=f1e1868]: 0 ₸
+        - generic [ref=f1e1869]:
+          - button "Занятия" [ref=f1e1870] [cursor=pointer]
+          - button "Программа" [ref=f1e1871] [cursor=pointer]
+          - button "Прогресс" [ref=f1e1872] [cursor=pointer]
+          - button "Оплаты" [ref=f1e1873] [cursor=pointer]
+          - button "Заметки" [ref=f1e1874] [cursor=pointer]
+        - generic [ref=f1e1875]:
+          - generic [ref=f1e1876]:
+            - button "14 сен · 09:00–10:00 Full Body · индивидуальное Подтверждено" [ref=f1e1877] [cursor=pointer]:
+              - generic [ref=f1e1878]:
+                - generic [ref=f1e1879]: 14 сен · 09:00–10:00
+                - generic [ref=f1e1880]: Full Body · индивидуальное
+              - generic [ref=f1e1881]: Подтверждено
+            - button "14 сен · 20:00–21:00 Разные программы · мини-группа Подтверждено" [ref=f1e1884] [cursor=pointer]:
+              - generic [ref=f1e1885]:
+                - generic [ref=f1e1886]: 14 сен · 20:00–21:00
+                - generic [ref=f1e1887]: Разные программы · мини-группа
+              - generic [ref=f1e1888]: Подтверждено
+          - button "Создать занятие" [ref=f1e1892] [cursor=pointer]
+      - complementary "Свёрнутая тренировка" [ref=f1e1897]:
+        - 'button "Вернуться к тренировке: Дана Ержанова. 2 из 12 подходов · Есть черновик" [ref=f1e1898] [cursor=pointer]':
+          - generic [ref=f1e1899]:
+            - generic [ref=f1e1900]: Вернуться к тренировке
+            - strong [ref=f1e1901]: Дана Ержанова
+            - generic [ref=f1e1902]: 2 из 12 подходов · Есть черновик
+    - generic [aria-hidden]:
+      - dialog
+    - status

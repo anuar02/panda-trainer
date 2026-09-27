@@ -1,0 +1,92 @@
+{
+  "ready": true,
+  "size": [
+    1.0000000643930202,
+    0.9772877986475014,
+    0.7093644076049486
+  ],
+  "bones": [
+    "Hips",
+    "LeftUpLeg",
+    "LeftLeg",
+    "LeftFoot",
+    "LeftToeBase",
+    "RightUpLeg",
+    "RightLeg",
+    "RightFoot",
+    "RightToeBase",
+    "Spine02",
+    "Spine01",
+    "Spine",
+    "LeftShoulder",
+    "LeftArm",
+    "LeftForeArm",
+    "LeftHand",
+    "RightShoulder",
+    "RightArm",
+    "RightForeArm",
+    "RightHand",
+    "neck",
+    "Head",
+    "head_end",
+    "headfront"
+  ],
+  "clips": [
+    {
+      "id": "idle",
+      "label": "Рядом",
+      "file": "assets/clips/idle.json",
+      "title": "Привет, я рядом.",
+      "description": "Можно начать с маленького шага.",
+      "source": "assets/idle.glb",
+      "duration": 4.0333333015441895
+    },
+    {
+      "id": "wave",
+      "label": "Привет",
+      "file": "assets/clips/wave.json",
+      "title": "Рад тебя видеть!",
+      "description": "Ну что, позанимаемся?",
+      "source": "assets/wave.glb",
+      "duration": 5.366666793823242
+    },
+    {
+      "id": "cheer",
+      "label": "Ура!",
+      "file": "assets/clips/cheer.json",
+      "title": "Вот это результат!",
+      "description": "Ещё одна тренировка в копилку.",
+      "source": "assets/cheer.glb",
+      "duration": 9.366666793823242
+    },
+    {
+      "id": "jump",
+      "label": "Прыжок",
+      "file": "assets/clips/jump.json",
+      "title": "Получилось!",
+      "description": "Маленькая победа. Большая радость.",
+      "source": "assets/jump.glb",
+      "duration": 9.866666793823242
+    },
+    {
+      "id": "walk",
+      "label": "Шагать",
+      "file": "assets/clips/walk.json",
+      "title": "В своём темпе.",
+      "description": "Двигаемся к следующей тренировке.",
+      "source": "assets/walking.glb",
+      "duration": 1.0666667222976685
+    },
+    {
+      "id": "run",
+      "label": "Бежать",
+      "file": "assets/clips/run.json",
+      "title": "Поймали ритм.",
+      "description": "Движение заряжает.",
+      "source": "assets/running.glb",
+      "duration": 0.6666666865348816
+    }
+  ],
+  "errors": [],
+  "overflow": false
+}

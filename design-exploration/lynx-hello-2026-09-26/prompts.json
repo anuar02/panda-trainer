@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-26",
+  "tool": "built-in image_gen",
+  "reference": "prototype/assets/mascot/lynx.png",
+  "motionReference": "https://dribbble.com/shots/14056084-Pig-Sticker",
+  "prompts": [
+    {
+      "purpose": "Create separate character parts",
+      "prompt": "Use case: identity-preserve.\nAsset type: transparent PNG cutout animation parts atlas for the trainerApp lynx.\nReference image: the supplied lynx is the exact character identity to preserve: grey cream coat, irregular black spots, adult slender proportions, black ear tufts, cheek ruff, almond eyes, knowing friendly smile and vivid orange wristband. Keep the same hand-drawn clean illustration quality. Not a baby or a different cartoon character.\n\nCreate ONE square transparent image divided into FOUR EQUAL square cells in a strict 2 by 2 grid. No visible grid, no labels, no text, no shadows or glow. These are isolated disconnected animation parts, NOT four full characters. Every part entirely contained in its cell with generous transparent margins.\nTOP LEFT: the lynx's full BODY ONLY from neck to feet, front view, relaxed stance, cream chest, spotted torso, both legs and feet and short tail. Include ONLY the arm on the VIEWER'S RIGHT hanging relaxed alongside its torso. OMIT the entire arm on the VIEWER'S LEFT because it will be supplied separately. No head or ears; a short cream neck ending at the top. Rounded natural shoulder on viewer's left allowing overlap with a separate arm. Feet at same baseline. Body centered horizontally in this cell.\nTOP RIGHT: HEAD ONLY including both long tufted ears, cheek ruff and complete cream chin, no neck/body. Front view with very slight friendly tilt, both almond eyes open and warm subtle smile. Head centered in the cell. This is the open-eye head for the rig.\nBOTTOM LEFT: ONLY the missing waving arm for viewer's LEFT of the body. One continuous bent arm, rounded shoulder attachment at LOWER RIGHT of this cell, elbow curves toward lower left, forearm rises vertically on the LEFT, open cream paw pointing upward, palm facing viewer, friendly wave. Orange wristband below palm. Spotted grey upper arm. Absolutely no head, torso, legs or extra detached parts. This arm will be pivoted at its lower right shoulder.\nBOTTOM RIGHT: EXACT DUPLICATE of the TOP RIGHT HEAD, same size, same coordinates within its cell, same spots, ears, cheek silhouette and smile. ONLY difference: both eyes closed in a soft friendly blink. No other change at all.\n\nMaintain genuinely transparent alpha background, no checkerboard or colored matte. Avoid fuzzy edges, gradients around the character, detached patches and accidental stray objects. The identical open and closed heads must register precisely so they can switch during a blink.",
+      "output": "exec-1aeddced-0e28-4b1b-8039-fccb02170d7f.png"
+    },
+    {
+      "purpose": "Remove duplicated wristband",
+      "prompt": "Edit this animation parts atlas. Change ONLY the TOP LEFT body part: remove the orange wristband from its hanging arm on the viewer's right, replacing that small orange rectangle with continuous grey/cream fur matching the arm. The character wears ONLY the orange wristband on the separate waving arm in the bottom left cell, which must remain. Keep every part, every coordinate, all sizes, all shapes and spots, both heads, the transparent background and the exact 2x2 layout unchanged. Do not add new elements. No glow or background. All other pixels should remain unchanged.",
+      "output": "exec-ba525a7c-76e8-46f0-9ac9-d0927a9c777f.png"
+    }
+  ],
+  "selectedAsset": "prototype/assets/mascot/lynx-hello-parts-v1.png"
+}

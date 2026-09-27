@@ -33,7 +33,7 @@ const Sheets = (() => {
             ${att === 'present' ? 'Присутствовал' : att === 'noshow' ? 'Неявка' : 'Посещение не отмечено'}
           </div>
         </div>
-        ${att ? Pill(att === 'present' ? 'Списано' : 'Неявка', { tone: att === 'present' ? 'mint' : 'danger', dot: false })
+        ${att ? Pill(att === 'present' ? (st.recorded['charge:' + s.id + ':' + p.clientId] ? 'Посещение · списано' : 'Без списания') : 'Неявка', { tone: att === 'present' ? 'mint' : 'danger', dot: false })
           : `<div style="display:flex;gap:6px">
               <button class="btn btn--soft btn--sm" ${act('attendance.mark', { sid: s.id, cid: p.clientId, value: 'present' })}>Пришёл</button>
               <button class="btn btn--ghost btn--sm" ${act('attendance.mark', { sid: s.id, cid: p.clientId, value: 'noshow' })}>Не пришёл</button>
@@ -43,13 +43,13 @@ const Sheets = (() => {
 
     return `<div class="sheet__title">${esc(s.title)}</div>
       <div class="sheet__sub">${DB.fmtDateLong(s.date)} · ${s.start}–${s.end} · ${s.kind === 'group' ? 'мини-группа' : 'индивидуальное'}</div>
-      ${r && r.state === 'pending' ? `<div style="margin-top:14px">${Notice(`Клиент предложил перенос на ${DB.fmtDateLong(r.to.date)}, ${r.to.start}. До подтверждения действует ${DB.fmtDateLong(r.from.date)}, ${r.from.start}.`, { tone: 'warn', icon: 'swap' })}</div>` : ''}
+      ${r && ['pending', 'counter'].includes(r.state) ? `<div style="margin-top:14px">${Notice(`${r.author === 'trainer' ? 'Тренер' : 'Клиент'} предложил перенос на ${DB.fmtDateLong((r.counter || r.to).date)}, ${(r.counter || r.to).start}. До подтверждения действует ${DB.fmtDateLong(r.from.date)}, ${r.from.start}.`, { tone: 'warn', icon: 'swap' })}</div>` : ''}
       <div style="margin-top:16px">
         <div class="label" style="margin-left:0">Посещение и списание</div>
         ${attBlock}
       </div>
       <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
-        ${s.status !== 'cancelled' ? Btn('Провести тренировку', { a: 'logging.open', args: { id: s.id }, icon: 'play' }) : ''}
+        ${s.status !== 'cancelled' ? Btn(Store.logging.label(s.id), { a: 'logging.open', args: { id: s.id }, icon: 'play' }) : ''}
         ${s.status !== 'cancelled' ? Btn('Перенести занятие', { kind: 'soft', a: 'sheet.open', args: { id: 'trainerMove', sid: s.id }, icon: 'swap' }) : ''}
         ${s.status !== 'cancelled' ? Btn('Отменить запись', { kind: 'ghost', a: 'session.cancel', args: { sid: s.id } }) : ''}
       </div>
@@ -60,55 +60,66 @@ const Sheets = (() => {
 
   function setlog(st) {
     const d = st.sheet.data;
-    const exs = DB.programFor(client(d.cid) && client(d.cid).program);
+    const exs = Store.logging.exercises(d.cid);
     const e = exs.find(x => x.id === d.ex) || {};
-    const arr = (st.logging.values[d.cid] || {})[d.ex] || [];
-    const cur = arr[d.si] || {};
-    const kg = cur.kg != null ? cur.kg : (e.prev && e.prev.kg) || 0;
-    const reps = cur.reps != null ? cur.reps : (e.prev && e.prev.reps) || 0;
+    const cur = st.logging.editor || {};
+    const kg = cur.kg ?? '';
+    const reps = cur.reps ?? '';
     const unit = e.name === 'Планка' ? 'сек' : 'повт';
     const isReps = unit === 'сек';
-    return `<div style="text-align:center;margin-bottom:4px">
-        <div style="font-size:13px;font-weight:600;color:var(--sec)">Подход ${d.si + 1}</div>
-        <div style="font-family:var(--disp);font-weight:800;font-size:21px;letter-spacing:-.3px;margin-top:2px">${esc(e.name || '')}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
-        <div class="bignum">
-          <div class="bignum__label">${isReps ? 'Вес не нужен' : 'Вес'}</div>
+    const storageHint = st.logging.storageError
+      ? (st.logging.storageConflict
+        ? 'Журнал изменён в другой вкладке. Ваши правки — только в этой вкладке. Скачайте копию перед перезагрузкой.'
+        : 'Не удалось сохранить в браузере. Ваши правки — только в этой вкладке. Скачайте копию перед закрытием.')
+      : '';
+    const inputHint = [cur.error, storageHint].filter(Boolean).join(' ') || 'Поля сохраняются как черновик. Подтвердите сегодняшний результат.';
+    return `<div class="log-editor">
+      <header class="log-editor-head">
+        <div><p>${esc(client(d.cid).name)} · подход ${Number(d.si) + 1}</p><h2>${esc(e.name || '')}</h2></div>
+        ${Btn('Закрыть', { kind: 'ghost', size: 'sm', full: false, a: 'sheet.close' })}
+      </header>
+      <div class="log-editor-fields">
+        <div class="log-editor-hint">Серые цифры — прошлый раз, это подсказка, не запись.</div>
+      <div class="log-editor-inputs">
+        ${e.prev.kg !== 0 ? `<div class="bignum">
+          <label class="bignum__label" for="log-kg">Вес, кг</label>
           <div class="bignum__row">
-            <button class="bignum__step" ${act('setlog.step', { cid: d.cid, ex: d.ex, si: d.si, field: 'kg', by: -2.5 })}>${Icon.get('minus', { size: 22 })}</button>
-            <div class="bignum__value"><b class="num">${kg}</b><span>кг</span></div>
-            <button class="bignum__step" ${act('setlog.step', { cid: d.cid, ex: d.ex, si: d.si, field: 'kg', by: 2.5 })}>${Icon.get('plus', { size: 22 })}</button>
+            <button class="bignum__step" aria-label="Уменьшить вес на 2,5 кг" ${act('setlog.step', { field: 'kg', by: -2.5 })}>${Icon.get('minus', { size: 22 })}</button>
+            <input id="log-kg" class="log-number num" data-log-field="kg" inputmode="decimal" enterkeyhint="next" autocomplete="off" value="${esc(kg)}" placeholder="${esc(DB.fmtNumber(e.prev.kg))}" aria-describedby="log-input-status" ${cur.error ? 'aria-invalid="true"' : ''}>
+            <button class="bignum__step" aria-label="Увеличить вес на 2,5 кг" ${act('setlog.step', { field: 'kg', by: 2.5 })}>${Icon.get('plus', { size: 22 })}</button>
+          </div>
+        </div>` : ''}
+        <div class="bignum">
+          <label class="bignum__label" for="log-reps">${isReps ? 'Длительность, сек' : 'Повторы'}</label>
+          <div class="bignum__row">
+            <button class="bignum__step" aria-label="Уменьшить ${isReps ? 'длительность' : 'повторы'} на 1" ${act('setlog.step', { field: 'reps', by: -1 })}>${Icon.get('minus', { size: 22 })}</button>
+            <input id="log-reps" class="log-number num" data-log-field="reps" inputmode="numeric" enterkeyhint="done" autocomplete="off" value="${esc(reps)}" placeholder="${esc(e.prev.reps ?? '—')}" aria-describedby="log-input-status" ${cur.error ? 'aria-invalid="true"' : ''}>
+            <button class="bignum__step" aria-label="Увеличить ${isReps ? 'длительность' : 'повторы'} на 1" ${act('setlog.step', { field: 'reps', by: 1 })}>${Icon.get('plus', { size: 22 })}</button>
           </div>
         </div>
-        <div class="bignum">
-          <div class="bignum__label">${isReps ? 'Длительность' : 'Повторы'}</div>
-          <div class="bignum__row">
-            <button class="bignum__step" ${act('setlog.step', { cid: d.cid, ex: d.ex, si: d.si, field: 'reps', by: -1 })}>${Icon.get('minus', { size: 22 })}</button>
-            <div class="bignum__value"><b class="num">${reps}</b><span>${unit}</span></div>
-            <button class="bignum__step" ${act('setlog.step', { cid: d.cid, ex: d.ex, si: d.si, field: 'reps', by: 1 })}>${Icon.get('plus', { size: 22 })}</button>
-          </div>
-        </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:14px;justify-content:center;flex-wrap:wrap">
-        <button class="chip" ${act('setlog.repeat', { cid: d.cid, ex: d.ex, si: d.si })}>Повторить прошлый результат</button>
+      <button class="log-repeat" ${act('setlog.repeat', { cid: d.cid, ex: d.ex, si: d.si })}>
+        <span>Как в прошлый раз</span><b class="num">${e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ` : ''}${e.prev.reps} ${unit}</b>
+      </button>
       </div>
-      <div style="margin-top:18px">${Btn('Записать подход', { kind: 'mint', a: 'setlog.save', args: { cid: d.cid, ex: d.ex, si: d.si }, icon: 'check' })}</div>`;
+      <footer class="log-editor-footer">
+      <p id="log-input-status" class="log-editor-hint" ${cur.error || st.logging.storageError ? 'role="alert"' : ''}>${esc(inputHint)}</p>
+      <div${st.logging.storageError ? ' class="log-recovery"' : ''}>
+      ${st.logging.storageError ? Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' }) : ''}
+      ${Btn(st.logging.storageError ? 'Записать только в этой вкладке' : 'Записать подход', { kind: 'primary', a: 'setlog.save', icon: 'check' })}
+      </div>
+      </footer></div>`;
   }
 
   function finishConfirm(st) {
-    let n = 0;
-    const s = DB.sessions.find(x => x.id === st.logging.sessionId);
-    const ids = s && s.participants ? s.participants.map(p => p.clientId) : [st.logging.active];
-    ids.forEach(cid => {
-      const c = client(cid);
-      DB.programFor(c && c.program).forEach(e => {
-        const arr = (st.logging.values[cid] || {})[e.id] || [];
-        n += e.sets - arr.filter(Boolean).length;
-      });
-    });
-    return `<div class="sheet__title">Завершить тренировку?</div>
-      <div class="sheet__sub">Записано не всё: ${n} ${DB.plural(n, ['подход остался', 'подхода остались', 'подходов остались'])} незаписанными. Они не станут нулём и не будут считаться выполненными.</div>
+    const rows = Object.keys(st.logging.plans).map(cid => {
+      const p = Store.logging.progress(cid);
+      return `<li><strong>${esc(client(cid).short)}</strong><span>${!Store.logging.eligible(cid) ? 'Не участвует' : p.total ? `${p.done} из ${p.total} записано · ${p.total - p.done} без записи${p.drafts ? ` · черновиков: ${p.drafts}` : ''}` : 'Нет программы · подходы не записаны'}</span></li>`;
+    }).join('');
+    return `<div class="sheet__title">Завершить журнал?</div>
+      <div class="sheet__sub">Сохраним только подтверждённые результаты. Пустые подходы и черновики не считаются выполненными. Посещение и списание не изменятся.</div>
+      <ul class="log-review">${rows}</ul>
+      ${st.logging.storageError ? `<p role="alert">${st.logging.storageConflict ? 'Журнал изменён в другой вкладке. Вернитесь к вводу и скачайте копию своих правок.' : 'Не удалось сохранить в браузере. Освободите место и повторите.'}</p>` : ''}
       <div style="margin-top:20px;display:flex;flex-direction:column;gap:10px">
         ${Btn('Сохранить записанное и завершить', { kind: 'primary', a: 'log.confirmPartial' })}
         ${Btn('Продолжить ввод', { kind: 'soft', a: 'log.continue' })}
@@ -119,7 +130,7 @@ const Sheets = (() => {
     const { sid, cid } = st.sheet.data;
     const c = client(cid);
     return `<div class="sheet__title">Отметить посещение?</div>
-      <div class="sheet__sub">${esc(c.name)} · занятие будет списано из пакета. Посещение, программа и списание — разные сущности.</div>
+      <div class="sheet__sub">${esc(c.name)}. Выберите: только посещение или посещение со списанием одного занятия.</div>
       <div style="margin-top:16px">${Notice('Отметить посещение и списать 1 занятие из пакета', { tone: 'mint', icon: 'check' })}</div>
       <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
         ${Btn('Отметить и списать', { kind: 'mint', a: 'attendance.charge', args: { sid, cid }, icon: 'check' })}
@@ -127,36 +138,6 @@ const Sheets = (() => {
       </div>`;
   }
 
-  /* ── Reschedule counter-offer (trainer side) ─────────────────────────────── */
-
-  function counter(st) {
-    const stt = Store.get();
-    const r = req(stt, st.sheet.data.rid);
-    const c = client(r.clientId);
-    const times = ['17:00', '18:00', '18:30', '19:00', '20:00', '21:00'];
-    const sel = stt.counterPick || { start: '19:00' };
-    return `<div class="sheet__title">Другое время</div>
-      <div class="sheet__sub">Для ${esc(c.name)}. Встречное предложение заменит текущий запрос — история сохранится.</div>
-      <div class="label" style="margin:18px 0 10px">Дата</div>
-      <div class="chips">${DB.WEEK.map(d => `<span class="chip chip--soft ${(stt.counterPick && stt.counterPick.date === d) ? 'is-on' : ''}" ${act('counter.pick', { key: 'date', value: d })} role="button" tabindex="0">${DB.fmtDate(d)}</span>`).join('')}</div>
-      <div class="label" style="margin:18px 0 10px">Начало</div>
-      <div class="chips" style="flex-wrap:wrap">${times.map(t => `<span class="chip ${(stt.counterPick && stt.counterPick.start === t) ? 'is-on' : ''}" ${act('counter.pick', { key: 'start', value: t })} role="button" tabindex="0">${t}</span>`).join('')}</div>
-      <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
-        ${Btn('Отправить встречное время', { kind: 'primary', a: 'counter.send', args: { rid: r.id } })}
-        ${Btn('Закрыть', { kind: 'ghost', a: 'sheet.close' })}
-      </div>`;
-  }
-
-  function trainerMove(st) {
-    const times = ['09:00', '11:30', '17:00', '18:00', '19:00', '20:00'];
-    return `<div class="sheet__title">Перенести занятие</div>
-      <div class="sheet__sub">Новое время отправится клиенту как запрос. До подтверждения действует прежнее время.</div>
-      <div class="label" style="margin:18px 0 10px">Новая дата</div>
-      <div class="chips">${DB.WEEK.map(d => `<span class="chip chip--soft" ${act('toast', { text: 'Время предложено клиенту' })} role="button" tabindex="0">${DB.fmtDate(d)}</span>`).join('')}</div>
-      <div class="label" style="margin:18px 0 10px">Начало</div>
-      <div class="chips" style="flex-wrap:wrap">${times.map(t => `<span class="chip" ${act('toast', { text: 'Время предложено клиенту' })} role="button" tabindex="0">${t}</span>`).join('')}</div>
-      <div style="margin-top:18px">${Btn('Отправить предложение', { a: 'toast', args: { text: 'Предложение отправлено клиенту' } })}</div>`;
-  }
 
   /* ── Payment ─────────────────────────────────────────────────────────────── */
 
@@ -177,7 +158,19 @@ const Sheets = (() => {
 
   /* ── Notifications (internal inbox) ──────────────────────────────────────── */
 
-  function notifications() {
+  function notifications(st) {
+    if (st.role === 'client') {
+      const requests = st.scenario === 'empty' ? [] : Object.values(st.requests).filter(r => r.clientId === DB.DEMO_CLIENT_ID && ['pending', 'counter'].includes(r.state));
+      return `<div class="sheet__title">Уведомления</div>
+        <div class="sheet__sub">Изменения ваших занятий. Push-уведомления в демо не подключены.</div>
+        <div class="client-notifications">${requests.length ? Card(requests.map(r => {
+          const proposed = r.counter || r.to;
+          return Row({ title: r.awaiting === 'client' ? 'Тренер предложил перенос' : 'Ваш запрос на перенос',
+            meta: `${DB.fmtDateLong(proposed.date)} · ${proposed.start}–${proposed.end}<br>${r.awaiting === 'client' ? 'Нужен ваш ответ' : 'Ждём ответа тренера'}`,
+            a: 'nav.go', args: { id: 'c-home' }, right: Icon.get('chevR', { size: 18 }),
+          });
+        }).join(''), { rows: true }) : Notice('Открытых запросов нет. Ближайшие занятия можно посмотреть на главной.', { icon: 'bell' })}</div>`;
+    }
     const items = [
       ['swap', 'Айгерим предложила перенос', 'Чт 18:00 → Пт 19:00 · ждёт вашего ответа', 'amber'],
       ['check', 'Алия подтвердила занятие', 'Сегодня 20:00 · мини-группа', 'mint'],
@@ -196,10 +189,12 @@ const Sheets = (() => {
   /* ── Stale notification ──────────────────────────────────────────────────── */
 
   function stale(st) {
-    return `<div class="sheet__title">Уведомление устарело</div>
-      <div class="sheet__sub">Пока уведомление было непрочитанным, состояние запроса изменилось. Открываем актуальное состояние — повторное нажатие не повторяет действие.</div>
-      <div style="margin-top:16px">${Notice('Запрос уже обработан. Действие не выполнено повторно.', { tone: 'info', icon: 'info' })}</div>
-      <div style="margin-top:18px">${Btn('Открыть актуальное', { a: 'nav.go', args: { id: 't-inbox' } })}</div>`;
+    const r = st.requests[st.sheet.data.id];
+    const pending = r && ['pending', 'counter'].includes(r.state);
+    return `<div class="sheet__title">Актуальное состояние запроса</div>
+      <div class="sheet__sub">Открытие уведомления само по себе не подтверждает и не отклоняет перенос.</div>
+      <div style="margin-top:16px">${Notice(pending ? `Предложение ещё открыто. ${r.awaiting === st.role ? 'Нужен ваш ответ.' : 'Ждём ответа другой стороны.'}` : 'Запрос уже закрыт. Действие не выполнено повторно.', { tone: 'info', icon: 'info' })}</div>
+      <div style="margin-top:18px">${Btn('Открыть актуальное', { a: 'nav.go', args: { id: st.role === 'trainer' ? 't-inbox' : 'c-home' } })}</div>`;
   }
 
   /* ── Client actions (trainer) ────────────────────────────────────────────── */
@@ -213,7 +208,7 @@ const Sheets = (() => {
       ['calendarPlus', 'Создать занятие', 't-new'],
       ['layers', 'Назначить программу', 't-library'],
       ['wallet', 'Записать оплату', null],
-      ['link', 'Приглашение', 't-invite'],
+      ...(cid === 'c6' ? [['link', 'Приглашение', 't-invite']] : []),
     ].map(([icon, title, screen], i, arr) => Row({
       lead: Lead(icon, { size: 'sm', icon: true }),
       title,
@@ -241,63 +236,60 @@ const Sheets = (() => {
 
   function customEx() {
     return `<div class="sheet__title">Новое упражнение</div>
-      <div class="sheet__sub">Своё упражнение появится в библиотеке и не изменит прошлые занятия.</div>
+      <div class="sheet__sub">Макет редактора. Сохранение упражнения в библиотеку пока не подключено.</div>
       <div class="label" style="margin:18px 0 10px">Название</div>
       <div class="field field--sm"><input placeholder="Например, Тяга Т-грифа"></div>
       <div style="display:flex;gap:12px;margin-top:16px">
         <div style="flex:1"><div class="label" style="margin-left:0">Подходы</div><div class="field field--sm"><input type="number" value="3"></div></div>
         <div style="flex:1"><div class="label" style="margin-left:0">Повторы</div><div class="field field--sm"><input type="number" value="10"></div></div>
       </div>
-      <div style="margin-top:18px">${Btn('Добавить в библиотеку', { a: 'toast', args: { text: 'Упражнение добавлено в библиотеку' } })}</div>`;
+      <div style="margin-top:18px">${Btn('Добавить в библиотеку', { disabled: true })}</div>`;
   }
 
   function assignTemplate() {
     return `<div class="sheet__title">Назначить на занятие</div>
-      <div class="sheet__sub">Будет создана независимая копия шаблона. Правка библиотеки не перепишет назначенное.</div>
+      <div class="sheet__sub">Макет выбора занятия. Назначение на существующее занятие пока недоступно; программу можно выбрать при создании новой записи.</div>
       <div style="margin-top:16px">${Card([
       ['Айгерим Бекова', 'Сегодня 18:00 · Низ А'],
       ['Алия Нурлановa', 'Сегодня 20:00 · мини-группа'],
       ['Дана Ержанова', 'Сегодня 20:00 · мини-группа'],
     ].map(([t, m], i, arr) => Row({
       lead: Lead(t[0], { size: 'sm' }), title: t, meta: m,
-      right: Icon.get('chevR', { size: 20, style: 'color:var(--ter)' }),
-      a: 'toast', args: { text: 'Шаблон назначен · создана копия' }, last: i === arr.length - 1,
+      last: i === arr.length - 1,
     })).join(''), { rows: true })}</div>`;
   }
 
   /* ── Client-side: reschedule ─────────────────────────────────────────────── */
 
-  function cReschedule(st) {
-    const pick = st.reschedulePick || { date: '2026-09-18', start: '19:00' };
-    const from = { date: '2026-09-17', start: '18:00', end: '19:00' };
-    const times = ['07:00', '09:00', '18:00', '19:00', '20:00', '21:00'];
-    return `<div class="sheet__title">Перенос занятия</div>
-      <div class="sheet__sub">Выберите новое время. До подтверждения действует прежнее время.</div>
-      <div style="margin-top:16px">
-        <div class="diffcard">
-          <div class="diffcard__lbl">Было → станет</div>
-          <div class="diffcard__grid">
-            <div class="diffcard__side is-old"><div class="t">${from.start}–${from.end}</div><div class="d">${DB.fmtDateLong(from.date)}</div></div>
-            <div class="diffcard__arrow">${Icon.get('arrowRight', { size: 18 })}</div>
-            <div class="diffcard__side"><div class="t">${pick.start}–${DB.addMinutes(pick.start, 60)}</div><div class="d">${DB.fmtDateLong(pick.date)}</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="label" style="margin:18px 0 10px">Новая дата</div>
-      <div class="chips">${DB.WEEK.map(d => `<span class="chip chip--soft ${pick.date === d ? 'is-on' : ''}" ${act('cres.pick', { key: 'date', value: d })} role="button" tabindex="0">${DB.fmtDate(d)}</span>`).join('')}</div>
-      <div class="label" style="margin:18px 0 10px">Начало</div>
-      <div class="chips" style="flex-wrap:wrap">${times.map(t => `<span class="chip ${pick.start === t ? 'is-on' : ''}" ${act('cres.pick', { key: 'start', value: t })} role="button" tabindex="0">${t}</span>`).join('')}</div>
-      <div style="margin-top:20px">${Btn('Отправить запрос', { a: 'cres.send' })}</div>
-      <div style="margin-top:10px">${Btn('Закрыть', { kind: 'ghost', a: 'sheet.close' })}</div>`;
-  }
 
   /* ── Client-side: cancel ─────────────────────────────────────────────────── */
 
+  function rescheduleForm(st) {
+    const s = DB.sessions.find(x => x.id === st.sheet.data.sid);
+    if (!s) return '<div class="sheet__title">Занятие недоступно</div>';
+    const pick = st.reschedulePick || { date: s.date, start: s.start };
+    const duration = (Number(s.end.slice(0, 2)) - Number(s.start.slice(0, 2))) * 60 + Number(s.end.slice(3)) - Number(s.start.slice(3));
+    return `<div class="sheet__title">${st.sheet.data.rid ? 'Встречное предложение' : 'Перенос занятия'}</div>
+      <div class="sheet__sub">${esc(client(s.clientId).name)} · ${duration} мин</div>
+      <div class="reschedule-current"><strong>Действует</strong><span>${DB.fmtDateLong(s.date)}, ${s.start}–${s.end}</span></div>
+      <p class="log-editor-hint">Дата и время ниже — предложение. Расписание изменится только после ответа второй стороны.</p>
+      <div class="reschedule-fields">
+        <label for="reschedule-date">Новая дата</label>
+        <div class="field"><input id="reschedule-date" type="date" min="${DB.TODAY}" data-reschedule-field="date" value="${esc(pick.date)}" required></div>
+        <label for="reschedule-time">Начало</label>
+        <div class="field"><input id="reschedule-time" type="time" data-reschedule-field="start" value="${esc(pick.start)}" required></div>
+      </div>
+      <div style="margin-top:20px;display:grid;gap:10px">${Btn('Отправить предложение', { a: 'cres.send' })}${Btn('Закрыть', { kind: 'ghost', a: 'sheet.close' })}</div>`;
+  }
+
   function cCancel(st) {
+    const s = DB.sessions.find(x => x.id === st.sheet.data?.sid);
+    if (!s) return '<div class="sheet__title">Выберите занятие</div>';
     return `<div class="sheet__title">Отменить запись?</div>
+      <div class="reschedule-current">${DB.fmtDateLong(s.date)}, ${s.start}–${s.end}</div>
       <div class="sheet__sub">При отмене тренер отдельно решает вопрос списания. Отмена не создаёт автоматический штраф и не гарантирует, что занятие не будет списано.</div>
       <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
-        ${Btn('Отменить запись', { kind: 'danger', a: 'cres.cancel' })}
+        ${Btn('Отменить запись', { kind: 'danger', a: 'cres.cancel', args: { sid: s.id } })}
         ${Btn('Оставить занятие', { kind: 'soft', a: 'sheet.close' })}
       </div>`;
   }
@@ -306,23 +298,93 @@ const Sheets = (() => {
 
   function exercise(st) {
     const id = st.sheet.data.ex;
-    const e = DB.programFor('Низ А').find(x => x.id === id) || DB.programFor('Низ А')[0];
+    const program = st.sheet.data.program || DB.client(st.role === 'client' ? DB.DEMO_CLIENT_ID : st.activeClient)?.program;
+    const e = DB.programFor(program).find(x => x.id === id);
+    if (!e) return `<div class="sheet__title">Упражнение недоступно</div><p class="sheet__sub">Вернитесь к программе и выберите упражнение снова.</p>`;
+    const timed = /сек/.test(e.reps);
     return `<div class="sheet__title">${esc(e.name)}</div>
-      <div class="sheet__sub">План: ${e.sets} × ${e.reps}${e.target ? ' · ' + e.target + ' кг' : ''}</div>
-      <div style="margin-top:16px">${Notice('Техника: спина нейтральна, движение подконтрольное, без рывка в нижней точке. Текст техники задаёт тренер.', { tone: 'info', icon: 'info' })}</div>
-      <div style="margin-top:14px">${Card(KV([['Прошлый раз', e.prev.kg ? `${e.prev.kg} кг × ${e.prev.reps}` : `${e.prev.reps} повт`], ['Личный рекорд', e.pr ? e.pr + ' кг' : '—']]), { pad: true })}</div>
+      <div class="sheet__sub">План: ${e.sets} × ${e.reps}${e.target ? ' · ' + DB.fmtNumber(e.target) + ' кг' : ''}</div>
+        <div style="margin-top:14px">${Card(UI.KV([['Прошлый раз', e.prev ? e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ${e.prev.reps}` : `${e.prev.reps} ${timed ? 'сек' : 'повт.'}` : 'Нет записи'], ...(e.pr ? [['Личный рекорд', DB.fmtNumber(e.pr) + ' кг']] : [])]), { pad: true })}</div>
+      <p class="client-footnote">Подсказка тренера по этому упражнению пока не добавлена.</p>
       <div style="margin-top:16px">${Btn('Закрыть', { kind: 'soft', a: 'sheet.close' })}</div>`;
   }
 
+  /* ── Today: contextual reschedule request ────────────────────────────────── */
+
+  function todayRequest(st) {
+    const r = st.requests[st.sheet.data.rid];
+    if (!r) return '';
+    const c = client(r.clientId);
+    const pending = ['pending', 'counter'].includes(r.state) && r.awaiting === 'trainer';
+    const from = r.from, to = r.counter || r.to;
+    const otherDay = from.date !== to.date;
+    return `<div class="sheet__title">${pending ? 'Запрос на перенос' : 'Решение по переносу'}</div>
+      <div class="sheet__sub">${esc(c ? c.name : 'Клиент')} предлагает другое время.</div>
+      <div style="margin-top:16px">
+        <div class="diffcard">
+          <div class="diffcard__lbl">Было → предлагается</div>
+          <div class="diffcard__grid">
+            <div class="diffcard__side"><div class="t num">${from.start}–${from.end}</div><div class="d">${DB.fmtDateLong(from.date)} · действует</div></div>
+            <div class="diffcard__arrow">${Icon.get('arrowRight', { size: 18 })}</div>
+            <div class="diffcard__side"><div class="t num">${to.start}–${to.end}</div><div class="d">${DB.fmtDateLong(to.date)} · предложено</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="diffcard__note">${pending
+        ? `До вашего согласия действует ${from.start}–${from.end}.${otherDay ? ' Предложен другой день — текущая запись остаётся на месте до ответа.' : ''}`
+        : ['pending', 'counter'].includes(r.state) ? 'Ждём ответа клиента. До согласия действует прежнее время.' : 'Запрос уже обработан — расписание не изменится повторно.'}</p>
+      ${pending ? `<div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
+        ${Btn('Принять перенос', { kind: 'primary', a: 'rs.accept', args: { id: r.id }, icon: 'check' })}
+        ${Btn('Другое время', { kind: 'soft', a: 'sheet.open', args: { id: 'counter', rid: r.id }, icon: 'swap' })}
+        ${Btn(`Отклонить · оставить ${from.start}`, { kind: 'ghost', a: 'rs.decline', args: { id: r.id } })}
+        ${Btn('Закрыть', { kind: 'ghost', a: 'sheet.close' })}
+      </div>` : `<div style="margin-top:18px">${Btn('Закрыть', { kind: 'soft', a: 'sheet.close' })}</div>`}`;
+  }
+
+  /* ── Today: overlap details ──────────────────────────────────────────────── */
+
+  function todayOverlap(st) {
+    const { gid, date } = st.sheet.data;
+    const g = DB.overlapGroups(date).find(x => x.id === gid);
+    if (!g) return '';
+    const toMin = (v) => { const [h, m] = v.split(':').map(Number); return h * 60 + m; };
+    const fmt = (n) => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
+    const live = g.sessions.filter(s => s.status !== 'cancelled').sort((a, b) => a.start.localeCompare(b.start));
+    const start = Math.max(...live.map(s => toMin(s.start)));
+    const end = Math.min(...live.map(s => toMin(s.end)));
+    const minutes = Math.max(0, end - start);
+    return `<div class="sheet__title">Пересечение · ${minutes} мин</div>
+      <div class="sheet__sub">${fmt(start)}–${fmt(end)} · ${live.length === 2 ? 'два отдельных занятия' : 'несколько отдельных занятий'}. Это не мини-группа: у каждой записи своя программа, посещение и списание.</div>
+      <div style="margin-top:14px">${Card(live.map((s, i) => {
+        const c = s.clientId ? client(s.clientId) : null;
+        return Row({
+          lead: Lead(c ? c.initials : '?', { size: 'sm' }),
+          title: c ? c.short : s.title,
+          meta: `${s.start}–${s.end} · ${s.program || 'Программа появится позже'}`,
+          right: Pill('Индивидуальное', { tone: 'neutral', dot: false }),
+          a: 'sheet.open', args: { id: 'session', sid: s.id }, last: i === live.length - 1,
+        });
+      }).join(''), { rows: true })}</div>
+      <div style="margin-top:18px">${Btn('Вернуться к плану', { kind: 'soft', a: 'sheet.close' })}</div>`;
+  }
+
   /* ── Dispatcher ──────────────────────────────────────────────────────────── */
+
+  function clientCreate() {
+    return `<div class="sheet__title">Новый клиент</div>
+      <div class="sheet__sub">Начните с имени. Карточку можно вести до подключения клиента.</div>
+      <label class="directory-name-label" for="client-create-name">Имя и фамилия</label>
+      <div class="field"><input id="client-create-name" data-client-name placeholder="Например, Алия Нурланова" autocomplete="name" maxlength="100" required></div>
+      <div class="directory-create-actions">${Btn('Создать карточку', { a: 'clients.create' })}${Btn('Отмена', { kind: 'ghost', a: 'sheet.close' })}</div>`;
+  }
 
   function render(st) {
     const sh = st.sheet;
     if (!sh) return '';
     const map = {
-      session, setlog, finishConfirm, charge, counter, trainerMove, pay,
+      session, setlog, finishConfirm, charge, pay,
       notifications, stale, clientActions, search, customEx, assignTemplate,
-      cReschedule, cCancel, exercise,
+      cCancel, exercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
     };
     const fn = map[sh.id];
     return fn ? fn(st) : '';

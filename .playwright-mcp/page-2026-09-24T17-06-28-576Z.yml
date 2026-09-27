@@ -1,0 +1,211 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: Кабинет тренера
+      - text: Прототип · gymGO DNA
+    - generic [ref=e6]:
+      - heading "Сегодня и расписание" [level=3] [ref=e7]
+      - button "Сегодня" [ref=e8] [cursor=pointer]
+      - button "Расписание" [ref=e13] [cursor=pointer]
+      - button "Новое занятие" [ref=e18] [cursor=pointer]
+      - button "Входящие 2" [ref=e22] [cursor=pointer]:
+        - generic [ref=e25]: Входящие
+        - generic [ref=e26]: "2"
+    - generic [ref=e27]:
+      - heading "Клиенты" [level=3] [ref=e28]
+      - button "Клиенты" [ref=e29] [cursor=pointer]
+      - button "Карточка клиента" [ref=e35] [cursor=pointer]
+      - button "Приглашение" [ref=e40] [cursor=pointer]
+    - generic [ref=e45]:
+      - heading "Работа" [level=3] [ref=e46]
+      - button "Проведение тренировки" [ref=e47] [cursor=pointer]
+      - button "Библиотека" [ref=e51] [cursor=pointer]
+      - button "Шаблон" [ref=e56] [cursor=pointer]
+      - button "Пакеты и оплаты" [ref=e60] [cursor=pointer]
+    - generic [ref=e65]:
+      - heading "Прочее" [level=3] [ref=e66]
+      - button "Профиль" [ref=e67] [cursor=pointer]
+    - button "На главный экран" [ref=e72] [cursor=pointer]
+  - main [ref=e76]:
+    - generic [ref=e78]:
+      - group "Роль" [ref=e79]:
+        - button "Тренер" [pressed] [ref=e80] [cursor=pointer]
+        - button "Клиент" [ref=e85] [cursor=pointer]
+      - group "Состояние" [ref=e89]:
+        - button "Обычный день" [pressed] [ref=e90] [cursor=pointer]
+        - button "Пустой день" [ref=e91] [cursor=pointer]
+        - button "Загрузка" [ref=e92] [cursor=pointer]
+        - button "Нет связи" [ref=e93] [cursor=pointer]
+      - group "Ширина" [ref=e94]:
+        - button "320" [ref=e95] [cursor=pointer]
+        - button "375" [ref=e96] [cursor=pointer]
+        - button "390" [pressed] [ref=e97] [cursor=pointer]
+        - button "430" [ref=e98] [cursor=pointer]
+        - button "Широкий" [ref=e99] [cursor=pointer]
+    - generic [ref=e101]:
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]:
+            - heading "Сегодня" [level=1] [ref=e105]
+            - paragraph [ref=e106]:
+              - text: пн, 14 сен·
+              - time [ref=e107]: 08:00
+          - generic [ref=e108]:
+            - 'button "Входящие: 2 запроса требуют ответа" [ref=e109] [cursor=pointer]':
+              - generic [ref=e113]: "2"
+            - button "Создать занятие" [ref=e114] [cursor=pointer]
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - heading "План дня" [level=2] [ref=e120]
+            - generic [ref=e121]: 7 занятий
+          - generic [ref=e122]:
+            - article [ref=e123]:
+              - generic [ref=e124]:
+                - generic [ref=e125]: Следующая тренировка
+                - strong [ref=e126]: Через 1 ч
+              - generic [ref=e127]:
+                - time [ref=e128]: 09:00
+                - generic [ref=e129]: до 10:00
+              - generic [ref=e130]:
+                - heading "Дана" [level=3] [ref=e131]
+                - paragraph [ref=e132]:
+                  - strong [ref=e133]: Full Body
+                  - generic [ref=e134]: Индивидуальное
+                - generic [ref=e135]: Подтверждено
+                - generic [ref=e138]: Журнал в работе
+              - button "Продолжить тренировку" [ref=e140] [cursor=pointer]
+            - button "Свободно 10:00–11:30, 1 ч 30 мин. Добавить занятие" [ref=e144] [cursor=pointer]:
+              - generic [ref=e145]:
+                - text: 10:00
+                - generic [ref=e146]: до 11:30
+              - generic [ref=e147]:
+                - strong [ref=e148]: Свободно · 1 ч 30 мин
+                - generic [ref=e149]: Добавить занятие
+            - article [ref=e152]:
+              - generic [ref=e153]:
+                - time [ref=e154]: 11:30
+                - generic [ref=e155]: до 12:30
+              - generic [ref=e156]:
+                - button "Занятие Мади, 11:30–12:30" [ref=e157] [cursor=pointer]:
+                  - strong [ref=e158]: Мади
+                - paragraph [ref=e162]:
+                  - strong [ref=e163]: Верх Б
+                  - generic [ref=e164]: Индивидуальное
+                - generic [ref=e165]: Журнал завершён
+            - button "Свободно 12:30–14:00, 1 ч 30 мин. Добавить занятие" [ref=e167] [cursor=pointer]:
+              - generic [ref=e168]:
+                - text: 12:30
+                - generic [ref=e169]: до 14:00
+              - generic [ref=e170]:
+                - strong [ref=e171]: Свободно · 1 ч 30 мин
+                - generic [ref=e172]: Добавить занятие
+            - article [ref=e175]:
+              - generic [ref=e176]:
+                - time [ref=e177]: 14:00
+                - generic [ref=e178]: до 15:00
+              - generic [ref=e179]:
+                - button "Занятие Арман, 14:00–15:00" [ref=e180] [cursor=pointer]:
+                  - strong [ref=e181]: Арман
+                - paragraph [ref=e185]:
+                  - strong [ref=e186]: Сила 5×5
+                  - generic [ref=e187]: Индивидуальное
+            - button "Свободно 15:00–18:00, 3 ч. Добавить занятие" [ref=e188] [cursor=pointer]:
+              - generic [ref=e189]:
+                - text: 15:00
+                - generic [ref=e190]: до 18:00
+              - generic [ref=e191]:
+                - strong [ref=e192]: Свободно · 3 ч
+                - generic [ref=e193]: Добавить занятие
+            - article [ref=e196]:
+              - generic [ref=e197]:
+                - time [ref=e198]: 18:00
+                - generic [ref=e199]: до 19:00
+              - generic [ref=e200]:
+                - button "Занятие Айгерим, 18:00–19:00" [ref=e201] [cursor=pointer]:
+                  - strong [ref=e202]: Айгерим
+                - paragraph [ref=e206]:
+                  - strong [ref=e207]: Низ А
+                  - generic [ref=e208]: Индивидуальное
+            - 'button "Пересечение: 18:30–19:00, 30 минут. Сведения о конфликтующих записях" [ref=e209] [cursor=pointer]':
+              - generic [ref=e214]:
+                - strong [ref=e215]: Пересечение · 30 мин
+                - generic [ref=e216]: 18:30–19:00 · отдельные занятия
+            - article [ref=e219]:
+              - generic [ref=e220]:
+                - time [ref=e221]: 18:30
+                - generic [ref=e222]: до 19:30
+              - generic [ref=e223]:
+                - button "Занятие Арман, 18:30–19:30" [ref=e224] [cursor=pointer]:
+                  - strong [ref=e225]: Арман
+                - paragraph [ref=e229]:
+                  - strong [ref=e230]: Сила 5×5
+                  - generic [ref=e231]: Индивидуальное
+            - button "Свободно 19:30–20:00, 30 мин. Добавить занятие" [ref=e232] [cursor=pointer]:
+              - generic [ref=e233]:
+                - text: 19:30
+                - generic [ref=e234]: до 20:00
+              - generic [ref=e235]:
+                - strong [ref=e236]: Свободно · 30 мин
+                - generic [ref=e237]: Добавить занятие
+            - article [ref=e240]:
+              - generic [ref=e241]:
+                - time [ref=e242]: 20:00
+                - generic [ref=e243]: до 21:00
+              - generic [ref=e244]:
+                - button "Занятие Мини-группа, 20:00–21:00" [ref=e245] [cursor=pointer]:
+                  - strong [ref=e246]: Мини-группа
+                - paragraph [ref=e250]:
+                  - strong [ref=e251]: Алия, Мади, Дана
+                - paragraph [ref=e252]: 1 подтвердил · 1 ждёт · 1 отменил
+            - button "Свободно 21:00–21:15, 15 мин. Добавить занятие" [ref=e253] [cursor=pointer]:
+              - generic [ref=e254]:
+                - text: 21:00
+                - generic [ref=e255]: до 21:15
+              - generic [ref=e256]:
+                - strong [ref=e257]: Свободно · 15 мин
+                - generic [ref=e258]: Добавить занятие
+            - article [ref=e261]:
+              - generic [ref=e262]:
+                - time [ref=e263]: 21:15
+                - generic [ref=e264]: до 22:00
+              - generic [ref=e265]:
+                - button "Занятие Айгерим, 21:15–22:00" [ref=e266] [cursor=pointer]:
+                  - strong [ref=e267]: Айгерим
+                - paragraph [ref=e271]:
+                  - strong [ref=e272]: Программа появится позже
+                  - generic [ref=e273]: Индивидуальное
+          - paragraph [ref=e274]: Последнее занятие до 22:00
+        - complementary "Свёрнутая тренировка" [ref=e275]:
+          - 'button "Вернуться к тренировке: Дана Ержанова. 2 из 12 подходов · Есть черновик" [ref=e276] [cursor=pointer]':
+            - generic [ref=e277]:
+              - generic [ref=e278]: Вернуться к тренировке
+              - strong [ref=e279]: Дана Ержанова
+              - generic [ref=e280]: 2 из 12 подходов · Есть черновик
+        - navigation "Основная навигация" [ref=e284]:
+          - button "Сегодня" [ref=e285] [cursor=pointer]
+          - button "Расписание" [ref=e291] [cursor=pointer]
+          - button "Клиенты" [ref=e297] [cursor=pointer]
+          - button "Профиль" [ref=e304] [cursor=pointer]
+      - generic: 08:00
+      - generic [aria-hidden]:
+        - dialog
+      - status
+    - paragraph [ref=e310]: Прототип интерфейса. Данные вымышленные, действия не меняют реальные записи. Дизайн-токены и компоненты перенесены из референса gymGO — см. docs/design-system.md.
+  - complementary [ref=e311]:
+    - generic [ref=e312]: Экран
+    - heading "Сегодня" [level=2] [ref=e313]
+    - paragraph [ref=e314]: "Одна хронологическая повестка отвечает на «что дальше»: дата и текущее время, единый список занятий, ближайшее раскрыто. Без отдельной hero-карточки и без финансовых виджетов."
+    - generic [ref=e316]: Правила
+    - list [ref=e317]:
+      - listitem [ref=e318]: Демо-время зафиксировано (DB.NOW_TIME, ?now=HH:MM). Реальные часы не используются.
+      - listitem [ref=e319]: Временная подсказка («Через N мин», «Идёт сейчас») не заменяет статус договорённости.
+      - listitem [ref=e320]: Запросы, требующие ответа тренера, показаны счётчиком в шапке и действием внутри своей записи.
+      - listitem [ref=e321]: Пересечения — отдельные записи со спокойной связкой; это не мини-группа.
+      - listitem [ref=e322]: Свободные окна считаются по объединению занятых интервалов; нажатие открывает форму нового занятия с этим временем, но не создаёт запись.
+      - listitem [ref=e323]: Мини-группа — одна сессия с участниками; отмена участника не отменяет группу.
+    - generic [ref=e325]: Проверка сценариев
+    - list [ref=e326]:
+      - listitem [ref=e327]: "Активных запросов: 2"
+      - listitem [ref=e328]: "Списаний с открытия страницы: 0"
+      - listitem [ref=e329]: "Переключатель: тренер · 390px"
+    - generic [ref=e330]: Данные вымышленные. Реальный прайс, клиенты и механизм входа не утверждены.

@@ -1,0 +1,104 @@
+{
+  "widths": [
+    {
+      "concept": "a",
+      "width": 375,
+      "scrollWidth": 375,
+      "tailBottom": 743.171875,
+      "navTop": 769,
+      "smallTargets": [],
+      "fonts": {
+        "inter": true,
+        "montserrat": true
+      }
+    },
+    {
+      "concept": "a",
+      "width": 390,
+      "scrollWidth": 390,
+      "tailBottom": 743.171875,
+      "navTop": 769,
+      "smallTargets": [],
+      "fonts": {
+        "inter": true,
+        "montserrat": true
+      }
+    },
+    {
+      "concept": "a",
+      "width": 430,
+      "scrollWidth": 430,
+      "tailBottom": 743.171875,
+      "navTop": 769,
+      "smallTargets": [],
+      "fonts": {
+        "inter": true,
+        "montserrat": true
+      }
+    },
+    {
+      "concept": "b",
+      "width": 375,
+      "scrollWidth": 375,
+      "tailBottom": 732.6875,
+      "navTop": 769,
+      "smallTargets": [],
+      "fonts": {
+        "inter": true,
+        "montserrat": true
+      }
+    },
+    {
+      "concept": "b",
+      "width": 390,
+      "scrollWidth": 390,
+      "tailBottom": 732.6875,
+      "navTop": 769,
+      "smallTargets": [],
+      "fonts": {
+        "inter": true,
+        "montserrat": true
+      }
+    },
+    {
+      "concept": "b",
+      "width": 430,
+      "scrollWidth": 430,
+      "tailBottom": 732.6875,
+      "navTop": 769,
+      "smallTargets": [],
+      "fonts": {
+        "inter": true,
+        "montserrat": true
+      }
+    }
+  ],
+  "interactions": [
+    {
+      "concept": "a",
+      "workout": true,
+      "decline": true,
+      "accept": true,
+      "focusTrap": true,
+      "escape": true,
+      "group": true,
+      "newAppointmentCheck": true,
+      "inbox": true,
+      "contextualRequest": true,
+      "overlapDetails": true,
+      "gapPrefill": true
+    },
+    {
+      "concept": "b",
+      "workout": true,
+      "decline": true,
+      "accept": true,
+      "focusTrap": true,
+      "escape": true,
+      "group": true,
+      "newAppointmentCheck": true
+    }
+  ],
+  "errors": [],
+  "resetBoth": true
+}

@@ -1,0 +1,531 @@
+{
+  "url": "http://127.0.0.1:4188/prototype/?now=08:00",
+  "browser": "153.0.8010.12",
+  "viewport": {
+    "width": 375,
+    "height": 844
+  },
+  "deviceScaleFactor": 1,
+  "captured_at": "2026-09-25T02:42:56.175Z",
+  "screens": [
+    {
+      "name": "home-default",
+      "file": "screens/base/home-default.png",
+      "sha256": "07bba7b2dc462913296c385e98e1c48222353c75ed67192f75e5c7b6be85ba24",
+      "text": "ДС\nВаш тренер\nДанияр\nПривет, Айгерим\nСегодня\nПодтверждено\nпн, 14 сен\n18:00–19:00\nНиз А\nИндивидуальная тренировка\nПредложить перенос\nОтменить запись\nПереносы других занятий\nПеренос занятия\nДействует\nчт, 17 сен\n18:00–19:00\nПредложено\nпт, 18 сен\n19:00–20:00\n\nЖдём ответа тренера. До согласия действует прежнее время.\n\nОтозвать запрос\nОстаток пакета\nПакет 12 занятий\n7\nиз 12 занятий\nК оплате 40 000 ₸\nСледующие занятия\n14 сен · 21:15\nПрограмма появится позже\n17 сен · 18:00\nНиз А\nИстория занятий\nГлавная\nПрограмма\nИстория\nПрогресс\nПрофиль",
+      "nodes": [
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "",
+          "rect": {
+            "x": 345,
+            "y": 68.125,
+            "width": 22,
+            "height": 27.75
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H1",
+          "cls": "",
+          "text": "Привет, Айгерим",
+          "rect": {
+            "x": 18,
+            "y": 110,
+            "width": 339,
+            "height": 28.078125
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H2",
+          "cls": "",
+          "text": "Низ А",
+          "rect": {
+            "x": 36,
+            "y": 300.21875,
+            "width": 303,
+            "height": 23.390625
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "btn btn--soft btn--compact",
+          "text": "Предложить перенос",
+          "rect": {
+            "x": 36,
+            "y": 366.453125,
+            "width": 303,
+            "height": 44
+          },
+          "background": "rgb(236, 233, 226)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "btn btn--ghost btn--compact",
+          "text": "Отменить запись",
+          "rect": {
+            "x": 36,
+            "y": 414.453125,
+            "width": 303,
+            "height": 44
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H2",
+          "cls": "",
+          "text": "Переносы других занятий",
+          "rect": {
+            "x": 20,
+            "y": 500.453125,
+            "width": 335,
+            "height": 21.59375
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "P",
+          "cls": "client-request__status",
+          "text": "Ждём ответа тренера. До согласия действует прежнее время.",
+          "rect": {
+            "x": 33,
+            "y": 656.203125,
+            "width": 309,
+            "height": 36
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "btn btn--soft btn--compact",
+          "text": "Отозвать запрос",
+          "rect": {
+            "x": 33,
+            "y": 704.203125,
+            "width": 309,
+            "height": 44
+          },
+          "background": "rgb(236, 233, 226)"
+        },
+        {
+          "tag": "DIV",
+          "cls": "client-package",
+          "text": "Остаток пакета\nПакет 12 занятий\n7\nиз 12 занятий\nК оплате 40 000 ₸",
+          "rect": {
+            "x": 16,
+            "y": 781.203125,
+            "width": 343,
+            "height": 160.140625
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H2",
+          "cls": "",
+          "text": "Остаток пакета",
+          "rect": {
+            "x": 32,
+            "y": 797.203125,
+            "width": 107.703125,
+            "height": 20.296875
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H2",
+          "cls": "",
+          "text": "Следующие занятия",
+          "rect": {
+            "x": 22,
+            "y": 963.34375,
+            "width": 160.53125,
+            "height": 21.59375
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "btn btn--soft",
+          "text": "История занятий",
+          "rect": {
+            "x": 16,
+            "y": 1170.5625,
+            "width": 343,
+            "height": 56
+          },
+          "background": "rgb(236, 233, 226)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item is-on",
+          "text": "Главная",
+          "rect": {
+            "x": 6,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Программа",
+          "rect": {
+            "x": 78.59375,
+            "y": 766,
+            "width": 72.609375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "История",
+          "rect": {
+            "x": 151.203125,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Прогресс",
+          "rect": {
+            "x": 223.796875,
+            "y": 766,
+            "width": 72.609375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Профиль",
+          "rect": {
+            "x": 296.40625,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ]
+    },
+    {
+      "name": "home",
+      "file": "screens/base/home.png",
+      "sha256": "39200b83f71ce7f5c6f47aa1e84fb0910455e149827fc81bc09d238e6b1cb26d",
+      "text": "ДС\nВаш тренер\nДанияр\nПривет, Айгерим\nЗаписей нет\n\nСогласуйте следующее занятие с тренером. Он добавит время — запись появится здесь.\n\nГлавная\nПрограмма\nИстория\nПрогресс\nПрофиль",
+      "nodes": [
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "",
+          "rect": {
+            "x": 345,
+            "y": 68.125,
+            "width": 22,
+            "height": 27.75
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H1",
+          "cls": "",
+          "text": "Привет, Айгерим",
+          "rect": {
+            "x": 18,
+            "y": 110,
+            "width": 339,
+            "height": 28.078125
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "DIV",
+          "cls": "client-empty",
+          "text": "Записей нет\n\nСогласуйте следующее занятие с тренером. Он добавит время — запись появится здесь.",
+          "rect": {
+            "x": 16,
+            "y": 150.078125,
+            "width": 343,
+            "height": 166.078125
+          },
+          "background": "rgb(255, 255, 255)"
+        },
+        {
+          "tag": "DIV",
+          "cls": "lead",
+          "text": "",
+          "rect": {
+            "x": 36,
+            "y": 170.078125,
+            "width": 42,
+            "height": 42
+          },
+          "background": "rgb(236, 233, 226)"
+        },
+        {
+          "tag": "H3",
+          "cls": "",
+          "text": "Записей нет",
+          "rect": {
+            "x": 36,
+            "y": 226.078125,
+            "width": 303,
+            "height": 23.796875
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "P",
+          "cls": "",
+          "text": "Согласуйте следующее занятие с тренером. Он добавит время — запись появится здесь.",
+          "rect": {
+            "x": 36,
+            "y": 255.875,
+            "width": 303,
+            "height": 40.28125
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item is-on",
+          "text": "Главная",
+          "rect": {
+            "x": 6,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Программа",
+          "rect": {
+            "x": 78.59375,
+            "y": 766,
+            "width": 72.609375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "История",
+          "rect": {
+            "x": 151.203125,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Прогресс",
+          "rect": {
+            "x": 223.796875,
+            "y": 766,
+            "width": 72.609375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Профиль",
+          "rect": {
+            "x": 296.40625,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ]
+    },
+    {
+      "name": "home-cleared",
+      "file": "screens/base/home-cleared.png",
+      "sha256": "75efcf1b3731adf953818186ac15f7252f1e5d1377cb93a50603cd82424c068d",
+      "source": "screens/base/home.png",
+      "change": "Only empty-state artwork/icon visibility hidden in browser memory; layout retained"
+    },
+    {
+      "name": "empty-program",
+      "file": "screens/base/empty-program.png",
+      "sha256": "c1e3677c1d4314b772b9bfd1b0f97e6e083afc4aa46c5b2fa7c9bf129ff2fcf6",
+      "text": "ДС\nВаш тренер\nДанияр\nПрограмма\nПрограмма появится здесь\n\nТренер ещё не добавил упражнения. Время занятия можно посмотреть на главной.\n\nПосмотреть расписание\nГлавная\nПрограмма\nИстория\nПрогресс\nПрофиль",
+      "nodes": [
+        {
+          "tag": "BUTTON",
+          "cls": "",
+          "text": "",
+          "rect": {
+            "x": 345,
+            "y": 68.125,
+            "width": 22,
+            "height": 27.75
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H1",
+          "cls": "",
+          "text": "Программа",
+          "rect": {
+            "x": 18,
+            "y": 110,
+            "width": 339,
+            "height": 28.078125
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "DIV",
+          "cls": "client-empty client-empty--notebook",
+          "text": "Программа появится здесь\n\nТренер ещё не добавил упражнения. Время занятия можно посмотреть на главной.",
+          "rect": {
+            "x": 16,
+            "y": 150.078125,
+            "width": 343,
+            "height": 230.078125
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "IMG",
+          "cls": "client-empty__art",
+          "text": "",
+          "rect": {
+            "x": 28,
+            "y": 158.078125,
+            "width": 116,
+            "height": 116
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "H3",
+          "cls": "",
+          "text": "Программа появится здесь",
+          "rect": {
+            "x": 28,
+            "y": 290.078125,
+            "width": 319,
+            "height": 23.796875
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "P",
+          "cls": "",
+          "text": "Тренер ещё не добавил упражнения. Время занятия можно посмотреть на главной.",
+          "rect": {
+            "x": 28,
+            "y": 319.875,
+            "width": 319,
+            "height": 40.28125
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "btn btn--soft",
+          "text": "Посмотреть расписание",
+          "rect": {
+            "x": 16,
+            "y": 394.15625,
+            "width": 343,
+            "height": 56
+          },
+          "background": "rgb(236, 233, 226)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Главная",
+          "rect": {
+            "x": 6,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item is-on",
+          "text": "Программа",
+          "rect": {
+            "x": 78.59375,
+            "y": 766,
+            "width": 72.609375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "История",
+          "rect": {
+            "x": 151.203125,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Прогресс",
+          "rect": {
+            "x": 223.796875,
+            "y": 766,
+            "width": 72.609375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "tabbar__item",
+          "text": "Профиль",
+          "rect": {
+            "x": 296.40625,
+            "y": 766,
+            "width": 72.59375,
+            "height": 56
+          },
+          "background": "rgba(0, 0, 0, 0)"
+        }
+      ]
+    },
+    {
+      "name": "empty-program-cleared",
+      "file": "screens/base/empty-program-cleared.png",
+      "sha256": "7b776abd25faf80a8a2ae0047ac756e8e236092e128f601ac3261d9a6e476bc2",
+      "source": "screens/base/empty-program.png",
+      "change": "Only empty-state artwork/icon visibility hidden in browser memory; layout retained"
+    }
+  ],
+  "errors": []
+}

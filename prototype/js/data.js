@@ -11,6 +11,19 @@
 const DB = (() => {
   const TODAY = '2026-09-14'; // Monday
   const WEEK = ['2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18', '2026-09-19', '2026-09-20'];
+
+  /* Demo clock. The prototype pins "now" so time-based labels are deterministic
+     and never depend on the computer's real date. Default 20:30 puts the
+     20:00 mini-group in progress. Override without reload, e.g.
+     `prototype/index.html?now=18:45` → the 18:00/18:30 overlap is in progress,
+     `?now=23:00` → the day is finished, `?now=08:00` → next is the 09:00 session.
+     This is the only knob time-based logic reads. */
+  const NOW_TIME = (() => {
+    const override = typeof location !== 'undefined' && location.search
+      ? new URLSearchParams(location.search).get('now')
+      : null;
+    return override && /^\d{2}:\d{2}$/.test(override) ? override : '20:30';
+  })();
   const DOW = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
   const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
   const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
@@ -284,11 +297,12 @@ const DB = (() => {
     normal: { label: 'Обычный день', desc: '7 занятий, 2 требуют ответа, пересечение 18:00/18:30.' },
     empty: { label: 'Пустой день', desc: 'Нет занятий — объяснение и «Добавить занятие».' },
     loading: { label: 'Загрузка', desc: 'Скелетоны вместо ленты.' },
-    offline: { label: 'Нет связи', desc: 'Ошибка сохранения сохраняет ввод.' },
+    offline: { label: 'Нет связи', desc: 'Журнал сохраняется локально; синхронизация с сервером не реализована.' },
   };
 
   return {
-    TODAY, WEEK, DOW, MONTHS, MONTHS_SHORT,
+    TODAY, WEEK, DOW, MONTHS, MONTHS_SHORT, NOW_TIME,
+    DEMO_CLIENT_ID: 'c1',
     trainer, clients, sessions, programs, templates,
     purchases, payments, unitTx, history, loggedDemo, SCENARIOS,
 
@@ -297,6 +311,8 @@ const DB = (() => {
     byDate(date) { return this.sessions.filter(s => s.date === date); },
     pendingRequests() { return this.sessions.filter(s => s.request && s.request.state === 'pending'); },
     programFor(name) { return name ? (this.programs[name] || []) : []; },
+    // Display only: keep numeric storage and the user's unfinished input untouched.
+    fmtNumber(n) { return typeof n === 'number' && Number.isFinite(n) ? new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 20, useGrouping: false }).format(n) : '—'; },
     fmtMoney(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009') + ' ₸'; },
     addMinutes(t, m) {
       const [h, mm] = t.split(':').map(Number);

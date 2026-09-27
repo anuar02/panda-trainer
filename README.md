@@ -8,6 +8,9 @@
 интерфейса, дизайн-система и документация. Реальный стек, бэкенд и авторизация
 не выбраны (см. «Открытые решения»).
 
+Текущее состояние, этапы и ближайший шаг: [план работы](WORKPLAN.md).
+При продолжении после перерыва или сжатия контекста начинайте с него.
+
 ## Быстрый старт
 
 Откройте прототип в браузере — зависимостей и сборки нет:
@@ -15,12 +18,68 @@
 ```bash
 open prototype/index.html          # macOS
 # или
-python3 -m http.server 8000        # затем http://localhost:8000/prototype/
+python3 -m http.server 8000 --bind 127.0.0.1 --directory prototype
+# затем http://127.0.0.1:8000/
 ```
 
 Внутри: переключатель роли **Тренер / Клиент**, состояния
-**Обычный день / Пустой день / Загрузка / Нет связи**, ширины **375 / 390 / 430**
+**Обычный день / Пустой день / Загрузка / Нет связи**, ширины **320 / 375 / 390 / 430**
 и широкий вариант «Сегодня». Справа — правила экрана и счётчики проверки сценариев.
+
+## Проверки без управления окном Chrome
+
+```sh
+npm ci
+npx playwright install chromium   # один раз на компьютере
+npm run test:prototype            # unit + изолированный headless Chromium
+npm run test:e2e:report           # локальный отчёт, снимки, ошибки
+```
+
+64 unit-теста и 75 браузерных проверок: пятнадцать сценариев на desktop и четырёх
+мобильных ширинах. Сервер запускается автоматически. Личный профиль Chrome не
+используется. Шрифты включены локально. [Запуск, покрытие и ограничения](prototype/e2e/README.md).
+
+## Higgsfield CLI (локальный инструмент)
+
+`index.ts` + `src/higgsfield/` — **не часть продакшн-приложения**, а локальный
+инструмент для генерации изображений и видео через Higgsfield API. SDK
+Higgsfield (`@higgsfield/client/v2`) работает только server-side: браузерные
+вызовы он блокирует, поэтому прямого пути из `prototype/` к API нет и не должно
+быть. Учётные данные живут исключительно в `.env.local`.
+
+```bash
+cp .env.example .env.local          # затем впишите HF_CREDENTIALS=key-id:key-secret
+# ключи: https://console.higgsfield.ai
+npm install
+npm run higgsfield -- --help
+```
+
+Примеры:
+
+```bash
+npm run higgsfield -- video "A cinematic tracking shot along a sunlit coastal road" --duration 5 --aspect 16:9
+npm run higgsfield -- image "Editorial portrait in soft window light" --aspect 3:4 --resolution 1080p
+npm run higgsfield -- animate "make it move" --image ./first-frame.jpg   # локальный файл загружается сам
+npm run higgsfield -- refs "cinematic" --image-url https://cdn.example.com/character.jpg
+npm run higgsfield -- video "coastal" --webhook https://example.com/hooks/hf
+npm run higgsfield -- status            # все отслеживаемые запросы
+npm run higgsfield -- list               # список
+npm run higgsfield -- cancel <request_id>
+npm run higgsfield -- styles             # style_id для SOUL 2
+```
+
+Поведение: отправка асинхронная, `request_id` сохраняется в
+`.tmp/higgsfield/requests.json` (git-ignored) вместе с `HF_OWNER`; одинаковые
+запросы в полёте не дублируются (кроме `--force`); опрос статуса — с backoff,
+jitter, таймаутом (`--timeout`) и обработкой `completed / failed / nsfw /
+canceled`; чтение и отмена проверяют владельца (`--any-owner` для обхода).
+`--webhook <url>` передаёт адрес в API, но получателя вебхуков в этом репозитории
+нет (нет фоновой обработки), поэтому опрос остаётся как fallback; `--download`
+складывает готовые файлы в `--out` (по умолчанию `.tmp/higgsfield/output`).
+
+Безопасность: `.env.local` в `.gitignore`, не коммитьте его и не печатайте
+секрет. Секрет — это доступ к аккаунту и кредитам; при утечке отзовите ключ в
+консоли.
 
 ## Структура
 
@@ -40,6 +99,9 @@ trainerApp/
 │       ├── sheets.js     нижние шторки
 │       ├── screens/      экраны тренера и клиента
 │       └── app.js        роутер, обработка действий, аннотации
+├── index.ts              CLI-энтри Higgsfield (локальный инструмент, не приложение)
+├── src/higgsfield/       клиент API: config · errors · endpoints · jobs · api · cli
+├── .env.example          плейсхолдеры переменных окружения (HF_CREDENTIALS и др.)
 ├── docs/
 │   ├── design-system.md  токены, компоненты, моушн, доступность
 │   ├── prototype-guide.md карта экранов, сценарии, проверка

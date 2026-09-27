@@ -1,0 +1,51 @@
+{
+  "marks": [
+    {
+      "id": "ballpoint",
+      "marks": [
+        "check",
+        "circle",
+        "underline",
+        "arrow",
+        "bracket",
+        "asterisk",
+        "note-spine",
+        "note-next"
+      ]
+    },
+    {
+      "id": "nib",
+      "marks": [
+        "check",
+        "circle",
+        "underline",
+        "arrow",
+        "bracket",
+        "asterisk",
+        "note-spine",
+        "note-next"
+      ]
+    },
+    {
+      "id": "marker",
+      "marks": [
+        "check",
+        "circle",
+        "underline",
+        "arrow",
+        "bracket",
+        "asterisk",
+        "note-spine",
+        "note-next"
+      ]
+    }
+  ],
+  "logos": [
+    "b1-hand",
+    "b2-dual",
+    "b3-type",
+    "c1-strict",
+    "c2-hand"
+  ],
+  "hand_authored": true
+}

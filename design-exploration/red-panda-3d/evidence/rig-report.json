@@ -1,0 +1,46 @@
+{
+  "ready": true,
+  "size": [
+    1.0000000643930202,
+    0.9772877986475014,
+    0.7093644076049486
+  ],
+  "bones": [
+    "Hips",
+    "LeftUpLeg",
+    "LeftLeg",
+    "LeftFoot",
+    "LeftToeBase",
+    "RightUpLeg",
+    "RightLeg",
+    "RightFoot",
+    "RightToeBase",
+    "Spine02",
+    "Spine01",
+    "Spine",
+    "LeftShoulder",
+    "LeftArm",
+    "LeftForeArm",
+    "LeftHand",
+    "RightShoulder",
+    "RightArm",
+    "RightForeArm",
+    "RightHand",
+    "neck",
+    "Head",
+    "head_end",
+    "headfront"
+  ],
+  "clips": [
+    {
+      "id": "walk",
+      "label": "Шагать",
+      "file": "assets/walking.glb",
+      "title": "В своём темпе.",
+      "description": "Двигаемся к следующей тренировке.",
+      "duration": 1.0666667222976685
+    }
+  ],
+  "errors": [],
+  "overflow": false
+}

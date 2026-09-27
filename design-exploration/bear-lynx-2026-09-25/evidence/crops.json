@@ -1,0 +1,302 @@
+{
+  "b": {
+    "hello": {
+      "source": "sheets/b.png",
+      "crop": [
+        60,
+        5,
+        495,
+        447
+      ],
+      "hole_seed": [
+        358,
+        345
+      ],
+      "trim_bbox": [
+        41,
+        36,
+        405,
+        437
+      ],
+      "handle_hole_pixels": 944
+    },
+    "swing": {
+      "source": "sheets/b.png",
+      "crop": [
+        600,
+        5,
+        1000,
+        447
+      ],
+      "hole_seed": [
+        319,
+        159
+      ],
+      "trim_bbox": [
+        27,
+        34,
+        367,
+        436
+      ],
+      "handle_hole_pixels": 0
+    },
+    "rest": {
+      "source": "sheets/b.png",
+      "crop": [
+        1070,
+        65,
+        1495,
+        447
+      ],
+      "hole_seed": [
+        351,
+        281
+      ],
+      "trim_bbox": [
+        33,
+        57,
+        401,
+        377
+      ],
+      "handle_hole_pixels": 995
+    },
+    "wait": {
+      "source": "sheets/b.png",
+      "crop": [
+        65,
+        500,
+        495,
+        932
+      ],
+      "hole_seed": [
+        360,
+        310
+      ],
+      "trim_bbox": [
+        23,
+        64,
+        412,
+        425
+      ],
+      "handle_hole_pixels": 1286
+    },
+    "silhouette": {
+      "source": "sheets/b.png",
+      "crop": [
+        625,
+        500,
+        915,
+        932
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        25,
+        35,
+        262,
+        425
+      ],
+      "handle_hole_pixels": 0
+    },
+    "avatar": {
+      "source": "sheets/b.png",
+      "crop": [
+        1060,
+        500,
+        1480,
+        932
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        38,
+        84,
+        384,
+        419
+      ],
+      "handle_hole_pixels": 0
+    },
+    "figure": {
+      "source": "sheets/b.png",
+      "crop": [
+        95,
+        35,
+        369,
+        445
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        6,
+        6,
+        269,
+        405
+      ],
+      "handle_hole_pixels": 0
+    },
+    "head": {
+      "source": "sheets/b.png",
+      "crop": [
+        176,
+        38,
+        320,
+        166
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        0,
+        3,
+        144,
+        128
+      ],
+      "handle_hole_pixels": 0
+    }
+  },
+  "l": {
+    "hello": {
+      "source": "sheets/l.png",
+      "crop": [
+        60,
+        5,
+        495,
+        447
+      ],
+      "hole_seed": [
+        358,
+        345
+      ],
+      "trim_bbox": [
+        31,
+        21,
+        405,
+        440
+      ],
+      "handle_hole_pixels": 966
+    },
+    "swing": {
+      "source": "sheets/l.png",
+      "crop": [
+        600,
+        5,
+        1000,
+        447
+      ],
+      "hole_seed": [
+        319,
+        159
+      ],
+      "trim_bbox": [
+        26,
+        18,
+        368,
+        437
+      ],
+      "handle_hole_pixels": 0
+    },
+    "rest": {
+      "source": "sheets/l.png",
+      "crop": [
+        1070,
+        65,
+        1495,
+        447
+      ],
+      "hole_seed": [
+        351,
+        281
+      ],
+      "trim_bbox": [
+        32,
+        23,
+        401,
+        377
+      ],
+      "handle_hole_pixels": 997
+    },
+    "wait": {
+      "source": "sheets/l.png",
+      "crop": [
+        65,
+        500,
+        495,
+        932
+      ],
+      "hole_seed": [
+        360,
+        310
+      ],
+      "trim_bbox": [
+        23,
+        44,
+        411,
+        424
+      ],
+      "handle_hole_pixels": 1322
+    },
+    "silhouette": {
+      "source": "sheets/l.png",
+      "crop": [
+        625,
+        500,
+        915,
+        932
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        30,
+        17,
+        251,
+        424
+      ],
+      "handle_hole_pixels": 0
+    },
+    "avatar": {
+      "source": "sheets/l.png",
+      "crop": [
+        1060,
+        500,
+        1480,
+        932
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        12,
+        43,
+        397,
+        409
+      ],
+      "handle_hole_pixels": 0
+    },
+    "figure": {
+      "source": "sheets/l.png",
+      "crop": [
+        80,
+        5,
+        369,
+        445
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        11,
+        21,
+        286,
+        436
+      ],
+      "handle_hole_pixels": 0
+    },
+    "head": {
+      "source": "sheets/l.png",
+      "crop": [
+        169,
+        5,
+        329,
+        170
+      ],
+      "hole_seed": null,
+      "trim_bbox": [
+        0,
+        21,
+        147,
+        165
+      ],
+      "handle_hole_pixels": 0
+    }
+  }
+}

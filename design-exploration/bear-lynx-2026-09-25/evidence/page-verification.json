@@ -1,0 +1,14 @@
+{
+  "checks": [
+    {
+      "pose_cards": 8,
+      "screen_replacements": 4,
+      "native_size_pngs": 40,
+      "images_decoded": 62
+    },
+    "All four images switch to originals and back",
+    "No horizontal overflow at 375",
+    "No horizontal overflow at 320"
+  ],
+  "errors": []
+}

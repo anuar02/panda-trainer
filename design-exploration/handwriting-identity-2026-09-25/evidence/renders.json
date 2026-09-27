@@ -1,0 +1,1125 @@
+{
+  "browser": "153.0.8010.12",
+  "deviceScaleFactor": 1,
+  "renders": [
+    {
+      "file": "screens/ballpoint-today.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "079f95a20328b93529cc5e884290461a9908c2bf02fa7c0dbe4f7d66b52043c3",
+      "sources": [
+        "screens/base/today.png",
+        "marks/ballpoint/note-spine.svg",
+        "marks/ballpoint/underline-today.svg"
+      ],
+      "source_sha256": {
+        "screens/base/today.png": "e37ea6f9bbbe091e8724b83d4627e8216af9bd60d598d44a8a924f0d37daf247",
+        "marks/ballpoint/note-spine.svg": "29184556e34db9fa984abb3e549f8bf1b29ff443c7b64865bd21a14f9fbc4fa3",
+        "marks/ballpoint/underline-today.svg": "24954c6eb1649c7c8bf5c51c704d4465c551d58b3651e697c59ffaf1be85f865"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/ballpoint/note-spine.svg",
+          "x": 217,
+          "y": 217,
+          "width": 121,
+          "height": 24
+        },
+        {
+          "asset": "marks/ballpoint/underline-today.svg",
+          "x": 116,
+          "y": 263,
+          "width": 59,
+          "height": 9
+        }
+      ]
+    },
+    {
+      "file": "screens/ballpoint-journal.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "37ddd606184d467e4dad9d7462a0e254f4711c0dddfecb18ad99fff45d74907a",
+      "sources": [
+        "screens/base/journal.png",
+        "marks/ballpoint/circle.svg"
+      ],
+      "source_sha256": {
+        "screens/base/journal.png": "1bd3fa564da74c115a28433e3e485af5974760c0e27d4df6e95c8a9eea46fd0c",
+        "marks/ballpoint/circle.svg": "5c7760cdd9e92b2c968d0f9a433534813266dc1509907b9b4d41a57a1c55fd21"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/ballpoint/circle.svg",
+          "x": 56,
+          "y": 387,
+          "width": 68,
+          "height": 42
+        }
+      ]
+    },
+    {
+      "file": "screens/ballpoint-client-progress.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "a199bbb8b10631b27cd3ccecc9fc4ea1e58e4b3f9ed0288efd125524f29128eb",
+      "sources": [
+        "screens/base/client-progress.png",
+        "marks/ballpoint/note-next.svg",
+        "marks/ballpoint/underline-client-progress.svg"
+      ],
+      "source_sha256": {
+        "screens/base/client-progress.png": "3b67137121b6a74366ed509c5dac513a3358176314468d3d983d6c3a3ffeed25",
+        "marks/ballpoint/note-next.svg": "a02f44bc8d76e34c3811361c595b8c04baaa26d5b253ebccedda8c78fa7f2637",
+        "marks/ballpoint/underline-client-progress.svg": "258b9f6ca72dbccf74fb5d44230ad75d30c1b1820ea273c92fc5a16707d14596"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/ballpoint/note-next.svg",
+          "x": 139,
+          "y": 533,
+          "width": 204,
+          "height": 24
+        },
+        {
+          "asset": "marks/ballpoint/underline-client-progress.svg",
+          "x": 33,
+          "y": 559,
+          "width": 79,
+          "height": 9
+        }
+      ]
+    },
+    {
+      "file": "screens/nib-today.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "5d4ff9cf99f3e92f5324b7105fa1b1b547de7e2ec9e3772a9eee014e16435ec5",
+      "sources": [
+        "screens/base/today.png",
+        "marks/nib/note-spine.svg",
+        "marks/nib/underline-today.svg"
+      ],
+      "source_sha256": {
+        "screens/base/today.png": "e37ea6f9bbbe091e8724b83d4627e8216af9bd60d598d44a8a924f0d37daf247",
+        "marks/nib/note-spine.svg": "7b4a4c2ab9d06d499cc7e4311d64c61353ec68e568e15100a4c4503c48110f29",
+        "marks/nib/underline-today.svg": "93015b077f16c623bf9f274a59dd320f89fe5481e958ea5943011bbcfeaef1c0"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/nib/note-spine.svg",
+          "x": 217,
+          "y": 217,
+          "width": 121,
+          "height": 24
+        },
+        {
+          "asset": "marks/nib/underline-today.svg",
+          "x": 116,
+          "y": 263,
+          "width": 59,
+          "height": 9
+        }
+      ]
+    },
+    {
+      "file": "screens/nib-journal.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "4e560dd3276bac81c8effba85a407b0b3d45014eaf94e09bed699dfa4f761cd8",
+      "sources": [
+        "screens/base/journal.png",
+        "marks/nib/circle.svg"
+      ],
+      "source_sha256": {
+        "screens/base/journal.png": "1bd3fa564da74c115a28433e3e485af5974760c0e27d4df6e95c8a9eea46fd0c",
+        "marks/nib/circle.svg": "c2ac8772f7fb20f50ead966a09f3cb78c2a70eee0a82b4a50021675d75affc78"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/nib/circle.svg",
+          "x": 56,
+          "y": 387,
+          "width": 68,
+          "height": 42
+        }
+      ]
+    },
+    {
+      "file": "screens/nib-client-progress.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "72ec8a22df8366499cc4449ce6d1251b9ba59e09ba1421ab828b2439376948b6",
+      "sources": [
+        "screens/base/client-progress.png",
+        "marks/nib/note-next.svg",
+        "marks/nib/underline-client-progress.svg"
+      ],
+      "source_sha256": {
+        "screens/base/client-progress.png": "3b67137121b6a74366ed509c5dac513a3358176314468d3d983d6c3a3ffeed25",
+        "marks/nib/note-next.svg": "e5f33c39349f33b7bb5bc9f1dc40aa5206d70ed2f0f0679a7a89b3ff705c4b65",
+        "marks/nib/underline-client-progress.svg": "3498119010f26e45f6e0bf88aca5177818d2bf1302f859b7f88ec52f988173b2"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/nib/note-next.svg",
+          "x": 139,
+          "y": 533,
+          "width": 204,
+          "height": 24
+        },
+        {
+          "asset": "marks/nib/underline-client-progress.svg",
+          "x": 33,
+          "y": 559,
+          "width": 79,
+          "height": 9
+        }
+      ]
+    },
+    {
+      "file": "screens/marker-today.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "4ea5fe281fbcdcf20cc25794d92471803ac58247becb60bef5d5e07cdd37a3c7",
+      "sources": [
+        "screens/base/today.png",
+        "marks/marker/note-spine.svg",
+        "marks/marker/underline-today.svg"
+      ],
+      "source_sha256": {
+        "screens/base/today.png": "e37ea6f9bbbe091e8724b83d4627e8216af9bd60d598d44a8a924f0d37daf247",
+        "marks/marker/note-spine.svg": "f30d737bb66ca48b2810957a3a6c735ed39e796de6701d87bf8e9cac76f9edf6",
+        "marks/marker/underline-today.svg": "b3f367bda6d358f85065d37759b5d09068f902bd944c019f1c8b8b4ab7efc6fb"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/marker/note-spine.svg",
+          "x": 217,
+          "y": 217,
+          "width": 121,
+          "height": 24
+        },
+        {
+          "asset": "marks/marker/underline-today.svg",
+          "x": 116,
+          "y": 263,
+          "width": 59,
+          "height": 9
+        }
+      ]
+    },
+    {
+      "file": "screens/marker-journal.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "82f4379543214454fbc17f44fe20f3ca51aabe01c7c2028bd5ed83995fafdc3d",
+      "sources": [
+        "screens/base/journal.png",
+        "marks/marker/circle.svg"
+      ],
+      "source_sha256": {
+        "screens/base/journal.png": "1bd3fa564da74c115a28433e3e485af5974760c0e27d4df6e95c8a9eea46fd0c",
+        "marks/marker/circle.svg": "ffc027f8da99847f449a78c313f82139281e0b601cd82220da5711419acce9b9"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/marker/circle.svg",
+          "x": 56,
+          "y": 387,
+          "width": 68,
+          "height": 42
+        }
+      ]
+    },
+    {
+      "file": "screens/marker-client-progress.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "a2039c085015c4919db78672cf3a348e13cfc9cff22a29b87718d214cbf6dcaa",
+      "sources": [
+        "screens/base/client-progress.png",
+        "marks/marker/note-next.svg",
+        "marks/marker/underline-client-progress.svg"
+      ],
+      "source_sha256": {
+        "screens/base/client-progress.png": "3b67137121b6a74366ed509c5dac513a3358176314468d3d983d6c3a3ffeed25",
+        "marks/marker/note-next.svg": "313a0ba0a1725cc96a2d12f7b461d3ed987c7eb63c64bd85fb13b1e206c94e0f",
+        "marks/marker/underline-client-progress.svg": "cf48129a727d75f866451fed411cc566fe4af79e387621e8bae68be01f068ca9"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "marks/marker/note-next.svg",
+          "x": 139,
+          "y": 533,
+          "width": 204,
+          "height": 24
+        },
+        {
+          "asset": "marks/marker/underline-client-progress.svg",
+          "x": 33,
+          "y": 559,
+          "width": 79,
+          "height": 9
+        }
+      ]
+    },
+    {
+      "file": "screens/c2-package.png",
+      "width": 375,
+      "height": 844,
+      "sha256": "d9481f79e9d4dcbb3d7a09f69fb140ffa59a211c86d5728f83905014b5ec79d4",
+      "sources": [
+        "screens/base/client-package.png",
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "screens/base/client-package.png": "2034b1ad60ce72967fe61b5ccaa4ea904c5b315099d352c85f39fbe266865a0f",
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "screen-overlay",
+      "overlays": [
+        {
+          "asset": "logos/c2-hand.svg",
+          "x": 115,
+          "y": 475,
+          "width": 44,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "file": "sizes/b1-hand-paper-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "88b4f3c6562921bdf2f7f3329c8683bc16d19042e91b94fdf6d2444f275dbe00",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-paper-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "dd9ce8b6ae9506d3b684a53088d7a292e631bcdcb902537435b3aec0b0cd253d",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-paper-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "ed51629e6057b078b96d0bb4b810864a6dd0d46df262734b72f50477c32cef19",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-paper-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "6cf01109a3e1405c88870cd4a1c70b75c3588c68a6d07f6781aeeb33cc1b36f7",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-white-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "c6cd610bf6666154173c109cc29b83c2619a93b8821321ecdc0f751a898acd1e",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-white-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "dc9c765f7ff8c62ccc1677e36b7f81779328cad0a2b2b59886a266b45a4899f2",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-white-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "8bb51df9966a8dbf5d85275dffd395355cf700ca37baeaa801f39029cde3bc4c",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-white-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "5fbdda634d7eb05f6174ae8a38a42ffde4dce7e1b9b5506fd562752cc875f11e",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b1-hand-app-light.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "dbaf1c2ec96185f2333757831d356862438bced134adf2c315cf9521cbea75b0",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/b1-hand-grid-light.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "301974ac18c9469cc80ca52dc67b66bd2e6dec99cceea9893b371bdcbfa3dc9f",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/b1-hand-app-dark.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "8c3833a7aa5de1cb92861de7ef96906e2926aa40346201fc80a0ca15fec64112",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/b1-hand-grid-dark.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "982d6732cad87ffffab5c02004bcff647a4b4295af9792e32c0930bec37a25fa",
+      "sources": [
+        "logos/b1-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/b1-hand.svg": "74689c851c0ce29713cca0539a867236939f194ad9970194db82f9ed04ea3a76"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/b2-dual-paper-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "e3090b4add99638a252b486eb6c131d43d0037f0c17da29f2009cde534aff550",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-paper-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "ba8c1771405421f44e3efab49a20b74395e309fb840d2c08fdc7ddf8b96ea38e",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-paper-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "5afa9e7d913805431017691e90bbfb62e19a45e1c1f85a4e7c21e91a48bce8ed",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-paper-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "fbdee9ad05c90c9ace694800b988eac58a6c361750c46d563b479620d74abeab",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-white-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "ceb15578e4074456e870a54d27f83912791a6bdc88331787f0dbed6cc895272f",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-white-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "c2b611daca65b52bc9f1f01232dc35160b1c7ca035442eaa141621b50989aaf5",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-white-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "4fa5f6dfcfcb843e889046130cfff472dfe3a684e4952c46c9f1caa4a09917c6",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-white-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "e6794400f9bc3ac17b06edf4437e4a4cc56a624ebc289795c1419d58248fad77",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b2-dual-app-light.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "3e1a216ff44d5854950c85d9ea4e29e9adb411d0922afc022aca1430dad8d044",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/b2-dual-grid-light.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "abee9b4ea39b65364973da86e8a747fa99044ae89a41728870fc6f551c6e3f20",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/b2-dual-app-dark.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "d1bd519c424514f80a2482f6dd106e79c6e35dd2109c1581bf216880d4819d7a",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/b2-dual-grid-dark.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "869b81cda9b86119db2a217268c5af5cf820853b8dea7ad683cf274a680ad4af",
+      "sources": [
+        "logos/b2-dual.svg"
+      ],
+      "source_sha256": {
+        "logos/b2-dual.svg": "ecfd6e35d105f8ee31eb18f1acd7e753e5ca62eeae3ee631f3dd79611625c282"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/b3-type-paper-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "52781b7818f0f784c1d9c546ef960a25664eab85179c496f52f71f09e69a0527",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-paper-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "4fb231c0b6d3053fc3eaa0bad6eb60257a52a1fb64cf7535cfe6d8677e0a4be9",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-paper-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "48dbdc3b87de2ade783d6d6c9785323aedd86e6b9d5ef12deb46f05569386b21",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-paper-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "c359c4ce8d2be13194fe5d318d3aed2022d7c9a63734297e66d2392120682938",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-white-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "bc54999e6d0bdcacb3a12dea460dceaa32ca2ff2272a40472c89c35f4e19c901",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-white-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "57017ac4975086ea51f985f2ab4b73cae33a6c40167e9551f29da448d9eba518",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-white-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "3227fee9c69e510a844f81bc4f7d9690a5d532762ce95252e4f4fae24de88a33",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-white-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "673b098ef920a4461a29e67910b7fd6c9c23aeb5a93c3efdf2cb7ee65f3767f6",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/b3-type-app-light.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "2ad0f78f01b0abf6dc0afd8c314e25bb0afaa66971cdbfa273eceae11aabc727",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/b3-type-grid-light.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "bcacf560fbe547264120781e24bc0e695e182283e63675168e85dc26d43f47d2",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/b3-type-app-dark.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "8d04fc67957a69a071352541776288f47704f60e084aaf4e148b186e3dbc25e2",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/b3-type-grid-dark.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "7d81280ccf154530db3aa5334a04bf8a3ae9c5aefdbd60d3e0709475ea9053b7",
+      "sources": [
+        "logos/b3-type.svg"
+      ],
+      "source_sha256": {
+        "logos/b3-type.svg": "2848bc2afa55cab72751561e628446e4ec5f0e3b0a5723003c67459a485b8a2a"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/c1-strict-paper-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "ccabad2c009dae8f95f34f3cc7770b566160c38fd56d7e8c2feb8d9a1c77d786",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-paper-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "12ceaccdd23a5daefdbf22bba74da3c47c8b2d69ccd8c9ab7b6ee91185f67e15",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-paper-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "9d9229fe46ca5333e07cdfc907febc1af30f3e2352f59267e41fc773b87dca15",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-paper-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "bfddfd827447dd4d5af757c25270264f903a66d961fb15a9c60592b1ea938f35",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-white-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "f973ab78618fe8478cdd2516605c21abae2e0a696d0e5226c98876c6192d7244",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-white-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "799c9f431a32bec4a9d99c7b185ceeb167a047111839b0e885d5d349e394e7ae",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-white-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "dca34eec8deb5779375ea3e9b3175d5c29c3da0e593d70c0526bec3f073ccd0f",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-white-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "99c274abedd52ace126227634e93d5b0ce2bd547af9009a67884764f5117bf25",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c1-strict-app-light.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "5ca903dbdfb465cb2512eeefebe7bf792d86cdc958dea96c83f259333d19f1b7",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/c1-strict-grid-light.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "e722d812a113e12c8421051bc580022d35d7e34006f59e900608cd304aa6c627",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/c1-strict-app-dark.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "83c126633e70e91ae986c19c0b0ff625e7fe44c79f709e12602c67f878e4b3e1",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/c1-strict-grid-dark.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "9bc33df149a87ed5e6b6ef0676505842593d54c245a9e70d60068b9cca48518b",
+      "sources": [
+        "logos/c1-strict.svg"
+      ],
+      "source_sha256": {
+        "logos/c1-strict.svg": "250f9a203450765b1f237a18e65b304d40ae72239c229a24b0921f81353221a5"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/c2-hand-paper-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "5a779fc8bbcfda9cb5371f2339587a9cb780c1deb835e01b087f5579dfa17785",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-paper-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "04cc7f1ff24d5e830697b32c63102c02c0888cad97acda23d3358ec9b0f75353",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-paper-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "eedc2f4558dd793f9b7de82f4602c84228af7b3ec88e64e36e3b7d253aa30cfc",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-paper-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "c775ebb9fd360d7d940b6e74d4fd21e265359854c2a01cb8b8c1f404abaa9790",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-white-16.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "8eea116a40edbff640229bbf84ad8fd1648520fabcff83169cc24223a502811b",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-white-24.png",
+      "width": 24,
+      "height": 24,
+      "sha256": "44835b955333a49d509c14ca4832a9dc2556acc9e37605659e1f12e454db5761",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-white-48.png",
+      "width": 48,
+      "height": 48,
+      "sha256": "d1d094b354d3029e10143641741b8809e701d8e0ea0dd8d3bdb987888f0b3e62",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-white-96.png",
+      "width": 96,
+      "height": 96,
+      "sha256": "36c2ae529f1727cd7d782c5eb901346b948bec61c49679d62a8e080c8d828dfa",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "native-size"
+    },
+    {
+      "file": "sizes/c2-hand-app-light.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "5145fbcc07a9ba451dd7b2782ba1782dae2f30735d8ce34d7f474398a25d19a2",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/c2-hand-grid-light.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "5a93cbe886080b5fd0676d7707978f56280feded7650bff06d9e9bdedc547295",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/c2-hand-app-dark.png",
+      "width": 60,
+      "height": 60,
+      "sha256": "df3db31a0e4b5c48f3080efd10b8f5a102ac63c296312202e41db583de57e358",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "app-icon"
+    },
+    {
+      "file": "sizes/c2-hand-grid-dark.png",
+      "width": 260,
+      "height": 172,
+      "sha256": "5d67c6e35654676ab2b6ea62f243eb67154f39440081c5ff5ba61afeef988764",
+      "sources": [
+        "logos/c2-hand.svg"
+      ],
+      "source_sha256": {
+        "logos/c2-hand.svg": "554ecd7647a82d2d3c0fa5d71b69708d517c1a4a662c1977b29a599423a464df"
+      },
+      "kind": "app-grid"
+    },
+    {
+      "file": "sizes/ballpoint-symbols.png",
+      "width": 192,
+      "height": 120,
+      "sha256": "75db74bf79f591855794096d8b6962779fc86e6b2a46d1b2162742ae49e0c5d4",
+      "sources": [
+        "marks/ballpoint/check.svg",
+        "marks/ballpoint/asterisk.svg"
+      ],
+      "source_sha256": {
+        "marks/ballpoint/check.svg": "07860bd5544b145623ef6e350664ab8b1c7856b6c930d973bd2bce10e1cbf6a8",
+        "marks/ballpoint/asterisk.svg": "f6b6d5c55f9c75a18d1d01729ce016c03adb945b3ae721678056e6a9d67e563e"
+      },
+      "kind": "mark-proof"
+    },
+    {
+      "file": "sizes/nib-symbols.png",
+      "width": 192,
+      "height": 120,
+      "sha256": "4b2a1cfdf9c59803575759778cfa8ab6f9ce32922f4a3ad767c59dbc1030e028",
+      "sources": [
+        "marks/nib/check.svg",
+        "marks/nib/asterisk.svg"
+      ],
+      "source_sha256": {
+        "marks/nib/check.svg": "4ddf0f4b81718d36016442c260ea56877096484fa36924cfa6591cb2c3a35e4a",
+        "marks/nib/asterisk.svg": "2d1bf1cf790dc650eec308c33e6a332e751ef490717d7ba8a8318f031c515928"
+      },
+      "kind": "mark-proof"
+    },
+    {
+      "file": "sizes/marker-symbols.png",
+      "width": 192,
+      "height": 120,
+      "sha256": "5cfa03611e44e6631d3a64ad23a1334d2221e170598bdc81b0603385d01e52a7",
+      "sources": [
+        "marks/marker/check.svg",
+        "marks/marker/asterisk.svg"
+      ],
+      "source_sha256": {
+        "marks/marker/check.svg": "f7635c15ca92260373fc05e28baf7b1201bedb2d4cda20676cff2daf40b6abf6",
+        "marks/marker/asterisk.svg": "6687a7e5af4ae3635e4c04c43e81b8f6dae96be9f95bcc80de87cc5dab198332"
+      },
+      "kind": "mark-proof"
+    }
+  ]
+}

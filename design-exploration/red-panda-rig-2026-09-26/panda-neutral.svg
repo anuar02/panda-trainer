@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="650" viewBox="-65 20 490 485"><style>[data-face]{display:none}[data-face="smile"]{display:inline}</style>
+  <defs>
+    <clipPath id="headpreview"><path d="M200 88C256 88 288 119 299 157L319 202 310 207 316 216C295 249 250 265 200 265S105 249 84 216L90 207 81 202 101 157C112 119 144 88 200 88Z"/></clipPath>
+  </defs>
+  <g data-part="root">
+    <g data-part="tail" fill="none">
+      <mask id="tailClippreview" maskUnits="userSpaceOnUse" x="-100" y="50" width="500" height="450"><path data-part="tailClip" d="M154.0 373.0C144.2,371.3 112.6,372.5 94.9,362.6C77.2,352.7 56.3,330.5 47.7,313.7C39.0,296.9 43.9,270.5 43.1,261.9" fill="none" stroke="#fff" stroke-width="110" stroke-linecap="round"/></mask>
+      <path data-part="tailFur" d="M154.0 373.0C144.2,371.3 112.6,372.5 94.9,362.6C77.2,352.7 56.3,330.5 47.7,313.7C39.0,296.9 43.9,270.5 43.1,261.9" stroke="#cb4c23" stroke-width="110" stroke-linecap="round"/>
+      <path data-part="tailBands" d="M154.0 373.0C144.2,371.3 112.6,372.5 94.9,362.6C77.2,352.7 56.3,330.5 47.7,313.7C39.0,296.9 43.9,270.5 43.1,261.9" mask="url(#tailClippreview)" stroke="#a43b1e" stroke-width="112" stroke-dasharray="0 15 32 24 32 24 32 200"/>
+    </g>
+    <g data-part="legs">
+      <path d="M118 379H193L181 451Q176 473 146 472Q120 471 120 449Z" fill="#572b1b"/>
+      <path d="M207 379H282L280 449Q280 471 254 472Q224 473 219 451Z" fill="#572b1b"/>
+      <ellipse cx="146" cy="462" rx="30" ry="14" fill="#845131"/>
+      <ellipse cx="254" cy="462" rx="30" ry="14" fill="#845131"/>
+      <path d="M135 470v-9M147 473v-10M253 473v-10M265 470v-9" stroke="#572b1b" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <g data-part="torso">
+      <path d="M153 234Q200 219 247 234C275 264 288 336 282 391Q282 430 239 433L218 423Q200 410 182 423L161 433Q118 430 118 391C112 336 125 264 153 234Z" fill="#572b1b"/>
+      <path d="M154 246Q200 230 246 246C249 293 225 325 200 331C175 325 151 293 154 246Z" fill="#b74322"/>
+    </g>
+    <g data-part="upper">
+      <g data-part="head">
+        <g data-part="earL">
+      <path d="M104 159C89 127 85 82 102 68Q139 69 167 110L147 152Z" fill="#fce9d3"/>
+      <path d="M116 142Q103 113 108 88Q133 95 150 119Z" fill="#572b1b"/></g><g data-part="earR" transform="matrix(-1 0 0 1 400 0)">
+      <path d="M104 159C89 127 85 82 102 68Q139 69 167 110L147 152Z" fill="#fce9d3"/>
+      <path d="M116 142Q103 113 108 88Q133 95 150 119Z" fill="#572b1b"/></g>
+        <path d="M200 88C256 88 288 119 299 157L319 202 310 207 316 216C295 249 250 265 200 265S105 249 84 216L90 207 81 202 101 157C112 119 144 88 200 88Z" fill="#b74322"/>
+        <g clip-path="url(#headpreview)">
+          <path d="M146 176C113 163 92 189 101 216Q111 241 150 248C129 233 123 213 138 198Q145 192 151 191Z" fill="#fce9d3"/>
+          <path d="M254 176C287 163 308 189 299 216Q289 241 250 248C271 233 277 213 262 198Q255 192 249 191Z" fill="#fce9d3"/>
+          <path data-part="band" d="M80 134Q200 80 320 134" stroke="#492718" stroke-width="23" fill="none"/>
+        </g>
+        <ellipse cx="200" cy="223" rx="46" ry="31" fill="#fce9d3"/>
+        <ellipse data-part="browL" cx="160" cy="139" rx="15" ry="8" fill="#fce9d3" transform="rotate(-12 160 139)"/>
+        <ellipse data-part="browR" cx="240" cy="139" rx="15" ry="8" fill="#fce9d3" transform="rotate(12 240 139)"/>
+        
+    <clipPath id="eyeLpreview"><ellipse cx="164" cy="176" rx="20" ry="23"/></clipPath>
+    <g data-part="eyeL">
+      <g clip-path="url(#eyeLpreview)">
+        <ellipse data-part="whiteL" cx="164" cy="176" rx="20" ry="23" fill="#fffdf7"/>
+        <g data-part="ballL">
+          <ellipse cx="160" cy="179" rx="13.8" ry="18" fill="#171510"/>
+          <circle cx="156" cy="169" r="3.8" fill="#fff"/>
+        </g>
+        <g data-part="lidL">
+          <rect x="140" y="107" width="48" height="47" fill="#b74322"/>
+          <path d="M144 154Q164 151 184 154" stroke="#171510" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </g>
+      </g>
+      <path data-face="happy" d="M149 182Q164 162 179 182" stroke="#171510" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+    <clipPath id="eyeRpreview"><ellipse cx="236" cy="176" rx="20" ry="23"/></clipPath>
+    <g data-part="eyeR">
+      <g clip-path="url(#eyeRpreview)">
+        <ellipse data-part="whiteR" cx="236" cy="176" rx="20" ry="23" fill="#fffdf7"/>
+        <g data-part="ballR">
+          <ellipse cx="232" cy="179" rx="13.8" ry="18" fill="#171510"/>
+          <circle cx="228" cy="169" r="3.8" fill="#fff"/>
+        </g>
+        <g data-part="lidR">
+          <rect x="212" y="107" width="48" height="47" fill="#b74322"/>
+          <path d="M216 154Q236 151 256 154" stroke="#171510" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </g>
+      </g>
+      <path data-face="happy" d="M221 182Q236 162 251 182" stroke="#171510" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </g>
+        <path d="M187 205Q200 199 213 205Q209 215 200 217Q191 215 187 205Z" fill="#171510"/>
+        <g stroke="#171510" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path data-face="smile" d="M200 217V224M181 221Q190 232 200 224Q210 232 219 221"/>
+          <g data-face="laugh">
+            <path d="M200 217V222" />
+            <path d="M180 222Q200 256 220 222Q200 230 180 222Z" fill="#4a1a12"/>
+            <path d="M189 238Q200 248 211 238Q200 234 189 238Z" fill="#e8746b" stroke="none"/>
+          </g>
+          <ellipse data-face="oh" cx="200" cy="231" rx="5" ry="6.5" fill="#4a1a12"/>
+          <path data-face="frown" d="M200 217V223M187 234Q200 225 213 234"/>
+        </g>
+      </g>
+      
+    <g data-part="armL">
+      <path d="M146 275L105 323" stroke="#572b1b" stroke-width="43" stroke-linecap="round"/>
+      <g data-part="foreL">
+        <path d="M105 323L130 350" stroke="#572b1b" stroke-width="39" stroke-linecap="round"/>
+        <path d="M105 323L121 340" stroke="#ff7a1f" stroke-width="42"/>
+        <ellipse cx="130" cy="350" rx="23" ry="24" fill="#845131"/>
+      </g>
+    </g>
+      
+    <g data-part="armR">
+      <path d="M254 275L295 323" stroke="#572b1b" stroke-width="43" stroke-linecap="round"/>
+      <g data-part="foreR">
+        <path d="M295 323L270 350" stroke="#572b1b" stroke-width="39" stroke-linecap="round"/>
+        
+        <ellipse cx="270" cy="350" rx="23" ry="24" fill="#845131"/>
+      </g>
+    </g>
+    </g>
+  </g></svg>

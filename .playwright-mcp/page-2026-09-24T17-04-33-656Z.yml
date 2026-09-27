@@ -1,0 +1,112 @@
+- main [ref=f1e3]:
+  - group "Роль" [ref=f1e1256]:
+    - button "Тренер" [pressed] [ref=f1e1257] [cursor=pointer]
+    - button "Клиент" [ref=f1e1262] [cursor=pointer]
+  - generic [ref=f1e17]:
+    - generic [ref=f1e1266]:
+      - generic [ref=f1e1267]:
+        - button "Свернуть тренировку" [ref=f1e1269] [cursor=pointer]:
+          - generic [ref=f1e1272]: Свернуть
+        - generic [ref=f1e1273]: Журнал тренировки
+        - button "Ещё" [ref=f1e1275] [cursor=pointer]
+      - generic [ref=f1e1280]:
+        - generic [ref=f1e1281]:
+          - heading "Дана Ержанова" [level=1] [ref=f1e1282]
+          - generic [ref=f1e1283]: пн, 14 сен · 09:00–10:00
+        - generic [ref=f1e1286]:
+          - generic [ref=f1e1287]: Full Body
+          - generic [ref=f1e1288]: 2/12
+        - generic [ref=f1e1292]:
+          - generic [ref=f1e1293]:
+            - generic [ref=f1e1294]:
+              - generic [ref=f1e1295]: Приседания со штангой
+              - generic [ref=f1e1296]: цель 3 × 10 · 50 кг
+            - 'button "Изменить подход 1: Приседания со штангой" [ref=f1e1297] [cursor=pointer]':
+              - generic [ref=f1e1298]: "1"
+              - generic [ref=f1e1299]:
+                - generic [ref=f1e1300]: 50 кг × 10
+                - generic [ref=f1e1301]: прошлый раз 50 кг × 10
+            - 'button "Продолжить подход 2: Приседания со штангой" [active] [ref=f1e1305] [cursor=pointer]':
+              - generic [ref=f1e1306]: "2"
+              - generic [ref=f1e1307]:
+                - generic [ref=f1e1308]: 50 кг × 10
+                - generic [ref=f1e1309]: прошлый раз
+                - generic [ref=f1e1310]: Черновик
+            - 'button "Изменить подход 3: Приседания со штангой" [ref=f1e1314] [cursor=pointer]':
+              - generic [ref=f1e1315]: "3"
+              - generic [ref=f1e1316]:
+                - generic [ref=f1e1317]: 50 кг × 10
+                - generic [ref=f1e1318]: прошлый раз 50 кг × 10
+          - generic [ref=f1e1323]:
+            - generic [ref=f1e1324]:
+              - generic [ref=f1e1325]: Отжимания
+              - generic [ref=f1e1326]: цель 3 × 12
+            - generic [ref=f1e1327]:
+              - generic [ref=f1e1328]: "1"
+              - 'button "Записать как в прошлый раз: 12 повт, подход 1: Отжимания" [ref=f1e1329] [cursor=pointer]':
+                - generic [ref=f1e1330]: Как в прошлый раз
+                - generic [ref=f1e1331]: Записать 12 повт
+              - 'button "Записать подход 1: Отжимания" [ref=f1e1335] [cursor=pointer]'
+            - generic [ref=f1e1338]:
+              - generic [ref=f1e1339]: "2"
+              - 'button "Записать как в прошлый раз: 12 повт, подход 2: Отжимания" [ref=f1e1340] [cursor=pointer]':
+                - generic [ref=f1e1341]: Как в прошлый раз
+                - generic [ref=f1e1342]: Записать 12 повт
+              - 'button "Записать подход 2: Отжимания" [ref=f1e1346] [cursor=pointer]'
+            - generic [ref=f1e1349]:
+              - generic [ref=f1e1350]: "3"
+              - 'button "Записать как в прошлый раз: 12 повт, подход 3: Отжимания" [ref=f1e1351] [cursor=pointer]':
+                - generic [ref=f1e1352]: Как в прошлый раз
+                - generic [ref=f1e1353]: Записать 12 повт
+              - 'button "Записать подход 3: Отжимания" [ref=f1e1357] [cursor=pointer]'
+          - generic [ref=f1e1361]:
+            - generic [ref=f1e1362]:
+              - generic [ref=f1e1363]: Тяга в наклоне
+              - generic [ref=f1e1364]: цель 3 × 12 · 30 кг
+            - generic [ref=f1e1365]:
+              - generic [ref=f1e1366]: "1"
+              - 'button "Записать как в прошлый раз: 30 кг × 12, подход 1: Тяга в наклоне" [ref=f1e1367] [cursor=pointer]':
+                - generic [ref=f1e1368]: Как в прошлый раз
+                - generic [ref=f1e1369]: Записать 30 кг × 12
+              - 'button "Записать подход 1: Тяга в наклоне" [ref=f1e1373] [cursor=pointer]'
+            - generic [ref=f1e1376]:
+              - generic [ref=f1e1377]: "2"
+              - 'button "Записать как в прошлый раз: 30 кг × 12, подход 2: Тяга в наклоне" [ref=f1e1378] [cursor=pointer]':
+                - generic [ref=f1e1379]: Как в прошлый раз
+                - generic [ref=f1e1380]: Записать 30 кг × 12
+              - 'button "Записать подход 2: Тяга в наклоне" [ref=f1e1384] [cursor=pointer]'
+            - generic [ref=f1e1387]:
+              - generic [ref=f1e1388]: "3"
+              - 'button "Записать как в прошлый раз: 30 кг × 12, подход 3: Тяга в наклоне" [ref=f1e1389] [cursor=pointer]':
+                - generic [ref=f1e1390]: Как в прошлый раз
+                - generic [ref=f1e1391]: Записать 30 кг × 12
+              - 'button "Записать подход 3: Тяга в наклоне" [ref=f1e1395] [cursor=pointer]'
+          - generic [ref=f1e1399]:
+            - generic [ref=f1e1400]:
+              - generic [ref=f1e1401]: Планка
+              - generic [ref=f1e1402]: цель 3 × 40 сек
+            - generic [ref=f1e1403]:
+              - generic [ref=f1e1404]: "1"
+              - 'button "Записать как в прошлый раз: 40 сек, подход 1: Планка" [ref=f1e1405] [cursor=pointer]':
+                - generic [ref=f1e1406]: Как в прошлый раз
+                - generic [ref=f1e1407]: Записать 40 сек
+              - 'button "Записать подход 1: Планка" [ref=f1e1411] [cursor=pointer]'
+            - generic [ref=f1e1414]:
+              - generic [ref=f1e1415]: "2"
+              - 'button "Записать как в прошлый раз: 40 сек, подход 2: Планка" [ref=f1e1416] [cursor=pointer]':
+                - generic [ref=f1e1417]: Как в прошлый раз
+                - generic [ref=f1e1418]: Записать 40 сек
+              - 'button "Записать подход 2: Планка" [ref=f1e1422] [cursor=pointer]'
+            - generic [ref=f1e1425]:
+              - generic [ref=f1e1426]: "3"
+              - 'button "Записать как в прошлый раз: 40 сек, подход 3: Планка" [ref=f1e1427] [cursor=pointer]':
+                - generic [ref=f1e1428]: Как в прошлый раз
+                - generic [ref=f1e1429]: Записать 40 сек
+              - 'button "Записать подход 3: Планка" [ref=f1e1433] [cursor=pointer]'
+        - paragraph [ref=f1e1436]: Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере, без синхронизации.
+      - generic [ref=f1e1438]:
+        - status [ref=f1e1440]
+        - button "Завершить тренировку" [ref=f1e1441] [cursor=pointer]
+    - generic [aria-hidden]:
+      - dialog
+    - status

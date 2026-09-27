@@ -1,0 +1,13 @@
+{
+  "file": "design-exploration/red-panda-3d/assets/panda-20k.glb",
+  "sha256": "532222c0dbd49867ed1be3fb2ae8ad48e36472a7d2d8f50a381704f866307c2d",
+  "bytes": 24116788,
+  "face_count": 20660,
+  "face_count_source": "Sum of triangle index accessor counts / 3 in downloaded GLB",
+  "rig_limit": 300000,
+  "rig_limit_passed": true,
+  "textured": true,
+  "skins": [],
+  "animations": [],
+  "extensions": []
+}

@@ -1,0 +1,53 @@
+{
+  "model": "assets/panda-rigged.glb",
+  "animations": [
+    {
+      "id": "idle",
+      "label": "Рядом",
+      "file": "assets/clips/idle.json",
+      "title": "Привет, я рядом.",
+      "description": "Можно начать с маленького шага.",
+      "source": "assets/idle.glb"
+    },
+    {
+      "id": "wave",
+      "label": "Привет",
+      "file": "assets/clips/wave.json",
+      "title": "Рад тебя видеть!",
+      "description": "Ну что, позанимаемся?",
+      "source": "assets/wave.glb"
+    },
+    {
+      "id": "cheer",
+      "label": "Ура!",
+      "file": "assets/clips/cheer.json",
+      "title": "Вот это результат!",
+      "description": "Ещё одна тренировка в копилку.",
+      "source": "assets/cheer.glb"
+    },
+    {
+      "id": "jump",
+      "label": "Прыжок",
+      "file": "assets/clips/jump.json",
+      "title": "Получилось!",
+      "description": "Маленькая победа. Большая радость.",
+      "source": "assets/jump.glb"
+    },
+    {
+      "id": "walk",
+      "label": "Шагать",
+      "file": "assets/clips/walk.json",
+      "title": "В своём темпе.",
+      "description": "Двигаемся к следующей тренировке.",
+      "source": "assets/walking.glb"
+    },
+    {
+      "id": "run",
+      "label": "Бежать",
+      "file": "assets/clips/run.json",
+      "title": "Поймали ритм.",
+      "description": "Движение заряжает.",
+      "source": "assets/running.glb"
+    }
+  ]
+}

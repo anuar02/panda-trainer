@@ -1,0 +1,104 @@
+{
+  "g1": {
+    "hero": {
+      "sheet": "sheets/g1.png",
+      "crop": [
+        85,
+        210,
+        520,
+        735
+      ],
+      "handle_hole_pixels": 15981,
+      "trim_bbox": [
+        17,
+        20,
+        417,
+        508
+      ]
+    },
+    "waiting": {
+      "sheet": "sheets/g1.png",
+      "crop": [
+        930,
+        420,
+        1160,
+        690
+      ],
+      "handle_hole_pixels": 3861,
+      "trim_bbox": [
+        13,
+        11,
+        217,
+        260
+      ]
+    }
+  },
+  "g2": {
+    "hero": {
+      "sheet": "sheets/g2.png",
+      "crop": [
+        55,
+        180,
+        495,
+        735
+      ],
+      "handle_hole_pixels": 22123,
+      "trim_bbox": [
+        17,
+        19,
+        426,
+        542
+      ]
+    },
+    "waiting": {
+      "sheet": "sheets/g2.png",
+      "crop": [
+        900,
+        455,
+        1130,
+        725
+      ],
+      "handle_hole_pixels": 4632,
+      "trim_bbox": [
+        15,
+        14,
+        211,
+        254
+      ]
+    }
+  },
+  "g3": {
+    "hero": {
+      "sheet": "sheets/g3.png",
+      "crop": [
+        85,
+        265,
+        590,
+        765
+      ],
+      "handle_hole_pixels": 18923,
+      "trim_bbox": [
+        22,
+        21,
+        487,
+        484
+      ]
+    },
+    "waiting": {
+      "sheet": "sheets/g3.png",
+      "crop": [
+        965,
+        455,
+        1195,
+        680
+      ],
+      "handle_hole_pixels": 2648,
+      "trim_bbox": [
+        14,
+        18,
+        214,
+        212
+      ]
+    }
+  }
+}
