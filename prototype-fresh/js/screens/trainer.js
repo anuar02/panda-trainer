@@ -781,7 +781,7 @@ const Trainer = (() => {
         <div style="margin-top:12px">${Btn('Создать занятие', { kind: 'soft', a: 'tab', args: { id: 't-new' }, icon: 'plus' })}</div>
       </div>`;
     } else if (tab === 'program') {
-      const exs = DB.programFor(c.program);
+      const exs = DB.programForClient(c.id, c.program);
       content = `<div style="padding:0 16px">
         ${c.program ? `<div class="notice notice--info" style="margin-bottom:12px">${Icon.get('info', { size: 18 })}<div>Текущий шаблон: <b>${esc(c.program)}</b>. Изменение назначенной программы не переписывает прошлые занятия.</div></div>` : ''}
         ${exs.length ? Card(exs.map((e, i) => Row({
@@ -963,7 +963,7 @@ const Trainer = (() => {
           ${lg.completedElsewhere ? `<div class="log-recovery" role="status"><p>Журнал завершён в другой вкладке. Результаты открыты для просмотра. Прежние данные этой вкладки доступны в копии журнала. Скачайте её перед перезагрузкой.</p>${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
           ${lg.finished ? `<div class="log-completed" role="status">
             <div class="log-completed__score num"><b>${doneSets}</b><span>из ${totalSets} подходов</span></div>
-            <strong>Журнал завершён</strong><p>Посещение и списание не изменены. Ниже — подтверждённые результаты.</p>${UI.ChangesSummary(active)}</div>` : ''}
+            <strong>Журнал завершён</strong><p>Посещение и списание не изменены. Ниже — подтверждённые результаты.</p>${UI.ChangesSummary(active)}${lg.finished && Store.programs.options(active).length ? Btn('Обновить программу клиента', {kind:'soft', a:'sheet.open', args:{id:'programUpdate',cid:active}}) : ''}</div>` : ''}
         </div>
         <div class="log-context">${strip}
         ${participants.length === 1 ? `<div class="log-context__solo">

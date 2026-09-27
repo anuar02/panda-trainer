@@ -162,7 +162,7 @@ const Client = (() => {
     const c = me();
     const session = upcoming()[0];
     const name = Store.get().scenario === 'empty' ? null : session ? (session.kind === 'group' ? c.program : session.program) : c.program;
-    const exs = DB.programFor(name);
+    const exs = DB.programForClient(ME, name);
     return shell('c-program', `
       ${PageTitle({ title: 'Программа', size: 'sm' })}
       <div class="client-content client-program">
@@ -173,7 +173,7 @@ const Client = (() => {
             title: e.name,
             meta: `План: ${e.sets} × ${e.reps}${e.target ? ' · ' + DB.fmtNumber(e.target) + ' кг' : ''}`,
             right: Icon.get('chevR', { size: 20, style: 'color:var(--ter)' }),
-            a: 'sheet.open', args: { id: 'exercise', ex: e.id, program: name },
+            a: 'sheet.open', args: { id: 'exercise', ex: e.id, program: name, cid: ME },
             last: i === exs.length - 1,
           })).join(''), { rows: true })}
         ${exs.length ? '<p class="client-footnote">Это план тренировки. Результаты записывает тренер во время занятия.</p>' : Btn('Посмотреть расписание', { kind: 'soft', a: 'tab', args: { id: 'c-home' } })}

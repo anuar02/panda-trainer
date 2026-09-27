@@ -299,7 +299,7 @@ const Sheets = (() => {
   function exercise(st) {
     const id = st.sheet.data.ex;
     const program = st.sheet.data.program || DB.client(st.role === 'client' ? DB.DEMO_CLIENT_ID : st.activeClient)?.program;
-    const e = DB.programFor(program).find(x => x.id === id);
+    const e = (st.sheet.data.cid ? DB.programForClient(st.sheet.data.cid, program) : DB.programFor(program)).find(x => x.id === id);
     if (!e) return `<div class="sheet__title">Упражнение недоступно</div><p class="sheet__sub">Вернитесь к программе и выберите упражнение снова.</p>`;
     const timed = /сек/.test(e.reps);
     return `<div class="sheet__title">${esc(e.name)}</div>
@@ -414,6 +414,16 @@ const Sheets = (() => {
       <button class="expick__create" data-act="ex.create" hidden>${Icon.get('plus', { size: 18, sw: 2.4 })}<span>Создать своё: «<b data-ex-new></b>»</span></button>`;
   }
 
+  function programUpdate(st) {
+    const cid = st.sheet.data.cid;
+    const name = client(cid)?.short || '';
+    const options = Store.programs.options(cid);
+    return `<h2 class="sheet__title">Обновить программу ${esc(name)}</h2><p class="sheet__sub">Выберите изменения для следующих тренировок.</p>
+      <div class="program-options">${options.map(o => `<label><input type="checkbox" data-program-change value="${esc(o.key)}" ${o.checked ? 'checked' : ''}><span>${esc(o.label)}</span></label>`).join('')}</div>
+      ${Btn(`Сохранить в программу ${name}`, {kind:'primary',a:'program.save',args:{cid}})}
+      <p class="client-footnote">Изменится только программа ${esc(name)}. Шаблон «${esc(st.logging.plans[cid]?.name || 'Без программы')}» останется прежним.</p>`;
+  }
+
   function render(st) {
     const sh = st.sheet;
     if (!sh) return '';
@@ -422,7 +432,7 @@ const Sheets = (() => {
       notifications, stale, clientActions, search, customEx, assignTemplate,
       cCancel, exercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
       voice: () => Voice.sheet(),
-      exMenu, exPick,
+      exMenu, exPick, programUpdate,
       myExercises: () => `<h2 class="sheet__title">Мои упражнения</h2><p class="sheet__sub">Удаление из библиотеки не меняет уже записанные журналы.</p>${(st.customExercises || []).length ? st.customExercises.map(e => `<div class="row"><span class="row__main">${esc(e.name)}</span>${Btn('Удалить', { kind: 'ghost', size: 'sm', a: 'ex.deleteCustom', args: { name: e.name } })}</div>`).join('') : '<p>Своих упражнений пока нет. Добавьте упражнение в журнале через поиск.</p>'}`,
 
     };

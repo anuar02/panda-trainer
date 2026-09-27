@@ -1281,3 +1281,7 @@ var(--stage-bg);
 [data-calm="true"] .hold__panda { display: grid; place-items: center; color: var(--accent); }
 .toast__face:empty { display: none; }
 .toast__face:empty + svg { display: block; flex: none; }
+
+.program-options { display: grid; gap: 14px; margin: 20px 0; }
+.program-options label { display: flex; gap: 12px; align-items: flex-start; min-height: 44px; font-size: 16px; }
+.program-options input { flex: none; width: 22px; height: 22px; accent-color: var(--accent); }

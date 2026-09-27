@@ -69,6 +69,7 @@
   const num = (v) => (v == null ? v : Number(v));
 
   const Actions = {
+    'program.save': (d) => Store.programs.save(d.cid, [...document.querySelectorAll('[data-program-change]:checked')].map(el => el.value)),
     'calm.toggle': () => Store.preferences.toggleCalm(),
     'tab': (d) => Store.nav.tab(d.id),
     'nav.go': (d) => { Store.ui.closeSheet(); Store.nav.go(d.id); },

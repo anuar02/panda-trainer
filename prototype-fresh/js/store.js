@@ -441,7 +441,7 @@ const Store = (() => {
       const plans = {};
       (session.participants || [{ clientId: session.clientId }]).forEach(p => {
         const name = session.kind === 'personal' ? session.program : (p.program !== undefined ? p.program : DB.client(p.clientId)?.program);
-        plans[p.clientId] = { name, reply: p.reply, exercises: clone(DB.programFor(name)) };
+        plans[p.clientId] = { name, reply: p.reply, exercises: clone(programForClient(p.clientId, name)) };
       });
       const record = saved || { sessionId, plans, active: Object.keys(plans).find(eligibleId => plans[eligibleId].reply !== 'cancelled') || Object.keys(plans)[0], startedAt: Date.now() };
       const context = record.context || { date: session.date, start: session.start, end: session.end, title: session.title, kind: session.kind, clientId: session.clientId };
@@ -905,5 +905,75 @@ const Store = (() => {
     },
   };
 
-  return { get, set, update, silent, subscribe, commit, nav, ui, preferences, reschedule, logging, attendance, billing, invite, newSession, sessions, hasUnwrittenSets, participantHasGap };
+  function readClientPrograms() {
+    try {
+      const value = JSON.parse(localStorage.getItem('trainer-prototype:client-programs:v1'));
+      if (value?.version !== 1 || !value.byClient || typeof value.byClient !== 'object' || Array.isArray(value.byClient)) return {};
+      const clean = {};
+      for (const [cid, p] of Object.entries(value.byClient)) {
+        if (!DB.client(cid) || !p || (p.baseName !== null && typeof p.baseName !== 'string') || typeof p.updatedAt !== 'string' || !Number.isFinite(Date.parse(p.updatedAt)) || !Array.isArray(p.exercises)) continue;
+        if (p.exercises.some(e => !e || typeof e.id !== 'string' || !e.id || typeof e.name !== 'string' || !e.name.trim() || e.name.length > 80 || !Number.isInteger(e.sets) || e.sets < 1 || e.sets > 100 || !e.prev || (e.prev.kg !== null && (!Number.isFinite(e.prev.kg) || e.prev.kg < 0)) || (e.prev.reps !== null && (!Number.isInteger(e.prev.reps) || e.prev.reps < 0)))) continue;
+        if (new Set(p.exercises.map(e => e.id)).size !== p.exercises.length) continue;
+        clean[cid] = { baseName: p.baseName, exercises: p.exercises.map(programExercise), updatedAt: p.updatedAt };
+      }
+      return clean;
+    } catch { return {}; }
+  }
+  function programExercise(e) {
+    return { id:e.id, name:e.name, sets:e.sets, reps:typeof e.reps === 'string' || Number.isFinite(e.reps) ? e.reps : '', target:Number.isFinite(e.target) ? e.target : 0, prev:{kg:e.prev.kg, reps:e.prev.reps}, pr:Number.isFinite(e.pr) ? e.pr : 0, ...(['сек','повт'].includes(e.unit) ? {unit:e.unit} : {}) };
+  }
+  function programForClient(clientId, name) {
+    return clone(readClientPrograms()[clientId]?.exercises || DB.programFor(name));
+  }
+  const programs = {
+    forClient: programForClient,
+    options(clientId) {
+      if (!state.logging.finished || !eligible(clientId)) return [];
+      const list = state.logging.plans[clientId]?.exercises || [];
+      return list.flatMap(e => {
+        if (e.replacedBy) return [];
+        const rows = [];
+        if (e.origin === 'replaced') {
+          let old = list.find(x => x.replacedBy === e.id);
+          while (old && list.some(x => x.replacedBy === old.id)) old = list.find(x => x.replacedBy === old.id);
+          rows.push({key:'replace:'+e.id, kind:old?.origin === 'added' ? 'add' : 'replace', id:e.id, oldId:old?.id, label:`${old?.name || e.replaces} → ${e.name}`, checked:true});
+        } else if (e.origin === 'added') rows.push({key:'add:'+e.id, kind:'add', id:e.id, label:`+ ${e.name}, ${e.sets} подхода`, checked:true});
+        if (e.skipped && !e.replacedBy) rows.push({key:'skip:'+e.id, kind:'skip', id:e.id, label:`${e.name} — убрать из программы?`, checked:false});
+        const arr = state.logging.values[clientId]?.[e.id] || [];
+        const recorded = arr.reduce((n,v,i) => validSet(v) ? i+1 : n,0);
+        if (e.origin !== 'added' && e.plannedSets !== undefined && recorded > e.plannedSets) rows.push({key:'sets:'+e.id, kind:'sets', id:e.id, sets:recorded, label:`${e.name}: ${recorded} подхода вместо ${e.plannedSets}?`, checked:false});
+        return rows;
+      });
+    },
+    save(clientId, selected) {
+      if (state.role !== 'trainer' || !state.logging.finished || state.logging.storageError || !Array.isArray(selected)) return false;
+      const options = programs.options(clientId).filter(o => selected.includes(o.key));
+      if (!options.length) return false;
+      const plan = state.logging.plans[clientId];
+      const byClient = readClientPrograms();
+      let exercises = clone(byClient[clientId]?.exercises || DB.programFor(plan.name));
+      for (const option of options) {
+        const source = plan.exercises.find(e => e.id === option.id);
+        if (option.kind === 'skip') { exercises = exercises.filter(e => e.id !== source.id); continue; }
+        if (option.kind === 'sets') { const target = exercises.find(e => e.id === source.id); if (target) target.sets = option.sets; continue; }
+        const next = programExercise(source);
+        if (option.kind === 'replace') next.sets = source.plannedSets || source.sets;
+        const written = (state.logging.values[clientId]?.[source.id] || []).filter(validSet);
+        if (written.length) next.prev = {kg:written.at(-1).kg, reps:written.at(-1).reps};
+        const index = exercises.findIndex(e => e.id === (option.kind === 'replace' ? option.oldId : source.id));
+        const existing = exercises.findIndex(e => e.id === source.id);
+        if (existing >= 0) exercises[existing] = next;
+        else if (index >= 0) exercises.splice(index,1,next);
+        else exercises.push(next);
+      }
+      byClient[clientId] = {baseName:plan.name || null, exercises, updatedAt:new Date().toISOString()};
+      try { localStorage.setItem('trainer-prototype:client-programs:v1', JSON.stringify({version:1,byClient})); }
+      catch { ui.toast('warn','Программа не сохранена: хранилище недоступно.'); return false; }
+      ui.closeSheet();
+      ui.toast('', `Программа ${DB.client(clientId).short} сохранена в этом браузере`);
+      return true;
+    },
+  };
+
+  return { get, set, update, silent, subscribe, commit, nav, ui, preferences, programs, reschedule, logging, attendance, billing, invite, newSession, sessions, hasUnwrittenSets, participantHasGap };
 })();

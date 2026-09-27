@@ -41,6 +41,13 @@ if (task === '03-exercises') {
     {path:'library', role:'trainer', screen:'t-library'},
   ];
 }
+if (task === '04-programs') {
+  screens = [
+    {path:'results',role:'trainer',screen:'t-session',actions:results},
+    {path:'selection',role:'trainer',screen:'t-session',actions:`${results} Store.ui.openSheet('programUpdate',{cid:'c1'});`},
+    {path:'client-copy',role:'client',screen:'c-program',actions:`${results} Store.programs.save('c1',Store.programs.options('c1').filter(o=>o.checked).map(o=>o.key)); Store.set({role:'client',screen:'c-program',toast:null});`},
+  ];
+}
 let executablePath = process.env.CHROMIUM_PATH;
 if (!executablePath) {
   try { await access(chromium.executablePath()); }

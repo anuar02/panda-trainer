@@ -394,6 +394,7 @@ const DB = (() => {
     client(id) { return this.clients.find(c => c.id === id) || null; },
     byDate(date) { return this.sessions.filter(s => s.date === date); },
     pendingRequests() { return this.sessions.filter(s => s.request && s.request.state === 'pending'); },
+    programForClient(clientId, name) { return Store.programs.forClient(clientId, name); },
     programFor(name) { return name ? (this.programs[name] || []) : []; },
     libraryPrev(name) {
       for (const list of Object.values(this.programs)) {

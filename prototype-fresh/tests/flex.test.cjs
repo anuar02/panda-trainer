@@ -118,3 +118,32 @@ test('expanded library recognizes slang in voice input',()=>{
     assert.equal(items[1].type,'set');
   }
 });
+
+test('client programme updates are selective, isolated, persistent and idempotent',()=>{
+  const a = personal();
+  const {run,cid,sid,storage} = a;
+  const template = run(`JSON.stringify(DB.programFor(Store.get().logging.plans['${cid}'].name))`);
+  run(`Store.logging.replaceExercise('${cid}','e1',{name:'Жим гантелей лёжа'}); Store.logging.addExercise('${cid}',{name:'Фермерская прогулка'}); Store.logging.skipExercise('${cid}','e2'); Store.logging.finish(); Store.logging.confirmPartial()`);
+  const opts = JSON.parse(run(`JSON.stringify(Store.programs.options('${cid}'))`));
+  const replacement = opts.find(o=>o.kind==='replace');
+  assert.equal(opts.find(o=>o.kind==='skip').checked,false);
+  assert.equal(run(`Store.programs.save('${cid}',${JSON.stringify([replacement.key])})`),true);
+  assert.equal(run(`JSON.stringify(DB.programFor(Store.get().logging.plans['${cid}'].name))`),template);
+  assert.equal(run(`DB.programForClient('${cid}','anything').some(e=>e.name==='Фермерская прогулка')`),false);
+  const before = run(`JSON.stringify(DB.programForClient('${cid}',null))`);
+  run(`Store.programs.save('${cid}',${JSON.stringify([replacement.key])})`);
+  assert.equal(run(`JSON.stringify(DB.programForClient('${cid}',null))`),before);
+  const b=app(storage);
+  assert.equal(b.run(`JSON.stringify(DB.programForClient('${cid}',null))`),before);
+  assert.equal(b.run("DB.programForClient('c7',null).length"),0);
+  assert.match(run('Trainer.session()'), /Обновить программу клиента/);
+});
+
+test('new programme exercises use recorded previous values; corrupt copies are ignored',()=>{
+  const {run,cid,storage}=personal();
+  const id=run(`Store.logging.addExercise('${cid}',{name:'Тестовое упражнение'})`);
+  run(`Store.logging.setValue('${cid}','${id}',0,{kg:12,reps:9}); Store.logging.finish(); Store.logging.confirmPartial(); Store.programs.save('${cid}',['add:${id}'])`);
+  assert.equal(run(`DB.programForClient('${cid}',null).find(e=>e.id==='${id}').prev.kg`),12);
+  storage.setItem('trainer-prototype:client-programs:v1',JSON.stringify({version:1,byClient:{[cid]:{baseName:'test',updatedAt:'bad',exercises:[{}]}}}));
+  assert.equal(app(storage).run(`DB.programForClient('${cid}',null).length`),0);
+});
