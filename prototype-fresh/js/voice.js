@@ -272,13 +272,17 @@ const Voice = (() => {
     if (!clean) return;
     state.heard.push(clean);
     reindex();
+    if (hold.phase) renderHoldList();
     refresh();
   }
 
   function setInterim(text) {
     state.interim = text;
-    const el = hasWindow ? document.querySelector('[data-voice-interim]') : null;
-    if (el) { el.textContent = text || (state.listening ? 'Слушаю…' : ''); el.classList.toggle('is-live', Boolean(text)); }
+    if (!hasWindow) return;
+    document.querySelectorAll('[data-voice-interim]').forEach(el => {
+      el.textContent = text || el.dataset.voiceEmpty || (state.listening ? 'Слушаю…' : '');
+      el.classList.toggle('is-live', Boolean(text));
+    });
   }
 
   function start() {
@@ -311,11 +315,13 @@ const Voice = (() => {
         } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
           state.error = 'Не удалось распознать речь. Попробуйте ещё раз.';
         }
+        if (hold.phase === 'listening' && state.error) showHold('error');
       };
       rec.onend = () => {
         if (wantListening) { try { rec.start(); return; } catch (_) { wantListening = false; } }
         state.listening = false;
         setInterim('');
+        if (hold.phase === 'thinking') { finishHold(); return; }
         refresh();
       };
       rec.start();
@@ -387,6 +393,7 @@ const Voice = (() => {
 
   function reset() {
     stop(false);
+    state.fromHold = false;
     state.items = [];
     state.heard = [];
     state.removed = [];
@@ -397,6 +404,134 @@ const Voice = (() => {
   function open() {
     reset();
     Store.ui.openSheet('voice');
+  }
+
+  const hold = { phase: null, startedAt: 0, timer: null, lastInterim: '', kind: null };
+  const plural = (n, forms) => (typeof DB !== 'undefined' ? DB.plural(n, forms) : forms[2]);
+
+  function summary(item) {
+    if (item.type === 'set') return `${item.exName} · ${item.kg ? `${DB.fmtNumber(item.kg)} × ${item.reps}` : `${item.reps} ${item.unit}`}`;
+    if (item.type === 'note') return `Заметка: ${item.text}`;
+    if (item.type === 'skip') return `Пропустить: ${item.exName}`;
+    if (item.type === 'replace') return `${item.exName} → ${item.toName}`;
+    if (item.type === 'add') return `+ ${item.name}`;
+    return `Не понял: «${item.text}»`;
+  }
+
+  function holdCopy(kind, n = 0) {
+    return {
+      listening: { pose: 'clipboard', title: 'Слушаю', hint: 'Говорите, потом отпустите кнопку' },
+      thinking: { pose: 'clipboard', title: 'Разбираю…', hint: '' },
+      done: { pose: 'thumbs', title: `Понял: ${n} ${plural(n, ['запись', 'записи', 'записей'])}`, hint: 'Проверьте и подтвердите' },
+      empty: { pose: 'sit', title: 'Ничего не слышно', hint: 'Удерживайте кнопку и говорите' },
+      unsupported: { pose: 'sit', title: 'Голос недоступен в этом браузере', hint: 'Отпустите — откроется ввод текстом' },
+      error: { pose: 'sit', title: 'Не получилось', hint: state.error || 'Попробуйте ещё раз' },
+    }[kind];
+  }
+
+  function holdLayer() {
+    const device = document.getElementById('device');
+    let layer = device?.querySelector('.hold');
+    if (!layer && device) {
+      layer = document.createElement('div');
+      layer.className = 'hold';
+      layer.setAttribute('role', 'status');
+      layer.setAttribute('aria-live', 'polite');
+      device.appendChild(layer);
+    }
+    return layer;
+  }
+
+  function showHold(kind, n = 0) {
+    const layer = holdLayer();
+    if (!layer) return;
+    const copy = holdCopy(kind, n);
+    layer.classList.remove('is-leaving');
+    layer.dataset.state = kind;
+    const poseChanged = hold.kind === null || holdCopy(hold.kind)?.pose !== copy.pose;
+    hold.kind = kind;
+    if (poseChanged || !layer.querySelector('.hold__bubble')) {
+      layer.innerHTML = `<div class="hold__glow"></div>
+        <div class="hold__panda">${Mascot.render(copy.pose, 'inline')}</div>
+        <div class="hold__bubble"><b class="hold__title"></b><p class="hold__text" data-voice-interim></p><div class="hold__bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><ul class="hold__list"></ul></div>`;
+    }
+    layer.querySelector('.hold__title').textContent = copy.title;
+    const text = layer.querySelector('.hold__text');
+    text.dataset.voiceEmpty = copy.hint;
+    text.textContent = kind === 'listening' && state.interim ? state.interim : copy.hint;
+    text.classList.toggle('is-live', kind === 'listening' && Boolean(state.interim));
+    renderHoldList();
+  }
+
+  function renderHoldList() {
+    const list = hasWindow ? document.querySelector('.hold__list') : null;
+    if (!list) return;
+    const items = state.items.slice(-3);
+    list.innerHTML = items.map(item => `<li class="${item.type === 'error' ? 'is-error' : ''}">${UI.esc(summary(item))}</li>`).join('');
+  }
+
+  function hideHold(delay = 0) {
+    clearTimeout(hold.timer);
+    hold.timer = setTimeout(() => {
+      const layer = document.querySelector('#device .hold');
+      if (!layer) return;
+      layer.classList.add('is-leaving');
+      setTimeout(() => { if (layer.classList.contains('is-leaving')) layer.remove(); }, 260);
+      hold.kind = null;
+    }, delay);
+  }
+
+  function holdStart() {
+    if (hold.phase || Store.get().sheet || Store.get().logging.finished) return;
+    reset();
+    hold.phase = 'listening';
+    hold.startedAt = Date.now();
+    hold.lastInterim = '';
+    document.documentElement.classList.add('is-voice-holding');
+    try { navigator.vibrate?.(12); } catch (_) { }
+    showHold(SR ? 'listening' : 'unsupported');
+    if (SR) start();
+  }
+
+  function holdEnd(cancel = false) {
+    if (hold.phase !== 'listening') return;
+    document.documentElement.classList.remove('is-voice-holding');
+    const quick = Date.now() - hold.startedAt < 350;
+    hold.lastInterim = state.interim;
+    if (cancel) { hold.phase = null; stop(false); hideHold(); return; }
+    if (!SR) { hold.phase = null; hideHold(); open(); return; }
+    if (state.error && !state.heard.length) { hold.phase = null; stop(false); hideHold(1600); return; }
+    if (quick && !state.heard.length && !state.interim) { hold.phase = null; stop(false); hideHold(); open(); return; }
+    hold.phase = 'thinking';
+    showHold('thinking');
+    wantListening = false;
+    if (rec) { try { rec.stop(); } catch (_) { } }
+    clearTimeout(hold.timer);
+    hold.timer = setTimeout(finishHold, 1800);
+  }
+
+  function finishHold() {
+    if (hold.phase !== 'thinking') return;
+    clearTimeout(hold.timer);
+    if (!state.heard.length && hold.lastInterim) hear(hold.lastInterim);
+    state.listening = false;
+    state.interim = '';
+    const n = state.items.length;
+    if (!n) {
+      hold.phase = 'done';
+      showHold('empty');
+      hideHold(1800);
+      setTimeout(() => { hold.phase = null; }, 1800);
+      return;
+    }
+    hold.phase = 'done';
+    showHold('done', n);
+    setTimeout(() => {
+      hold.phase = null;
+      hideHold();
+      state.fromHold = true;
+      Store.ui.openSheet('voice');
+    }, 900);
   }
 
   function commit() {
@@ -442,7 +577,7 @@ const Voice = (() => {
     const other = exs.find(e => e !== next && e.prev.kg > 0);
     const first = next.prev.kg ? `${next.name} ${DB.fmtNumber(next.prev.kg + 2.5)} на ${next.prev.reps}` : `${next.name} ${next.prev.reps + 5} секунд`;
     const list = [first, 'Ещё один такой же'];
-    if (other) list.push(`Вместо ${other.name.toLowerCase()} делаем жим гантелей сидя`);
+    if (other) list.push(`Вместо «${other.name}» делаем жим гантелей сидя`);
     list.push('Бицепс 12 на 12');
     list.push('Заметка: левое колено уходит внутрь, следить за техникой');
     return list;
@@ -484,9 +619,35 @@ const Voice = (() => {
       <span class="vitem__main"><b>${esc(item.reason)}</b><span class="vitem__meta">«${esc(item.text)}» — не будет записано</span></span>${remove}</li>`;
   }
 
+  function confirmSheet(writable) {
+    const { Btn } = UI;
+    const errors = state.items.filter(i => i.type === 'error').length;
+    return `<div class="voice voice--confirm">
+      <div class="voice__head">
+        ${Mascot.face(errors && !writable ? 'worried' : 'laugh', 52, 'voice__face')}
+        <div><div class="sheet__title">Проверьте запись</div>
+        <p class="voice__sub">${writable ? 'Уберите лишнее крестиком и подтвердите.' : 'Ничего не удалось разобрать.'}${errors ? ' Строки с «!» не будут записаны.' : ''}</p></div>
+      </div>
+      <ul class="voice__list" aria-live="polite">${state.items.map(itemHtml).join('')}</ul>
+      <div class="voice__actions">
+        ${Btn(writable ? `Записать (${writable})` : 'Записать', { a: 'voice.commit', disabled: !writable, icon: 'check' })}
+        <div class="voice__more">
+          ${Btn('Добавить ещё', { kind: 'soft', size: 'compact', a: 'voice.more', icon: 'mic' })}
+          ${Btn('Отмена', { kind: 'ghost', size: 'compact', a: 'sheet.close' })}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function more() {
+    state.fromHold = false;
+    refresh();
+  }
+
   function sheet() {
     const { esc, Btn } = UI;
     const writable = state.items.filter(i => i.type !== 'error').length;
+    if (state.fromHold && state.items.length) return confirmSheet(writable);
     const mood = state.error ? 'worried' : state.listening ? 'excited' : state.items.length ? 'laugh' : 'smile';
     const micLabel = state.listening ? 'Остановить запись' : 'Начать диктовку';
     const status = state.error ? state.error
@@ -526,15 +687,36 @@ const Voice = (() => {
   }
 
   if (hasWindow) {
+    const isHoldKey = (event) => event.key === ' ' || event.key === 'Enter';
+    document.addEventListener('pointerdown', (event) => {
+      if (!event.target.closest?.('[data-voice-hold]') || event.button > 0) return;
+      event.preventDefault();
+      holdStart();
+    });
+    document.addEventListener('pointerup', () => holdEnd());
+    document.addEventListener('pointercancel', () => holdEnd());
+    document.addEventListener('contextmenu', (event) => { if (event.target.closest?.('[data-voice-hold]')) event.preventDefault(); });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && hold.phase === 'listening') { event.preventDefault(); holdEnd(true); return; }
+      if (!isHoldKey(event) || !event.target.closest?.('[data-voice-hold]')) return;
+      event.preventDefault();
+      if (!event.repeat) holdStart();
+    });
+    document.addEventListener('keyup', (event) => {
+      if (!isHoldKey(event) || hold.phase !== 'listening') return;
+      event.preventDefault();
+      holdEnd();
+    });
+    window.addEventListener('blur', () => holdEnd());
     document.addEventListener('submit', (event) => {
       if (!event.target.matches('[data-voice-form]')) return;
       event.preventDefault();
       submitText();
     });
     Store.subscribe((st) => {
-      if (st.sheet?.id !== 'voice' && (state.listening || state.demo)) stop(false);
+      if (!hold.phase && st.sheet?.id !== 'voice' && (state.listening || state.demo)) stop(false);
     });
   }
 
-  return { open, toggle, start, stop, demo, submitText, remove, commit, sheet, supported, state };
+  return { open, toggle, start, stop, demo, submitText, remove, commit, sheet, supported, state, holdStart, holdEnd, more };
 })();
