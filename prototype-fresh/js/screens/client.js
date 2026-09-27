@@ -55,7 +55,7 @@ const Client = (() => {
     const hero = Card(`<div class="hero-card">
       ${Mascot.render(needsConfirmation || myReq ? 'clipboard' : 'wave', 'hero')}
       <div class="hero-card__top">
-        <div style="font-size:13px;font-weight:600;color:var(--sec)">${
+        <div style="font-size:0.875rem;font-weight:600;color:var(--sec)">${
           next.date === DB.TODAY ? 'Сегодня' : esc('Ближайшее занятие')
         }</div>
         ${myReq
@@ -148,7 +148,7 @@ const Client = (() => {
           <p>${esc(s.sub)}</p>
           <div style="margin-top:16px;display:flex;justify-content:center">${s.pill}</div>
           <div style="margin-top:20px">${s.action}</div>
-          <div style="margin-top:12px;font-size:12.5px;color:var(--sec);line-height:1.5">
+          <div style="margin-top:12px;font-size:0.875rem;color:var(--sec);line-height:1.5">
             Демонстрация интерфейса. Вход в аккаунт и проверка приглашения не подключены.
           </div>
         </div>

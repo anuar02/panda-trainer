@@ -11,7 +11,7 @@ body {
   background: #ececee;
   color: var(--ink);
   font-family: var(--ui);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -65,13 +65,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: block;
   font-family: var(--disp);
   font-weight: 800;
-  font-size: 17px;
+  font-size: 1.0625rem;
   letter-spacing: -.3px;
 }
-.rail__brand span { font-size: 12.5px; color: var(--sec); font-weight: 500; }
+.rail__brand span { font-size: 0.875rem; color: var(--sec); font-weight: 500; }
 .rail__group { margin-top: 20px; }
 .rail__group > h3 {
-  font-size: 10.5px;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -86,7 +86,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   text-align: left;
   padding: 8px 10px;
   border-radius: 11px;
-  font-size: 13.5px;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--sec);
 }
@@ -105,7 +105,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   border-radius: var(--r-pill);
   background: var(--amber-soft);
   color: var(--amber-ink);
-  font-size: 11px;
+  font-size: 0.875rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -138,7 +138,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .rolebar button {
   padding: 8px 18px;
   border-radius: var(--r-pill);
-  font-size: 13.5px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--sec);
   display: flex;
@@ -163,7 +163,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   border-radius: var(--r-pill);
   border: 1px solid var(--border);
   background: var(--surface);
-  font-size: 12.5px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--sec);
 }
@@ -209,7 +209,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   align-items: center;
   justify-content: space-between;
   padding: 0 26px;
-  font-size: 12.5px;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--ink);
   pointer-events: none;
@@ -261,26 +261,26 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .inspector h2 {
   font-family: var(--disp);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 800;
   letter-spacing: -.2px;
   margin-bottom: 4px;
 }
 .inspector .kicker {
-  font-size: 10.5px;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--ter);
   margin-bottom: 6px;
 }
-.inspector p { font-size: 13px; color: var(--sec); line-height: 1.5; }
+.inspector p { font-size: 0.875rem; color: var(--sec); line-height: 1.5; }
 .inspector .note {
   margin-top: 14px;
   padding: 12px 13px;
   border-radius: 14px;
   background: var(--sunken);
-  font-size: 12.5px;
+  font-size: 0.875rem;
   color: var(--ink);
   line-height: 1.5;
 }
@@ -290,7 +290,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .inspector ul.rules li {
   position: relative;
   padding-left: 16px;
-  font-size: 12.5px;
+  font-size: 0.875rem;
   color: var(--sec);
   line-height: 1.5;
 }

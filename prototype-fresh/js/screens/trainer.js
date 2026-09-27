@@ -82,7 +82,7 @@ const Trainer = (() => {
         return `<span class="lead" title="${esc(c.name)} — ${p.reply === 'cancelled' ? 'отменил' : p.reply === 'pending' ? 'ожидает' : 'подтвердил'}"
           style="background:var(--${tone}-soft);color:var(--${tone === 'mint' ? 'mint-ink' : tone})">${esc(c.initials)}</span>`;
       }).join('')}
-      <span style="margin-left:10px;align-self:center;font-size:12.5px;font-weight:600;color:var(--sec)">
+      <span style="margin-left:10px;align-self:center;font-size:0.875rem;font-weight:600;color:var(--sec)">
         ${s.participants.filter(p => p.reply === 'confirmed').length} подтвердил · ${s.participants.filter(p => p.reply === 'pending').length} ожидает
       </span>
     </div>`;
@@ -595,7 +595,7 @@ const Trainer = (() => {
         ${collisions.length ? `<div style="margin-bottom:14px">${Notice(`Пересечение с ${collisions.length} ${collisions.length === 1 ? 'записью' : 'записями'}: ${collisions.map(s => `${s.start} ${s.clientId ? client(s.clientId).short : s.title}`).join(', ')}. Подтверждение тренера не заменяет согласие клиента на время.`, { tone: 'warn', icon: 'alert' })}</div>
         <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border-radius:14px;margin-bottom:14px">
           <input type="checkbox" ${c.collisionAck ? 'checked' : ''} ${act('ns.ack')} style="width:20px;height:20px;accent-color:var(--ink)">
-          <span style="font-size:14px;font-weight:600">Подтверждаю пересечение</span>
+          <span style="font-size:0.875rem;font-weight:600">Подтверждаю пересечение</span>
         </label>` : ''}
         <div class="label" style="margin-left:6px">Программа</div>
         ${Card(DB.templates.map((t, i, arr) => Row({
@@ -643,8 +643,8 @@ const Trainer = (() => {
         <div class="request-person">
           ${Lead(c ? c.initials : '?', { size: 'sm' })}
           <div style="flex:1;min-width:0">
-            <div style="font-size:15.5px;font-weight:700">${esc(c ? c.name : 'Клиент')}</div>
-            <div style="font-size:13px;font-weight:500;color:var(--sec);margin-top:2px">Запрос на перенос · ${r.author === 'trainer' ? 'предложено вами' : 'предложено клиентом'}</div>
+            <div style="font-size:0.96875rem;font-weight:700">${esc(c ? c.name : 'Клиент')}</div>
+            <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:2px">Запрос на перенос · ${r.author === 'trainer' ? 'предложено вами' : 'предложено клиентом'}</div>
           </div>
           ${r.awaiting === 'trainer' ? Pill('Ждёт вас', { tone: 'amber', pulse: true }) : Pill('Ждёт клиента', { tone: 'neutral', dot: false })}
         </div>
@@ -663,7 +663,7 @@ const Trainer = (() => {
         </div>
         <div style="margin-top:9px">${Btn('Отклонить', { kind: 'ghost', size: 'compact', a: 'rs.decline', args: { id: r.id } })}</div>` : ''}
         ${!awaitingMe ? `<div style="margin-top:14px">${Btn('Отозвать запрос', { kind: 'soft', size: 'compact', a: 'rs.withdraw', args: { id: r.id } })}</div>` : ''}
-        <div style="margin-top:12px;font-size:12.5px;color:var(--sec)">${esc(r.history[r.history.length - 1].at)}</div>
+        <div style="margin-top:12px;font-size:0.875rem;color:var(--sec)">${esc(r.history[r.history.length - 1].at)}</div>
       </div>`);
     };
 
@@ -747,19 +747,19 @@ const Trainer = (() => {
       <div style="display:flex;align-items:center;gap:14px">
         ${Lead(c.initials, { size: '' })}
         <div style="flex:1;min-width:0">
-          <div style="font-family:var(--disp);font-weight:800;font-size:22px;letter-spacing:-.4px">${esc(c.name)}</div>
-          <div style="font-size:13px;font-weight:500;color:var(--sec);margin-top:2px">${c.plan ? esc(c.plan.title) : 'Без покупки'}</div>
+          <div style="font-family:var(--disp);font-weight:800;font-size:1.375rem;letter-spacing:-.4px">${esc(c.name)}</div>
+          <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:2px">${c.plan ? esc(c.plan.title) : 'Без покупки'}</div>
         </div>
         ${iconBtn('more', { act: 'sheet.open', args: { id: 'clientActions', cid: c.id }, label: 'Действия', size: 22 })}
       </div>
       <div style="display:flex;gap:10px;margin-top:16px">
         <div class="card" style="flex:1;padding:13px 14px">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sec)">Остаток</div>
-          <div class="num" style="font-family:var(--disp);font-weight:900;font-size:24px;letter-spacing:-1px;margin-top:4px">${c.plan ? c.plan.remaining : 0}</div>
+          <div style="font-size:0.875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sec)">Остаток</div>
+          <div class="num" style="font-family:var(--disp);font-weight:900;font-size:1.5rem;letter-spacing:-1px;margin-top:4px">${c.plan ? c.plan.remaining : 0}</div>
         </div>
         <div class="card" style="flex:1;padding:13px 14px">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sec)">К оплате</div>
-          <div class="num" style="font-family:var(--disp);font-weight:900;font-size:19px;letter-spacing:-.6px;margin-top:6px;${c.plan && c.plan.due > 0 ? 'color:var(--amber-ink)' : ''}">${c.plan ? DB.fmtMoney(c.plan.due) : '0 ₸'}</div>
+          <div style="font-size:0.875rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sec)">К оплате</div>
+          <div class="num" style="font-family:var(--disp);font-weight:900;font-size:1.1875rem;letter-spacing:-.6px;margin-top:6px;${c.plan && c.plan.due > 0 ? 'color:var(--amber-ink)' : ''}">${c.plan ? DB.fmtMoney(c.plan.due) : '0 ₸'}</div>
         </div>
       </div>
     </div>`;
@@ -800,7 +800,7 @@ const Trainer = (() => {
       content = `<div style="padding:0 16px">
         ${p.length ? p.map(pur => Card(`<div style="padding:16px">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-            <div style="font-size:15.5px;font-weight:700">${esc(pur.title)}</div>
+            <div style="font-size:0.96875rem;font-weight:700">${esc(pur.title)}</div>
             ${pur.due > 0 ? Pill('К оплате ' + DB.fmtMoney(pur.due), { tone: 'amber', dot: false }) : Pill('Оплачено', { tone: 'mint', dot: false })}
           </div>
           <div style="margin-top:10px">${KV([
@@ -818,7 +818,7 @@ const Trainer = (() => {
           meta: `${DB.fmtDateLong(x.date)} · ${x.method}${x.note ? ' · ' + x.note : ''}`,
           right: Pill('Записано', { tone: 'neutral', dot: false }),
           last: i === pays.length - 1,
-        })).join(''), { rows: true }) : `<div class="card card--pad" style="font-size:13px;color:var(--sec)">Оплат пока нет.</div>`}
+        })).join(''), { rows: true }) : `<div class="card card--pad" style="font-size:0.875rem;color:var(--sec)">Оплат пока нет.</div>`}
       </div>`;
     } else {
       content = `<div style="padding:0 16px;display:flex;flex-direction:column;gap:12px">
@@ -828,11 +828,11 @@ const Trainer = (() => {
         </div>
         <div>
           <div class="label" style="margin-left:6px">Заметка тренера · приватно</div>
-          ${Card(`<div style="display:flex;gap:10px">${Icon.get('lock', { size: 18, style: 'color:var(--ter);flex-shrink:0;margin-top:2px' })}<div style="font-size:14px;line-height:1.5">${c.note ? esc(c.note) : 'Заметок нет.'}</div></div>`, { pad: true })}
+          ${Card(`<div style="display:flex;gap:10px">${Icon.get('lock', { size: 18, style: 'color:var(--ter);flex-shrink:0;margin-top:2px' })}<div style="font-size:0.875rem;line-height:1.5">${c.note ? esc(c.note) : 'Заметок нет.'}</div></div>`, { pad: true })}
         </div>
         <div>
           <div class="label" style="margin-left:6px">Комментарий для клиента</div>
-          ${Card(`<div style="display:flex;gap:10px">${Icon.get('eye', { size: 18, style: 'color:var(--ter);flex-shrink:0;margin-top:2px' })}<div style="font-size:14px;line-height:1.5">${c.clientComment ? esc(c.clientComment) : 'Пусто. Клиент увидит этот текст.'}</div></div>`, { pad: true })}
+          ${Card(`<div style="display:flex;gap:10px">${Icon.get('eye', { size: 18, style: 'color:var(--ter);flex-shrink:0;margin-top:2px' })}<div style="font-size:0.875rem;line-height:1.5">${c.clientComment ? esc(c.clientComment) : 'Пусто. Клиент увидит этот текст.'}</div></div>`, { pad: true })}
         </div>
       </div>`;
     }
@@ -986,7 +986,7 @@ const Trainer = (() => {
           : `<div class="log-actions">
             <button class="log-voice" data-voice-hold aria-label="Голос: удерживайте и говорите. Короткое нажатие открывает ввод текстом" title="Удерживайте и говорите">
               <span class="log-voice__face">${Store.preferences.calm() ? Icon.get('mic', { size: 28 }) : Mascot.face('smile', 34)}<span class="log-voice__mic">${Icon.get('mic', { size: 12, sw: 2.6 })}</span></span>
-              <span class="log-voice__txt"><b>Голос</b><small>удерживайте</small></span>
+              <span class="log-voice__txt"><b>Голос</b><small>удержать — голос<br>нажать — текст</small></span>
             </button>
             ${Btn('Завершить тренировку', { kind: 'soft', a: 'log.finish' })}
           </div>`}
@@ -1071,8 +1071,8 @@ const Trainer = (() => {
             <div style="display:flex;align-items:center;gap:12px">
               ${Lead(c.initials, { tone: p.due > 0 ? 'amber' : 'mint', size: 'sm' })}
               <div style="flex:1;min-width:0">
-                <div style="font-size:15px;font-weight:700">${esc(c.short)} <span style="font-weight:500;color:var(--sec)">· ${esc(p.title)}</span></div>
-                <div style="font-size:12.5px;font-weight:500;color:var(--sec);margin-top:2px">${p.units} занятий · использовано ${p.used}</div>
+                <div style="font-size:0.9375rem;font-weight:700">${esc(c.short)} <span style="font-weight:500;color:var(--sec)">· ${esc(p.title)}</span></div>
+                <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:2px">${p.units} занятий · использовано ${p.used}</div>
               </div>
             </div>
             <div style="margin-top:12px">${KV([['Стоимость', DB.fmtMoney(p.price)], ['Получено', DB.fmtMoney(p.paid)], ['К оплате', DB.fmtMoney(p.due)]])}</div>
@@ -1128,8 +1128,8 @@ const Trainer = (() => {
           <h3>Тимур Ахметов</h3>
           <p>Карточка создана 12 сентября. Программа и покупка не назначены.</p>
           <div style="margin-top:14px;display:flex;justify-content:center">${statePill}</div>
-          ${inv.link ? `<div class="field field--sm" style="margin-top:16px;font-family:var(--ui);font-weight:600;font-size:14px">${Icon.get('link', { size: 18, style: 'color:var(--ter)' })}<input readonly value="${esc(inv.link)}" style="font-family:var(--ui);font-weight:600;font-size:14px"></div>
-          <div style="font-size:12.5px;color:var(--sec);margin-top:8px">Действует до ${esc(inv.expires)}</div>` : ''}
+          ${inv.link ? `<div class="field field--sm" style="margin-top:16px;font-family:var(--ui);font-weight:600;font-size:0.875rem">${Icon.get('link', { size: 18, style: 'color:var(--ter)' })}<input readonly value="${esc(inv.link)}" style="font-family:var(--ui);font-weight:600;font-size:0.875rem"></div>
+          <div style="font-size:0.875rem;color:var(--sec);margin-top:8px">Действует до ${esc(inv.expires)}</div>` : ''}
         </div>
         <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">${actions}</div>
         <div style="margin-top:16px">${Notice('Истёкшая или отозванная ссылка не раскрывает данные. Повторное принятие другим аккаунтом не создаёт дубликат карточки.', { tone: 'info', icon: 'lock' })}</div>
@@ -1147,8 +1147,8 @@ const Trainer = (() => {
         <div style="display:flex;align-items:center;gap:14px;padding:8px 6px 20px">
           ${Lead('ДС', { tone: 'ink' })}
           <div>
-            <div style="font-family:var(--disp);font-weight:800;font-size:22px;letter-spacing:-.4px">${esc(DB.trainer.full)}</div>
-            <div style="font-size:13.5px;font-weight:500;color:var(--sec);margin-top:2px">Независимый тренер</div>
+            <div style="font-family:var(--disp);font-weight:800;font-size:1.375rem;letter-spacing:-.4px">${esc(DB.trainer.full)}</div>
+            <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:2px">Независимый тренер</div>
           </div>
         </div>
         <button class="btn btn--soft" role="switch" aria-checked="${Store.preferences.calm()}" ${act('calm.toggle')}>Спокойный интерфейс · ${Store.preferences.calm() ? 'вкл' : 'выкл'}</button>
@@ -1198,8 +1198,8 @@ const Trainer = (() => {
       <main class="wide__main">
         <div class="wide__head">
           <div>
-            <h1 style="font-family:var(--disp);font-weight:800;font-size:32px;letter-spacing:-.6px">Сегодня</h1>
-            <div style="font-size:14px;font-weight:500;color:var(--sec);margin-top:6px">${esc(DB.todayLabel())} · ${DB.byDate(st.day).length} занятия · 2 требуют ответа</div>
+            <h1 style="font-family:var(--disp);font-weight:800;font-size:2rem;letter-spacing:-.6px">Сегодня</h1>
+            <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:6px">${esc(DB.todayLabel())} · ${DB.byDate(st.day).length} занятия · 2 требуют ответа</div>
           </div>
           <div style="display:flex;gap:10px;align-items:center">
             ${Btn('Создать занятие', { kind: 'primary', size: 'sm', a: 'tab', args: { id: 't-new' }, icon: 'plus' })}

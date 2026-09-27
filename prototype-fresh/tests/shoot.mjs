@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { mkdir, copyFile, access } from 'node:fs/promises';
+import { mkdir, copyFile, access, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -59,6 +59,15 @@ if (task === '05-client-value') {
   ];
 }
 if (task === '06-field') screens = [{path:'profile',role:'trainer',screen:'t-profile',field:true}];
+if (task === 'large-text') {
+  const all = ['t-today','t-schedule','t-new','t-inbox','t-clients','t-client','t-session','t-library','t-template','t-billing','t-invite','t-profile','c-home','c-first','c-program','c-history','c-progress','c-profile'];
+  screens = all.flatMap(screen => {
+    const spec = {path:screen,role:screen.startsWith('t-')?'trainer':'client',screen,actions:screen === 't-session' ? journal : undefined};
+    return [{...spec,rootSize:20},{...spec,path:`zoom200/${screen}`,zoom:true}];
+  });
+  screens.push({path:'set-editor',role:'trainer',screen:'t-session',rootSize:20,actions:`${journal} Store.logging.edit('c1','e1',0);`});
+}
+const audit = [];
 let executablePath = process.env.CHROMIUM_PATH;
 if (!executablePath) {
   try { await access(chromium.executablePath()); }
@@ -68,7 +77,7 @@ const browser = await chromium.launch({executablePath});
 try {
   for (const viewport of [{width:390,height:844},{width:1440,height:960}]) {
     for (const spec of screens) {
-      const context = await browser.newContext({viewport, locale:'ru-RU', timezoneId:'Asia/Almaty'});
+      const context = await browser.newContext({viewport:spec.zoom && viewport.width === 390 ? {width:195,height:422} : viewport, deviceScaleFactor:spec.zoom && viewport.width === 390 ? 2 : 1, locale:'ru-RU', timezoneId:'Asia/Almaty'});
       const page = await context.newPage();
       const errors = [];
       page.on('pageerror', e => errors.push(e.message));
@@ -82,6 +91,7 @@ try {
       });
       await page.goto(`${base}?now=18:45${spec.calm ? "&calm=1" : ""}${spec.field ? "&field=1" : ""}`);
       await page.evaluate(({role,screen,scenario}) => Store.set({role,screen,scenario:scenario || 'normal'}),spec);
+      if (spec.rootSize) await page.evaluate(size => document.documentElement.style.fontSize = size+'px',spec.rootSize);
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(350);
       if (spec.actions) await page.evaluate(spec.actions);
@@ -90,7 +100,12 @@ try {
       await page.evaluate(() => document.getAnimations().forEach(a => { if (a.effect?.target?.closest('.fx-celebrate,.hold,.panda')) return; try { a.finish(); } catch { a.cancel(); } }));
       await page.addStyleTag({content:'*,*::before,*::after { animation-play-state:paused !important; caret-color:transparent !important; }'});
       if (await page.locator('html').getAttribute('data-palette') !== 'ink') throw new Error('Expected default ink palette');
+      if (await page.locator('.screen').textContent().then(t => t.includes('Ошибка экрана'))) throw new Error(`${spec.path}: screen render failed`);
       if (errors.length) throw new Error(`${spec.path}: ${errors.join('; ')}`);
+      if (task === 'large-text') audit.push({screen:spec.path,width:viewport.width,issues:await page.evaluate(() => [...document.querySelectorAll('.screen *, .sheet *')].filter(el => {
+        const r=el.getBoundingClientRect(), st=getComputedStyle(el);
+        return r.width>0 && r.height>0 && el.scrollWidth>el.clientWidth+3 && !['auto','scroll'].includes(st.overflowX) && !el.closest('.sr-only,svg,.panda,.heat') && !el.matches('.buddy,.today-inbox,input');
+      }).map(el=>({tag:el.tagName,cls:el.className,overflow:el.scrollWidth-el.clientWidth,text:el.textContent.slice(0,50)})))});
       const out = resolve(root,'review',task,`${spec.path}-${viewport.width}.png`);
       await mkdir(dirname(out),{recursive:true});
       await page.screenshot({path:out});
@@ -103,4 +118,5 @@ try {
     }
   }
 } finally { await browser.close(); }
+if (audit.length) await writeFile(resolve(root,'review',task,'audit.json'),JSON.stringify(audit,null,2));
 console.log(`Screenshots: review/${task}`);

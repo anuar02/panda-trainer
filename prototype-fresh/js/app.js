@@ -368,7 +368,7 @@
       html = r.html; wide = r.wide;
     } catch (e) {
       console.error('[screen]', e);
-      html = `<div class="screen"><div style="padding:40px 22px"><h1 style="font-family:var(--disp);font-weight:800;font-size:24px">Ошибка экрана</h1><p style="color:var(--sec);font-size:14px;margin-top:8px">${esc(e.message)}</p></div></div>`;
+      html = `<div class="screen"><div style="padding:40px 22px"><h1 style="font-family:var(--disp);font-weight:800;font-size:1.5rem">Ошибка экрана</h1><p style="color:var(--sec);font-size:0.875rem;margin-top:8px">${esc(e.message)}</p></div></div>`;
     }
     try {
       sheetInner = Sheets.render(st);

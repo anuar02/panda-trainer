@@ -28,8 +28,8 @@ const Sheets = (() => {
       return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--hair)">
         ${Lead(p.c.initials, { size: 'sm' })}
         <div style="flex:1;min-width:0">
-          <div style="font-size:14.5px;font-weight:600">${esc(p.c.short)}</div>
-          <div style="font-size:12.5px;color:var(--sec);margin-top:1px">
+          <div style="font-size:0.90625rem;font-weight:600">${esc(p.c.short)}</div>
+          <div style="font-size:0.875rem;color:var(--sec);margin-top:1px">
             ${att === 'present' ? 'Присутствовал' : att === 'noshow' ? 'Неявка' : 'Посещение не отмечено'}
           </div>
         </div>
@@ -147,7 +147,7 @@ const Sheets = (() => {
     return `<div class="sheet__title">Записать оплату</div>
       <div class="sheet__sub">${esc(c.name)}${due ? ` · к оплате ${DB.fmtMoney(due)}` : ''}. Оплата уменьшает долг, но не количество посещений.</div>
       <div class="label" style="margin:18px 0 10px">Сумма, ₸</div>
-      <div class="field"><input type="number" inputmode="numeric" data-pay-amount placeholder="0" value="${due || ''}" style="font-family:var(--disp);font-weight:800;font-size:24px"></div>
+      <div class="field"><input type="number" inputmode="numeric" data-pay-amount placeholder="0" value="${due || ''}" style="font-family:var(--disp);font-weight:800;font-size:1.5rem"></div>
       <div class="label" style="margin:18px 0 10px">Способ</div>
       <div class="chips">${['Kaspi', 'Перевод', 'Наличные'].map((m, i) => `<span class="chip chip--soft ${i === 0 ? 'is-on' : ''}" ${act('pay.method', { m })} role="button" tabindex="0">${m}</span>`).join('')}</div>
       <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
