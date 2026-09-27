@@ -230,23 +230,26 @@ const Trainer = (() => {
     const live = all.filter(s => s.status !== 'cancelled');
     const now = toMin(DB.NOW_TIME);
     const isToday = Store.get().day === DB.TODAY;
-    const done = isToday ? live.filter(s => toMin(s.end) <= now).length : 0;
-    const left = live.length - done;
+    const done = live.filter(s => s.date < DB.TODAY || (isToday && toMin(s.end) <= now)).length;
+    const ongoing = isToday ? live.filter(s => toMin(s.start) <= now && now < toMin(s.end)).length : 0;
+    const left = live.length - done - ongoing;
     const pending = pendingTrainer().length;
     const pct = live.length ? Math.round(done / live.length * 100) : 0;
     const mood = left === 0 && live.length ? 'laugh' : pending ? 'excited' : 'smile';
     const line = !live.length ? 'Свободный день — можно восстановиться.'
-      : left === 0 ? 'Все занятия позади. Отличная работа!'
+      : left === 0 && !ongoing ? 'Все занятия позади. Отличная работа!'
+      : ongoing ? `Сейчас идёт ${ongoing} ${DB.plural(ongoing, ['занятие', 'занятия', 'занятий'])}.`
       : done === 0 ? `Впереди ${left} ${DB.plural(left, ['занятие', 'занятия', 'занятий'])}. Разминаемся!`
       : `Осталось ${left} ${DB.plural(left, ['занятие', 'занятия', 'занятий'])} — вы в ритме.`;
     return `<section class="buddy" aria-label="Сводка дня">
       <div class="buddy__face">${Mascot.face(mood, 58)}</div>
       <div class="buddy__main">
         <p class="buddy__line">${esc(line)}</p>
-        <div class="buddy__bar" role="img" aria-label="Проведено ${done} из ${live.length}"><i style="--p:${pct}%"></i></div>
+        <div class="buddy__bar" role="img" aria-label="По времени завершилось ${done} из ${live.length}"><i style="--p:${pct}%"></i></div>
         <div class="buddy__stats">
-          <span><b class="num">${done}</b> проведено</span>
+          <span><b class="num">${done}</b> позади</span>
           <span><b class="num">${left}</b> впереди</span>
+          ${ongoing ? `<span><b class="num">${ongoing}</b> сейчас</span>` : ''}
           ${pending ? `<button class="buddy__req" ${act('tab', { id: 't-inbox' })}><b class="num">${pending}</b> ${DB.plural(pending, ['запрос', 'запроса', 'запросов'])}</button>` : ''}
         </div>
       </div>
@@ -282,7 +285,7 @@ const Trainer = (() => {
           ${Icon.get('swap', { size: 16, sw: 2.2 })}<span>Перенос · ответить</span>${Icon.get('chevR', { size: 14, style: 'color:var(--ter)' })}</button>`
       : '';
 
-    const pastHint = (!group && !cancelled && toMin(s.end) <= nowMin())
+    const pastHint = (!group && !cancelled && (s.date < DB.TODAY || (s.date === DB.TODAY && toMin(s.end) <= nowMin())))
       ? `<span class="today-entry__past">время прошло</span>` : '';
 
     const programLine = group

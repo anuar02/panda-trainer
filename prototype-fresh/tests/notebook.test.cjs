@@ -60,3 +60,16 @@ test('same-day zero measurements and a single record do not invent a trend', () 
   assert.doesNotMatch(single, /<svg class="progress-chart__plot"/);
   assert.equal(run('progressBlocks({}, [])'), '');
 });
+
+test('today distinguishes ongoing, upcoming and elapsed slots at the same demo time', () => {
+  const run = app();
+  run("DB.NOW_TIME = '20:30'");
+  const live = JSON.parse(run('JSON.stringify(DB.byDate(DB.TODAY).filter(s => s.status !== "cancelled"))'));
+  const ahead = live.filter(s => s.start > '20:30').length;
+  const ongoing = live.filter(s => s.start <= '20:30' && s.end > '20:30').length;
+  assert.match(run('Trainer.today()'), new RegExp(`${ahead}</b> впереди`));
+  if (ongoing) assert.match(run('Trainer.today()'), new RegExp(`${ongoing}</b> сейчас`));
+  run("DB.NOW_TIME = '23:59'");
+  assert.match(run('Trainer.today()'), /0<\/b> впереди/);
+  assert.match(run('Trainer.today()'), /Все занятия позади/);
+});
