@@ -1,0 +1,104 @@
+/* Optional visual study. Every override is scoped; default notebook is unchanged.
+   Decisions and exact baseline values: docs/design-system.md §1. */
+:root[data-visual="firm"] {
+  --canvas: #f3f3f1;
+  --sunken: #ededeb;
+  --border: #e2e2df;
+  --hair: #ececea;
+  --border-button: #8a8a85; /* distinguish white secondary buttons from paper */
+  --shadow-card: 0 1px 2px rgba(17, 17, 16, 0.05), 0 0 0 1px rgba(17, 17, 16, 0.035);
+  --shadow-raised: 0 10px 28px -12px rgba(17, 17, 16, 0.22), 0 0 0 1px rgba(17, 17, 16, 0.04);
+  --shadow-sheet: 0 -10px 40px rgba(17, 17, 16, 0.18);
+  --shadow-fab: 0 10px 22px rgba(17, 17, 16, 0.34);
+  --r-card: 14px;
+  --r-card-lg: 16px;
+  --r-sheet: 20px;
+  --r-button: 12px;
+  --r-button-compact: 12px;
+  --r-button-sm: 12px;
+  --r-button-icon: 12px;
+  --r-button-pill: 12px;
+  --r-search: 12px;
+  --r-stepper: 12px;
+  --r-calendar-strip: 12px;
+  --r-status: 0px;
+  --r-status-sm: 0px;
+  --r-panel: 12px;
+  --r-card-inset: 12px;
+  --r-card-compact: 12px;
+  --r-number: 14px;
+  --r-row: 8px;
+  --r-thumbnail: 10px;
+  --r-nav: 10px;
+  --r-notice: 12px;
+  --r-notice-compact: 12px;
+  --r-toast: 12px;
+  --r-day: 12px;
+  --r-cell: 6px;
+  --r-invite: 16px;
+  --r-seal: 14px;
+  --r-skeleton: 8px;
+}
+
+/* Inset border keeps the existing button box and label position intact. */
+:root[data-visual="firm"] .btn--soft {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border-button);
+}
+
+/* Text carries the meaning. Colored dots remain decorative, and badge geometry
+   stays unchanged, including badges whose original markup omitted the dot. */
+:root[data-visual="firm"] .pill {
+  position: relative;
+  background: transparent;
+  color: var(--ink);
+}
+:root[data-visual="firm"] .pill--neutral { color: var(--sec); }
+:root[data-visual="firm"] .pill--ink .pill__dot { background: var(--ink); }
+:root[data-visual="firm"] .pill--nodot::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sec);
+}
+:root[data-visual="firm"] .pill--mint::before { background: var(--mint); }
+:root[data-visual="firm"] .pill--amber::before { background: var(--amber); }
+:root[data-visual="firm"] .pill--danger::before { background: var(--danger); }
+:root[data-visual="firm"] .pill--ink::before { background: var(--ink); }
+:root[data-visual="firm"] :is(.directory-due, .directory-connection) {
+  position: relative;
+  background: transparent;
+  color: var(--sec);
+}
+:root[data-visual="firm"] :is(.directory-due, .directory-connection)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(50% - 2px);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--sec);
+}
+:root[data-visual="firm"] .directory-due::before { background: var(--amber); }
+
+/* Keep the next-set margin mark; preserve independent draft/error feedback. */
+:root[data-visual="firm"] .setrow.is-next .setrow__quick { background: transparent; }
+:root[data-visual="firm"] .setrow.is-next .setrow__no { color: var(--ink); }
+:root[data-visual="firm"] .setrow.is-next .setrow__proposal { color: var(--sec); }
+:root[data-visual="firm"] .setrow.is-next:not(.is-draft) .setrow__pen {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--sec);
+}
+:root[data-visual="firm"] .setrow__quick:active { background: var(--sunken); }
+
+/* Current implementation already has one blue left marker. Keep that marker;
+   don't introduce a second blue accent on the chevron. Error detail stays red. */
+:root[data-visual="firm"] .workout-dock__action { color: var(--sec); }
+:root[data-visual="firm"] .workout-dock__expand { color: var(--sec); }
+:root[data-visual="firm"] .workout-dock__button:active { background: var(--sunken); }
