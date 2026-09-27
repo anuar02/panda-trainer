@@ -373,7 +373,7 @@ test('program is a session snapshot, personal null program does not fall back to
   assert.equal(run("Store.logging.exercises('c5')[0].sets"), 3);
   run("Store.logging.open('s7')");
   assert.equal(run("Store.logging.exercises('c1').length"), 0);
-  assert.match(run('Trainer.session()'), /Программы нет/);
+  assert.match(run('Trainer.session()'), /Тренировка без программы/);
 });
 
 test('unavailable storage allows memory-only input but blocks completion', () => {

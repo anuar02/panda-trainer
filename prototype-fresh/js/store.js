@@ -41,6 +41,7 @@ const Store = (() => {
       plans: {},
       context: null,
       drafts: {},
+      notes: {},
       editor: null,
       feedback: null,      // Ephemeral confirmation, never persisted as workout data.
       quickUndo: null,     // Only the latest quick entry; never part of a saved journal.
@@ -281,6 +282,8 @@ const Store = (() => {
           const arr = v.values[cid]?.[e.id] || [];
           if (!Array.isArray(arr) || arr.length > e.sets || arr.some(x => x != null && !validSet(x))) throw Error('values');
         }
+        const notes = v.notes?.[cid];
+        if (notes !== undefined && (!Array.isArray(notes) || notes.some(n => !n || typeof n.text !== 'string' || typeof n.at !== 'string'))) throw Error('notes');
         for (const [exId, arr] of Object.entries(v.drafts[cid] || {})) {
           const ex = p.exercises.find(e => e.id === exId);
           if (!ex || !Array.isArray(arr) || arr.length > ex.sets || arr.some(x => x != null && (typeof x.kg !== 'string' || typeof x.reps !== 'string'))) throw Error('drafts');
@@ -307,7 +310,7 @@ const Store = (() => {
   function persistLog() {
     const lg = state.logging;
     const record = clone({ version: 1, sessionId: lg.sessionId, active: lg.active, plans: lg.plans, context: lg.context,
-      values: lg.values, drafts: lg.drafts, finished: lg.finished, startedAt: lg.startedAt, completedAt: lg.completedAt || null });
+      values: lg.values, drafts: lg.drafts, notes: lg.notes || {}, finished: lg.finished, startedAt: lg.startedAt, completedAt: lg.completedAt || null });
     logCache.set(lg.sessionId, record);
     let storageError = false, storageConflict = false;
     try {
@@ -355,7 +358,7 @@ const Store = (() => {
       const { booking, record } = target;
       const plan = record.plans[record.active];
       if (!plan) return null;
-      const total = plan.exercises.reduce((n, e) => n + e.sets, 0);
+      const total = plan.exercises.reduce((n, e) => n + (e.skipped ? (record.values?.[record.active]?.[e.id] || []).filter(validSet).length : e.sets), 0);
       const done = plan.exercises.reduce((n, e) => n + (record.values?.[record.active]?.[e.id] || []).filter(validSet).length, 0);
       const drafts = Object.values(record.drafts?.[record.active] || {}).reduce((n, arr) => n + arr.filter(Boolean).length, 0);
       const draftParticipants = Object.values(record.drafts || {}).filter(exercises => Object.values(exercises).some(arr => arr.some(Boolean))).length;
@@ -388,7 +391,7 @@ const Store = (() => {
     },
     exportData() {
       return clone({ version: 1, sessionId: state.logging.sessionId, plans: state.logging.plans, context: state.logging.context,
-        values: state.logging.values, drafts: state.logging.drafts, finished: state.logging.finished,
+        values: state.logging.values, drafts: state.logging.drafts, notes: state.logging.notes, finished: state.logging.finished,
         localRecovery: recoveredLogs.get(state.logging.sessionId) || null,
         exportedAt: new Date().toISOString(), source: 'trainer-prototype-local-journal' });
     },
@@ -404,7 +407,7 @@ const Store = (() => {
     eligible,
     progress(cid) {
       const exercises = logging.exercises(cid);
-      const total = exercises.reduce((n, e) => n + e.sets, 0);
+      const total = exercises.reduce((n, e) => n + (e.skipped ? (state.logging.values[cid]?.[e.id] || []).filter(validSet).length : e.sets), 0);
       const done = exercises.reduce((n, e) => n + (state.logging.values[cid]?.[e.id] || []).filter(validSet).length, 0);
       const drafts = Object.values(state.logging.drafts[cid] || {}).reduce((n, arr) => n + arr.filter(Boolean).length, 0);
       return { total, done, drafts };
@@ -435,7 +438,7 @@ const Store = (() => {
     repeatSuggestion(clientId, exId, setId) {
       const lg = state.logging;
       const ex = logging.exercises(clientId).find(e => e.id === exId);
-      if (lg.finished || lg.storageError || clientId !== lg.active || !eligible(clientId) || !ex
+      if (lg.finished || lg.storageError || clientId !== lg.active || !eligible(clientId) || !ex || ex.skipped
         || !Number.isInteger(setId) || setId < 0 || setId >= ex.sets
         || lg.values[clientId]?.[exId]?.[setId] || lg.drafts[clientId]?.[exId]?.[setId]
         || !validSet(ex.prev)) return null;
@@ -468,7 +471,7 @@ const Store = (() => {
     },
     setValue(clientId, exId, setId, value) {
       const ex = logging.exercises(clientId).find(e => e.id === exId);
-      if (state.logging.finished || !eligible(clientId) || !ex || !Number.isInteger(setId) || setId < 0 || setId >= ex.sets || !validSet(value)) return false;
+      if (state.logging.finished || !eligible(clientId) || !ex || ex.skipped || !Number.isInteger(setId) || setId < 0 || setId >= ex.sets || !validSet(value)) return false;
       const values = { ...state.logging.values };
       const perClient = { ...(values[clientId] || {}) };
       const arr = [...(perClient[exId] || [])];
@@ -480,7 +483,7 @@ const Store = (() => {
     },
     edit(clientId, exId, setId) {
       const ex = logging.exercises(clientId).find(e => e.id === exId);
-      if (state.logging.finished || !eligible(clientId) || !ex || !Number.isInteger(setId) || setId < 0 || setId >= ex.sets) return;
+      if (state.logging.finished || !eligible(clientId) || !ex || ex.skipped || !Number.isInteger(setId) || setId < 0 || setId >= ex.sets) return;
       const current = state.logging.drafts[clientId]?.[exId]?.[setId] || state.logging.values[clientId]?.[exId]?.[setId] || { kg: '', reps: '' };
       set({ logging: { ...state.logging, feedback: null, quickUndo: null, editor: { clientId, exId, setId, kg: String(current.kg), reps: String(current.reps), error: '' } }, toast: null,
         sheet: { id: 'setlog', data: { cid: clientId, ex: exId, si: setId } } });
@@ -515,6 +518,109 @@ const Store = (() => {
       if (state.logging.storageError) ui.toast('warn', 'Подход записан только в памяти вкладки');
       return true;
     },
+    library() {
+      const names = new Set(DB.exerciseLibrary.map(e => e.name));
+      return [...DB.exerciseLibrary, ...(state.customExercises || []).filter(e => !names.has(e.name))];
+    },
+    addSet(clientId, exId) {
+      if (!canEditPlan(clientId)) return false;
+      const plans = clone(state.logging.plans);
+      const ex = plans[clientId].exercises.find(e => e.id === exId);
+      if (!ex || ex.skipped || ex.sets >= 30) return false;
+      if (ex.plannedSets === undefined) ex.plannedSets = ex.sets;
+      ex.sets += 1;
+      changeLog({ plans, quickUndo: null, feedback: `Подход ${ex.sets} добавлен · ${ex.name}` });
+      return true;
+    },
+    removeSet(clientId, exId) {
+      if (!canEditPlan(clientId)) return false;
+      const plans = clone(state.logging.plans);
+      const ex = plans[clientId].exercises.find(e => e.id === exId);
+      if (!ex || ex.sets <= Math.max(1, ex.plannedSets ?? ex.sets)) return false;
+      const last = ex.sets - 1;
+      if (state.logging.values[clientId]?.[exId]?.[last] || state.logging.drafts[clientId]?.[exId]?.[last]) return false;
+      ex.sets -= 1;
+      const values = clone(state.logging.values);
+      if (values[clientId]?.[exId]) values[clientId][exId] = values[clientId][exId].slice(0, ex.sets);
+      const drafts = clone(state.logging.drafts);
+      if (drafts[clientId]?.[exId]) drafts[clientId][exId] = drafts[clientId][exId].slice(0, ex.sets);
+      changeLog({ plans, values, drafts, quickUndo: null, feedback: `Пустой подход убран · ${ex.name}` });
+      return true;
+    },
+    addExercise(clientId, spec) {
+      if (!canEditPlan(clientId)) return null;
+      const plans = clone(state.logging.plans);
+      const ex = makeExercise(spec, { origin: 'added' });
+      if (!ex) return null;
+      plans[clientId].exercises.push(ex);
+      rememberCustom(ex.name, spec);
+      changeLog({ plans, quickUndo: null, feedback: `Добавлено: ${ex.name}` });
+      return ex.id;
+    },
+    replaceExercise(clientId, exId, spec) {
+      if (!canEditPlan(clientId)) return null;
+      const plans = clone(state.logging.plans);
+      const list = plans[clientId].exercises;
+      const index = list.findIndex(e => e.id === exId);
+      const old = list[index];
+      if (!old || old.skipped) return null;
+      const done = (state.logging.values[clientId]?.[exId] || []).filter(validSet).length;
+      const sets = Math.max(1, old.sets - done);
+      const ex = makeExercise(spec, { origin: 'replaced', replaces: old.name, sets, plannedSets: sets });
+      if (!ex) return null;
+      old.skipped = true;
+      old.replacedBy = ex.id;
+      list.splice(index + 1, 0, ex);
+      const drafts = clone(state.logging.drafts);
+      if (drafts[clientId]) delete drafts[clientId][exId];
+      rememberCustom(ex.name, spec);
+      changeLog({ plans, drafts, quickUndo: null, feedback: `${old.name} → ${ex.name}` });
+      return ex.id;
+    },
+    skipExercise(clientId, exId, skip = true) {
+      if (!canEditPlan(clientId)) return false;
+      const plans = clone(state.logging.plans);
+      const list = plans[clientId].exercises;
+      const index = list.findIndex(e => e.id === exId);
+      const ex = list[index];
+      if (!ex || ex.replacedBy || Boolean(ex.skipped) === skip) return false;
+      const done = (state.logging.values[clientId]?.[exId] || []).filter(validSet).length;
+      const drafts = clone(state.logging.drafts);
+      if (skip && ex.origin === 'added' && !done) {
+        list.splice(index, 1);
+        if (drafts[clientId]) delete drafts[clientId][exId];
+        changeLog({ plans, drafts, quickUndo: null, feedback: `Убрано: ${ex.name}` });
+        return true;
+      }
+      if (skip) { ex.skipped = true; if (drafts[clientId]) delete drafts[clientId][exId]; }
+      else delete ex.skipped;
+      changeLog({ plans, drafts, quickUndo: null, feedback: skip ? `Пропущено: ${ex.name}` : `Возвращено: ${ex.name}` });
+      return true;
+    },
+    changes(clientId) {
+      const list = state.logging.plans[clientId]?.exercises || [];
+      return {
+        replaced: list.filter(e => e.origin === 'replaced').map(e => ({ from: e.replaces, to: e.name })),
+        added: list.filter(e => e.origin === 'added').map(e => e.name),
+        skipped: list.filter(e => e.skipped && !e.replacedBy).map(e => e.name),
+        extra: list.reduce((n, e) => n + (e.plannedSets !== undefined && e.origin !== 'added' ? (state.logging.values[clientId]?.[e.id] || []).filter((v, i) => i >= e.plannedSets && validSet(v)).length : 0), 0),
+      };
+    },
+    addNote(clientId, text) {
+      const clean = String(text || '').trim().replace(/\s+/g, ' ').slice(0, 500);
+      if (!clean || state.logging.finished || !state.logging.plans[clientId]) return false;
+      const notes = clone(state.logging.notes || {});
+      notes[clientId] = [...(notes[clientId] || []), { text: clean, at: DB.NOW_TIME }];
+      changeLog({ notes }, false);
+      return true;
+    },
+    removeNote(clientId, index) {
+      if (state.logging.finished || !state.logging.notes?.[clientId]?.[index]) return false;
+      const notes = clone(state.logging.notes);
+      notes[clientId].splice(index, 1);
+      changeLog({ notes });
+      return true;
+    },
     retrySave() { persistLog(); commit(); },
     finish() {
       if (!state.logging.sessionId || state.logging.finished) return;
@@ -528,6 +634,24 @@ const Store = (() => {
       finalize();
     },
   };
+
+  function canEditPlan(clientId) {
+    return !state.logging.finished && Boolean(state.logging.plans[clientId]) && eligible(clientId);
+  }
+  function makeExercise(spec, extra = {}) {
+    const name = String(spec?.name || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+    if (!name) return null;
+    const lib = logging.library().find(e => e.name.toLowerCase() === name.toLowerCase());
+    const bodyweight = spec.bodyweight ?? lib?.bodyweight ?? false;
+    const prev = DB.libraryPrev(lib?.name || name) || { kg: bodyweight ? 0 : null, reps: null };
+    const unit = spec.unit || lib?.unit || (prev.kg === 0 && /планк/i.test(name) ? 'сек' : 'повт');
+    return { id: 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: lib?.name || name, sets: extra.sets || 3, reps: '', target: 0, prev, pr: 0, unit,
+      origin: extra.origin, ...(extra.replaces ? { replaces: extra.replaces } : {}), plannedSets: extra.plannedSets ?? 0 };
+  }
+  function rememberCustom(name, spec) {
+    if (DB.exerciseLibrary.some(e => e.name === name) || (state.customExercises || []).some(e => e.name === name)) return;
+    silent({ customExercises: [...(state.customExercises || []), { name, group: 'Своё упражнение', bodyweight: Boolean(spec?.bodyweight), custom: true }] });
+  }
 
   function hasUnwrittenSets() {
     return Object.keys(state.logging.plans).some(cid => eligible(cid) && participantHasGap(cid));

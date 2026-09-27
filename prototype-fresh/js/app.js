@@ -96,6 +96,19 @@
       Store.ui.openSheet(d.id, d);
     },
     'sheet.close': () => Store.ui.closeSheet(),
+    'voice.open': () => Voice.open(),
+    'voice.toggle': () => Voice.toggle(),
+    'voice.demo': (d) => Voice.demo(d.phrase),
+    'voice.text': () => Voice.submitText(),
+    'voice.remove': (d) => Voice.remove(d.key),
+    'voice.commit': () => Voice.commit(),
+    'note.remove': (d) => Store.logging.removeNote(d.cid, Number(d.i)),
+    'ex.addSet': (d) => { Store.logging.addSet(d.cid, d.ex); if (Store.get().sheet) Store.ui.closeSheet(); },
+    'ex.removeSet': (d) => Store.logging.removeSet(d.cid, d.ex),
+    'ex.skip': (d) => { Store.ui.closeSheet(); Store.logging.skipExercise(d.cid, d.ex, true); },
+    'ex.unskip': (d) => Store.logging.skipExercise(d.cid, d.ex, false),
+    'ex.pick': (d) => Flex.choose({ name: d.name, bodyweight: d.bw === '1' }),
+    'ex.create': () => Flex.create(),
     'toast': (d) => Store.ui.toast('', d.text),
     'role': (d) => Store.nav.role(d.role),
     'width': (d) => Store.set({ deviceW: num(d.w) }),
@@ -290,6 +303,9 @@
       <div class="toolbar" role="group" aria-label="Оформление">
         <button class="tool" data-visual-choice="current" aria-pressed="${document.documentElement.dataset.visual !== 'firm'}">Текущий</button>
         <button class="tool" data-visual-choice="firm" aria-pressed="${document.documentElement.dataset.visual === 'firm'}">Строгий</button>
+      </div>
+      <div class="toolbar" role="group" aria-label="Палитра">
+        ${[['ink', 'Чернила'], ['teal', 'Бирюза'], ['panda', 'Панда']].map(([id, label]) => `<button class="tool" data-palette-choice="${id}" aria-pressed="${(document.documentElement.dataset.palette || 'panda') === id}">${label}</button>`).join('')}
       </div>
       <div class="toolbar" role="group" aria-label="Ширина">
         ${[320, 375, 390, 430].map(w => `<button class="tool" ${act('width', { w })} aria-pressed="${st.deviceW === w}">${w}</button>`).join('')}

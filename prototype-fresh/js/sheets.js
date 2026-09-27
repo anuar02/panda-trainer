@@ -98,9 +98,9 @@ const Sheets = (() => {
           </div>
         </div>
       </div>
-      <button class="log-repeat" ${act('setlog.repeat', { cid: d.cid, ex: d.ex, si: d.si })}>
+      ${e.prev?.reps > 0 ? `<button class="log-repeat" ${act('setlog.repeat', { cid: d.cid, ex: d.ex, si: d.si })}>
         <span>Как в прошлый раз</span><b class="num">${e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ` : ''}${e.prev.reps} ${unit}</b>
-      </button>
+      </button>` : '<p class="log-editor-hint">Первый раз — прошлых результатов нет.</p>'}
       </div>
       <footer class="log-editor-footer">
       <p id="log-input-status" class="log-editor-hint" ${cur.error || st.logging.storageError ? 'role="alert"' : ''}>${esc(inputHint)}</p>
@@ -114,7 +114,7 @@ const Sheets = (() => {
   function finishConfirm(st) {
     const rows = Object.keys(st.logging.plans).map(cid => {
       const p = Store.logging.progress(cid);
-      return `<li><strong>${esc(client(cid).short)}</strong><span>${!Store.logging.eligible(cid) ? 'Не участвует' : p.total ? `${p.done} из ${p.total} записано · ${p.total - p.done} без записи${p.drafts ? ` · черновиков: ${p.drafts}` : ''}` : 'Нет программы · подходы не записаны'}</span></li>`;
+      return `<li><strong>${esc(client(cid).short)}</strong><span>${!Store.logging.eligible(cid) ? 'Не участвует' : p.total ? `${p.done} из ${p.total} записано · ${p.total - p.done} без записи${p.drafts ? ` · черновиков: ${p.drafts}` : ''}` : 'Упражнений нет · подходы не записаны'}</span>${Store.logging.eligible(cid) ? UI.ChangesSummary(cid) : ''}</li>`;
     }).join('');
     return `<div class="sheet__title">Завершить журнал?</div>
       <div class="sheet__sub">Сохраним только подтверждённые результаты. Пустые подходы и черновики не считаются выполненными. Посещение и списание не изменятся.</div>
@@ -378,6 +378,42 @@ const Sheets = (() => {
       <div class="directory-create-actions">${Btn('Создать карточку', { a: 'clients.create' })}${Btn('Отмена', { kind: 'ghost', a: 'sheet.close' })}</div>`;
   }
 
+  function exMenu(st) {
+    const { cid, ex } = st.sheet.data;
+    const e = Store.logging.exercises(cid).find(x => x.id === ex);
+    if (!e) return '';
+    const done = (st.logging.values[cid]?.[ex] || []).filter(Boolean).length;
+    const removable = e.origin === 'added' && !done;
+    return `<div class="sheet__title">${esc(e.name)}</div>
+      <div class="sheet__sub">Изменения только для этой тренировки${Object.keys(st.logging.plans).length > 1 ? ` и только для ${esc(client(cid).short)}` : ''}. Программа клиента не меняется.</div>
+      <div class="exmenu">
+        <button class="exmenu__item" ${act('sheet.open', { id: 'exPick', mode: 'replace', cid, ex })}>${Icon.get('swap', { size: 20 })}<span><b>Заменить</b><small>${done ? `Записанные подходы (${done}) останутся` : 'Например, тренажёр занят'}</small></span></button>
+        <button class="exmenu__item" ${act('ex.addSet', { cid, ex })}>${Icon.get('plus', { size: 20 })}<span><b>Добавить подход</b><small>Сейчас ${e.sets} ${DB.plural(e.sets, ['подход', 'подхода', 'подходов'])}</small></span></button>
+        <button class="exmenu__item exmenu__item--danger" ${act('ex.skip', { cid, ex })}>${Icon.get(removable ? 'trash' : 'ban', { size: 20 })}<span><b>${removable ? 'Убрать из тренировки' : 'Пропустить'}</b><small>${removable ? 'Подходов ещё нет' : done ? 'Незаписанные подходы не учитываются' : 'Можно вернуть до завершения'}</small></span></button>
+      </div>
+      ${Btn('Закрыть', { kind: 'ghost', size: 'compact', a: 'sheet.close' })}`;
+  }
+
+  function exPick(st) {
+    const { mode, cid, ex } = st.sheet.data;
+    const current = Store.logging.exercises(cid);
+    const target = current.find(x => x.id === ex);
+    const inSession = new Set(current.filter(x => !x.skipped).map(x => x.name));
+    const list = Store.logging.library();
+    const title = mode === 'replace' && target ? `Заменить «${target.name}»` : 'Добавить упражнение';
+    return `<div class="sheet__title">${esc(title)}</div>
+      <div class="sheet__sub">${mode === 'replace' ? 'Выберите, что делаете вместо.' : 'Появится в этой тренировке с пометкой «не из программы».'} Программа клиента не изменится.</div>
+      <div class="field field--search expick__search">${Icon.get('search', { size: 19, style: 'color:var(--ter)' })}<input id="ex-search" data-ex-search placeholder="Название упражнения" autocomplete="off" aria-label="Поиск упражнения" aria-controls="ex-list"></div>
+      <p class="expick__similar" data-ex-similar hidden>Похожие уже есть в библиотеке — лучше выбрать из них, чтобы история не разделилась.</p>
+      <ul class="expick__list" id="ex-list">${list.map(item => `<li data-ex-item data-search="${esc(item.name.toLowerCase().replace(/ё/g, 'е'))}">
+        <button class="expick__item" ${act('ex.pick', { name: item.name, bw: item.bodyweight ? 1 : null })}${item.name === target?.name ? ' disabled aria-disabled="true"' : ''}>
+          <span class="expick__name">${esc(item.name)}</span>
+          <span class="expick__meta">${esc(item.group)}${inSession.has(item.name) ? ' · уже в тренировке' : ''}</span>
+        </button></li>`).join('')}</ul>
+      <p class="expick__none" data-ex-none hidden>В библиотеке такого нет — создайте своё упражнение.</p>
+      <button class="expick__create" data-act="ex.create" hidden>${Icon.get('plus', { size: 18, sw: 2.4 })}<span>Создать своё: «<b data-ex-new></b>»</span></button>`;
+  }
+
   function render(st) {
     const sh = st.sheet;
     if (!sh) return '';
@@ -385,6 +421,8 @@ const Sheets = (() => {
       session, setlog, finishConfirm, charge, pay,
       notifications, stale, clientActions, search, customEx, assignTemplate,
       cCancel, exercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
+      voice: () => Voice.sheet(),
+      exMenu, exPick,
     };
     const fn = map[sh.id];
     return fn ? fn(st) : '';

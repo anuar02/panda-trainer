@@ -171,5 +171,21 @@ const UI = (() => {
       </button></aside>`;
   };
 
-  return { esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton, WorkoutDock };
+  const ChangesSummary = (clientId) => {
+    const c = Store.logging.changes(clientId);
+    const parts = [];
+    if (c.replaced.length) parts.push(`заменено ${c.replaced.length}`);
+    if (c.added.length) parts.push(`добавлено ${c.added.length}`);
+    if (c.skipped.length) parts.push(`пропущено ${c.skipped.length}`);
+    if (c.extra) parts.push(`сверх плана ${c.extra} ${DB.plural(c.extra, ['подход', 'подхода', 'подходов'])}`);
+    if (!parts.length) return '';
+    const details = [
+      ...c.replaced.map(r => `${esc(r.from)} → ${esc(r.to)}`),
+      ...c.added.map(n => `+ ${esc(n)}`),
+      ...c.skipped.map(n => `без «${esc(n)}»`),
+    ];
+    return `<div class="plan-diff"><b>Отличия от программы:</b> ${parts.join(' · ')}${details.length ? `<span>${details.join('; ')}</span>` : ''}<small>Программа клиента не изменена.</small></div>`;
+  };
+
+  return { ChangesSummary, esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton, WorkoutDock };
 })();
