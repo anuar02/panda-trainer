@@ -473,6 +473,7 @@ const Store = (() => {
       values[clientId] ||= {};
       values[clientId][exId] ||= [];
       values[clientId][exId][setId] = value;
+      field.touchFinish();
       const quickUndo = { sessionId: state.logging.sessionId, clientId, exId, setId, value };
       changeLog({ values, quickUndo, dirty: true, feedback: `Подход ${setId + 1} записан · ${DB.client(clientId).short}` });
       return true;
@@ -504,6 +505,7 @@ const Store = (() => {
     edit(clientId, exId, setId) {
       const ex = logging.exercises(clientId).find(e => e.id === exId);
       if (state.logging.finished || !eligible(clientId) || !ex || ex.skipped || !Number.isInteger(setId) || setId < 0 || setId >= ex.sets) return;
+      field.touchStart();
       const current = state.logging.drafts[clientId]?.[exId]?.[setId] || state.logging.values[clientId]?.[exId]?.[setId] || { kg: '', reps: '' };
       set({ logging: { ...state.logging, feedback: null, quickUndo: null, editor: { clientId, exId, setId, kg: String(current.kg), reps: String(current.reps), error: '' } }, toast: null,
         sheet: { id: 'setlog', data: { cid: clientId, ex: exId, si: setId } } });
@@ -534,6 +536,7 @@ const Store = (() => {
       const drafts = clone(state.logging.drafts);
       if (drafts[ed.clientId]?.[ed.exId]) drafts[ed.clientId][ed.exId][ed.setId] = null;
       changeLog({ drafts, editor: null, feedback: `Подход ${ed.setId + 1} записан · ${DB.client(ed.clientId).short}` });
+      field.touchFinish();
       ui.closeSheet();
       if (state.logging.storageError) ui.toast('warn', 'Подход записан только в памяти вкладки');
       return true;
@@ -1020,5 +1023,58 @@ const Store = (() => {
     },
   };
 
-  return { get, set, update, silent, subscribe, commit, nav, ui, preferences, programs, reschedule, logging, attendance, billing, invite, newSession, sessions, hasUnwrittenSets, participantHasGap };
+  const field = (() => {
+    const enabled = typeof location !== 'undefined' && new URLSearchParams(location.search).get('field') === '1';
+    const key = 'trainer-prototype:field:v1';
+    let events = [];
+    let activeVoice = null, activeTouch = null, serial = 0;
+    if (enabled) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key));
+        if (data?.version === 1 && Array.isArray(data.events)) events = data.events.filter(e=>e && typeof e.kind === 'string' && Number.isFinite(e.at) && typeof e.attempt === 'string');
+      } catch {}
+    }
+    function record(kind, attempt, data = {}) {
+      if (!enabled || !attempt) return;
+      events.push({...data,kind,attempt,at:Date.now()});
+      try { localStorage.setItem(key,JSON.stringify({version:1,events})); }
+      catch { ui.toast('warn','Полевой журнал только в памяти. Выгрузите его перед закрытием.'); }
+    }
+    function summary(input = events) {
+      const trials = new Map();
+      for (const e of input) { if (!trials.has(e.attempt)) trials.set(e.attempt,[]); trials.get(e.attempt).push(e); }
+      const voice = [], touch = [], quick = [];
+      let phrases = 0, clean = 0;
+      for (const trial of trials.values()) {
+        const start = trial.find(e=>['voice-start','touch-start'].includes(e.kind));
+        const end = trial.find(e=>['voice-save','touch-save'].includes(e.kind));
+        if (!start) continue;
+        if (start.kind === 'voice-start' && start.mode === 'speech') {
+          const heard = trial.filter(e=>e.kind === 'voice-heard');
+          phrases += heard.length;
+          const changed = trial.some(e=>['voice-remove','voice-error','voice-edit'].includes(e.kind)) || !end || end.failed > 0;
+          if (!changed) clean += heard.filter(e=>!e.items?.some(i=>i.type==='error')).length;
+        }
+        if (!end || !Number.isFinite(end.sets) || end.sets <= 0 || end.at < start.at) continue;
+        const row = {ms:end.at-start.at,sets:end.sets};
+        if (start.kind === 'touch-start') (start.mode === 'quick' ? quick : touch).push(row);
+        else if (start.mode === 'speech') voice.push(row);
+      }
+      const metric = rows => ({attempts:rows.length,sets:rows.reduce((n,r)=>n+r.sets,0),meanMsPerSet:rows.length ? rows.reduce((n,r)=>n+r.ms,0)/rows.reduce((n,r)=>n+r.sets,0) : null});
+      return {voice:metric(voice),touch:metric(touch),quickRepeat:metric(quick),recognizedPhrases:phrases,uneditedPhrases:clean,uneditedPhraseShare:phrases ? clean/phrases : null};
+    }
+    return {
+      enabled, summary,
+      voiceStart(mode = 'speech') { if (!enabled) return; if (!activeVoice) { activeVoice = `${Date.now()}-v-${++serial}`; record('voice-start',activeVoice,{mode,sessionId:state.logging.sessionId}); } },
+      voiceEvent(kind,data) { record('voice-'+kind,activeVoice,data); },
+      voiceFinish(sets,failed) { record('voice-save',activeVoice,{sets,failed}); activeVoice=null; },
+      voiceCancel() { if (activeVoice) record('voice-cancel',activeVoice); activeVoice=null; },
+      touchStart(mode = 'sheet') { if (!enabled) return; activeTouch=`${Date.now()}-t-${++serial}`; record('touch-start',activeTouch,{mode,sessionId:state.logging.sessionId}); },
+      touchFinish() { record('touch-save',activeTouch,{sets:1}); activeTouch=null; },
+      exportData() { return {version:1,exportedAt:new Date().toISOString(),summary:summary(),events:clone(events)}; },
+      clear() { if (!enabled) return; events=[]; activeVoice=null; activeTouch=null; try { localStorage.setItem(key,JSON.stringify({version:1,events:[]})); } catch { ui.toast('warn','Не удалось очистить сохранённый полевой журнал.'); } commit(); },
+    };
+  })();
+
+  return { get, set, update, silent, subscribe, commit, nav, ui, preferences, programs, field, reschedule, logging, attendance, billing, invite, newSession, sessions, hasUnwrittenSets, participantHasGap };
 })();

@@ -272,6 +272,7 @@ const Voice = (() => {
     if (!clean) return;
     state.heard.push(clean);
     reindex();
+    Store.field.voiceEvent('heard',{text:clean,items:JSON.parse(JSON.stringify(state.items))});
     if (hold.phase) renderHoldList();
     refresh();
   }
@@ -286,7 +287,8 @@ const Voice = (() => {
   }
 
   function start() {
-    if (!SR) { state.error = 'Этот браузер не поддерживает распознавание речи. Напечатайте фразу или попробуйте Chrome / Safari.'; refresh(); return; }
+    Store.field.voiceStart();
+    if (!SR) { Store.field.voiceEvent('error',{error:'unsupported'}); state.error = 'Этот браузер не поддерживает распознавание речи. Напечатайте фразу или попробуйте Chrome / Safari.'; refresh(); return; }
     stopDemo();
     wantListening = true;
     state.error = '';
@@ -306,6 +308,7 @@ const Voice = (() => {
         setInterim(interim);
       };
       rec.onerror = (event) => {
+        Store.field.voiceEvent('error',{error:event.error});
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
           wantListening = false;
           state.error = 'Нет доступа к микрофону. Разрешите его в настройках браузера или напечатайте фразу.';
@@ -330,12 +333,14 @@ const Voice = (() => {
     } catch (_) {
       wantListening = false;
       state.listening = false;
+      Store.field.voiceEvent('error',{error:'start-failed'});
       state.error = 'Микрофон сейчас недоступен. Напечатайте фразу.';
       refresh();
     }
   }
 
   function stop(render = true) {
+    Store.field.voiceEvent('release');
     wantListening = false;
     stopDemo();
     if (rec) { try { rec.stop(); } catch (_) { } }
@@ -353,6 +358,7 @@ const Voice = (() => {
   }
 
   function demo(phrase) {
+    Store.field.voiceStart('demo');
     if (state.listening && !state.demo) stop(false);
     stopDemo();
     const reduce = hasWindow && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -381,17 +387,21 @@ const Voice = (() => {
     const input = hasWindow ? document.getElementById('voice-text') : null;
     const value = input?.value || '';
     if (!value.trim()) { input?.focus(); return; }
+    Store.field.voiceStart('text');
+    Store.field.voiceEvent('edit');
     hear(value);
     requestAnimationFrame(() => { const next = document.getElementById('voice-text'); if (next) { next.value = ''; next.focus(); } });
   }
 
   function remove(key) {
+    Store.field.voiceEvent('remove',{key:Number(key),item:state.items.find(i=>i.key===Number(key))});
     state.removed = [...(state.removed || []), Number(key)];
     reindex();
     refresh();
   }
 
   function reset() {
+    Store.field.voiceCancel();
     stop(false);
     state.fromHold = false;
     state.items = [];
@@ -486,6 +496,7 @@ const Voice = (() => {
     reset();
     hold.phase = 'listening';
     hold.startedAt = Date.now();
+    Store.field.voiceStart();
     hold.lastInterim = '';
     document.documentElement.classList.add('is-voice-holding');
     try { navigator.vibrate?.(12); } catch (_) { }
@@ -496,6 +507,7 @@ const Voice = (() => {
   function holdEnd(cancel = false) {
     if (hold.phase !== 'listening') return;
     document.documentElement.classList.remove('is-voice-holding');
+    Store.field.voiceEvent('release',{cancel});
     const quick = Date.now() - hold.startedAt < 350;
     hold.lastInterim = state.interim;
     if (cancel) { hold.phase = null; stop(false); hideHold(); return; }
@@ -559,6 +571,7 @@ const Voice = (() => {
         else failed++;
       }
     }
+    Store.field.voiceFinish(sets,failed);
     reset();
     Store.ui.closeSheet();
     const parts = [];

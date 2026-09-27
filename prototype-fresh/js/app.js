@@ -68,7 +68,20 @@
 
   const num = (v) => (v == null ? v : Number(v));
 
+  ['pointerdown','keydown'].forEach(type => document.addEventListener(type,event=>{
+    if (type === 'keydown' && !['Enter',' '].includes(event.key)) return;
+    if (event.target.closest('[data-act="setlog.quick"]')) Store.field.touchStart('quick');
+  }));
+
   const Actions = {
+    'field.clear': () => Store.field.clear(),
+    'field.export': () => {
+      const data = Store.field.exportData();
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+      const link = document.createElement('a');
+      link.href=url; link.download='field-journal.json'; document.body.append(link); link.click(); link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    },
     'program.assign': (d) => Store.sessions.assignProgram(d.sid,d.name),
     'note.share': (d) => Store.logging.shareNote(d.cid,Number(d.i)),
     'program.save': (d) => Store.programs.save(d.cid, [...document.querySelectorAll('[data-program-change]:checked')].map(el => el.value)),

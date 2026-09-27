@@ -1152,6 +1152,7 @@ const Trainer = (() => {
           </div>
         </div>
         <button class="btn btn--soft" role="switch" aria-checked="${Store.preferences.calm()}" ${act('calm.toggle')}>Спокойный интерфейс · ${Store.preferences.calm() ? 'вкл' : 'выкл'}</button>
+        ${Store.field.enabled ? `<p class="client-footnote">Полевой режим: события сохраняются только в этом браузере.</p>${Btn('Выгрузить полевой журнал', {kind:'soft',a:'field.export'})}${Btn('Очистить полевой журнал', {kind:'ghost',a:'field.clear'})}` : ''}
         ${Btn('Мои упражнения', { kind: 'soft', a: 'sheet.open', args: { id: 'myExercises' } })}
         ${Stats([[String(todayCount), 'занятий сегодня'], [String(pending), 'ждут ответа'], [String(count), 'клиентов в базе']])}
         <div style="height:16px"></div>

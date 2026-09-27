@@ -58,6 +58,7 @@ if (task === '05-client-value') {
     {path:'empty-progress',role:'client',screen:'c-progress',scenario:'empty'},
   ];
 }
+if (task === '06-field') screens = [{path:'profile',role:'trainer',screen:'t-profile',field:true}];
 let executablePath = process.env.CHROMIUM_PATH;
 if (!executablePath) {
   try { await access(chromium.executablePath()); }
@@ -79,7 +80,7 @@ try {
           abort() {}
         };
       });
-      await page.goto(`${base}?now=18:45${spec.calm ? "&calm=1" : ""}`);
+      await page.goto(`${base}?now=18:45${spec.calm ? "&calm=1" : ""}${spec.field ? "&field=1" : ""}`);
       await page.evaluate(({role,screen,scenario}) => Store.set({role,screen,scenario:scenario || 'normal'}),spec);
       await page.evaluate(() => document.fonts.ready);
       await page.waitForTimeout(350);
