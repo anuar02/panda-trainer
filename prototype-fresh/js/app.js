@@ -291,6 +291,9 @@
         <button class="tool" data-visual-choice="current" aria-pressed="${document.documentElement.dataset.visual !== 'firm'}">Текущий</button>
         <button class="tool" data-visual-choice="firm" aria-pressed="${document.documentElement.dataset.visual === 'firm'}">Строгий</button>
       </div>
+      <div class="toolbar" role="group" aria-label="Палитра">
+        ${[['panda', 'Панда'], ['teal', 'Бирюза'], ['ink', 'Чернила']].map(([id, label]) => `<button class="tool" data-palette-choice="${id}" aria-pressed="${(document.documentElement.dataset.palette || 'panda') === id}">${label}</button>`).join('')}
+      </div>
       <div class="toolbar" role="group" aria-label="Ширина">
         ${[320, 375, 390, 430].map(w => `<button class="tool" ${act('width', { w })} aria-pressed="${st.deviceW === w}">${w}</button>`).join('')}
         ${st.role === 'trainer' ? `<button class="tool" ${act('wide')} aria-pressed="${st.wide}">Широкий</button>` : ''}

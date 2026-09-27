@@ -22,3 +22,27 @@
   });
   window.addEventListener('popstate', apply);
 })();
+(() => {
+  const root = document.documentElement;
+  const PALETTES = ['panda', 'teal', 'ink'];
+  const apply = () => {
+    const value = new URLSearchParams(location.search).get('palette');
+    const palette = PALETTES.includes(value) ? value : 'panda';
+    if (palette === 'panda') root.removeAttribute('data-palette');
+    else root.dataset.palette = palette;
+    document.querySelectorAll('[data-palette-choice]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.paletteChoice === palette));
+    });
+  };
+  apply();
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-palette-choice]');
+    if (!button) return;
+    const url = new URL(location.href);
+    if (button.dataset.paletteChoice === 'panda') url.searchParams.delete('palette');
+    else url.searchParams.set('palette', button.dataset.paletteChoice);
+    history.replaceState(history.state, '', url);
+    apply();
+  });
+  window.addEventListener('popstate', apply);
+})();
