@@ -37,7 +37,7 @@ const Trainer = (() => {
         : 'Разовое занятие';
     } else {
       title = s.title;
-      meta = 'Программа появится позже';
+      meta = UI.ProgramPreview(s.clientId,s.program,'trainer',s.id);
     }
 
     const req = s.request || (st.sessionRequests || {})[s.id];
@@ -290,7 +290,7 @@ const Trainer = (() => {
 
     const programLine = group
       ? `<p class="today-entry__program"><strong>${esc(participantNames(s))}</strong></p>`
-      : `<p class="today-entry__program"><strong>${esc(s.program || 'Программа появится позже')}</strong><span>Индивидуальное</span></p>`;
+      : `<p class="today-entry__program"><strong>${UI.ProgramPreview(s.clientId, s.program, 'trainer', s.id)}</strong><span>Индивидуальное</span></p>`;
 
     const summaryLine = group
       ? (expanded
@@ -569,7 +569,7 @@ const Trainer = (() => {
         ${Card(DB.clients.map((x, i, arr) => Row({
           lead: Lead(x.initials, { tone: c.clientIds.includes(x.id) ? 'ink' : '', size: 'sm' }),
           title: x.name,
-          meta: x.program ? esc(x.program) + (x.plan ? ` · осталось ${x.plan.remaining}` : '') : 'Программа появится позже',
+          meta: x.program ? esc(x.program) + (x.plan ? ` · осталось ${x.plan.remaining}` : '') : 'Без программы · выберите на следующем шаге',
           right: c.clientIds.includes(x.id) ? Icon.get('check', { size: 20, sw: 2.6 }) : '',
           a: 'ns.toggle', args: { id: x.id }, last: i === arr.length - 1,
         })).join(''), { rows: true })}
@@ -999,7 +999,7 @@ const Trainer = (() => {
     if (!notes.length) return '';
     return `<section class="log-notes" aria-label="Заметки тренера">
       <div class="log-notes__head">${Icon.get('note', { size: 17 })}<span>Заметки</span><span class="num">${notes.length}</span></div>
-      <ul>${notes.map((n, i) => `<li><span class="log-notes__time num">${esc(n.at)}</span><span class="log-notes__text">${esc(n.text)}</span>${lg.finished ? '' : `<button class="log-notes__x" ${act('note.remove', { cid: clientId, i })} aria-label="Удалить заметку: ${esc(n.text)}">${Icon.get('close', { size: 15, sw: 2.4 })}</button>`}</li>`).join('')}</ul>
+      <ul>${notes.map((n, i) => `<li><span class="log-notes__time num">${esc(n.at)}</span><span class="log-notes__text">${esc(n.text)}</span><button class="note-share" role="switch" aria-checked="${n.shared === true}" ${act('note.share', {cid:clientId,i})}>Видно клиенту · ${n.shared === true ? 'да' : 'нет'}</button>${lg.finished ? '' : `<button class="log-notes__x" ${act('note.remove', { cid: clientId, i })} aria-label="Удалить заметку: ${esc(n.text)}">${Icon.get('close', { size: 15, sw: 2.4 })}</button>`}</li>`).join('')}</ul>
     </section>`;
   }
 

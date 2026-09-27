@@ -171,6 +171,12 @@ const UI = (() => {
       </button></aside>`;
   };
 
+  const ProgramPreview = (clientId, name, role = 'client', sid = null) => {
+    const exercises = DB.programForClient(clientId, name);
+    if (exercises.length) return `${esc(name || 'Личная программа')} · ${exercises.slice(0,3).map(e=>esc(e.name)).join(', ')}${exercises.length > 3 ? ` · ещё ${exercises.length-3}` : ''}`;
+    return role === 'client' ? 'Тренер подберёт упражнения на месте' : `Без программы${sid ? ` · <button class="btn btn--ghost btn--sm" ${act('sheet.open',{id:'chooseProgram',sid})}>Выбрать программу</button>` : ''}`;
+  };
+
   const ChangesSummary = (clientId) => {
     const c = Store.logging.changes(clientId);
     const parts = [];
@@ -187,5 +193,5 @@ const UI = (() => {
     return `<div class="plan-diff"><b>Отличия от программы:</b> ${parts.join(' · ')}${details.length ? `<span>${details.join('; ')}</span>` : ''}<small>Программа клиента не изменена.</small></div>`;
   };
 
-  return { ChangesSummary, esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton, WorkoutDock };
+  return { ChangesSummary, ProgramPreview, esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton, WorkoutDock };
 })();

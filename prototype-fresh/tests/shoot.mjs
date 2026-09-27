@@ -48,6 +48,16 @@ if (task === '04-programs') {
     {path:'client-copy',role:'client',screen:'c-program',actions:`${results} Store.programs.save('c1',Store.programs.options('c1').filter(o=>o.checked).map(o=>o.key)); Store.set({role:'client',screen:'c-program',toast:null});`},
   ];
 }
+if (task === '05-client-value') {
+  const shared = `${journal} Store.logging.addNote('c1','Контролируйте темп опускания'); Store.logging.shareNote('c1',0); Store.logging.addNote('c1','Закрытая заметка');`;
+  screens = [
+    {path:'home',role:'client',screen:'c-home'},
+    {path:'progress',role:'client',screen:'c-progress',actions:`Store.set({role:'trainer'}); ${shared} ${results} Store.set({role:'client',screen:'c-progress',toast:null});`},
+    {path:'history',role:'client',screen:'c-history',actions:`Store.set({role:'trainer'}); ${shared} ${results} Store.set({role:'client',screen:'c-history',toast:null});`},
+    {path:'note-visibility',role:'trainer',screen:'t-session',actions:shared,scroll:true},
+    {path:'empty-progress',role:'client',screen:'c-progress',scenario:'empty'},
+  ];
+}
 let executablePath = process.env.CHROMIUM_PATH;
 if (!executablePath) {
   try { await access(chromium.executablePath()); }
@@ -76,6 +86,7 @@ try {
       if (spec.actions) await page.evaluate(spec.actions);
       await page.waitForTimeout(spec.wait ?? 120);
       if (spec.scroll) await page.locator('.screen__body').evaluate(el => { el.scrollTop = el.scrollHeight; });
+      await page.evaluate(() => document.getAnimations().forEach(a => { if (a.effect?.target?.closest('.fx-celebrate,.hold,.panda')) return; try { a.finish(); } catch { a.cancel(); } }));
       await page.addStyleTag({content:'*,*::before,*::after { animation-play-state:paused !important; caret-color:transparent !important; }'});
       if (await page.locator('html').getAttribute('data-palette') !== 'ink') throw new Error('Expected default ink palette');
       if (errors.length) throw new Error(`${spec.path}: ${errors.join('; ')}`);

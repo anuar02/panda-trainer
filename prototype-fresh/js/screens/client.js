@@ -65,7 +65,7 @@ const Client = (() => {
       <div class="hero-card__date">${DB.fmtDateLong(next.date)}</div>
       <div class="hero-card__when num">${next.start}–<span>${next.end}</span></div>
       <div class="hero-card__meta">
-        <h2>${next.program ? esc(next.program) : 'Программа появится позже'}</h2>
+        <h2>${UI.ProgramPreview(ME, next.kind === 'group' ? c.program : next.program)}</h2>
         <span>${next.kind === 'group' ? 'Занятие в мини-группе' : 'Индивидуальная тренировка'}</span>
       </div>
       ${myReq ? requestCard(myReq) : ''}
@@ -88,7 +88,7 @@ const Client = (() => {
       ${SectionH('Следующие занятия')}
       ${Card(rest.map((s, i) => Row({
         title: `${DB.fmtDate(s.date)} · ${s.start}`,
-        meta: `${esc(s.program || 'Программа появится позже')}${s.kind === 'group' ? ' · Мини-группа' : ''}`,
+        meta: `${UI.ProgramPreview(ME, s.kind === 'group' ? c.program : s.program)}${s.kind === 'group' ? ' · Мини-группа' : ''}`,
         last: i === rest.length - 1,
       })).join(''), { rows: true })}
     </div>` : '';
@@ -131,7 +131,7 @@ const Client = (() => {
       },
       no_session: {
         title: 'Занятий пока нет', sub: 'Согласуйте первое занятие с тренером. Он добавит время и программу; запрос свободного времени из приложения пока недоступен.',
-        pill: Pill('Программа появится позже', { tone: 'amber', dot: false }), action: Btn('На главную демо', { kind: 'primary', a: 'tab', args: { id: 'c-home' } }),
+        pill: Pill('Упражнения подберёт тренер', { tone: 'amber', dot: false }), action: Btn('На главную демо', { kind: 'primary', a: 'tab', args: { id: 'c-home' } }),
       },
     };
     const s = states[inv];
@@ -190,6 +190,7 @@ const Client = (() => {
         && (s.status === 'cancelled' || s.participants?.some(p => p.clientId === ME && p.reply === 'cancelled') || st.attendance[s.id + ':' + ME] || Store.logging.status(s.id) === 'finished' || s.date < DB.TODAY || (s.date === DB.TODAY && s.end <= DB.NOW_TIME)))
       .sort((a, b) => (b.date + b.start).localeCompare(a.date + a.start));
     const unit = (st.scenario === 'empty' ? [] : st.billing.unitTx).filter(u => u.clientId === ME).slice().sort((a, b) => b.date.localeCompare(a.date));
+    const journals = Store.logging.clientHistory(ME);
     const attendancePill = s => {
       const att = st.attendance[s.id + ':' + ME];
       const cancelled = s.status === 'cancelled' || s.participants?.some(p => p.clientId === ME && p.reply === 'cancelled');
@@ -205,7 +206,7 @@ const Client = (() => {
           <time class="client-history__date num" datetime="${s.date}T${s.start}" aria-label="${DB.fmtDateLong(s.date)} · ${s.start}"><strong>${s.date.slice(8)}</strong><span>${DB.MONTHS_SHORT[Number(s.date.slice(5, 7)) - 1]}</span><small>${s.start}</small></time>
           <div class="client-history__record"><h3>${esc(s.program || 'Без программы')}</h3>
           <p>${s.kind === 'group' ? 'Мини-группа' : 'Индивидуальное занятие'}</p>
-          ${attendancePill(s)}</div>
+          ${attendancePill(s)}${journals.filter(j=>j.sessionId===s.id).map(j=>`${j.changes ? `<p>${esc(j.changes)}</p>` : ''}${j.notes.map(n=>`<p class="shared-note"><b>Тренер:</b> ${esc(n.text)}</p>`).join('')}`).join('')}</div>
         </article>`).join('')) : quietEmpty('calendar', 'Занятий пока нет', 'Здесь появятся прошедшие и отменённые записи из расписания.')}</section>
         <section><h2 class="client-section-title">Списания и возвраты</h2>
         ${unit.length ? Card(unit.map((u, i) => Row({
@@ -223,7 +224,7 @@ const Client = (() => {
 
   function progress() {
     const c = me();
-    const h = Store.get().scenario === 'empty' ? [] : DB.history[ME] || [];
+    const h = Store.get().scenario === 'empty' ? [] : Store.logging.clientProgress(ME);
     const visits = Store.get().scenario === 'empty' ? [] : DB.sessions.filter(s => Store.get().attendance[s.id + ':' + ME] === 'present').map(s => s.date);
     const cells = DB.WEEK.map(d => {
       const on = visits.includes(d);
@@ -232,7 +233,7 @@ const Client = (() => {
 
     return shell('c-progress', `
       ${PageTitle({ title: 'Прогресс', size: 'sm' })}
-      ${h.length ? progressBlocks(c, h) : `<div class="client-content">${quietEmpty('trend', 'Первые результаты — впереди', 'Когда тренер запишет подходы, здесь можно будет сравнить результаты. Пока данных нет.', 'rest')}</div>`}
+      ${h.length ? `<div class="client-content"><p class="client-footnote">Лучший подход: наибольший вес, при равном весе — больше повторов. Прирост к лучшему результату, известному 4 недели назад.</p>${h.map(e=>Card(`<h2>${esc(e.name)}</h2><p class="client-best">${e.best.kg ? `${DB.fmtNumber(e.best.kg)} кг × ` : ''}${e.best.reps} ${esc(e.unit)}</p><p>${e.delta === null ? 'Для сравнения за 4 недели пока мало записей' : `${e.delta > 0 ? '+' : ''}${DB.fmtNumber(e.delta)} ${esc(e.deltaUnit)} за 4 недели`}</p>`, {pad:true})).join('')}</div>` : `<div class="client-content">${quietEmpty('trend', 'Первые результаты — впереди', 'Когда тренер запишет подходы, здесь можно будет сравнить результаты. Пока данных нет.', 'rest')}</div>`}
       <section class="client-content client-visits">
         <h2 class="client-section-title">Посещения за неделю</h2>
         <div class="card card--pad">

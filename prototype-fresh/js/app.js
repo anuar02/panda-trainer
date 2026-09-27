@@ -69,6 +69,8 @@
   const num = (v) => (v == null ? v : Number(v));
 
   const Actions = {
+    'program.assign': (d) => Store.sessions.assignProgram(d.sid,d.name),
+    'note.share': (d) => Store.logging.shareNote(d.cid,Number(d.i)),
     'program.save': (d) => Store.programs.save(d.cid, [...document.querySelectorAll('[data-program-change]:checked')].map(el => el.value)),
     'calm.toggle': () => Store.preferences.toggleCalm(),
     'tab': (d) => Store.nav.tab(d.id),

@@ -360,7 +360,7 @@ const Sheets = (() => {
         return Row({
           lead: Lead(c ? c.initials : '?', { size: 'sm' }),
           title: c ? c.short : s.title,
-          meta: `${s.start}–${s.end} · ${s.program || 'Программа появится позже'}`,
+          meta: `${s.start}–${s.end} · ${UI.ProgramPreview(s.clientId,s.program,'trainer',s.id)}`,
           right: Pill('Индивидуальное', { tone: 'neutral', dot: false }),
           a: 'sheet.open', args: { id: 'session', sid: s.id }, last: i === live.length - 1,
         });
@@ -433,6 +433,8 @@ const Sheets = (() => {
       cCancel, exercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
       voice: () => Voice.sheet(),
       exMenu, exPick, programUpdate,
+      chooseProgram: () => `<h2 class="sheet__title">Выбрать программу</h2><p class="sheet__sub">Программа занятия. Уже открытый журнал сохраняет свой план.</p>${DB.templates.map(t=>Btn(t.name,{kind:'soft',a:'program.assign',args:{sid:st.sheet.data.sid,name:t.program}})).join('')}`,
+
       myExercises: () => `<h2 class="sheet__title">Мои упражнения</h2><p class="sheet__sub">Удаление из библиотеки не меняет уже записанные журналы.</p>${(st.customExercises || []).length ? st.customExercises.map(e => `<div class="row"><span class="row__main">${esc(e.name)}</span>${Btn('Удалить', { kind: 'ghost', size: 'sm', a: 'ex.deleteCustom', args: { name: e.name } })}</div>`).join('') : '<p>Своих упражнений пока нет. Добавьте упражнение в журнале через поиск.</p>'}`,
 
     };

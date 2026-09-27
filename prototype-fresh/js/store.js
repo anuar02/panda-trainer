@@ -636,9 +636,46 @@ const Store = (() => {
       const clean = String(text || '').trim().replace(/\s+/g, ' ').slice(0, 500);
       if (!clean || state.logging.finished || !state.logging.plans[clientId]) return false;
       const notes = clone(state.logging.notes || {});
-      notes[clientId] = [...(notes[clientId] || []), { text: clean, at: DB.NOW_TIME }];
+      notes[clientId] = [...(notes[clientId] || []), { text: clean, at: DB.NOW_TIME, shared: false }];
       changeLog({ notes }, false);
       return true;
+    },
+    shareNote(clientId, index) {
+      if (state.role !== 'trainer' || !state.logging.notes?.[clientId]?.[index]) return false;
+      const notes = clone(state.logging.notes);
+      notes[clientId][index].shared = notes[clientId][index].shared !== true;
+      changeLog({ notes });
+      return !state.logging.storageError;
+    },
+    clientHistory(clientId) {
+      return DB.sessions.map(s => {
+        const log = readLog(s.id, true);
+        if (!log || log.unreadable || !log.finished || !log.plans[clientId]) return null;
+        const list = log.plans[clientId].exercises;
+        const changes = [ ['заменено', list.filter(e=>e.origin==='replaced' && !e.replacedBy).length], ['добавлено',list.filter(e=>e.origin==='added').length], ['пропущено',list.filter(e=>e.skipped && !e.replacedBy).length] ].filter(([,n])=>n).map(([label,n])=>`${label} ${n}`).join(' · ');
+        return {sessionId:s.id, date:log.context?.date || s.date, notes:(log.notes?.[clientId] || []).filter(n=>n.shared === true).map(n=>({text:n.text,at:n.at})), changes,
+          exercises:list.map(e=>({name:e.name, unit:e.unit || (/планк/i.test(e.name) ? 'сек':'повт'), values:(log.values[clientId]?.[e.id] || []).filter(validSet)}))};
+      }).filter(Boolean);
+    },
+    clientProgress(clientId) {
+      const cutoff = new Date(DB.TODAY+'T12:00:00Z');
+      cutoff.setUTCDate(cutoff.getUTCDate()-28);
+      const day = cutoff.toISOString().slice(0,10);
+      const groups = new Map();
+      for (const log of logging.clientHistory(clientId)) {
+        if (log.date > DB.TODAY) continue;
+        for (const e of log.exercises) for (const value of e.values) {
+          const key = exerciseKey(e.name)+':'+e.unit;
+          if (!groups.has(key)) groups.set(key,{name:e.name,unit:e.unit,rows:[]});
+          groups.get(key).rows.push({...value,date:log.date});
+        }
+      }
+      const best = rows => rows.slice().sort((a,b)=>b.kg-a.kg || b.reps-a.reps)[0];
+      return [...groups.values()].map(e=>{
+        const top = best(e.rows), baseline = best(e.rows.filter(r=>r.date<=day));
+        const delta = baseline ? Number(((top.kg ? top.kg : top.reps) - (top.kg ? baseline.kg : baseline.reps)).toFixed(3)) : null;
+        return {name:e.name, unit:e.unit, best:top, delta, deltaUnit:top.kg ? 'кг':e.unit, baselineDate:baseline?.date || null};
+      });
     },
     removeNote(clientId, index) {
       if (state.logging.finished || !state.logging.notes?.[clientId]?.[index]) return false;
@@ -871,6 +908,14 @@ const Store = (() => {
   /* ── Sessions: cancel / attendance reset ────────────────────────────────── */
 
   const sessions = {
+    assignProgram(sessionId, name) {
+      const session = DB.sessions.find(s=>s.id===sessionId);
+      if (state.role !== 'trainer' || !session || session.kind !== 'personal' || session.status === 'cancelled' || !DB.programs[name]) return false;
+      if (!SessionRepository.upsert({...session,program:name})) return requestFailure(SessionRepository.error());
+      ui.closeSheet();
+      ui.toast('', 'Программа выбрана. Открытый журнал сохраняет свои упражнения.');
+      return true;
+    },
     cancel(sessionId) {
       const s = DB.sessions.find(x => x.id === sessionId);
       if (!s || s.status === 'cancelled') return false;

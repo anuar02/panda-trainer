@@ -147,3 +147,32 @@ test('new programme exercises use recorded previous values; corrupt copies are i
   storage.setItem('trainer-prototype:client-programs:v1',JSON.stringify({version:1,byClient:{[cid]:{baseName:'test',updatedAt:'bad',exercises:[{}]}}}));
   assert.equal(app(storage).run(`DB.programForClient('${cid}',null).length`),0);
 });
+
+test('client history includes only explicitly shared notes and programme changes',()=>{
+  const {run,cid,storage}=personal();
+  run(`Store.logging.addNote('${cid}','private'); Store.logging.addNote('${cid}','public'); Store.logging.shareNote('${cid}',1); Store.logging.addExercise('${cid}',{name:'Моё'}); Store.logging.finish(); Store.logging.confirmPartial()`);
+  const b=app(storage);
+  const result=JSON.parse(b.run(`JSON.stringify(Store.logging.clientHistory('${cid}'))`));
+  assert.equal(result[0].notes.length,1);
+  assert.equal(result[0].notes[0].text,'public');
+  assert.match(result[0].changes,/добавлено 1/);
+  b.run("Store.set({role:'client'})");
+  assert.equal(b.run(`Store.logging.shareNote('${cid}',0)`),false);
+});
+
+test('client progress derives same-set best values and four-week gains from saved logs',()=>{
+  const {run,cid,sid,storage}=personal();
+  run(`Store.logging.setValue('${cid}','e1',0,{kg:50,reps:8}); Store.logging.setValue('${cid}','e1',1,{kg:40,reps:12}); Store.logging.finish(); Store.logging.confirmPartial()`);
+  const prior=JSON.parse(storage.getItem('trainer-prototype:journal:v1:'+sid));
+  prior.sessionId='old-test'; prior.context.date='2026-08-01'; prior.values[cid].e1=[{kg:40,reps:10}];
+  storage.setItem('trainer-prototype:journal:v1:old-test',JSON.stringify(prior));
+  run(`DB.sessions.push({...DB.sessions.find(s=>s.id==='${sid}'),id:'old-test',date:'2026-08-01'})`);
+  const result=JSON.parse(run(`JSON.stringify(Store.logging.clientProgress('${cid}'))`));
+  assert.equal(result[0].best.kg,50);
+  assert.equal(result[0].best.reps,8);
+  assert.equal(result[0].delta,10);
+  assert.equal(run("Store.logging.clientProgress('c7').length"),0);
+  run("Store.set({role:'client',scenario:'empty'})");
+  assert.match(run('Client.progress()'),/Первые результаты/);
+  assert.equal(run("UI.ProgramPreview('c7',null)"),'Тренер подберёт упражнения на месте');
+});
