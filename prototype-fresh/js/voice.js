@@ -53,7 +53,7 @@ const VoiceParse = (() => {
   function matchExercise(words, exercises) {
     let best = null, bestScore = 0;
     for (const ex of exercises) {
-      const nameWords = tokens(ex.name.toLowerCase().replace(/ё/g, 'е')).filter(w => w.length >= 3);
+      const nameWords = tokens([ex.name, ...(ex.aliases || []), ...((typeof DB !== 'undefined' && DB.exerciseLibrary.find(e => e.name === ex.name)?.aliases) || [])].join(' ').toLowerCase().replace(/ё/g, 'е')).filter(w => w.length >= 3);
       let score = 0;
       for (const nw of nameWords) {
         const need = Math.min(nw.length, nw.length <= 4 ? nw.length : 4);

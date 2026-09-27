@@ -10,7 +10,7 @@ function memory() {
 }
 function app(storage = memory()) {
   const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0, localStorage: storage });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'sheets', 'screens/trainer', 'screens/client']) {
+  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'sheets', 'screens/trainer', 'screens/client', 'voice']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context, { filename: name });
   }
   return { storage, run: code => vm.runInContext(code, context) };
@@ -80,7 +80,7 @@ test('a session without programme can be logged and reloaded with its changes', 
   assert.equal(b.run("Store.logging.exercises('c1')[0].name"), 'Фермерская прогулка');
   assert.equal(b.run(`Store.get().logging.values.c1['${id}'][0].kg`), 24);
   assert.equal(b.run("Store.get().logging.notes.c1[0].text"), 'хватка устаёт');
-  assert.equal(b.run("Store.logging.library().some(e => e.name === 'Фермерская прогулка')"), false);
+  assert.equal(b.run("Store.logging.library().some(e => e.name === 'Фермерская прогулка')"), true);
 });
 
 test('finished journal rejects structural changes', () => {
@@ -89,4 +89,32 @@ test('finished journal rejects structural changes', () => {
   assert.equal(run('Store.get().logging.finished'), true);
   assert.equal(run(`Store.logging.addSet('${cid}', 'e1')`), false);
   assert.equal(run(`Store.logging.addExercise('${cid}', { name: 'Планка' })`), null);
+});
+
+
+test('custom exercise storage validates records and normalizes duplicate names', () => {
+  const storage = memory();
+  const a = app(storage);
+  a.run("Store.logging.open('s7'); Store.logging.addExercise('c1', {name:'Мой жим', bodyweight:true, unit:'сек'}); Store.logging.addExercise('c1', {name:'мой-жим'}); Store.logging.addExercise('c1', {name:'жим  лежа'})");
+  const b = app(storage);
+  assert.equal(b.run('Store.get().customExercises.length'), 1);
+  assert.equal(b.run('Store.get().customExercises[0].unit'), 'сек');
+  b.run("Store.logging.removeCustom('Мой жим'); Store.logging.open('s7')");
+  assert.equal(b.run('Store.get().customExercises.length'), 0);
+  assert.equal(b.run("Store.logging.exercises('c1').some(e=>e.name==='Мой жим')"), true);
+  storage.setItem('trainer-prototype:exercises:v1', JSON.stringify({version:1,items:[null, {name:123}, {name:'bad',group:'g',bodyweight:'yes'}, {name:'good',group:'g',bodyweight:false}]}));
+  assert.equal(app(storage).run('Store.get().customExercises.length'),1);
+  storage.setItem('trainer-prototype:exercises:v1', '{');
+  assert.equal(app(storage).run('Store.get().customExercises.length'),0);
+});
+
+test('expanded library recognizes slang in voice input',()=>{
+  const a = app();
+  assert.equal(a.run('DB.exerciseLibrary.length'),80);
+  a.run("Store.logging.open('s7')");
+  for (const [phrase,name] of [['бицуха 12 на 12','Сгибания на бицепс с гантелями'],['присед 80 на 8','Приседания со штангой']]) {
+    const items = JSON.parse(a.run(`JSON.stringify(VoiceParse.parse('${phrase}',{active:'c1',participants:[],exercises:()=>[],values:()=>[],library:Store.logging.library()}))`));
+    assert.equal(items[0].name,name);
+    assert.equal(items[1].type,'set');
+  }
 });

@@ -405,7 +405,7 @@ const Sheets = (() => {
       <div class="sheet__sub">${mode === 'replace' ? 'Выберите, что делаете вместо.' : 'Появится в этой тренировке с пометкой «не из программы».'} Программа клиента не изменится.</div>
       <div class="field field--search expick__search">${Icon.get('search', { size: 19, style: 'color:var(--ter)' })}<input id="ex-search" data-ex-search placeholder="Название упражнения" autocomplete="off" aria-label="Поиск упражнения" aria-controls="ex-list"></div>
       <p class="expick__similar" data-ex-similar hidden>Похожие уже есть в библиотеке — лучше выбрать из них, чтобы история не разделилась.</p>
-      <ul class="expick__list" id="ex-list">${list.map(item => `<li data-ex-item data-search="${esc(item.name.toLowerCase().replace(/ё/g, 'е'))}">
+      <ul class="expick__list" id="ex-list">${list.map(item => `<li data-ex-item data-name="${esc(item.name)}" data-search="${esc([item.name, ...(item.aliases || [])].join(' ').toLowerCase().replace(/ё/g, 'е'))}">
         <button class="expick__item" ${act('ex.pick', { name: item.name, bw: item.bodyweight ? 1 : null })}${item.name === target?.name ? ' disabled aria-disabled="true"' : ''}>
           <span class="expick__name">${esc(item.name)}</span>
           <span class="expick__meta">${esc(item.group)}${inSession.has(item.name) ? ' · уже в тренировке' : ''}</span>
@@ -423,6 +423,8 @@ const Sheets = (() => {
       cCancel, exercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
       voice: () => Voice.sheet(),
       exMenu, exPick,
+      myExercises: () => `<h2 class="sheet__title">Мои упражнения</h2><p class="sheet__sub">Удаление из библиотеки не меняет уже записанные журналы.</p>${(st.customExercises || []).length ? st.customExercises.map(e => `<div class="row"><span class="row__main">${esc(e.name)}</span>${Btn('Удалить', { kind: 'ghost', size: 'sm', a: 'ex.deleteCustom', args: { name: e.name } })}</div>`).join('') : '<p>Своих упражнений пока нет. Добавьте упражнение в журнале через поиск.</p>'}`,
+
     };
     const fn = map[sh.id];
     return fn ? fn(st) : '';

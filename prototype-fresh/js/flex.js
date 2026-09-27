@@ -1,6 +1,6 @@
 const Flex = (() => {
   const hasWindow = typeof window !== 'undefined';
-  const norm = (v) => String(v || '').toLowerCase().replace(/ё/g, 'е').trim();
+  const norm = (v) => String(v || '').toLowerCase().replace(/ё/g, 'е').replace(/[-‐‑–—]/g, ' ').replace(/\s+/g, ' ').trim();
   const words = (v) => norm(v).split(/[^a-zа-я0-9]+/).filter(Boolean);
   const prefix = (a, b) => { let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; };
 
@@ -26,7 +26,7 @@ const Flex = (() => {
       if (ok) shown++;
     });
     const clean = value.trim();
-    const exact = items.some(li => li.dataset.search === norm(clean));
+    const exact = items.some(li => norm(li.dataset.name) === norm(clean));
     const create = document.querySelector('.expick__create');
     if (create) {
       create.hidden = !clean || exact;

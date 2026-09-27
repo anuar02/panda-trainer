@@ -110,6 +110,7 @@
     'ex.skip': (d) => { Store.ui.closeSheet(); Store.logging.skipExercise(d.cid, d.ex, true); },
     'ex.unskip': (d) => Store.logging.skipExercise(d.cid, d.ex, false),
     'ex.pick': (d) => Flex.choose({ name: d.name, bodyweight: d.bw === '1' }),
+    'ex.deleteCustom': (d) => Store.logging.removeCustom(d.name),
     'ex.create': () => Flex.create(),
     'toast': (d) => Store.ui.toast('', d.text),
     'role': (d) => Store.nav.role(d.role),

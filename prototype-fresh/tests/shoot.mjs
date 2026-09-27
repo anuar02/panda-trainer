@@ -34,6 +34,13 @@ let screens = [
 if (task === '02-calm') {
   screens = screens.filter(s => ['trainer-today', 'client-home', 'hold/0-button', 'hold/1-listening', 'onboarding'].includes(s.path)).flatMap(s => [s, {...s, path:`calm/${s.path}`, calm:true}]);
 }
+if (task === '03-exercises') {
+  screens = [
+    {path:'search', role:'trainer', screen:'t-session', actions:`${journal} Store.ui.openSheet('exPick',{cid:'c1',mode:'add'}); document.querySelector('#ex-search').value='бицуха'; Flex.filter('бицуха');`},
+    {path:'custom', role:'trainer', screen:'t-profile', actions:`${journal} Store.logging.addExercise('c1',{name:'Фермерская прогулка'}); Store.nav.tab('t-profile'); Store.ui.openSheet('myExercises');`},
+    {path:'library', role:'trainer', screen:'t-library'},
+  ];
+}
 let executablePath = process.env.CHROMIUM_PATH;
 if (!executablePath) {
   try { await access(chromium.executablePath()); }

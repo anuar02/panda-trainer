@@ -80,6 +80,7 @@ const Store = (() => {
     historyExercise: 0,
     payAmount: '',
     finishedResult: null,
+    customExercises: readCustomExercises(),
   };
 
   function get() { return state; }
@@ -537,6 +538,12 @@ const Store = (() => {
       if (state.logging.storageError) ui.toast('warn', 'Подход записан только в памяти вкладки');
       return true;
     },
+    removeCustom(name) {
+      if (state.role !== 'trainer') return false;
+      const ok = saveCustomExercises((state.customExercises || []).filter(e => exerciseKey(e.name) !== exerciseKey(name)));
+      commit();
+      return ok;
+    },
     library() {
       const names = new Set(DB.exerciseLibrary.map(e => e.name));
       return [...DB.exerciseLibrary, ...(state.customExercises || []).filter(e => !names.has(e.name))];
@@ -660,16 +667,40 @@ const Store = (() => {
   function makeExercise(spec, extra = {}) {
     const name = String(spec?.name || '').trim().replace(/\s+/g, ' ').slice(0, 80);
     if (!name) return null;
-    const lib = logging.library().find(e => e.name.toLowerCase() === name.toLowerCase());
+    const lib = logging.library().find(e => [e.name, ...(e.aliases || [])].some(n => exerciseKey(n) === exerciseKey(name)));
     const bodyweight = spec.bodyweight ?? lib?.bodyweight ?? false;
     const prev = DB.libraryPrev(lib?.name || name) || { kg: bodyweight ? 0 : null, reps: null };
     const unit = spec.unit || lib?.unit || (prev.kg === 0 && /планк/i.test(name) ? 'сек' : 'повт');
     return { id: 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: lib?.name || name, sets: extra.sets || 3, reps: '', target: 0, prev, pr: 0, unit,
       origin: extra.origin, ...(extra.replaces ? { replaces: extra.replaces } : {}), plannedSets: extra.plannedSets ?? 0 };
   }
+  function exerciseKey(name) {
+    return String(name || '').toLowerCase().replace(/ё/g, 'е').replace(/[-‐‑–—]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  function readCustomExercises() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('trainer-prototype:exercises:v1'));
+      if (saved?.version !== 1 || !Array.isArray(saved.items)) return [];
+      const names = new Set(DB.exerciseLibrary.flatMap(e => [e.name, ...(e.aliases || [])]).map(exerciseKey));
+      return saved.items.filter(e => {
+        if (!e || typeof e.name !== 'string' || !e.name.trim() || e.name.length > 80 || typeof e.group !== 'string' || e.group.length > 80 || typeof e.bodyweight !== 'boolean' || (e.unit !== undefined && !['сек', 'повт'].includes(e.unit))) return false;
+        const key = exerciseKey(e.name);
+        if (names.has(key)) return false;
+        names.add(key);
+        return true;
+      }).map(e => ({ name: e.name.trim(), group: e.group, bodyweight: e.bodyweight, ...(e.unit ? { unit: e.unit } : {}), custom: true }));
+    } catch { return []; }
+  }
+  function saveCustomExercises(items) {
+    try {
+      localStorage.setItem('trainer-prototype:exercises:v1', JSON.stringify({ version: 1, items: items.map(({ name, group, bodyweight, unit }) => ({ name, group, bodyweight, ...(unit ? { unit } : {}) })) }));
+      silent({ customExercises: items });
+      return true;
+    } catch { ui.toast('warn', 'Не удалось сохранить свои упражнения. Освободите место в браузере.'); return false; }
+  }
   function rememberCustom(name, spec) {
-    if (DB.exerciseLibrary.some(e => e.name === name) || (state.customExercises || []).some(e => e.name === name)) return;
-    silent({ customExercises: [...(state.customExercises || []), { name, group: 'Своё упражнение', bodyweight: Boolean(spec?.bodyweight), custom: true }] });
+    if (logging.library().some(e => [e.name, ...(e.aliases || [])].some(n => exerciseKey(n) === exerciseKey(name)))) return;
+    saveCustomExercises([...(state.customExercises || []), { name, group: 'Своё упражнение', bodyweight: Boolean(spec?.bodyweight), ...(spec?.unit ? { unit: spec.unit } : {}), custom: true }]);
   }
 
   function hasUnwrittenSets() {

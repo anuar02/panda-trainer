@@ -1020,11 +1020,11 @@ const Trainer = (() => {
     return `<div class="screen reference-screen">
       ${TopBar({ back: 'nav.back', title: 'Библиотека', right: Btn('Создать', { kind: 'ghost', size: 'sm', a: 'sheet.open', args: { id: 'customEx' } }) })}
       <div class="screen__body" style="padding:4px 16px 20px">
-        <div class="field field--search" style="margin-bottom:6px">${Icon.get('search', { size: 19, style: 'color:var(--ter)' })}<input placeholder="Упражнение или шаблон" aria-label="Поиск — пока недоступен" disabled></div>
+        <div class="field field--search" style="margin-bottom:6px">${Icon.get('search', { size: 19, style: 'color:var(--ter)' })}<input placeholder="Упражнение или шаблон" aria-label="Поиск упражнений" data-ex-search></div>
         <div class="chips" style="padding:12px 0">
           ${['Все', 'Шаблоны', 'Ноги', 'Верх', 'Пресс', 'Мои'].map((f, i) => `<span class="chip chip--soft ${i === 0 ? 'is-on' : ''}" aria-disabled="true">${f}</span>`).join('')}
         </div>
-        <p class="client-footnote" style="margin:0 4px 16px">Показана вся библиотека. Поиск и фильтры пока недоступны.</p>
+        <p class="client-footnote" style="margin:0 4px 16px">Показана вся библиотека. Ищите по названию или разговорному имени. Фильтры пока недоступны.</p>
         <div class="label" style="margin-left:6px">Шаблоны</div>
         ${Card(DB.templates.map((t, i) => Row({
           lead: Lead('layers', { size: 'sm', icon: true }),
@@ -1033,18 +1033,7 @@ const Trainer = (() => {
           a: 'template.open', args: { id: t.id }, last: i === DB.templates.length - 1,
         })).join(''), { rows: true, cls: '' })}
         <div class="label" style="margin:18px 6px 10px">Упражнения</div>
-        ${Card([
-          ['Приседания со штангой', 'Ноги · штанга'],
-          ['Румынская тяга', 'Ноги · штанга'],
-          ['Жим лёжа', 'Грудь · штанга'],
-          ['Жим гантелей под углом', 'Грудь · гантели'],
-          ['Тяга блока к поясу', 'Спина · блок'],
-          ['Планка', 'Пресс · вес тела'],
-        ].map(([n, m], i, arr) => Row({
-          lead: Lead('dumbbell', { size: 'sm', icon: true }),
-          title: n, meta: m,
-          last: i === arr.length - 1,
-        })).join(''), { rows: true })}
+        <ul class="expick__list">${Store.logging.library().map(e => `<li data-ex-item data-name="${esc(e.name)}" data-search="${esc([e.name, ...(e.aliases || [])].join(' '))}">${Row({lead: Lead('dumbbell', {size:'sm', icon:true}), title:e.name, meta:e.group})}</li>`).join('')}</ul>
       </div>
     </div>`;
   }
@@ -1163,6 +1152,7 @@ const Trainer = (() => {
           </div>
         </div>
         <button class="btn btn--soft" role="switch" aria-checked="${Store.preferences.calm()}" ${act('calm.toggle')}>Спокойный интерфейс · ${Store.preferences.calm() ? 'вкл' : 'выкл'}</button>
+        ${Btn('Мои упражнения', { kind: 'soft', a: 'sheet.open', args: { id: 'myExercises' } })}
         ${Stats([[String(todayCount), 'занятий сегодня'], [String(pending), 'ждут ответа'], [String(count), 'клиентов в базе']])}
         <div style="height:16px"></div>
         ${Card([
