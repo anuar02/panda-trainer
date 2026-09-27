@@ -873,32 +873,38 @@ const Trainer = (() => {
 
     const interactive = !lg.finished && eligible;
     const valuesOf = e => (lg.values[active] || {})[e.id] || [];
-    const nextEx = exs.find(e => Array.from({ length: e.sets }).some((_, i) => !valuesOf(e)[i]));
+    const nextEx = exs.find(e => !e.skipped && Array.from({ length: e.sets }).some((_, i) => !valuesOf(e)[i]));
     const rows = exs.map(e => {
       const arr = valuesOf(e);
+      if (e.skipped && e.replacedBy && !arr.some(Boolean)) return '';
       const nextIndex = e === nextEx ? Array.from({ length: e.sets }).findIndex((_, i) => !arr[i]) : -1;
-      const unit = e.name === 'Планка' ? 'сек' : 'повт';
-      const prev = e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ${e.prev.reps}` : `${e.prev.reps} ${unit}`;
-      const rowsHtml = Array.from({ length: e.sets }).map((_, si) => {
+      const unit = e.unit || (e.name === 'Планка' ? 'сек' : 'повт');
+      const hasPrev = e.prev && e.prev.reps > 0;
+      const weighted = e.prev?.kg !== 0;
+      const prev = !hasPrev ? '—' : e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ${e.prev.reps}` : `${e.prev.reps} ${unit}`;
+      const prevMeta = hasPrev ? `прошлый раз ${prev}` : 'первый раз';
+      const planned = e.origin === 'added' ? 0 : (e.plannedSets ?? e.sets);
+      const indices = e.skipped ? arr.map((v, i) => (v ? i : -1)).filter(i => i >= 0) : Array.from({ length: e.sets }, (_, i) => i);
+      const rowsHtml = indices.map(si => {
         const v = arr[si];
         const draft = lg.drafts[active]?.[e.id]?.[si];
         const isNext = interactive && !v && si === nextIndex;
         const verb = draft ? 'Продолжить' : v ? 'Изменить' : 'Записать';
-        const draftText = draft ? (e.prev.kg
+        const draftText = draft ? (weighted
           ? `${esc(draft.kg || '—')} кг × ${esc(draft.reps || '—')}`
           : `${esc(draft.reps || '—')} ${unit}`) : '';
         const value = draft
-          ? `<span class="setrow__draft num">${draftText}</span><span class="setrow__meta">${v ? `записано ${DB.fmtNumber(v.kg)} кг × ${v.reps}` : `прошлый раз ${prev}`}</span>`
+          ? `<span class="setrow__draft num">${draftText}</span><span class="setrow__meta">${v ? `записано ${DB.fmtNumber(v.kg)} кг × ${v.reps}` : prevMeta}</span>`
           : v
           ? `<span class="setrow__today num">${v.kg ? `${DB.fmtNumber(v.kg)} кг <span class="r">× ${v.reps}</span>` : `${v.reps} <span class="r">${unit}</span>`}</span>
-             <span class="setrow__meta">прошлый раз ${prev}</span>`
+             <span class="setrow__meta">${prevMeta}</span>`
           : `<span class="setrow__plan num">${prev}</span>
-             <span class="setrow__meta">${lg.finished ? 'не записан' : 'прошлый раз'}</span>`;
+             <span class="setrow__meta">${lg.finished ? 'не записан' : hasPrev ? 'прошлый раз' : 'первый раз'}</span>`;
         const mark = v && !draft
           ? `<span class="setrow__done" aria-hidden="true">${Icon.get('check', { size: 15, sw: 3 })}</span>`
           : interactive ? `<span class="setrow__pen" aria-hidden="true">${Icon.get(isNext && !draft ? 'plus' : 'edit', { size: 17, sw: 2.2 })}</span>` : '';
         const inner = `<span class="setrow__no num">${si + 1}</span>
-          <span class="setrow__body">${value}${draft ? `<span class="log-draft-label">${lg.finished ? 'Черновик не учтён' : 'Черновик'}</span>` : ''}</span>
+          <span class="setrow__body">${value}${draft ? `<span class="log-draft-label">${lg.finished ? 'Черновик не учтён' : 'Черновик'}</span>` : ''}${planned && si >= planned ? '<span class="log-extra-label">сверх плана</span>' : ''}</span>
           ${mark}`;
         const cls = `setrow${v ? ' is-done' : ''}${isNext ? ' is-next' : ''}${draft ? ' is-draft' : ''}`;
         const suggestion = Store.logging.repeatSuggestion(active, e.id, si);
@@ -916,11 +922,24 @@ const Trainer = (() => {
           ? `<button class="${cls}" aria-label="${verb} подход ${si + 1}: ${esc(e.name)}" ${act('sheet.open', { id: 'setlog', cid: active, ex: e.id, si })}>${inner}</button>`
           : `<div class="${cls}">${inner}</div>`;
       }).join('');
+      const tag = e.origin === 'replaced' ? `<span class="extag extag--swap">${Icon.get('swap', { size: 12, sw: 2.4 })}вместо ${esc(e.replaces)}</span>`
+        : e.origin === 'added' ? `<span class="extag extag--add">${Icon.get('plus', { size: 12, sw: 2.6 })}не из программы</span>`
+        : e.skipped ? `<span class="extag extag--skip">${e.replacedBy ? 'заменено' : 'пропущено'}</span>` : '';
+      const goal = e.skipped ? `записано ${arr.filter(Boolean).length}`
+        : e.origin === 'added' ? `${e.sets} ${DB.plural(e.sets, ['подход', 'подхода', 'подходов'])}`
+        : e.reps ? `цель ${planned} × ${e.reps}${e.target ? ' · ' + DB.fmtNumber(e.target) + ' кг' : ''}` : `цель ${planned} ${DB.plural(planned, ['подход', 'подхода', 'подходов'])}`;
+      const last = e.sets - 1;
+      const canRemove = e.sets > Math.max(1, planned) && !arr[last] && !lg.drafts[active]?.[e.id]?.[last];
+      const foot = !interactive ? ''
+        : e.skipped ? (e.replacedBy ? '' : `<div class="excard__foot"><button class="excard__btn" ${act('ex.unskip', { cid: active, ex: e.id })}>${Icon.get('refresh', { size: 16 })}Вернуть упражнение</button></div>`)
+        : `<div class="excard__foot"><button class="excard__btn" ${act('ex.addSet', { cid: active, ex: e.id })} aria-label="Добавить подход: ${esc(e.name)}">${Icon.get('plus', { size: 16, sw: 2.4 })}Подход</button>${canRemove ? `<button class="excard__btn excard__btn--quiet" ${act('ex.removeSet', { cid: active, ex: e.id })} aria-label="Убрать пустой подход ${e.sets}: ${esc(e.name)}">${Icon.get('minus', { size: 16, sw: 2.4 })}Убрать пустой</button>` : ''}</div>`;
       return Card(`<div class="excard__head">
-          <div class="excard__name">${esc(e.name)}</div>
-          <div class="excard__goal num">цель ${e.sets} × ${e.reps}${e.target ? ' · ' + DB.fmtNumber(e.target) + ' кг' : ''}</div>
-        </div>${rowsHtml}`, { rows: true, cls: 'card--flush excard' });
-    }).join('<div style="height:12px"></div>');
+          <div class="excard__title"><div class="excard__name">${esc(e.name)}</div>${tag}</div>
+          <div class="excard__goal num">${goal}</div>
+          ${interactive && !e.skipped ? `<button class="excard__menu" ${act('sheet.open', { id: 'exMenu', cid: active, ex: e.id })} aria-label="Изменить упражнение: ${esc(e.name)}">${Icon.get('more', { size: 20 })}</button>` : ''}
+        </div>${rowsHtml}${foot}`, { rows: true, cls: `card--flush excard${e.skipped ? ' excard--skipped' : ''}` });
+    }).filter(Boolean).join('<div style="height:12px"></div>')
+      + (interactive && exs.length ? `<button class="log-add-ex" ${act('sheet.open', { id: 'exPick', mode: 'add', cid: active })}>${Icon.get('plus', { size: 18, sw: 2.4 })}Добавить упражнение</button>` : '');
 
     const saveState = lg.storageError
       ? SaveState('error', lg.storageConflict ? 'Журнал изменён в другой вкладке · местные правки не отправлены' : 'Только в памяти вкладки · не закрывайте её')
@@ -941,7 +960,7 @@ const Trainer = (() => {
           ${lg.completedElsewhere ? `<div class="log-recovery" role="status"><p>Журнал завершён в другой вкладке. Результаты открыты для просмотра. Прежние данные этой вкладки доступны в копии журнала. Скачайте её перед перезагрузкой.</p>${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
           ${lg.finished ? `<div class="log-completed" role="status">
             <div class="log-completed__score num"><b>${doneSets}</b><span>из ${totalSets} подходов</span></div>
-            <strong>Журнал завершён</strong><p>Посещение и списание не изменены. Ниже — подтверждённые результаты.</p></div>` : ''}
+            <strong>Журнал завершён</strong><p>Посещение и списание не изменены. Ниже — подтверждённые результаты.</p>${UI.ChangesSummary(active)}</div>` : ''}
         </div>
         <div class="log-context">${strip}
         ${participants.length === 1 ? `<div class="log-context__solo">
@@ -953,7 +972,7 @@ const Trainer = (() => {
         </div>`}
         </div>
         ${notesCard(active, lg)}
-        <div style="padding:14px 16px 0">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${ProgramOrEmpty(activeClient, programName, rows)}</div>
+        <div style="padding:14px 16px 0">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${ProgramOrEmpty(activeClient, programName, rows, exs.length, interactive, active)}</div>
         ${lg.finished ? '' : '<p class="log-footnote">Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере, без синхронизации.</p>'}
         <div style="height:20px"></div>
       </div>
@@ -978,11 +997,12 @@ const Trainer = (() => {
     </section>`;
   }
 
-  function ProgramOrEmpty(activeClient, programName, rows) {
-    if (!programName) {
+  function ProgramOrEmpty(activeClient, programName, rows, count = 0, interactive = false, clientId = null) {
+    if (!count) {
       return Card(Empty({
-        icon: 'dumbbell', title: 'Программы нет',
-        sub: 'В этом прототипе ввод подходов доступен для назначенной программы. Посещение можно отметить отдельно через меню занятия.',
+        icon: 'dumbbell', title: programName ? 'В программе нет упражнений' : 'Тренировка без программы',
+        sub: interactive ? 'Добавляйте упражнения по ходу — кнопкой или голосом. Программа клиента не изменится.' : 'Упражнения не записаны. Посещение отмечается отдельно через меню занятия.',
+        action: interactive ? Btn('Добавить упражнение', { kind: 'primary', size: 'compact', icon: 'plus', a: 'sheet.open', args: { id: 'exPick', mode: 'add', cid: clientId } }) : '',
       }), { pad: true });
     }
     return rows;

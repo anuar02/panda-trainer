@@ -220,6 +220,32 @@ const DB = (() => {
     ],
   };
 
+  const exerciseLibrary = [
+    { name: 'Приседания со штангой', group: 'Ноги · штанга' },
+    { name: 'Румынская тяга', group: 'Ноги · штанга' },
+    { name: 'Жим ногами', group: 'Ноги · тренажёр' },
+    { name: 'Выпады с гантелями', group: 'Ноги · гантели' },
+    { name: 'Болгарские выпады', group: 'Ноги · гантели' },
+    { name: 'Ягодичный мост', group: 'Ноги · штанга' },
+    { name: 'Становая тяга', group: 'Спина · штанга' },
+    { name: 'Тяга в наклоне', group: 'Спина · штанга' },
+    { name: 'Тяга блока к поясу', group: 'Спина · блок' },
+    { name: 'Тяга верхнего блока', group: 'Спина · блок' },
+    { name: 'Подтягивания', group: 'Спина · вес тела', bodyweight: true },
+    { name: 'Гиперэкстензия', group: 'Спина · вес тела', bodyweight: true },
+    { name: 'Жим лёжа', group: 'Грудь · штанга' },
+    { name: 'Жим гантелей лёжа', group: 'Грудь · гантели' },
+    { name: 'Жим гантелей под углом', group: 'Грудь · гантели' },
+    { name: 'Отжимания', group: 'Грудь · вес тела', bodyweight: true },
+    { name: 'Жим гантелей сидя', group: 'Плечи · гантели' },
+    { name: 'Махи в стороны', group: 'Плечи · гантели' },
+    { name: 'Сгибания на бицепс с гантелями', group: 'Руки · гантели' },
+    { name: 'Разгибания на трицепс в блоке', group: 'Руки · блок' },
+    { name: 'Планка', group: 'Пресс · вес тела', bodyweight: true, unit: 'сек' },
+    { name: 'Скручивания', group: 'Пресс · вес тела', bodyweight: true },
+    { name: 'Бёрпи', group: 'Кардио · вес тела', bodyweight: true },
+  ];
+
   // Today's confirmed values for the demo logging screen (session s6 / Мади)
   const loggedDemo = {
     c4: {
@@ -303,7 +329,7 @@ const DB = (() => {
   return {
     TODAY, WEEK, DOW, MONTHS, MONTHS_SHORT, NOW_TIME,
     DEMO_CLIENT_ID: 'c1',
-    trainer, clients, sessions, programs, templates,
+    trainer, clients, sessions, programs, templates, exerciseLibrary,
     purchases, payments, unitTx, history, loggedDemo, SCENARIOS,
 
     /* helpers */
@@ -311,6 +337,13 @@ const DB = (() => {
     byDate(date) { return this.sessions.filter(s => s.date === date); },
     pendingRequests() { return this.sessions.filter(s => s.request && s.request.state === 'pending'); },
     programFor(name) { return name ? (this.programs[name] || []) : []; },
+    libraryPrev(name) {
+      for (const list of Object.values(this.programs)) {
+        const found = list.find(e => e.name === name);
+        if (found) return { ...found.prev };
+      }
+      return null;
+    },
     // Display only: keep numeric storage and the user's unfinished input untouched.
     fmtNumber(n) { return typeof n === 'number' && Number.isFinite(n) ? new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 20, useGrouping: false }).format(n) : '—'; },
     fmtMoney(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009') + ' ₸'; },

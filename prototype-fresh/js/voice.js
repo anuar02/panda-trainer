@@ -72,102 +72,159 @@ const VoiceParse = (() => {
     }) || null;
   }
 
+  const cap = (v) => v.charAt(0).toUpperCase() + v.slice(1);
+  const cleanName = (v) => v.replace(/\d+(?:\.\d+)?/g, ' ').replace(/\b(?:на|по|кг|раз|подход\S*)\b/g, ' ').replace(/\s+/g, ' ').trim();
+
   function parse(text, ctx) {
     const items = [];
     const pending = {};
     const planned = (cid, exId) => pending[`${cid}:${exId}`] || [];
     const lastValue = {};
+    const lists = {};
+    const library = ctx.library || [];
+    const libraryPrev = ctx.libraryPrev || (() => null);
+    const listFor = (cid) => (lists[cid] ||= ctx.exercises(cid).map(e => ({ ...e })));
+    const valuesOf = (cid, exId) => (String(exId).startsWith('new:') ? [] : ctx.values(cid, exId));
+    const active = (cid) => listFor(cid).filter(e => !e.skipped);
+    const unitOf = (ex) => ex.unit || (ex.name === 'Планка' ? 'сек' : 'повт');
+
+    function resolveNew(cid, phraseWords, fallback) {
+      const lib = matchExercise(phraseWords, library);
+      const name = lib ? lib.name : cap(fallback);
+      const existing = listFor(cid).find(e => e.name.toLowerCase() === name.toLowerCase() && !e.skipped);
+      if (existing) return { ex: existing, created: false, fromLibrary: Boolean(lib) };
+      const bodyweight = Boolean(lib?.bodyweight);
+      const ex = { id: `new:${cid}:${name}`, name, sets: 3, prev: libraryPrev(name) || { kg: bodyweight ? 0 : null, reps: null }, unit: lib?.unit, origin: 'added', bodyweight };
+      return { ex, created: true, fromLibrary: Boolean(lib) };
+    }
+
     let clientId = ctx.active;
+    const lastEx = {};
     for (const raw of splitSegments(text)) {
       const noteMatch = raw.match(/^\s*(?:заметка|заметку|запиши заметку|комментарий|примечание)\s*[:,-]?\s*(.*)$/i);
       if (noteMatch) {
         if (noteMatch[1].trim()) items.push({ type: 'note', clientId, text: noteMatch[1].trim() });
         continue;
       }
-      const lowered = raw.toLowerCase().replace(/ё/g, 'е');
-      const repeatRe = /(?:еще\s+(?:один|одну|такой|раз)(?:\s+такой)?(?:\s+же)?|такой же|то же самое|повтори(?:ть)?|так же)/g;
-      const repeat = repeatRe.test(lowered);
-      const norm = normalize(lowered.replace(repeatRe, ' '));
-      const words = tokens(norm);
-      const who = ctx.participants.length > 1 ? matchParticipant(words, ctx.participants) : null;
+      const lowered = raw.toLowerCase().replace(/ё/g, 'е').replace(/[«»"“”:;,!?()]/g, ' ').replace(/\s+/g, ' ').trim();
+      const whoWords = tokens(lowered);
+      const who = ctx.participants.length > 1 ? matchParticipant(whoWords, ctx.participants) : null;
       if (who) clientId = who.clientId;
-      const exercises = ctx.exercises(clientId);
+      const withoutWho = who ? lowered.replace(new RegExp(`\\b${who.short.toLowerCase().slice(0, 3)}\\S*`), ' ').trim() : lowered;
+
+      const skipMatch = withoutWho.match(/^(?:пропуска\S*|пропусти\S*|пропустим|убира\S*|убери\S*|убрать|без)\s+(.+)$/);
+      if (skipMatch) {
+        const ex = matchExercise(tokens(skipMatch[1]), active(clientId));
+        if (!ex) { items.push({ type: 'error', clientId, text: raw, reason: `Не нашёл «${skipMatch[1]}» в тренировке` }); continue; }
+        ex.skipped = true;
+        items.push({ type: 'skip', clientId, exId: ex.id, exName: ex.name, text: raw });
+        continue;
+      }
+      const swap = withoutWho.match(/^(?:вместо)\s+(.+?)\s+(?:делаем|делать|будем делать|будет|сделаем|давай|-|—)\s+(.+)$/)
+        || withoutWho.match(/^(?:замени\S*|поменя\S*|меняем)\s+(.+?)\s+на\s+(.+)$/);
+      if (swap) {
+        const from = matchExercise(tokens(swap[1]), active(clientId));
+        const toText = cleanName(swap[2]);
+        if (!from || !toText) { items.push({ type: 'error', clientId, text: raw, reason: from ? 'Не понял, на что заменить' : `Не нашёл «${swap[1]}» в тренировке` }); continue; }
+        const { ex: to, created, fromLibrary } = resolveNew(clientId, tokens(toText), toText);
+        const done = valuesOf(clientId, from.id).filter(Boolean).length;
+        from.skipped = true;
+        if (created) {
+          to.sets = Math.max(1, from.sets - done);
+          to.origin = 'replaced';
+          listFor(clientId).push(to);
+        }
+        items.push({ type: 'replace', clientId, exId: from.id, exName: from.name, toName: to.name, tempId: to.id, bodyweight: to.bodyweight, fromLibrary, text: raw });
+        continue;
+      }
+
+      const repeatRe = /(?:еще\s+(?:один|одну|такой|раз)(?:\s+такой)?(?:\s+же)?|такой же|то же самое|повтори(?:ть)?|так же)/g;
+      const repeat = repeatRe.test(withoutWho);
+      const norm = normalize(withoutWho.replace(repeatRe, ' '));
+      const words = tokens(norm);
+      const exercises = active(clientId);
       const filled = (ex) => {
-        const done = ctx.values(clientId, ex.id);
+        const done = valuesOf(clientId, ex.id);
         const extra = planned(clientId, ex.id);
         return Array.from({ length: ex.sets }, (_, i) => Boolean(done[i]) || extra.includes(i));
       };
-      const named = matchExercise(words.filter(w => !/^\d/.test(w)), exercises);
-      const unknown = named ? [] : words.filter(w => /^[а-яa-z]{4,}$/.test(w) && !STOP.some(stop => w.startsWith(stop))
-        && !(who && w.startsWith(who.short.toLowerCase().slice(0, 3))));
-      if (!named && unknown.length && (/\d/.test(norm) || repeat)) {
-        items.push({ type: 'error', clientId, text: raw, reason: `Не нашёл «${unknown[0]}» в программе` });
-        continue;
+      const textWords = words.filter(w => !/^\d/.test(w));
+      let ex = matchExercise(textWords, exercises);
+      const unknown = ex ? [] : textWords.filter(w => /^[а-яa-z]{4,}$/.test(w) && !STOP.some(stop => w.startsWith(stop)));
+      const hasNumbers = /\d/.test(norm);
+      if (!ex && unknown.length && (hasNumbers || repeat)) {
+        const { ex: created, created: isNew, fromLibrary } = resolveNew(clientId, unknown, unknown.join(' '));
+        if (isNew) {
+          listFor(clientId).push(created);
+          items.push({ type: 'add', clientId, tempId: created.id, name: created.name, bodyweight: created.bodyweight, fromLibrary, text: raw });
+        }
+        ex = created;
       }
-      const ex = named || exercises.find(e => filled(e).some(f => !f)) || null;
-      const pair = norm.match(/(\d+(?:\.\d+)?)\s*(?:кг|кило\S*|килограмм\S*)?\s*(?:на|по|раз по)\s*(\d+)/);
-      const single = norm.match(/(\d+(?:\.\d+)?)\s*(повтор\S*|раз\S*|сек\S*|секунд\S*|кг|кило\S*|килограмм\S*)?/);
+      if (!ex) {
+        const recent = lastEx[clientId] && !lastEx[clientId].skipped ? lastEx[clientId] : null;
+        if (recent && (repeat || filled(recent).some(f => !f))) ex = recent;
+        else ex = exercises.find(e => filled(e).some(f => !f)) || null;
+      }
       const ordinalWord = Object.keys(ORDINALS).find(w => new RegExp(`${w}\\s+подход`).test(norm));
       const ordinalRaw = ordinalWord ? null : norm.match(/(\d+)\s*(?:-?й|-?ой)?\s*подход|подход\s*(?:номер\s*)?(\d+)(?!\s*(?:на|по|кг|кило|\.\d|\d))/);
-      const ordinal = ordinalRaw && Number(ordinalRaw[1] || ordinalRaw[2]) <= 20 ? ordinalRaw : null;
+      const ordinal = ordinalRaw && Number(ordinalRaw[1] || ordinalRaw[2]) <= 30 ? ordinalRaw : null;
 
       if (!ex) {
-        if (/\d/.test(norm) || repeat) items.push({ type: 'error', clientId, text: raw, reason: 'Не понял, к какому упражнению это относится' });
+        if (hasNumbers || repeat) items.push({ type: 'error', clientId, text: raw, reason: 'Не понял, к какому упражнению это относится' });
         else items.push({ type: 'note', clientId, text: raw });
         continue;
       }
 
       let value = null, hint = '';
       const key = `${clientId}:${ex.id}`;
-      const doneArr = ctx.values(clientId, ex.id);
+      const doneArr = valuesOf(clientId, ex.id);
       const lastDone = [...doneArr].reverse().find(Boolean);
-      const bodyweight = ex.prev.kg === 0;
+      const bodyweight = ex.prev?.kg === 0;
       let numbersText = norm;
       if (ordinal) numbersText = numbersText.replace(ordinal[0], ' ');
-      const pair2 = numbersText.match(/(\d+(?:\.\d+)?)\s*(?:кг|кило\S*|килограмм\S*)?\s*(?:на|по|раз по)\s*(\d+)/) || pair;
-      const single2 = numbersText.match(/(\d+(?:\.\d+)?)\s*(повтор\S*|раз\S*|сек\S*|секунд\S*|кг|кило\S*|килограмм\S*)?/);
-      if (pair2 && numbersText.includes(pair2[0])) {
-        value = { kg: bodyweight ? 0 : Number(pair2[1]), reps: Number(pair2[2]) };
-        if (bodyweight) value.reps = Number(pair2[2]);
-      } else if (single2 && single2[1] !== undefined && numbersText.includes(single2[0])) {
-        const n = Number(single2[1]);
-        const unit = single2[2] || '';
+      const pair = numbersText.match(/(\d+(?:\.\d+)?)\s*(?:кг|кило\S*|килограмм\S*)?\s*(?:на|по|раз по)\s*(\d+)/);
+      const single = numbersText.match(/(\d+(?:\.\d+)?)\s*(повтор\S*|раз\S*|сек\S*|секунд\S*|кг|кило\S*|килограмм\S*)?/);
+      if (pair) {
+        value = { kg: bodyweight ? 0 : Number(pair[1]), reps: Number(pair[2]) };
+      } else if (single && single[1] !== undefined) {
+        const n = Number(single[1]);
+        const unit = single[2] || '';
         if (bodyweight) value = { kg: 0, reps: Math.round(n) };
         else if (/^(кг|кило|килограмм)/.test(unit)) {
-          const reps = lastValue[key]?.reps || lastDone?.reps || ex.prev.reps;
-          value = { kg: n, reps };
+          value = { kg: n, reps: lastValue[key]?.reps || lastDone?.reps || ex.prev?.reps };
           hint = 'повторы как в прошлом подходе';
         } else {
-          const kg = lastValue[key]?.kg ?? lastDone?.kg ?? ex.prev.kg;
-          value = { kg, reps: Math.round(n) };
+          value = { kg: lastValue[key]?.kg ?? lastDone?.kg ?? ex.prev?.kg, reps: Math.round(n) };
           hint = 'вес как в прошлом подходе';
         }
       } else if (repeat) {
-        const base = lastValue[key] || lastDone || ex.prev;
+        const base = lastValue[key] || lastDone || ex.prev || {};
         value = { kg: base.kg, reps: base.reps };
         hint = lastValue[key] || lastDone ? 'как предыдущий подход' : 'как в прошлый раз';
       }
 
       if (!value) {
-        items.push(named ? { type: 'note', clientId, text: raw, exName: ex.name } : { type: 'note', clientId, text: raw });
+        items.push({ type: 'note', clientId, text: raw, exName: ex.name });
         continue;
       }
       if (!(value.kg >= 0) || !(value.reps > 0) || !Number.isInteger(value.reps) || value.kg > 1000 || value.reps > 1000) {
-        items.push({ type: 'error', clientId, text: raw, reason: 'Проверьте вес и повторы' });
+        items.push({ type: 'error', clientId, text: raw, reason: value.kg == null ? `Назовите вес для «${ex.name}»` : 'Проверьте вес и повторы' });
         continue;
       }
       const flags = filled(ex);
-      let setId = -1;
       const wanted = ordinal ? Number(ordinal[1] || ordinal[2]) : ordinalWord ? ORDINALS[ordinalWord] : null;
-      if (wanted) setId = wanted - 1;
-      else setId = flags.findIndex(f => !f);
-      if (setId < 0 || setId >= ex.sets) {
-        items.push({ type: 'error', clientId, text: raw, reason: wanted ? `В упражнении «${ex.name}» ${ex.sets} подх.` : `Все подходы «${ex.name}» уже записаны` });
+      let setId = wanted ? wanted - 1 : flags.findIndex(f => !f);
+      let extra = false;
+      if (setId < 0) setId = ex.sets;
+      if (setId === ex.sets) { extra = true; ex.sets += 1; }
+      else if (setId > ex.sets) {
+        items.push({ type: 'error', clientId, text: raw, reason: `В «${ex.name}» сейчас ${ex.sets} подх.` });
         continue;
       }
       pending[key] = [...planned(clientId, ex.id), setId];
       lastValue[key] = value;
-      items.push({ type: 'set', clientId, exId: ex.id, exName: ex.name, setId, kg: value.kg, reps: value.reps, unit: ex.name === 'Планка' ? 'сек' : 'повт', replaces: Boolean(doneArr[setId]), hint, text: raw });
+      lastEx[clientId] = ex;
+      items.push({ type: 'set', clientId, exId: ex.id, exName: ex.name, setId, kg: value.kg, reps: value.reps, unit: unitOf(ex), replaces: Boolean(doneArr[setId]), extra, hint, text: raw });
     }
     return items;
   }
@@ -193,6 +250,8 @@ const Voice = (() => {
       participants: Object.keys(lg.plans).filter(cid => Store.logging.eligible(cid)).map(cid => ({ clientId: cid, short: DB.client(cid)?.short || '' })),
       exercises: (cid) => Store.logging.exercises(cid),
       values: (cid, exId) => lg.values[cid]?.[exId] || [],
+      library: Store.logging.library(),
+      libraryPrev: (name) => DB.libraryPrev(name),
     };
   }
 
@@ -203,7 +262,9 @@ const Voice = (() => {
     const text = state.heard.join('. ');
     const parsed = text ? VoiceParse.parse(text, ctx) : [];
     const removed = new Set(state.removed || []);
-    state.items = parsed.map((item, i) => ({ ...item, key: i })).filter(item => !removed.has(item.key));
+    const kept = parsed.map((item, i) => ({ ...item, key: i })).filter(item => !removed.has(item.key));
+    const created = new Set(kept.filter(i => i.type === 'add' || i.type === 'replace').map(i => i.tempId));
+    state.items = kept.filter(item => item.type !== 'set' || !String(item.exId).startsWith('new:') || created.has(item.exId));
   }
 
   function hear(text) {
@@ -340,10 +401,22 @@ const Voice = (() => {
 
   function commit() {
     reindex();
-    let sets = 0, notes = 0, failed = 0;
+    let sets = 0, notes = 0, changes = 0, failed = 0;
+    const ids = {};
     for (const item of state.items) {
-      if (item.type === 'set') {
-        if (Store.logging.setValue(item.clientId, item.exId, item.setId, { kg: item.kg, reps: item.reps })) sets++;
+      if (item.type === 'skip') {
+        if (Store.logging.skipExercise(item.clientId, item.exId, true)) changes++;
+        else failed++;
+      } else if (item.type === 'replace' || item.type === 'add') {
+        const spec = { name: item.type === 'replace' ? item.toName : item.name, bodyweight: item.bodyweight };
+        const id = item.type === 'replace' ? Store.logging.replaceExercise(item.clientId, item.exId, spec) : Store.logging.addExercise(item.clientId, spec);
+        if (id) { ids[item.tempId] = id; changes++; }
+        else failed++;
+      } else if (item.type === 'set') {
+        const exId = ids[item.exId] || item.exId;
+        let ex = Store.logging.exercises(item.clientId).find(e => e.id === exId);
+        while (ex && ex.sets <= item.setId && Store.logging.addSet(item.clientId, exId)) ex = Store.logging.exercises(item.clientId).find(e => e.id === exId);
+        if (Store.logging.setValue(item.clientId, exId, item.setId, { kg: item.kg, reps: item.reps })) sets++;
         else failed++;
       } else if (item.type === 'note') {
         const text = item.exName ? `${item.exName}: ${item.text}` : item.text;
@@ -356,6 +429,7 @@ const Voice = (() => {
     const parts = [];
     if (sets) parts.push(`${sets} ${DB.plural(sets, ['подход', 'подхода', 'подходов'])}`);
     if (notes) parts.push(`${notes} ${DB.plural(notes, ['заметка', 'заметки', 'заметок'])}`);
+    if (changes) parts.push(`${changes} ${DB.plural(changes, ['изменение', 'изменения', 'изменений'])} упражнений`);
     if (failed) Store.ui.toast('warn', `Записано: ${parts.join(', ') || 'ничего'} · ${failed} не удалось, проверьте журнал`);
     else if (parts.length) Store.ui.toast('', `Записано голосом: ${parts.join(', ')}`);
   }
@@ -368,7 +442,8 @@ const Voice = (() => {
     const other = exs.find(e => e !== next && e.prev.kg > 0);
     const first = next.prev.kg ? `${next.name} ${DB.fmtNumber(next.prev.kg + 2.5)} на ${next.prev.reps}` : `${next.name} ${next.prev.reps + 5} секунд`;
     const list = [first, 'Ещё один такой же'];
-    if (other) list.push(`${other.name.split(' ')[0]} ${DB.fmtNumber(other.prev.kg)} на ${Math.max(1, other.prev.reps - 2)}`);
+    if (other) list.push(`Вместо ${other.name.toLowerCase()} делаем жим гантелей сидя`);
+    list.push('Бицепс 12 на 12');
     list.push('Заметка: левое колено уходит внутрь, следить за техникой');
     return list;
   }
@@ -381,8 +456,23 @@ const Voice = (() => {
       const val = item.kg ? `${DB.fmtNumber(item.kg)} кг × ${item.reps}` : `${item.reps} ${item.unit}`;
       return `<li class="vitem vitem--set">
         <span class="vitem__icon">${Icon.get('dumbbell', { size: 18 })}</span>
-        <span class="vitem__main">${who}<b>${esc(item.exName)}</b><span class="vitem__meta">Подход ${item.setId + 1}${item.replaces ? ' · заменит записанный' : ''}${item.hint ? ' · ' + esc(item.hint) : ''}</span></span>
+        <span class="vitem__main">${who}<b>${esc(item.exName)}</b><span class="vitem__meta">Подход ${item.setId + 1}${item.extra ? ' · сверх плана' : ''}${item.replaces ? ' · заменит записанный' : ''}${item.hint ? ' · ' + esc(item.hint) : ''}</span></span>
         <span class="vitem__val num">${val}</span>${remove}</li>`;
+    }
+    if (item.type === 'skip') {
+      return `<li class="vitem vitem--flow">
+        <span class="vitem__icon">${Icon.get('ban', { size: 18 })}</span>
+        <span class="vitem__main">${who}<b>Пропустить</b><span class="vitem__meta">${esc(item.exName)}</span></span>${remove}</li>`;
+    }
+    if (item.type === 'replace') {
+      return `<li class="vitem vitem--flow">
+        <span class="vitem__icon">${Icon.get('swap', { size: 18 })}</span>
+        <span class="vitem__main">${who}<b>Замена</b><span class="vitem__meta">${esc(item.exName)} → ${esc(item.toName)}${item.fromLibrary ? '' : ' · своё упражнение'}</span></span>${remove}</li>`;
+    }
+    if (item.type === 'add') {
+      return `<li class="vitem vitem--flow">
+        <span class="vitem__icon">${Icon.get('plus', { size: 18, sw: 2.4 })}</span>
+        <span class="vitem__main">${who}<b>Добавить упражнение</b><span class="vitem__meta">${esc(item.name)} · ${item.fromLibrary ? 'из библиотеки' : 'своё, проверьте название'}</span></span>${remove}</li>`;
     }
     if (item.type === 'note') {
       return `<li class="vitem vitem--note">
@@ -406,7 +496,7 @@ const Voice = (() => {
       <div class="voice__head">
         ${Mascot.face(mood, 52, 'voice__face')}
         <div><div class="sheet__title">Голосовой ввод</div>
-        <p class="voice__sub">Говорите как обычно: «приседания 80 на 8», «ещё такой же», «заметка: …»</p></div>
+        <p class="voice__sub">«Приседания 80 на 8», «ещё такой же», «вместо жима делаем…», «пропускаем выпады», «заметка: …»</p></div>
       </div>
       <div class="voice__stage">
         <button class="voice__mic" data-act="voice.toggle" aria-pressed="${state.listening}" aria-label="${micLabel}" ${!supported() ? 'disabled aria-disabled="true"' : ''}>
