@@ -10,7 +10,7 @@ function memory() {
 }
 function app(storage = memory()) {
   const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0, localStorage: storage });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'sheets', 'screens/trainer', 'screens/client', 'voice']) {
+  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client', 'voice']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context, { filename: name });
   }
   return { storage, run: code => vm.runInContext(code, context) };
@@ -129,12 +129,15 @@ test('client programme updates are selective, isolated, persistent and idempoten
   assert.equal(opts.find(o=>o.kind==='skip').checked,false);
   assert.equal(run(`Store.programs.save('${cid}',${JSON.stringify([replacement.key])})`),true);
   assert.equal(run(`JSON.stringify(DB.programFor(Store.get().logging.plans['${cid}'].name))`),template);
-  assert.equal(run(`DB.programForClient('${cid}','anything').some(e=>e.name==='Фермерская прогулка')`),false);
-  const before = run(`JSON.stringify(DB.programForClient('${cid}',null))`);
+  const name = JSON.parse(run(`JSON.stringify(Store.get().logging.plans['${cid}'].name)`));
+  const copy = `DB.programForClient('${cid}',${JSON.stringify(name)})`;
+  assert.equal(run(`${copy}.some(e=>e.name==='Жим гантелей лёжа')`),true);
+  assert.equal(run(`${copy}.some(e=>e.name==='Фермерская прогулка')`),false);
+  const before = run(`JSON.stringify(${copy})`);
   run(`Store.programs.save('${cid}',${JSON.stringify([replacement.key])})`);
-  assert.equal(run(`JSON.stringify(DB.programForClient('${cid}',null))`),before);
+  assert.equal(run(`JSON.stringify(${copy})`),before);
   const b=app(storage);
-  assert.equal(b.run(`JSON.stringify(DB.programForClient('${cid}',null))`),before);
+  assert.equal(b.run(`JSON.stringify(${copy})`),before);
   assert.equal(b.run("DB.programForClient('c7',null).length"),0);
   assert.match(run('Trainer.session()'), /Обновить программу клиента/);
 });
@@ -143,9 +146,27 @@ test('new programme exercises use recorded previous values; corrupt copies are i
   const {run,cid,storage}=personal();
   const id=run(`Store.logging.addExercise('${cid}',{name:'Тестовое упражнение'})`);
   run(`Store.logging.setValue('${cid}','${id}',0,{kg:12,reps:9}); Store.logging.finish(); Store.logging.confirmPartial(); Store.programs.save('${cid}',['add:${id}'])`);
-  assert.equal(run(`DB.programForClient('${cid}',null).find(e=>e.id==='${id}').prev.kg`),12);
+  const name = JSON.stringify(JSON.parse(run(`JSON.stringify(Store.get().logging.plans['${cid}'].name)`)));
+  assert.equal(run(`DB.programForClient('${cid}',${name}).find(e=>e.id==='${id}').prev.kg`),12);
   storage.setItem('trainer-prototype:client-programs:v1',JSON.stringify({version:1,byClient:{[cid]:{baseName:'test',updatedAt:'bad',exercises:[{}]}}}));
-  assert.equal(app(storage).run(`DB.programForClient('${cid}',null).length`),0);
+  assert.equal(app(storage).run(`DB.programForClient('${cid}','test').length`),0);
+});
+
+test('a client copy applies only to the programme it was made from',()=>{
+  const {run,cid,storage}=personal();
+  const name = JSON.parse(run(`JSON.stringify(Store.get().logging.plans['${cid}'].name)`));
+  const other = JSON.parse(run(`JSON.stringify(Object.keys(DB.programs).find(n=>n!==${JSON.stringify(name)}))`));
+  run(`Store.logging.addExercise('${cid}',{name:'Фермерская прогулка'}); Store.logging.finish(); Store.logging.confirmPartial()`);
+  const key = JSON.parse(run(`JSON.stringify(Store.programs.options('${cid}').find(o=>o.kind==='add').key)`));
+  assert.equal(run(`Store.programs.save('${cid}',['${key}'])`),true);
+  assert.equal(run(`DB.programForClient('${cid}',${JSON.stringify(name)}).some(e=>e.name==='Фермерская прогулка')`),true);
+  assert.equal(run(`JSON.stringify(DB.programForClient('${cid}',${JSON.stringify(other)}))`),run(`JSON.stringify(DB.programFor(${JSON.stringify(other)}))`));
+  assert.equal(run(`DB.programForClient('${cid}',null).length`),0);
+  const legacy = JSON.parse(storage.getItem('trainer-prototype:client-programs:v1')).byClient[cid][name];
+  storage.setItem('trainer-prototype:client-programs:v1',JSON.stringify({version:1,byClient:{[cid]:legacy}}));
+  const b=app(storage);
+  assert.equal(b.run(`DB.programForClient('${cid}',${JSON.stringify(name)}).some(e=>e.name==='Фермерская прогулка')`),true);
+  assert.equal(b.run(`DB.programForClient('${cid}',null).length`),0);
 });
 
 test('client history includes only explicitly shared notes and programme changes',()=>{

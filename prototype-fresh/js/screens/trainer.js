@@ -37,7 +37,7 @@ const Trainer = (() => {
         : 'Разовое занятие';
     } else {
       title = s.title;
-      meta = UI.ProgramPreview(s.clientId,s.program,'trainer',s.id);
+      meta = UI.ProgramPreview(s.clientId,s.program,'trainer');
     }
 
     const req = s.request || (st.sessionRequests || {})[s.id];
@@ -876,12 +876,17 @@ const Trainer = (() => {
 
     const interactive = !lg.finished && eligible;
     const valuesOf = e => (lg.values[active] || {})[e.id] || [];
+    const valuesMap = lg.values[active] || {};
+    const focusEx = interactive ? Workout.current(active, exs, valuesMap) : null;
     const nextEx = exs.find(e => !e.skipped && Array.from({ length: e.sets }).some((_, i) => !valuesOf(e)[i]));
-    const rows = exs.map(e => {
+    const unitOf = e => e.unit || (e.name === 'Планка' ? 'сек' : 'повт');
+    const fmtSet = (v, e) => v.kg ? `${DB.fmtNumber(v.kg)} кг × ${v.reps}` : `${v.reps} ${unitOf(e)}`;
+    const visible = exs.filter(e => !(e.skipped && e.replacedBy && !valuesOf(e).some(Boolean)));
+
+    const exCard = (e, { quick = true, focusMode = false } = {}) => {
       const arr = valuesOf(e);
-      if (e.skipped && e.replacedBy && !arr.some(Boolean)) return '';
-      const nextIndex = e === nextEx ? Array.from({ length: e.sets }).findIndex((_, i) => !arr[i]) : -1;
-      const unit = e.unit || (e.name === 'Планка' ? 'сек' : 'повт');
+      const nextIndex = focusMode ? Workout.openSets(e, arr)[0] ?? -1 : (e === nextEx ? Array.from({ length: e.sets }).findIndex((_, i) => !arr[i]) : -1);
+      const unit = unitOf(e);
       const hasPrev = e.prev && e.prev.reps > 0;
       const weighted = e.prev?.kg !== 0;
       const prev = !hasPrev ? '—' : e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ${e.prev.reps}` : `${e.prev.reps} ${unit}`;
@@ -909,8 +914,8 @@ const Trainer = (() => {
         const inner = `<span class="setrow__no num">${si + 1}</span>
           <span class="setrow__body">${value}${draft ? `<span class="log-draft-label">${lg.finished ? 'Черновик не учтён' : 'Черновик'}</span>` : ''}${planned && si >= planned ? '<span class="log-extra-label">сверх плана</span>' : ''}</span>
           ${mark}`;
-        const cls = `setrow${v ? ' is-done' : ''}${isNext ? ' is-next' : ''}${draft ? ' is-draft' : ''}`;
-        const suggestion = Store.logging.repeatSuggestion(active, e.id, si);
+        const cls = `setrow${v ? ' is-done' : ''}${isNext ? ' is-next' : ''}${draft ? ' is-draft' : ''}${!v && !draft && focusMode ? ' is-later' : ''}`;
+        const suggestion = quick ? Store.logging.repeatSuggestion(active, e.id, si) : null;
         if (interactive && suggestion) {
           const proposed = suggestion.kg ? `${DB.fmtNumber(suggestion.kg)} кг × ${suggestion.reps}` : `${suggestion.reps} ${unit}`;
           return `<div class="${cls} setrow--quick">
@@ -936,19 +941,136 @@ const Trainer = (() => {
       const foot = !interactive ? ''
         : e.skipped ? (e.replacedBy ? '' : `<div class="excard__foot"><button class="excard__btn" ${act('ex.unskip', { cid: active, ex: e.id })}>${Icon.get('refresh', { size: 16 })}Вернуть упражнение</button></div>`)
         : `<div class="excard__foot"><button class="excard__btn" ${act('ex.addSet', { cid: active, ex: e.id })} aria-label="Добавить подход: ${esc(e.name)}">${Icon.get('plus', { size: 16, sw: 2.4 })}Подход</button>${canRemove ? `<button class="excard__btn excard__btn--quiet" ${act('ex.removeSet', { cid: active, ex: e.id })} aria-label="Убрать пустой подход ${e.sets}: ${esc(e.name)}">${Icon.get('minus', { size: 16, sw: 2.4 })}Убрать пустой</button>` : ''}</div>`;
-      return Card(`<div class="excard__head">
-          <div class="excard__title"><div class="excard__name">${esc(e.name)}</div>${tag}</div>
-          <div class="excard__goal num">${goal}</div>
-          ${interactive && !e.skipped ? `<button class="excard__menu" ${act('sheet.open', { id: 'exMenu', cid: active, ex: e.id })} aria-label="Изменить упражнение: ${esc(e.name)}">${Icon.get('more', { size: 20 })}</button>` : ''}
-        </div>${rowsHtml}${foot}`, { rows: true, cls: `card--flush excard${e.skipped ? ' excard--skipped' : ''}` });
-    }).filter(Boolean).join('<div style="height:12px"></div>')
-      + (interactive && exs.length ? `<button class="log-add-ex" ${act('sheet.open', { id: 'exPick', mode: 'add', cid: active })}>${Icon.get('plus', { size: 18, sw: 2.4 })}Добавить упражнение</button>` : '');
+      return { tag, goal, rowsHtml, foot, arr };
+    };
+
+    const cardOf = (e, parts) => Card(`<div class="excard__head">
+        <div class="excard__title"><div class="excard__name">${esc(e.name)}</div>${parts.tag}</div>
+        <div class="excard__goal num">${parts.goal}</div>
+        ${interactive && !e.skipped ? `<button class="excard__menu" ${act('sheet.open', { id: 'exMenu', cid: active, ex: e.id })} aria-label="Изменить упражнение: ${esc(e.name)}">${Icon.get('more', { size: 20 })}</button>` : ''}
+      </div>${parts.rowsHtml}${parts.foot}`, { rows: true, cls: `card--flush excard${e.skipped ? ' excard--skipped' : ''}` });
+
+    const restBand = () => {
+      const r = Workout.restOf(active);
+      if (!r) return '';
+      return `<div class="wrest${r.done ? ' is-done' : ''}" role="timer" aria-live="off">
+        <div class="wrest__bar" data-rest-bar="${active}" style="--p:${Math.min(100, 100 - r.left / r.total * 100)}%"></div>
+        <div class="wrest__row">
+          <span class="wrest__icon" aria-hidden="true">${Icon.get(r.done ? 'check' : 'clock', { size: 18, sw: 2.4 })}</span>
+          <span class="wrest__txt">${r.done ? 'Отдых окончен' : 'Отдых'} <b class="num" data-rest-left="${active}">${r.label}</b></span>
+          ${r.done ? '' : `<button class="wrest__btn" ${act('rest.add', { cid: active, by: -15 })} aria-label="Отдых на 15 секунд меньше">−15</button><button class="wrest__btn" ${act('rest.add', { cid: active, by: 15 })} aria-label="Отдых на 15 секунд больше">+15</button>`}
+          <button class="wrest__btn wrest__btn--skip" ${act('rest.skip', { cid: active })}>${r.done ? 'Скрыть' : 'Хватит'}</button>
+        </div>
+      </div>`;
+    };
+
+    const composerFor = (e, si) => {
+      const p = Workout.prefill(active, e, si, lg);
+      const bw = e.prev?.kg === 0;
+      const unit = unitOf(e);
+      const planned = e.origin === 'added' ? 0 : (e.plannedSets ?? e.sets);
+      const stepper = (field, label, value, by, mode) => `<div class="wstep">
+          <span class="wstep__label" id="wl-${field}">${label}</span>
+          <input class="wstep__input num" data-wfield="${field}" value="${esc(value)}" inputmode="${mode}" autocomplete="off" aria-labelledby="wl-${field}">
+          <div class="wstep__row">
+            <button class="wstep__btn" data-wstep="${field}" data-by="${-by}" aria-label="${label}: меньше на ${DB.fmtNumber(by)}">${Icon.get('minus', { size: 20, sw: 2.6 })}</button>
+            <button class="wstep__btn" data-wstep="${field}" data-by="${by}" aria-label="${label}: больше на ${DB.fmtNumber(by)}">${Icon.get('plus', { size: 20, sw: 2.6 })}</button>
+          </div>
+        </div>`;
+      const draftVerb = p.draft ? 'Продолжить' : 'Записать';
+      return `<div class="wcomposer${p.draft ? ' is-draft' : ''}" data-composer="${e.id}:${si}">
+        <div class="wcomposer__head"><b>Подход ${si + 1}${planned && si >= planned ? ' · сверх плана' : ''}</b><span>${esc(p.source)}</span>
+          <button class="wcomposer__more" ${act('sheet.open', { id: 'setlog', cid: active, ex: e.id, si })} aria-label="${draftVerb} подход ${si + 1}: ${esc(e.name)}" title="Подробный ввод">${Icon.get('edit', { size: 17 })}</button></div>
+        <div class="wcomposer__fields${bw ? ' is-single' : ''}">
+          ${bw ? '' : stepper('kg', 'Вес, кг', p.kg, 2.5, 'decimal')}
+          ${stepper('reps', unit === 'сек' ? 'Секунды' : 'Повторы', p.reps, unit === 'сек' ? 5 : 1, 'numeric')}
+        </div>
+        <p class="wcomposer__error" data-composer-error role="alert"></p>
+        <button class="btn btn--primary wcomposer__save" ${act('workout.save', { cid: active, ex: e.id, si })}>${Icon.get('check', { size: 20, sw: 2.6 })}<span>Записать подход ${si + 1}</span></button>
+      </div>`;
+    };
+
+    let focusCard = '';
+    if (interactive && exs.length) {
+      if (focusEx) {
+        const open = Workout.openSets(focusEx, valuesOf(focusEx));
+        const si = focusEx.skipped ? -1 : open[0] ?? -1;
+        const parts = exCard(focusEx, { quick: false, focusMode: true });
+        const arr = valuesOf(focusEx);
+        const plannedSets = focusEx.origin === 'added' ? 0 : (focusEx.plannedSets ?? focusEx.sets);
+        const indices = focusEx.skipped ? arr.map((v, i) => (v ? i : -1)).filter(i => i >= 0) : Array.from({ length: focusEx.sets }, (_, i) => i);
+        const chips = indices.map(i => {
+          const v = arr[i];
+          const draft = lg.drafts[active]?.[focusEx.id]?.[i];
+          const extra = plannedSets && i >= plannedSets;
+          if (i === si && !focusEx.skipped) return `<li><span class="wchip is-next" aria-current="step"><span class="wchip__no num">${i + 1}</span><span class="wchip__val">сейчас</span></span></li>`;
+          const draftText = draft ? (focusEx.prev?.kg !== 0 ? `${esc(draft.kg || '—')} кг × ${esc(draft.reps || '—')}` : `${esc(draft.reps || '—')} ${unitOf(focusEx)}`) : '';
+          const shown = draft ? `<span class="setrow__draft num">${draftText}</span>` : v ? `<span class="num">${v.kg ? `${DB.fmtNumber(v.kg)}×${v.reps}` : `${v.reps} ${unitOf(focusEx)}`}</span>` : '<span aria-hidden="true">—</span>';
+          const verb = draft ? 'Продолжить' : v ? 'Изменить' : 'Записать';
+          const label = `${verb} подход ${i + 1}: ${focusEx.name}${draft ? `. Черновик ${draft.kg || '—'} кг × ${draft.reps || '—'}${v ? `, записано ${fmtSet(v, focusEx)}` : ''}` : v ? `. Записано ${fmtSet(v, focusEx)}` : ''}${extra ? '. Сверх плана' : ''}`;
+          return `<li><button class="wchip${v && !draft ? ' is-done' : ''}${draft ? ' is-draft' : ''}${extra ? ' is-extra' : ''}" aria-label="${esc(label)}" ${act('sheet.open', { id: 'setlog', cid: active, ex: focusEx.id, si: i })}>
+            <span class="wchip__no num">${i + 1}${extra ? '<sup>+</sup>' : ''}</span><span class="wchip__val">${shown}</span>${v && !draft ? Icon.get('check', { size: 13, sw: 3 }) : ''}</button></li>`;
+        }).join('');
+        const position = visible.indexOf(focusEx) + 1;
+        const after = visible.slice(position).find(e => !e.skipped && Workout.openSets(e, valuesOf(e)).length) || visible.find(e => e !== focusEx && !e.skipped && Workout.openSets(e, valuesOf(e)).length);
+        const complete = !focusEx.skipped && si < 0;
+        focusCard = `<section class="wfocus excard${focusEx.skipped ? ' excard--skipped' : ''}" aria-label="Текущее упражнение">
+          <div class="wfocus__eyebrow"><span>Сейчас · ${position} из ${visible.length}</span>${after ? `<button class="wfocus__skipto" ${act('workout.focus', { cid: active, ex: after.id })}>Дальше: ${esc(after.name)} ${Icon.get('chevR', { size: 14, sw: 2.4 })}</button>` : ''}</div>
+          <div class="excard__head">
+            <div class="excard__title"><h2 class="excard__name wfocus__name" tabindex="-1">${esc(focusEx.name)}</h2>${parts.tag}</div>
+            <div class="excard__goal num">${parts.goal}</div>
+            ${!focusEx.skipped ? `<button class="excard__menu" ${act('sheet.open', { id: 'exMenu', cid: active, ex: focusEx.id })} aria-label="Изменить упражнение: ${esc(focusEx.name)}">${Icon.get('more', { size: 20 })}</button>` : ''}
+          </div>
+          ${restBand()}
+          ${chips ? `<ol class="wchips" aria-label="Подходы">${chips}</ol>` : ''}
+          ${si >= 0 ? composerFor(focusEx, si) : ''}
+          ${plannedSets && arr.some((v, i) => v && i >= plannedSets) ? '<p class="wfocus__extra">+ сверх плана</p>' : ''}
+          ${complete ? `<div class="wfocus__done">${Icon.get('check', { size: 18, sw: 3 })}<span>Все подходы записаны</span></div>` : ''}
+          ${parts.foot}
+        </section>`;
+      } else {
+        focusCard = `<section class="wfocus wfocus--finish" aria-label="Тренировка выполнена">
+          ${restBand()}
+          <h2 class="wfocus__name" tabindex="-1">Все упражнения выполнены</h2>
+          <p>Проверьте записи ниже и завершите тренировку. Посещение и списание отмечаются отдельно.</p>
+          ${Btn('Завершить тренировку', { kind: 'primary', a: 'log.finish' })}
+        </section>`;
+      }
+    }
+
+    const list = interactive ? `<section class="wlist" aria-label="Упражнения тренировки">
+        <h2 class="wlist__title">Упражнения <span class="num">${visible.filter(e => !e.skipped && !Workout.openSets(e, valuesOf(e)).length).length}/${visible.filter(e => !e.skipped).length}</span></h2>
+        <ol>${visible.map((e, i) => {
+          const arr = valuesOf(e);
+          const done = arr.filter(v => v && Number.isFinite(v.kg) && v.reps > 0);
+          const open = Workout.openSets(e, arr).length;
+          const state = e.skipped ? 'skip' : e === focusEx ? 'now' : !open ? 'done' : done.length ? 'part' : 'todo';
+          const drafts = (lg.drafts[active]?.[e.id] || []).filter(Boolean).length;
+          const summary = e.skipped ? (e.replacedBy ? 'заменено' : 'пропущено')
+            : done.length ? done.map(v => v.kg ? `${DB.fmtNumber(v.kg)}×${v.reps}` : `${v.reps} ${unitOf(e)}`).join(' · ')
+            : `${e.sets} ${DB.plural(e.sets, ['подход', 'подхода', 'подходов'])}${e.prev && e.prev.reps > 0 ? ` · прошлый раз ${fmtSet(e.prev, e)}` : ''}`;
+          const stateLabel = { now: 'сейчас', done: 'выполнено', part: `${done.length} из ${e.sets}`, todo: 'впереди', skip: e.replacedBy ? 'заменено' : 'пропущено' }[state];
+          return `<li><button class="wrow is-${state}" ${act('workout.focus', { cid: active, ex: e.id })} aria-current="${e === focusEx ? 'step' : 'false'}" aria-label="${esc(e.name)}: ${esc(stateLabel)}${drafts ? ', есть черновик' : ''}. Открыть">
+            <span class="wrow__mark num" aria-hidden="true">${state === 'done' ? Icon.get('check', { size: 15, sw: 3 }) : i + 1}</span>
+            <span class="wrow__main"><span class="wrow__name">${esc(e.name)}</span><span class="wrow__sum num">${esc(summary)}</span></span>
+            <span class="wrow__side num">${state === 'now' ? 'сейчас' : e.skipped ? '' : `${done.length}/${e.sets}`}${drafts ? '<i class="wrow__draft">черновик</i>' : ''}</span>
+          </button></li>`;
+        }).join('')}</ol>
+        <button class="log-add-ex" ${act('sheet.open', { id: 'exPick', mode: 'add', cid: active })}>${Icon.get('plus', { size: 18, sw: 2.4 })}Добавить упражнение</button>
+      </section>` : '';
+
+    const rows = interactive
+      ? focusCard + list
+      : exs.map(e => {
+          if (e.skipped && e.replacedBy && !valuesOf(e).some(Boolean)) return '';
+          return cardOf(e, exCard(e, { quick: false }));
+        }).filter(Boolean).join('<div style="height:12px"></div>');
 
     const saveState = lg.storageError
       ? SaveState('error', lg.storageConflict ? 'Журнал изменён в другой вкладке · местные правки не отправлены' : 'Только в памяти вкладки · не закрывайте её')
       : '';
 
-    return `<div class="screen session-journal${participants.length > 1 ? ' session-journal--group' : ''}">
+    return `<div class="screen session-journal${participants.length > 1 ? ' session-journal--group' : ''}${interactive ? ' session-journal--live' : ''}">
       <div class="topbar" style="padding-bottom:2px">
         <div class="topbar__side">${lg.finished ? iconBtn('chevL', { act: 'log.leave', label: 'Назад к расписанию', size: 24 }) : `<button class="log-minimize" ${act('log.minimize')} aria-label="Свернуть тренировку">${Icon.get('chevD', { size: 18 })}<span>Свернуть</span></button>`}</div>
         <div class="log-screen-status"><span class="log-screen-status__default">${lg.finished ? 'Результаты' : 'Журнал тренировки'}</span><span class="log-screen-status__client">${esc(participants.length > 1 ? `Мини-группа · ${activeClient.short}` : activeClient.name)}</span></div>
@@ -956,8 +1078,12 @@ const Trainer = (() => {
       </div>
       <div class="screen__body">
         <div class="log-head">
-          <h1 tabindex="-1" class="log-head__title">${esc(s.kind === 'personal' ? activeClient.name : s.title)}</h1>
-          <div class="log-head__sub num">${DB.fmtDateLong(s.date)} · ${s.start}–${s.end}</div>
+          <div class="log-head__top">
+            <div><h1 tabindex="-1" class="log-head__title">${esc(s.kind === 'personal' ? activeClient.name : s.title)}</h1>
+            <div class="log-head__sub num">${DB.fmtDateLong(s.date)} · ${s.start}–${s.end}${participants.length === 1 ? ` · ${esc(programName || 'Без программы')}` : ''}</div></div>
+            ${participants.length === 1 && totalSets && eligible && !lg.finished ? `<div class="log-head__score num" aria-label="Записано ${doneSets} из ${totalSets} подходов"><b>${doneSets}</b><span>/${totalSets}</span></div>` : ''}
+          </div>
+          ${participants.length === 1 && totalSets && eligible && !lg.finished ? `<div class="log-progress">${Meter(doneSets, totalSets)}</div>` : ''}
           ${saveState ? `<div class="log-head__save">${saveState}</div>` : ''}
           ${lg.storageError ? `<div class="log-recovery">${lg.storageConflict ? '<p>Скачайте копию этой вкладки перед перезагрузкой. Автоматическое объединение не поддерживается.</p>' : Btn('Повторить сохранение', { kind: 'soft', size: 'compact', a: 'log.retry' })}${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
           ${lg.completedElsewhere ? `<div class="log-recovery" role="status"><p>Журнал завершён в другой вкладке. Результаты открыты для просмотра. Прежние данные этой вкладки доступны в копии журнала. Скачайте её перед перезагрузкой.</p>${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
@@ -965,30 +1091,24 @@ const Trainer = (() => {
             <div class="log-completed__score num"><b>${doneSets}</b><span>из ${totalSets} подходов</span></div>
             <strong>Журнал завершён</strong><p>Посещение и списание не изменены. Ниже — подтверждённые результаты.</p>${UI.ChangesSummary(active)}${lg.finished && Store.programs.options(active).length ? Btn('Обновить программу клиента', {kind:'soft', a:'sheet.open', args:{id:'programUpdate',cid:active}}) : ''}</div>` : ''}
         </div>
-        <div class="log-context">${strip}
-        ${participants.length === 1 ? `<div class="log-context__solo">
-          <div class="log-context__line"><span>${esc(programName || 'Без программы')}</span>${totalSets && eligible ? `<span class="num log-context__count">${doneSets}/${totalSets}</span>` : ''}</div>
-          ${totalSets && eligible ? `<div class="log-progress">${Meter(doneSets, totalSets)}</div>` : ''}
-        </div>` : `<div class="log-context__who">
-          <div class="log-context__identity">${lg.finished ? 'Результаты' : eligible ? 'Записываем' : 'Участник'}: <b>${esc(activeClient ? activeClient.name : '')}</b></div>
-          <div class="log-context-meta">${esc(programName || 'Без программы')}</div>${lg.plans[active]?.reply === 'pending' ? '<div class="log-context-meta">Участие пока не подтверждено</div>' : ''}
-        </div>`}
-        </div>
+        ${participants.length > 1 ? `<div class="log-context">${strip}<div class="log-context__who">
+          <div class="log-context__identity">${lg.finished ? 'Результаты' : eligible ? 'Записываем' : 'Участник'}: <b>${esc(activeClient ? activeClient.name : '')}</b> <span class="log-context-meta">· ${esc(programName || 'Без программы')}</span></div>${lg.plans[active]?.reply === 'pending' ? '<div class="log-context-meta">Участие пока не подтверждено</div>' : ''}
+        </div></div>` : ''}
+        <div class="wbody">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${ProgramOrEmpty(activeClient, programName, rows, exs.length, interactive, active)}</div>
         ${notesCard(active, lg)}
-        <div style="padding:14px 16px 0">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${ProgramOrEmpty(activeClient, programName, rows, exs.length, interactive, active)}</div>
-        ${lg.finished ? '' : '<p class="log-footnote">Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере, без синхронизации.</p>'}
-        <div style="height:20px"></div>
+        ${lg.finished ? '' : '<p class="log-footnote">Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере.</p>'}
+        <div style="height:12px"></div>
       </div>
-      <div style="padding:12px 16px 26px">
+      <div class="wdock">
         ${!lg.finished ? `<div class="log-feedback"><div class="log-action-status" role="status">${lg.feedback ? esc(lg.storageError ? 'Изменения только в этой вкладке · ошибка сохранения' : lg.feedback) : ''}</div>
           ${lg.quickUndo ? `<button class="log-undo" aria-label="Отменить запись" ${act('setlog.undoQuick', { cid: lg.quickUndo.clientId, ex: lg.quickUndo.exId, si: lg.quickUndo.setId })}>Отменить</button>` : ''}</div>` : ''}
         ${lg.finished || !eligible ? Btn(lg.finished ? 'Вернуться к расписанию' : 'Завершить тренировку', { kind: lg.finished ? 'primary' : 'soft', a: lg.finished ? 'tab' : 'log.finish', args: lg.finished ? { id: 't-schedule' } : {} })
           : `<div class="log-actions">
             <button class="log-voice" data-voice-hold aria-label="Голос: удерживайте и говорите. Короткое нажатие открывает ввод текстом" title="Удерживайте и говорите">
-              <span class="log-voice__face">${Store.preferences.calm() ? Icon.get('mic', { size: 28 }) : Mascot.face('smile', 34)}<span class="log-voice__mic">${Icon.get('mic', { size: 12, sw: 2.6 })}</span></span>
-              <span class="log-voice__txt"><b>Голос</b><small>удержать — голос<br>нажать — текст</small></span>
+              <span class="log-voice__face">${Store.preferences.calm() ? Icon.get('mic', { size: 26 }) : Mascot.face('smile', 32)}<span class="log-voice__mic">${Icon.get('mic', { size: 12, sw: 2.6 })}</span></span>
+              <span class="log-voice__txt"><b>Голос</b><small>держите и говорите</small></span>
             </button>
-            ${Btn('Завершить тренировку', { kind: 'soft', a: 'log.finish' })}
+            <button class="btn btn--soft log-finish" ${act('log.finish')}>Завершить</button>
           </div>`}
       </div>
     </div>`;

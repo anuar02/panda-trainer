@@ -11,7 +11,7 @@ function memory() {
 }
 function app(storage = memory()) {
   const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0, localStorage: storage });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'sheets', 'screens/trainer', 'screens/client']) {
+  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context, { filename: name });
   }
   return { storage, run: code => vm.runInContext(code, context) };
@@ -540,10 +540,13 @@ test('completed journal retains session time even when demo schedule resets on r
 test('draft rows show raw partial values and escape markup without pretending to be confirmed', () => {
   const { run } = app(); run(start);
   run("Store.logging.edit('c5','e1',0); Store.logging.input({kg:'8,',reps:''}); Store.ui.closeSheet()");
-  assert.match(run('Trainer.session()'), /setrow__draft num">8, кг × —/);
+  assert.match(run('Trainer.session()'), /wcomposer is-draft/);
+  assert.match(run('Trainer.session()'), /data-wfield="kg" value="8,"/);
+  assert.match(run('Trainer.session()'), /data-wfield="reps" value=""/);
   assert.doesNotMatch(run('Trainer.session()'), /class="setrow__today/);
   run("Store.logging.edit('c5','e1',0); Store.logging.input({kg:'<img>',reps:'2'}); Store.ui.closeSheet()");
-  assert.match(run('Trainer.session()'), /&lt;img&gt; кг × 2/);
+  assert.match(run('Trainer.session()'), /data-wfield="kg" value="&lt;img&gt;"/);
+  assert.doesNotMatch(run('Trainer.session()'), /<img>/);
 });
 
 test('completed latest workout falls back to today only, without losing earlier drafts across reload', () => {

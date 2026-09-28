@@ -86,6 +86,10 @@
     'note.share': (d) => Store.logging.shareNote(d.cid,Number(d.i)),
     'program.save': (d) => Store.programs.save(d.cid, [...document.querySelectorAll('[data-program-change]:checked')].map(el => el.value)),
     'calm.toggle': () => Store.preferences.toggleCalm(),
+    'workout.save': (d) => Workout.save(d.cid, d.ex, num(d.si)),
+    'workout.focus': (d) => Workout.setFocus(d.cid, d.ex),
+    'rest.add': (d) => Workout.addRest(d.cid, num(d.by)),
+    'rest.skip': (d) => Workout.skipRest(d.cid),
     'tab': (d) => Store.nav.tab(d.id),
     'nav.go': (d) => { Store.ui.closeSheet(); Store.nav.go(d.id); },
     'nav.back': () => Store.nav.back(),
@@ -486,6 +490,12 @@
     const before = Store.get();
     Actions[name](d, el);
     window.Fx?.afterAction(name, before, Store.get());
+    if (typeof Workout !== 'undefined') Workout.afterAction(name, before, Store.get());
+    if (name === 'workout.save' && Store.get().logging.values !== before.logging.values) {
+      const next = document.querySelector('.wfocus [data-act="workout.save"]') || document.querySelector('.wfocus .wfocus__name');
+      next?.focus({ preventScroll: true });
+      Workout.reveal();
+    }
     if (name === 'log.minimize') document.querySelector('[data-act="log.resume"]')?.focus({ preventScroll: true });
     if (name === 'setlog.quick' || name === 'setlog.undoQuick') {
       // The row changes shape after confirmation; keep focus on the same set.
