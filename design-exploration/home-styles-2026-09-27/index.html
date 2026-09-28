@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Красная панда — три главных экрана</title>
+  <link rel="stylesheet" href="../../prototype/css/fonts.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="review-header">
+    <a class="back-link" href="../../prototype/index.html">Прототип <span aria-hidden="true">↗</span></a>
+    <div class="review-heading"><h1>У главной появился характер.</h1><p>Три варианта с одной пандой и одними данными.<br>Сначала — композиция. Затем можно включить движение.</p></div>
+    <div class="review-controls"><button id="motion" type="button" aria-pressed="false"><span class="switch" aria-hidden="true"></span>Движение</button><button id="replay" type="button" disabled>Повторить</button></div>
+  </header>
+
+  <nav class="variant-tabs" aria-label="Вариант главной">
+    <button data-select="companion" aria-pressed="true">A · Напарник</button>
+    <button data-select="sport" aria-pressed="false">B · В ритме</button>
+    <button data-select="planner" aria-pressed="false">C · Личный план</button>
+  </nav>
+
+  <main class="comparison">
+    <section class="direction is-selected" data-direction="companion">
+      <div class="direction-heading"><span class="letter">A</span><div><h2>Напарник</h2><p>Панда встречает. Тренировка — рядом.</p></div></div>
+      <div class="phone companion">
+        <div class="statusbar"><span>9:41</span><span class="status-icons" aria-hidden="true">▮▮▮ <span>◒</span><i></i></span></div>
+        <div class="app-scroll">
+          <header class="app-header"><div class="trainer-avatar">ДС</div><div><small>Ваш тренер</small><b>Данияр</b></div><button class="icon-button" data-action="notifications" aria-label="Уведомления"><i data-icon="bell"></i></button></header>
+          <section class="welcome-scene">
+            <div class="welcome-copy"><p>Привет, Айгерим!</p><h3>Сегодня<br>твой день.</h3><span>Встречаемся в 18:00</span></div>
+            <div class="panda panda-welcome" data-pose="welcome"></div>
+            <svg class="scene-mark" viewBox="0 0 44 36" aria-hidden="true"><path d="M8 25 3 17M17 17 15 5M28 19 36 9"/></svg>
+          </section>
+          <div class="app-content">
+            <section class="workout-card">
+              <div class="row"><span class="label">Сегодня, 14 сентября</span><span class="confirmed"><i data-icon="check"></i>Подтверждено</span></div>
+              <div class="workout-time">18:00 <span>— 19:00</span></div>
+              <div class="program-row"><span class="exercise-icon"><i data-icon="dumbbell"></i></span><div><h4>Низ А</h4><p>Индивидуальная тренировка</p></div></div>
+              <button class="primary" data-action="program">Посмотреть программу<i data-icon="arrow"></i></button>
+              <button class="text-button" data-action="booking">Управлять записью</button>
+            </section>
+            <section class="package-card"><div class="row"><h4>Твой абонемент</h4><i data-icon="ticket"></i></div><p class="package-number"><b>7</b> занятий осталось <span>из 12</span></p><div class="session-dots" aria-label="Использовано 5 из 12 занятий"></div><div class="package-footer"><span>5 занятий уже позади</span><button data-action="billing">К оплате 40 000 ₸</button></div></section>
+            <section class="next-section"><div class="row"><h4>Дальше по плану</h4><i data-icon="calendar"></i></div><button class="next-session" data-action="next"><span class="date-tile">14<small>сент</small></span><span><b>21:15–22:00</b><small>Программа появится позже</small></span><i data-icon="chevron"></i></button></section>
+          </div>
+        </div>
+        <nav class="app-nav" aria-label="Разделы варианта A"></nav>
+      </div>
+      <p class="direction-note">Большой персонаж, тёплая сцена и спокойные карточки. Самый дружелюбный вариант.</p>
+    </section>
+
+    <section class="direction" data-direction="sport">
+      <div class="direction-heading"><span class="letter">B</span><div><h2>В ритме</h2><p>Спортивная графика. Больше энергии.</p></div></div>
+      <div class="phone sport">
+        <div class="statusbar"><span>9:41</span><span class="status-icons" aria-hidden="true">▮▮▮ <span>◒</span><i></i></span></div>
+        <div class="app-scroll">
+          <header class="sport-header"><div><p>Понедельник, 14 сентября</p><h3>Привет,<br>Айгерим<span>!</span></h3></div><button class="icon-button" data-action="notifications" aria-label="Уведомления"><i data-icon="bell"></i></button></header>
+          <div class="app-content">
+            <section class="sport-workout">
+              <div class="row"><span class="label">Твоя тренировка</span><span class="confirmed"><i data-icon="check"></i>Подтверждено</span></div>
+              <div class="sport-time">18:00<span>до 19:00</span></div>
+              <svg class="track-art" viewBox="0 0 150 170" aria-hidden="true"><path d="M170 20H93a58 58 0 0 0 0 116h77M170 34H93a44 44 0 0 0 0 88h77M170 48H93a30 30 0 0 0 0 60h77"/></svg>
+              <div class="sport-program"><span class="exercise-icon"><i data-icon="dumbbell"></i></span><div><h4>Низ А</h4><p>С Данияром · индивидуально</p></div></div>
+              <button class="primary" data-action="program">Открыть программу<i data-icon="arrow"></i></button>
+              <button class="text-button" data-action="booking">Управлять записью</button>
+            </section>
+            <section class="sport-companion"><div class="panda" data-pose="approved"></div><div><span class="tiny-label">Твой абонемент</span><h4>Ещё 7 встреч.<br>Продолжаем!</h4><p>Использовано 5 из 12 занятий</p></div><div class="sport-progress" aria-label="Использовано 5 из 12 занятий"><span></span></div></section>
+            <button class="billing-line" data-action="billing"><span><i data-icon="ticket"></i>К оплате</span><b>40 000 ₸</b><i data-icon="chevron"></i></button>
+            <section class="next-section"><div class="row"><h4>Ещё сегодня</h4><span class="label">14 сентября</span></div><button class="next-session" data-action="next"><span class="next-icon"><i data-icon="clock"></i></span><span><b>21:15–22:00</b><small>Программа появится позже</small></span><i data-icon="chevron"></i></button></section>
+          </div>
+        </div>
+        <nav class="app-nav" aria-label="Разделы варианта B"></nav>
+      </div>
+      <p class="direction-note">Контрастная карточка тренировки и линии беговой дорожки. Панда поддерживает прогресс.</p>
+    </section>
+
+    <section class="direction" data-direction="planner">
+      <div class="direction-heading"><span class="letter">C</span><div><h2>Личный план</h2><p>Собранный день. Панда знает, что дальше.</p></div></div>
+      <div class="phone planner">
+        <div class="statusbar"><span>9:41</span><span class="status-icons" aria-hidden="true">▮▮▮ <span>◒</span><i></i></span></div>
+        <div class="app-scroll">
+          <header class="planner-header"><div><p>Привет, Айгерим</p><h3>Всё по плану.</h3></div><button class="icon-button" data-action="notifications" aria-label="Уведомления"><i data-icon="bell"></i></button></header>
+          <div class="week-strip" aria-label="Неделя, выбран понедельник 14 сентября"><span class="selected"><small>пн</small><b>14</b><i></i></span><span><small>вт</small><b>15</b></span><span><small>ср</small><b>16</b></span><span><small>чт</small><b>17</b><i></i></span><span><small>пт</small><b>18</b></span><span><small>сб</small><b>19</b></span><span><small>вс</small><b>20</b></span></div>
+          <div class="app-content">
+            <section class="planner-scene"><div><span class="tiny-label">Сегодня, 14 сентября</span><h4>План на вечер<br>уже готов.</h4><p>Тренер Данияр<br>ждёт тебя в 18:00.</p></div><div class="panda" data-pose="reading"></div></section>
+            <section class="agenda"><div class="agenda-line" aria-hidden="true"></div><div class="agenda-time"><b>18:00</b><span>19:00</span><i></i></div><div class="agenda-card"><div class="row"><span class="confirmed"><i data-icon="check"></i>Подтверждено</span><i data-icon="dumbbell"></i></div><h4>Низ А</h4><p>Индивидуальная тренировка</p><button class="primary" data-action="program">Программа<i data-icon="arrow"></i></button><button class="text-button" data-action="booking">Управлять записью</button></div><div class="agenda-time second"><b>21:15</b><span>22:00</span><i></i></div><button class="agenda-next" data-action="next"><span>Следующее занятие<small>Программа появится позже</small></span><i data-icon="chevron"></i></button></section>
+            <section class="planner-package"><div class="package-ring"><svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="26"/><circle class="ring-value" cx="30" cy="30" r="26"/></svg><b>7</b></div><div><h4>Занятий осталось</h4><p>В пакете из 12 занятий</p><button data-action="billing">К оплате 40 000 ₸</button></div><i data-icon="chevron"></i></section>
+          </div>
+        </div>
+        <nav class="app-nav" aria-label="Разделы варианта C"></nav>
+      </div>
+      <p class="direction-note">Календарь и временная линия делают день наглядным. Панда с планшетом становится частью плана.</p>
+    </section>
+  </main>
+  <footer class="review-footer"><p>Главная клиента · визуальные концепции · демоданные прототипа</p><p>Выбранная панда с тёмной повязкой. Движение — появление сцены и заполнение шкалы; персонаж пока без рига.</p></footer>
+  <dialog id="detail"><div class="dialog-top"><h2 id="detail-title"></h2><button id="close-detail" class="icon-button" aria-label="Закрыть"><i data-icon="close"></i></button></div><div id="detail-body"></div></dialog>
+  <script src="../../prototype/js/data.js"></script>
+  <script src="preview.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+{
+  "errors": [],
+  "program": "Программа ближайшей тренировки · 18:00–19:00\n\nПриседания со штангой\n4 × 8\nРумынская тяга\n3 × 10\nЖим ногами\n3 × 12\nВыпады с гантелями\n3 × 12\nПланка\n3 × 45 сек",
+  "motionEnabled": "true",
+  "reducedMotion": "none",
+  "results": [
+    {
+      "viewport": 320,
+      "name": "companion",
+      "width": 292,
+      "scroll": 292,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 320,
+      "name": "sport",
+      "width": 292,
+      "scroll": 292,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 320,
+      "name": "planner",
+      "width": 292,
+      "scroll": 292,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 390,
+      "name": "companion",
+      "width": 344,
+      "scroll": 344,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 390,
+      "name": "sport",
+      "width": 344,
+      "scroll": 344,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 390,
+      "name": "planner",
+      "width": 344,
+      "scroll": 344,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 760,
+      "name": "companion",
+      "width": 376,
+      "scroll": 376,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 760,
+      "name": "sport",
+      "width": 376,
+      "scroll": 376,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 760,
+      "name": "planner",
+      "width": 376,
+      "scroll": 376,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 900,
+      "name": "companion",
+      "width": 376,
+      "scroll": 376,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 900,
+      "name": "sport",
+      "width": 376,
+      "scroll": 376,
+      "bodyOverflow": false,
+      "brokenImages": false
+    },
+    {
+      "viewport": 900,
+      "name": "planner",
+      "width": 376,
+      "scroll": 376,
+      "bodyOverflow": false,
+      "brokenImages": false
+    }
+  ]
+}
