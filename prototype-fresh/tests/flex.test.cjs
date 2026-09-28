@@ -10,7 +10,7 @@ function memory() {
 }
 function app(storage = memory()) {
   const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0, localStorage: storage });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client', 'voice']) {
+  for (const name of ['icons', 'data', 'template-repository', 'session-repository', 'store', 'ui', 'library', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client', 'voice']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context, { filename: name });
   }
   return { storage, run: code => vm.runInContext(code, context) };
@@ -110,7 +110,7 @@ test('custom exercise storage validates records and normalizes duplicate names',
 
 test('expanded library recognizes slang in voice input',()=>{
   const a = app();
-  assert.equal(a.run('DB.exerciseLibrary.length'),80);
+  assert.equal(a.run('DB.exerciseLibrary.length'),81);
   a.run("Store.logging.open('s7')");
   for (const [phrase,name] of [['бицуха 12 на 12','Сгибания на бицепс с гантелями'],['присед 80 на 8','Приседания со штангой']]) {
     const items = JSON.parse(a.run(`JSON.stringify(VoiceParse.parse('${phrase}',{active:'c1',participants:[],exercises:()=>[],values:()=>[],library:Store.logging.library()}))`));
@@ -196,4 +196,23 @@ test('client progress derives same-set best values and four-week gains from save
   run("Store.set({role:'client',scenario:'empty'})");
   assert.match(run('Client.progress()'),/Первые результаты/);
   assert.equal(run("UI.ProgramPreview('c7',null)"),'Тренер подберёт упражнения на месте');
+});
+
+ test('imported exercise media enrich existing names and work in library and programmes', () => {
+  const a = app();
+  assert.equal(a.run('DB.exerciseLibrary.filter(e => e.sourceId).length'), 12);
+  assert.equal(a.run("DB.exerciseLibrary.filter(e => e.name === 'Жим лёжа').length"), 1);
+  assert.match(a.run('Trainer.library()'), /lib-thumb/);
+  const html = a.run("Sheets.render({sheet:{id:'libraryExercise',data:{name:'Жим лёжа'}}})");
+  assert.match(html, /Как выполнять/);
+  assert.match(html, /Gym visual/);
+  assert.match(html, /assets\/exercises\/videos\//);
+  const { run, cid } = personal();
+  const id = run(`Store.logging.addExercise('${cid}', {name:'Тяга верхнего блока параллельным хватом'})`);
+  assert.ok(id);
+  assert.equal(run(`Store.logging.exercises('${cid}').some(e => e.name === 'Тяга верхнего блока параллельным хватом')`), true);
+  for (const e of JSON.parse(a.run('JSON.stringify(DB.exerciseLibrary.filter(e => e.sourceId))'))) {
+    assert.ok(e.instructions.length);
+    for (const asset of [e.image, e.gif]) assert.ok(fs.existsSync(path.join(__dirname, '..', asset)));
+  }
 });

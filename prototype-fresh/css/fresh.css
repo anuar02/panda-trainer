@@ -1544,3 +1544,11 @@ var(--stage-bg);
 @container (max-width: 22rem) {
   .tabbar__item { flex-basis: 50%; }
 }
+
+/* Imported exercise demonstrations */
+.exercise-thumb { object-fit: contain; border-radius: 10px; flex-shrink: 0; background: white; }
+.exercise-guide { margin: 18px 0; }
+.exercise-guide__media { display: block; margin: 0 auto; object-fit: contain; border-radius: 12px; background: white; }
+.exercise-guide h3 { margin: 20px 0 10px; font-size: 16px; }
+.exercise-guide ol { padding-left: 22px; line-height: 1.55; }
+.exercise-guide li + li { margin-top: 10px; }

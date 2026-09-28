@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Пример библиотеки упражнений</title>
+<style>
+body{font:16px/1.5 system-ui,sans-serif;background:#f5f4f0;color:#242722;margin:0;padding:32px}main{max-width:1100px;margin:auto}h1{font-size:28px}input{font:inherit;padding:12px;border:1px solid #ccc;border-radius:10px;width:100%;box-sizing:border-box;margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}article{background:white;border-radius:16px;padding:20px}h2{font-size:19px;margin:12px 0 4px}.meta,footer{font-size:13px;color:#666}img{display:block;width:180px;height:180px;object-fit:contain;margin:auto}summary{cursor:pointer;margin-top:16px}ol{padding-left:22px}footer{margin-top:24px}a{color:inherit}
+</style>
+<main>
+<h1>Библиотека упражнений · пример</h1>
+<p>12 упражнений с русскими инструкциями и демонстрациями.</p>
+<input id="search" type="search" placeholder="Найти упражнение" aria-label="Найти упражнение">
+<div class="grid" id="exercises"></div>
+<p id="empty" hidden>Упражнения не найдены.</p>
+<footer>Медиа: © <a href="https://gymvisual.com/">Gym visual</a>. Демонстрационная выборка; лицензия на медиа для проекта пока не получена. <a href="README.md">Источник и условия</a>.</footer>
+</main>
+<script src="exercises.js"></script>
+<script>
+const grid = document.getElementById('exercises');
+for (const exercise of window.EXERCISES_SAMPLE) {
+  const card = document.createElement('article');
+  card.dataset.search = [exercise.name_ru, exercise.name, ...exercise.aliases].join(' ').toLowerCase();
+  const image = document.createElement('img');
+  image.src = exercise.gif_url; image.alt = exercise.name_ru; image.loading = 'lazy';
+  const title = document.createElement('h2'); title.textContent = exercise.name_ru;
+  const meta = document.createElement('div'); meta.className = 'meta';
+  meta.textContent = `${exercise.name} · ${exercise.equipment} · ${exercise.target}`;
+  const details = document.createElement('details');
+  const summary = document.createElement('summary'); summary.textContent = 'Как выполнять';
+  const steps = document.createElement('ol');
+  const instructions = exercise.instruction_steps.ru.length ? exercise.instruction_steps.ru : [exercise.instructions.ru];
+  for (const instruction of instructions) {
+    const step = document.createElement('li'); step.textContent = instruction; steps.append(step);
+  }
+  details.append(summary, steps);
+  const credit = document.createElement('p'); credit.className = 'meta'; credit.textContent = exercise.attribution;
+  card.append(image, title, meta, details, credit); grid.append(card);
+}
+document.getElementById('search').addEventListener('input', event => {
+  const query = event.target.value.toLowerCase().replace(/ё/g, 'е').trim();
+  for (const card of grid.children) card.hidden = !card.dataset.search.replace(/ё/g, 'е').includes(query);
+  document.getElementById('empty').hidden = [...grid.children].some(card => !card.hidden);
+});
+</script>
+</html>

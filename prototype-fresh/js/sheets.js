@@ -305,8 +305,25 @@ const Sheets = (() => {
     return `<div class="sheet__title">${esc(e.name)}</div>
       <div class="sheet__sub">План: ${e.sets} × ${e.reps}${e.target ? ' · ' + DB.fmtNumber(e.target) + ' кг' : ''}</div>
         <div style="margin-top:14px">${Card(UI.KV([['Прошлый раз', e.prev ? e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ${e.prev.reps}` : `${e.prev.reps} ${timed ? 'сек' : 'повт.'}` : 'Нет записи'], ...(e.pr ? [['Личный рекорд', DB.fmtNumber(e.pr) + ' кг']] : [])]), { pad: true })}</div>
-      <p class="client-footnote">Подсказка тренера по этому упражнению пока не добавлена.</p>
+      ${exerciseGuide(e.name)}
       <div style="margin-top:16px">${Btn('Закрыть', { kind: 'soft', a: 'sheet.close' })}</div>`;
+  }
+
+  function exerciseGuide(name) {
+    const item = DB.exerciseLibrary.find(e => e.name === name);
+    if (!item?.instructions) return '<p class="client-footnote">Подсказка тренера по этому упражнению пока не добавлена.</p>';
+    return `<div class="exercise-guide">
+      <img class="exercise-guide__media" src="${esc(item.gif)}" alt="Демонстрация: ${esc(item.name)}" width="180" height="180">
+      <p class="client-footnote"><a href="https://gymvisual.com/" target="_blank" rel="noopener noreferrer">${esc(item.attribution)}</a></p>
+      <h3>Как выполнять</h3><ol>${item.instructions.map(step => `<li>${esc(step)}</li>`).join('')}</ol>
+    </div>`;
+  }
+
+  function libraryExercise(st) {
+    const item = Store.logging.library().find(e => e.name === st.sheet.data.name);
+    if (!item) return '<h2 class="sheet__title">Упражнение недоступно</h2>';
+    return `<h2 class="sheet__title">${esc(item.name)}</h2><p class="sheet__sub">${esc(item.group)}</p>
+      ${exerciseGuide(item.name)}${Btn('Закрыть', { kind: 'soft', a: 'sheet.close' })}`;
   }
 
   /* ── Today: contextual reschedule request ────────────────────────────────── */
@@ -387,6 +404,7 @@ const Sheets = (() => {
     return `<div class="sheet__title">${esc(e.name)}</div>
       <div class="sheet__sub">Изменения только для этой тренировки${Object.keys(st.logging.plans).length > 1 ? ` и только для ${esc(client(cid).short)}` : ''}. Программа клиента не меняется.</div>
       <div class="exmenu">
+        <button class="exmenu__item" ${act('sheet.open', { id: 'libraryExercise', name: e.name })}>${Icon.get('dumbbell', { size: 20 })}<span><b>Техника упражнения</b><small>Демонстрация и инструкция</small></span></button>
         <button class="exmenu__item" ${act('sheet.open', { id: 'exPick', mode: 'replace', cid, ex })}>${Icon.get('swap', { size: 20 })}<span><b>Заменить</b><small>${done ? `Записанные подходы (${done}) останутся` : 'Например, тренажёр занят'}</small></span></button>
         <button class="exmenu__item" ${act('ex.addSet', { cid, ex })}>${Icon.get('plus', { size: 20 })}<span><b>Добавить подход</b><small>Сейчас ${e.sets} ${DB.plural(e.sets, ['подход', 'подхода', 'подходов'])}</small></span></button>
         <button class="exmenu__item exmenu__item--danger" ${act('ex.skip', { cid, ex })}>${Icon.get(removable ? 'trash' : 'ban', { size: 20 })}<span><b>${removable ? 'Убрать из тренировки' : 'Пропустить'}</b><small>${removable ? 'Подходов ещё нет' : done ? 'Незаписанные подходы не учитываются' : 'Можно вернуть до завершения'}</small></span></button>
@@ -427,10 +445,11 @@ const Sheets = (() => {
   function render(st) {
     const sh = st.sheet;
     if (!sh) return '';
+    if (['templatePicker', 'templateDiscard', 'templateDraftConflict'].includes(sh.id)) return Library.sheet(sh.id);
     const map = {
       session, setlog, finishConfirm, charge, pay,
       notifications, stale, clientActions, search, customEx, assignTemplate,
-      cCancel, exercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
+      cCancel, exercise, libraryExercise, todayRequest, todayOverlap, clientCreate, rescheduleForm,
       voice: () => Voice.sheet(),
       exMenu, exPick, programUpdate,
       chooseProgram: () => `<h2 class="sheet__title">Выбрать программу</h2><p class="sheet__sub">Программа занятия. Уже открытый журнал сохраняет свой план.</p>${DB.templates.map(t=>Btn(t.name,{kind:'soft',a:'program.assign',args:{sid:st.sheet.data.sid,name:t.program}})).join('')}`,

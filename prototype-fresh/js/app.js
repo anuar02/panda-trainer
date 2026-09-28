@@ -53,6 +53,7 @@
     't-session': () => Trainer.session(),
     't-library': () => Trainer.library(),
     't-template': () => Trainer.template(),
+    't-template-editor': () => Library.editor(),
     't-billing': () => Trainer.billing(),
     't-invite': () => Trainer.invite(),
     't-profile': () => Trainer.profile(),
@@ -74,6 +75,7 @@
   }));
 
   const Actions = {
+    ...Library.actions,
     'field.clear': () => Store.field.clear(),
     'field.export': () => {
       const data = Store.field.exportData();
@@ -262,7 +264,8 @@
     't-clients': { title: 'Клиенты', text: 'Список с подписанными состояниями внимания.', rules: ['Пороги не выдумываются молча — они подписаны.', 'Новый клиент без данных — отдельное состояние.'] },
     't-client': { title: 'Карточка клиента', text: 'Пять разделов прокручиваемыми вкладками.', rules: ['Заметка тренера приватна, комментарий клиента помечен.', 'Остаток и «к оплате» — разные величины.', 'История не переписывается сменой программы.'] },
     't-session': { title: 'Проведение тренировки', text: 'Всегда видно, чьи результаты записываются.', rules: ['Переключение участников не теряет и не переносит данные.', 'Прошлое ≠ план ≠ сегодняшний факт.', 'Незаписанный подход не равен нулю.', 'Посещение и списание — отдельные действия.'] },
-    't-library': { title: 'Библиотека', text: 'Просмотр шаблонов и упражнений. Поиск, фильтры и сохранение редактора пока не подключены.', rules: ['Выбранный шаблон открывает свою программу.', 'Программа назначается при создании занятия.'] },
+    't-library': { title: 'Библиотека', text: 'Рабочая коллекция упражнений и шаблонов: поиск, фильтры по мышцам и оборудованию, избранное и демонстрации техники.', rules: ['Избранное и шаблоны сохраняются на этом устройстве.', 'Шаблон можно создать, изменить и скопировать.', 'План доступен при создании занятия.'] },
+    't-template-editor': { title: 'Конструктор шаблонов', text: 'Последовательность упражнений, подходы, повторения или время, вес и отдых.', rules: ['Черновик восстанавливается после перезагрузки.', 'Перед сохранением проверяются название и нагрузка.', 'Уже открытый журнал тренировки сохраняет свой план.'] },
     't-template': { title: 'Шаблон', text: 'Порядок, подходы, повторения, веса, заметки.', rules: ['Результаты при замене шаблона сохраняются.', 'Незаметное удаление истории недопустимо.'] },
     't-billing': { title: 'Пакеты и оплаты', text: 'Две независимые истории: движение занятий и оплаты.', rules: ['Частичная оплата уменьшает долг, не посещения.', 'Нет подходящего пакета → посещение без привязки.', 'Повторное списание не создаёт вторую операцию.'] },
     't-invite': { title: 'Приглашение', text: 'Честные состояния: не подключён · ссылка создана · подключился.', rules: ['Открытие share-sheet ≠ отправка.', 'Срок действия, отзыв, перевыпуск.', 'Клиент подключается к существующей карточке.'] },
@@ -358,9 +361,11 @@
     document.documentElement.dataset.calm = String(Store.preferences.calm());
     const journalKey = st.screen === 't-session' ? `${st.logging.sessionId}:${st.logging.active}` : null;
     const justFinished = journalKey && lastFrame?.journalKey && lastFrame.sessionId === st.logging.sessionId && !lastFrame.finished && st.logging.finished;
+    const libraryScroll = document.querySelector('.library-screen .screen__body')?.scrollTop || 0;
+    const librarySameScreen = lastScreenKey?.split(':')[1] === st.screen;
     const focused = document.activeElement;
     const previousFocus = focusKey(focused);
-    const inputFocus = focused?.matches('[data-log-field], [data-reschedule-field]') ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
+    const inputFocus = focused?.matches('[data-log-field], [data-reschedule-field], [data-picker-query]') ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
     if (lastFrame?.journalKey) journalScroll.set(lastFrame.journalKey, document.querySelector('.session-journal .screen__body')?.scrollTop || 0);
     const stripScroll = lastFrame?.sessionId === st.logging.sessionId ? document.querySelector('.pstrip')?.scrollLeft || 0 : 0;
     const sheetScroll = (document.querySelector('.log-editor-fields') || document.querySelector('.sheet__body'))?.scrollTop || 0;
@@ -409,6 +414,7 @@
     if (st.toast && st.toast.at !== lastToastAt) screenEl.querySelector('.toast')?.classList.add('is-fresh');
     lastToastAt = st.toast?.at ?? null;
 
+    if (librarySameScreen) { const libraryBody = screenEl.querySelector('.library-screen .screen__body'); if (libraryBody) libraryBody.scrollTop = libraryScroll; }
     const body = screenEl.querySelector('.session-journal .screen__body');
     if (body) body.scrollTop = justFinished ? 0 : journalScroll.get(journalKey) || 0;
     const strip = screenEl.querySelector('.pstrip');
@@ -446,7 +452,7 @@
       const target = field || (sameSheet && findFocusKey(previousFocus)) || sheet;
       target.focus({ preventScroll: true });
       if (field && inputFocus.start != null) field.setSelectionRange(inputFocus.start, inputFocus.end);
-    } else if (lastFrame?.journalKey && journalKey && previousFocus) {
+    } else if (((lastFrame?.journalKey && journalKey) || librarySameScreen) && previousFocus) {
       findFocusKey(previousFocus)?.focus({ preventScroll: true });
     }
 
@@ -484,7 +490,7 @@
   function handle(el) {
     const name = el.getAttribute('data-act');
     if (!name || !Actions[name]) return;
-    if ((name === 'sheet.open' || name === 'log.finish') && !Store.get().sheet) sheetReturnFocus = focusKey(el);
+    if ((['sheet.open', 'log.finish', 'builder.pick', 'builder.discardAsk'].includes(name)) && !Store.get().sheet) sheetReturnFocus = focusKey(el);
     const d = {};
     for (const key of Object.keys(el.dataset)) d[key] = el.dataset[key];
     const before = Store.get();
@@ -551,6 +557,7 @@
 
   document.addEventListener('input', (e) => {
     if (e.target.closest?.('.sheet')) document.querySelector('.sheet')?.getAnimations().forEach(animation => animation.cancel());
+    if (Library.input(e)) return;
     if (e.target.matches('[data-reschedule-field]')) {
       Store.silent({ reschedulePick: { ...Store.get().reschedulePick, [e.target.dataset.rescheduleField]: e.target.value } });
       return;
@@ -568,6 +575,7 @@
     field?.focus({ preventScroll: true });
     if (start != null) field?.setSelectionRange(start, end);
   });
+  document.addEventListener('change', event => Library.change(event));
   document.addEventListener('compositionend', (e) => {
     if (e.target.matches('[data-directory-search]')) e.target.dispatchEvent(new Event('input', { bubbles: true }));
   });

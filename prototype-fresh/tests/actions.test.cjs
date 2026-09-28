@@ -15,7 +15,7 @@ function app() {
     window: { visualViewport: view, innerHeight: 800, addEventListener() {}, matchMedia: () => ({ matches: false, addEventListener() {} }) },
     requestAnimationFrame(fn) { frames.push(fn); return frames.length; }, cancelAnimationFrame() {},
     localStorage: { getItem: k => memory.get(k) || null, setItem: (k, v) => memory.set(k, v) } });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client']) {
+  for (const name of ['icons', 'data', 'template-repository', 'session-repository', 'store', 'ui', 'library', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context);
   }
   const source = fs.readFileSync(path.join(__dirname, '../js/app.js'), 'utf8');

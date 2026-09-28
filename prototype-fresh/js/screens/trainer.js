@@ -1135,47 +1135,9 @@ const Trainer = (() => {
 
   /* ── Библиотека ───────────────────────────────────────────────────────────── */
 
-  function library() {
-    return `<div class="screen reference-screen">
-      ${TopBar({ back: 'nav.back', title: 'Библиотека', right: Btn('Создать', { kind: 'ghost', size: 'sm', a: 'sheet.open', args: { id: 'customEx' } }) })}
-      <div class="screen__body" style="padding:4px 16px 20px">
-        <div class="field field--search" style="margin-bottom:6px">${Icon.get('search', { size: 19, style: 'color:var(--ter)' })}<input placeholder="Упражнение или шаблон" aria-label="Поиск упражнений" data-ex-search></div>
-        <div class="chips" style="padding:12px 0">
-          ${['Все', 'Шаблоны', 'Ноги', 'Верх', 'Пресс', 'Мои'].map((f, i) => `<span class="chip chip--soft ${i === 0 ? 'is-on' : ''}" aria-disabled="true">${f}</span>`).join('')}
-        </div>
-        <p class="client-footnote" style="margin:0 4px 16px">Показана вся библиотека. Ищите по названию или разговорному имени. Фильтры пока недоступны.</p>
-        <div class="label" style="margin-left:6px">Шаблоны</div>
-        ${Card(DB.templates.map((t, i) => Row({
-          lead: Lead('layers', { size: 'sm', icon: true }),
-          title: t.name, meta: `${t.meta} · используется ${t.uses}`,
-          right: Icon.get('chevR', { size: 20, style: 'color:var(--ter)' }),
-          a: 'template.open', args: { id: t.id }, last: i === DB.templates.length - 1,
-        })).join(''), { rows: true, cls: '' })}
-        <div class="label" style="margin:18px 6px 10px">Упражнения</div>
-        <ul class="expick__list">${Store.logging.library().map(e => `<li data-ex-item data-name="${esc(e.name)}" data-search="${esc([e.name, ...(e.aliases || [])].join(' '))}">${Row({lead: Lead('dumbbell', {size:'sm', icon:true}), title:e.name, meta:e.group})}</li>`).join('')}</ul>
-      </div>
-    </div>`;
-  }
+  function library() { return Library.screen(); }
 
-  function template() {
-    const template = DB.templates.find(t => t.id === Store.get().selectedTemplate) || DB.templates[0];
-    const exs = DB.programFor(template.program);
-    return `<div class="screen reference-screen">
-      ${TopBar({ back: 'nav.back', title: 'Шаблон' })}
-      <div class="screen__body" style="padding:4px 16px 20px">
-        ${PageTitle({ title: template.name, sub: `${template.meta} · использований: ${template.uses}`, size: 'sm' })}
-        ${Card(exs.map((e, i) => Row({
-          lead: Lead('' + (i + 1), { size: 'sm' }),
-          title: e.name, meta: `${e.sets} × ${e.reps}${e.target ? ' · ' + DB.fmtNumber(e.target) + ' кг' : ''}`,
-          last: i === exs.length - 1,
-        })).join(''), { rows: true })}
-        <p class="client-footnote">Программу можно выбрать при создании занятия. Редактирование и дублирование шаблонов в демо пока недоступны.</p>
-        <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
-          ${Btn('Создать занятие', { kind: 'primary', a: 'tab', args: { id: 't-new' }, icon: 'plus' })}
-        </div>
-      </div>
-    </div>`;
-  }
+  function template() { return Library.details(); }
 
   /* ── Пакеты и оплаты ──────────────────────────────────────────────────────── */
 

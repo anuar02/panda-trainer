@@ -105,6 +105,7 @@ const UI = (() => {
       { id: 't-today', label: 'Сегодня', icon: 'home' },
       { id: 't-schedule', label: 'Распи\u00adсание', icon: 'calendar' },
       { id: 't-clients', label: 'Клиенты', icon: 'users' },
+      { id: 't-library', label: 'Библиотека', icon: 'layers' },
       { id: 't-profile', label: 'Профиль', icon: 'user' },
     ],
     client: [
@@ -118,7 +119,7 @@ const UI = (() => {
 
   const TabBar = (role, active, badge = 0) => {
     const items = TABS[role];
-    return `<nav class="tabbar" aria-label="Основная навигация">${items.map(t => {
+    return `<nav class="tabbar" data-role="${role}" aria-label="Основная навигация">${items.map(t => {
       const on = active === t.id;
       return `<button class="tabbar__item${on ? ' is-on' : ''}" ${act('tab', { id: t.id })} aria-current="${on}">
         <span class="tabbar__icon">${Icon.get(t.icon, { size: 22, sw: on ? 2.3 : 1.8 })}${t.id === 't-today' && badge ? `<span class="count">${badge}</span>` : ''}</span>
