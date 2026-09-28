@@ -97,8 +97,3 @@
 }
 :root[data-visual="firm"] .setrow__quick:active { background: var(--sunken); }
 
-/* Current implementation already has one blue left marker. Keep that marker;
-   don't introduce a second blue accent on the chevron. Error detail stays red. */
-:root[data-visual="firm"] .workout-dock__action { color: var(--sec); }
-:root[data-visual="firm"] .workout-dock__expand { color: var(--sec); }
-:root[data-visual="firm"] .workout-dock__button:active { background: var(--sunken); }

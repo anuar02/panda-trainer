@@ -164,10 +164,21 @@ const UI = (() => {
       : !workout.participating ? 'Участник не участвует'
       : workout.total ? `${workout.done} из ${workout.total} подходов` : 'Без программы';
     const description = detail + draftDetail;
-    return `<aside class="workout-dock" aria-label="Свёрнутая тренировка">
-      <button class="workout-dock__button" ${act('log.resume', { id: workout.sessionId })} aria-label="Вернуться к тренировке: ${esc(workout.name)}, ${workout.start}. ${esc(description)}">
-        <span class="workout-dock__text"><span class="workout-dock__action">Вернуться к тренировке</span><strong>${esc(workout.name)}</strong><span class="workout-dock__time num">${workout.start} · Не завершена</span><span class="workout-dock__detail${workout.storageError ? ' is-error' : ''}">${esc(description)}</span></span>
-        <span class="workout-dock__expand" aria-hidden="true">${Icon.get('chevD', { size: 22 })}</span>
+    const live = typeof Workout !== 'undefined' && workout.participating && !workout.storageError && st.logging.sessionId === workout.sessionId && !st.logging.finished ? st.logging.active : null;
+    const exercise = live ? Workout.current(live, Store.logging.exercises(live), st.logging.values[live] || {}) : null;
+    const rest = live ? Workout.restOf(live) : null;
+    const pct = workout.total ? Math.min(100, Math.round(workout.done / workout.total * 100)) : 0;
+    const count = workout.total && workout.participating && !workout.storageError ? `<b class="num">${workout.done}/${workout.total}</b>` : '';
+    const line = workout.storageError || !workout.participating || !workout.total ? `<span class="workout-dock__detail${workout.storageError ? ' is-error' : ''}">${esc(description)}</span>`
+      : rest && !rest.done ? `<span class="workout-dock__rest">Отдых <span class="num" data-rest-left="${esc(live)}">${rest.label}</span></span>${exercise ? `<span class="workout-dock__ex">дальше ${esc(exercise.name)}</span>` : ''}`
+      : rest ? `<span class="workout-dock__rest is-over">Отдых окончен</span>${exercise ? `<span class="workout-dock__ex">${esc(exercise.name)}</span>` : ''}`
+      : exercise ? `<span class="workout-dock__ex">${esc(exercise.name)}</span>${draftDetail ? `<span class="workout-dock__detail">${esc(draftDetail.slice(3))}</span>` : ''}`
+      : `<span class="workout-dock__detail"><span class="num">${workout.start}</span> · ${esc(description)}</span>`;
+    return `<aside class="workout-dock${rest && !rest.done ? ' is-resting' : ''}" aria-label="Свёрнутая тренировка">
+      <button class="workout-dock__button" ${act('log.resume', { id: workout.sessionId })} aria-label="Вернуться к тренировке: ${esc(workout.name)}, ${workout.start}. ${esc(description)}${exercise ? `. Сейчас: ${esc(exercise.name)}` : ''}">
+        <span class="workout-dock__ring" style="--p:${pct}%" aria-hidden="true">${Icon.get('play', { size: 16, sw: 0 })}</span>
+        <span class="workout-dock__text"><span class="workout-dock__name"><strong>${esc(workout.name)}</strong>${count}</span><span class="workout-dock__line">${line}</span></span>
+        <span class="workout-dock__go" aria-hidden="true"><span>Вернуться</span>${Icon.get('chevR', { size: 18, sw: 2.4 })}</span>
       </button></aside>`;
   };
 
