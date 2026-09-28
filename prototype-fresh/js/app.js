@@ -316,6 +316,11 @@
     </aside>`;
   }
 
+  document.addEventListener('appearancechange', () => Store.commit());
+  document.addEventListener('change', event => {
+    if (event.target.matches('[data-workspace-client]')) Store.set({activeClient: event.target.value, clientTab: 'sessions'});
+  });
+
   function renderToolbar(st) {
     const scenarios = Object.entries(DB.SCENARIOS);
     return `<div class="toolbar">
@@ -327,12 +332,14 @@
         ${scenarios.map(([id, s]) => `<button class="tool" ${act('scenario', { s: id })} aria-pressed="${st.scenario === id}" title="${esc(s.desc)}">${esc(s.label)}</button>`).join('')}
       </div>
       <div class="toolbar" role="group" aria-label="Оформление">
-        <button class="tool" data-visual-choice="current" aria-pressed="${document.documentElement.dataset.visual !== 'firm'}">Текущий</button>
+        <button class="tool" data-visual-choice="current" aria-pressed="${!document.documentElement.dataset.visual}">Текущий</button>
         <button class="tool" data-visual-choice="firm" aria-pressed="${document.documentElement.dataset.visual === 'firm'}">Строгий</button>
+        <button class="tool" data-visual-choice="instrument" aria-pressed="${UI.isInstrument()}">Инструмент</button>
       </div>
-      <div class="toolbar" role="group" aria-label="Палитра">
+      <div class="toolbar palette-controls" role="group" aria-label="Палитра">
         ${[['ink', 'Чернила'], ['teal', 'Бирюза'], ['panda', 'Панда']].map(([id, label]) => `<button class="tool" data-palette-choice="${id}" aria-pressed="${(document.documentElement.dataset.palette || 'panda') === id}">${label}</button>`).join('')}
       </div>
+      ${st.screen === 'c-first' ? `<div class="toolbar" role="group" aria-label="Состояние приглашения">${Object.entries({invite:'Активна',expired:'Истекла',revoked:'Отозвана',accepted:'Принята',no_session:'Нет занятия'}).map(([state,label]) => `<button class="tool" ${act('first.state', {state})} aria-pressed="${(st.inviteState || 'invite') === state}">${label}</button>`).join('')}</div>` : ''}
       <div class="toolbar" role="group" aria-label="Ширина">
         ${[320, 375, 390, 430].map(w => `<button class="tool" ${act('width', { w })} aria-pressed="${st.deviceW === w}">${w}</button>`).join('')}
         ${st.role === 'trainer' ? `<button class="tool" ${act('wide')} aria-pressed="${st.wide}">Широкий</button>` : ''}
@@ -359,6 +366,11 @@
   function render() {
     const st = Store.get();
     document.documentElement.dataset.calm = String(Store.preferences.calm());
+    document.documentElement.dataset.role = st.role;
+    document.documentElement.dataset.screen = st.screen;
+    window.Appearance?.sync();
+    const setCount = st.logging.active ? Store.logging.progress(st.logging.active).done : 0;
+    const exerciseId = st.logging.active && !st.logging.finished ? Workout.current(st.logging.active, Store.logging.exercises(st.logging.active), st.logging.values[st.logging.active] || {})?.id : null;
     const journalKey = st.screen === 't-session' ? `${st.logging.sessionId}:${st.logging.active}` : null;
     const justFinished = journalKey && lastFrame?.journalKey && lastFrame.sessionId === st.logging.sessionId && !lastFrame.finished && st.logging.finished;
     const libraryScroll = document.querySelector('.library-screen .screen__body')?.scrollTop || 0;
@@ -440,7 +452,7 @@
     document.getElementById('toolbar').innerHTML = renderToolbar(st);
 
     // Modal focus stays inside the sheet, including after stepper re-renders.
-    for (const el of [screenEl.querySelector('.screen'), document.getElementById('rail'), document.getElementById('inspector'), document.getElementById('toolbar')]) {
+    for (const el of [...screenEl.querySelectorAll('.screen, .wide'), document.getElementById('rail'), document.getElementById('inspector'), document.getElementById('toolbar')]) {
       if (el) el.inert = Boolean(st.sheet);
     }
     if (st.sheet) {
@@ -471,7 +483,29 @@
       body.addEventListener('scroll', syncContext, { passive: true });
       syncContext();
     }
-    lastFrame = { journalKey, sessionId: st.logging.sessionId, finished: st.logging.finished, sheetKey: nextSheetKey };
+    if (UI.isInstrument() && !motionPreference.matches && !Store.preferences.calm() && lastFrame?.sessionId === st.logging.sessionId && setCount > (lastFrame.setCount || 0)) {
+      screenEl.querySelector('.wchip.is-done:last-of-type, .wfocus')?.classList.add('is-set-recorded');
+    }
+    if (UI.isInstrument() && !motionPreference.matches && !Store.preferences.calm() && journalKey && lastFrame?.journalKey === journalKey && lastFrame.exerciseId && exerciseId && lastFrame.exerciseId !== exerciseId) {
+      screenEl.querySelector('.wfocus .excard__head')?.animate([{opacity:0, transform:'translateY(12px)'}, {opacity:1, transform:'translateY(0)'}], {duration:320, easing:'cubic-bezier(.6,0,.2,1)'});
+    }
+    if (UI.isInstrument() && !motionPreference.matches && !Store.preferences.calm()) {
+      if (journalKey && lastFrame?.journalKey === journalKey && setCount > (lastFrame.setCount || 0)) {
+        screenEl.querySelector('.log-head__score b')?.animate([{transform:'translateY(8px)',opacity:0},{transform:'translateY(0)',opacity:1}], {duration:200,easing:'ease-out'});
+      }
+      if (entering && st.scenario === 'loading') screenEl.querySelectorAll('.sk').forEach((el, i) => el.animate([{opacity:0},{opacity:1}], {duration:200,delay:Math.min(i * 60,180),fill:'backwards'}));
+      if (justFinished) screenEl.querySelectorAll('[data-result-count]').forEach(el => {
+        const value = Number(el.dataset.resultCount), start = performance.now();
+        const frame = now => {
+          if (!el.isConnected) return;
+          const progress = Math.min(1, (now - start) / 900);
+          el.textContent = DB.fmtNumber(progress < 1 ? Math.round(value * (1 - (1 - progress) ** 3)) : value);
+          if (progress < 1) requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      });
+    }
+    lastFrame = { exerciseId, setCount, journalKey, sessionId: st.logging.sessionId, finished: st.logging.finished, sheetKey: nextSheetKey };
   }
 
   /* ── Event delegation ────────────────────────────────────────────────────── */
@@ -516,12 +550,35 @@
     }
   }
 
+  let navigationTransition = null;
+
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-act]');
     if (el) {
       e.preventDefault();
       keyboardAction = e.detail === 0;
-      try { handle(el); } finally { keyboardAction = false; }
+      const run = () => { try { handle(el); } finally { keyboardAction = false; } };
+      const animatedRoute = UI.isInstrument() && !motionPreference.matches && !Store.preferences.calm()
+        && ['logging.open', 'log.resume', 'log.minimize'].includes(el.dataset.act);
+      const source = el.closest('.today-entry, .workout-dock') || document.querySelector('.session-journal');
+      if (animatedRoute && source && document.startViewTransition) {
+        navigationTransition?.skipTransition();
+        source.style.viewTransitionName = 'workout-surface';
+        let target;
+        const transition = document.startViewTransition(() => {
+          run();
+          source.style.viewTransitionName = '';
+          target = document.querySelector('.session-journal, .workout-dock');
+          if (target) target.style.viewTransitionName = 'workout-surface';
+        });
+        navigationTransition = transition;
+        const cleanup = () => {
+          source.style.viewTransitionName = '';
+          if (target) target.style.viewTransitionName = '';
+          if (navigationTransition === transition) navigationTransition = null;
+        };
+        transition.finished.then(cleanup, cleanup);
+      } else run();
       return;
     }
     // clicking the scrim closes the sheet

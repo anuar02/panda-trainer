@@ -3,24 +3,37 @@
 (() => {
   const root = document.documentElement;
   const apply = () => {
-    const firm = new URLSearchParams(location.search).get('visual') === 'firm';
-    if (firm) root.dataset.visual = 'firm';
+    const params = new URLSearchParams(location.search);
+    const visual = params.get('visual');
+    if (['firm', 'instrument'].includes(visual)) root.dataset.visual = visual;
     else root.removeAttribute('data-visual');
+    root.toggleAttribute('data-present', params.has('present'));
+    let choice = params.get('theme');
+    if (!['dark', 'light', 'auto'].includes(choice)) {
+      try { choice = localStorage.getItem('trainer.instrument.theme'); } catch (_) { }
+    }
+    root.dataset.themeChoice = ['dark', 'light'].includes(choice) ? choice : 'auto';
+    root.dataset.theme = root.dataset.screen === 't-session' ? 'dark' : root.dataset.themeChoice === 'auto' ? (root.dataset.role === 'client' ? 'light' : 'dark') : root.dataset.themeChoice;
     document.querySelectorAll('[data-visual-choice]').forEach(button => {
-      button.setAttribute('aria-pressed', String((button.dataset.visualChoice === 'firm') === firm));
+      button.setAttribute('aria-pressed', String(button.dataset.visualChoice === (visual || 'current')));
     });
   };
+  window.Appearance = { sync: apply };
   apply();
   document.addEventListener('click', event => {
-    const button = event.target.closest('[data-visual-choice]');
+    const button = event.target.closest('button[data-visual-choice], button[data-theme-choice]');
     if (!button) return;
     const url = new URL(location.href);
-    if (button.dataset.visualChoice === 'firm') url.searchParams.set('visual', 'firm');
+    if (button.dataset.themeChoice) {
+      url.searchParams.set('theme', button.dataset.themeChoice);
+      try { localStorage.setItem('trainer.instrument.theme', button.dataset.themeChoice); } catch (_) { }
+    } else if (['firm', 'instrument'].includes(button.dataset.visualChoice)) url.searchParams.set('visual', button.dataset.visualChoice);
     else url.searchParams.delete('visual');
     history.replaceState(history.state, '', url);
     apply();
+    document.dispatchEvent(new Event('appearancechange'));
   });
-  window.addEventListener('popstate', apply);
+  window.addEventListener('popstate', () => { apply(); document.dispatchEvent(new Event('appearancechange')); });
 })();
 (() => {
   const root = document.documentElement;

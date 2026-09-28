@@ -360,6 +360,21 @@ const Store = (() => {
   }
 
   const logging = {
+    sessionProgress(sessionId) {
+      const record = state.logging.sessionId === sessionId ? state.logging : readLog(sessionId);
+      if (!record || record.unreadable) return null;
+      const booking = DB.sessions.find(s => s.id === sessionId);
+      let done = 0, total = 0;
+      for (const [cid, plan] of Object.entries(record.plans || {})) {
+        if (plan.reply === 'cancelled' || booking?.participants?.find(p => p.clientId === cid)?.reply === 'cancelled' || state.attendance[sessionId + ':' + cid] === 'noshow') continue;
+        for (const ex of plan.exercises) {
+          const count = (record.values?.[cid]?.[ex.id] || []).filter(validSet).length;
+          done += count;
+          total += ex.skipped ? count : ex.sets;
+        }
+      }
+      return {done, total};
+    },
     resumable() {
       const candidate = id => {
         if (!id) return null;
@@ -685,7 +700,14 @@ const Store = (() => {
       return [...groups.values()].map(e=>{
         const top = best(e.rows), baseline = best(e.rows.filter(r=>r.date<=day));
         const delta = baseline ? Number(((top.kg ? top.kg : top.reps) - (top.kg ? baseline.kg : baseline.reps)).toFixed(3)) : null;
-        return {name:e.name, unit:e.unit, best:top, delta, deltaUnit:top.kg ? 'кг':e.unit, baselineDate:baseline?.date || null};
+        const from = new Date(DB.TODAY + 'T12:00:00Z'); from.setUTCDate(from.getUTCDate() - 56);
+        const daily = new Map();
+        for (const row of e.rows.filter(r => r.date >= from.toISOString().slice(0, 10))) {
+          const value = top.kg ? row.kg : row.reps;
+          daily.set(row.date, Math.max(daily.get(row.date) ?? 0, value));
+        }
+        const series = [...daily].sort(([a],[b]) => a.localeCompare(b)).map(([date,value]) => ({date,value}));
+        return {name:e.name, unit:e.unit, best:top, delta, deltaUnit:top.kg ? 'кг':e.unit, baselineDate:baseline?.date || null, series};
       });
     },
     removeNote(clientId, index) {
@@ -881,7 +903,14 @@ const Store = (() => {
         : [...state.newSession.clientIds, id];
       update('newSession', { clientIds: ids, collisionAck: false });
     },
-    next() { update('newSession', { step: Math.min(state.newSession.step + 1, 2) }); },
+    next() {
+      if (state.newSession.step === 0 && !state.newSession.clientIds.length) {
+        ui.toast('warn', 'Выберите хотя бы одного клиента');
+        return false;
+      }
+      update('newSession', { step: Math.min(state.newSession.step + 1, 2) });
+      return true;
+    },
     prev() { update('newSession', { step: Math.max(state.newSession.step - 1, 0) }); },
     collisions() {
       const { date, start, duration, clientIds } = state.newSession;

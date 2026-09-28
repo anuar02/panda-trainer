@@ -21,12 +21,12 @@ const Client = (() => {
 
   function requestCard(r) {
     const proposed = r.counter || r.to;
+    if (UI.isInstrument()) return UI.TransferCard(r, 'Перенос занятия', r.awaiting === 'client'
+      ? Btn('Подтвердить перенос', {a:'rs.accept',args:{id:r.id}}) + Btn('Предложить другое', {kind:'soft',a:'cres.open',args:{sid:r.sessionId}}) + Btn('Отклонить', {kind:'ghost',a:'rs.decline',args:{id:r.id}})
+      : Btn('Отозвать запрос', {kind:'soft',a:'rs.withdraw',args:{id:r.id}}));
     return `<div class="pending client-request">
       <div class="pending__lbl">${Icon.get('swap', { size: 14 })} Перенос занятия</div>
-      <dl class="client-request__dates">
-        <div><dt>Действует</dt><dd>${DB.fmtDateLong(r.from.date)}<br><strong class="num">${r.from.start}–${r.from.end}</strong></dd></div>
-        <div><dt>Предложено</dt><dd>${DB.fmtDateLong(proposed.date)}<br><strong class="num">${proposed.start}–${proposed.end}</strong></dd></div>
-      </dl>
+      ${UI.TransferDates(r)}
       <p class="client-request__status">${r.awaiting === 'client' ? 'Нужен ваш ответ.' : 'Ждём ответа тренера.'} До согласия действует прежнее время.</p>
       <div style="margin-top:12px;display:grid;gap:9px">
       ${r.awaiting === 'client' ? Btn('Подтвердить перенос', { a: 'rs.accept', args: { id: r.id } })
@@ -138,10 +138,6 @@ const Client = (() => {
 
     return `<div class="screen screen--surface onboarding">
       <div class="screen__body">
-        <div class="onboarding-demo"><span>Демо: состояние приглашения</span>
-          <div class="onboarding-states" role="group" aria-label="Состояние приглашения">
-            ${['invite', 'expired', 'revoked', 'accepted', 'no_session'].map(k => `<button class="chip chip--soft ${k === inv ? 'is-on' : ''}" aria-pressed="${k === inv}" ${act('first.state', { state: k })}>${({ invite: 'Активна', expired: 'Истекла', revoked: 'Отозвана', accepted: 'Принята', no_session: 'Нет занятия' })[k]}</button>`).join('')}
-          </div></div>
         <div class="invite-card">
           ${['invite', 'no_session', 'accepted'].includes(inv) ? Mascot.render(({ invite: 'welcome', no_session: 'waiting', accepted: 'approved' })[inv], 'onboarding') : `<div class="invite-card__seal">${Icon.get('link', { size: 28 })}</div>`}
           <h1>${esc(s.title)}</h1>
@@ -233,12 +229,12 @@ const Client = (() => {
 
     return shell('c-progress', `
       ${PageTitle({ title: 'Прогресс', size: 'sm' })}
-      ${h.length ? `<div class="client-content"><p class="client-footnote">Лучший подход: наибольший вес, при равном весе — больше повторов. Прирост к лучшему результату, известному 4 недели назад.</p>${h.map(e=>Card(`<h2>${esc(e.name)}</h2><p class="client-best">${e.best.kg ? `${DB.fmtNumber(e.best.kg)} кг × ` : ''}${e.best.reps} ${esc(e.unit)}</p><p>${e.delta === null ? 'Для сравнения за 4 недели пока мало записей' : `${e.delta > 0 ? '+' : ''}${DB.fmtNumber(e.delta)} ${esc(e.deltaUnit)} за 4 недели`}</p>`, {pad:true})).join('')}</div>` : `<div class="client-content">${quietEmpty('trend', 'Первые результаты — впереди', 'Когда тренер запишет подходы, здесь можно будет сравнить результаты. Пока данных нет.', 'rest')}</div>`}
+      ${h.length ? `<div class="client-content"><p class="client-footnote">Лучший подход: наибольший вес, при равном весе — больше повторов. Прирост к лучшему результату, известному 4 недели назад.</p>${h.map(e=>Card(`<h2>${esc(e.name)}</h2>${UI.isInstrument() ? UI.Sparkline(e.series, `${e.name}: ${e.series.map(r => `${DB.fmtDate(r.date)} — ${DB.fmtNumber(r.value)} ${e.deltaUnit}`).join('; ')}`) : ''}<p class="client-best">${e.best.kg ? `${DB.fmtNumber(e.best.kg)} кг × ` : ''}${e.best.reps} ${esc(e.unit)}</p><p>${e.delta === null ? 'Для сравнения за 4 недели пока мало записей' : `${e.delta > 0 ? '+' : ''}${DB.fmtNumber(e.delta)} ${esc(e.deltaUnit)} за 4 недели`}</p>`, {pad:true})).join('')}</div>` : `<div class="client-content">${quietEmpty('trend', 'Первые результаты — впереди', 'Когда тренер запишет подходы, здесь можно будет сравнить результаты. Пока данных нет.', 'rest')}</div>`}
       <section class="client-content client-visits">
         <h2 class="client-section-title">Посещения за неделю</h2>
         <div class="card card--pad">
           <div class="heat">${['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].map(d => `<div class="client-weekday">${d}</div>`).join('')}${cells}</div>
-          <p class="client-footnote">${visits.some(d => DB.WEEK.includes(d)) ? 'Зелёным отмечены подтверждённые посещения.' : 'На этой неделе пока нет отметок о посещении.'} Отмена и неявка не учитываются.</p>
+          <p class="client-footnote">${visits.some(d => DB.WEEK.includes(d)) ? (UI.isInstrument() ? 'Заполнены дни с подтверждённым посещением.' : 'Зелёным отмечены подтверждённые посещения.') : 'На этой неделе пока нет отметок о посещении.'} Отмена и неявка не учитываются.</p>
         </div>
       </section>
       <div style="height:20px"></div>`);
@@ -256,7 +252,7 @@ const Client = (() => {
           ${Lead(c.initials)}
           <div><h2>${esc(c.name)}</h2><p>Начало занятий: ${esc(c.since)}</p></div>
         </div>
-        <button class="btn btn--soft" role="switch" aria-checked="${Store.preferences.calm()}" ${UI.act('calm.toggle')}>Спокойный интерфейс · ${Store.preferences.calm() ? 'вкл' : 'выкл'}</button>
+        ${UI.CalmSwitch()}${UI.ThemeChoice()}
         <section><h2 class="client-section-title">Личные данные</h2>
           ${Card(`<dl class="client-details"><div><dt>Телефон</dt><dd>${esc(c.phone || 'Не указан')}</dd></div><div><dt>Тренер</dt><dd>${esc(DB.trainer.full)}</dd></div></dl>`, { pad: true })}
         </section>

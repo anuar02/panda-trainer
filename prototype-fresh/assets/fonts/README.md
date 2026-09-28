@@ -17,3 +17,15 @@ Upstream licenses: [Inter](https://github.com/google/fonts/blob/main/ofl/inter/O
 This is a prototype choice, not a production font-delivery budget: before shipping,
 consider WOFF2 and language subsetting while preserving needed Cyrillic/Kazakh glyphs
 and the required notices. Do not silently replace these with Latin-only files.
+
+## Instrument additions (28 September 2026)
+
+`JetBrainsMono-variable.ttf` is the upright variable font from the official
+JetBrains Mono repository, downloaded from
+`https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/variable/JetBrainsMono%5Bwght%5D.ttf`.
+License: `jetbrains-mono-OFL.txt` (SIL Open Font License 1.1).
+SHA-256: `3cfafa86e28b87184d592fef82846e8c10cb48653c62efcda34f082da225ec34`.
+
+Instrument also gives the existing Inter variable font an `Inter Display` face
+alias and uses its `opsz` axis at 32 for screen headings. No additional Inter
+binary or license is needed.

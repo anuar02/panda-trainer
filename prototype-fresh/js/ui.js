@@ -27,7 +27,7 @@ const UI = (() => {
 
   /** Icon-only interactive element. */
   const iconBtn = (name, { act: a, args, label, size = 22, sw = 2, cls = '', style = '' } = {}) =>
-    `<button class="${cls}" ${act(a, args)} aria-label="${esc(label)}" title="${esc(label)}" ${style ? `style="${style}"` : ''}>${Icon.get(name, { size, sw })}</button>`;
+    `<button class="icon-button ${cls}" ${act(a, args)} aria-label="${esc(label)}" title="${esc(label)}" ${style ? `style="${style}"` : ''}>${Icon.get(name, { size, sw })}</button>`;
 
   /* ── Btn ─────────────────────────────────────────────────────────────────── */
   const Btn = (label, { kind = 'primary', icon = null, size = '', disabled = false, a = null, args = null, full = true, cls = '' } = {}) =>
@@ -110,7 +110,7 @@ const UI = (() => {
     ],
     client: [
       { id: 'c-home', label: 'Главная', icon: 'home' },
-      { id: 'c-program', label: 'Програм\u00adма', icon: 'dumbbell' },
+      { id: 'c-program', label: 'Программа', icon: 'dumbbell' },
       { id: 'c-history', label: 'История', icon: 'list' },
       { id: 'c-progress', label: 'Прогресс', icon: 'trend' },
       { id: 'c-profile', label: 'Профиль', icon: 'user' },
@@ -178,7 +178,7 @@ const UI = (() => {
     return `<aside class="workout-dock${rest && !rest.done ? ' is-resting' : ''}" aria-label="Свёрнутая тренировка">
       <button class="workout-dock__button" ${act('log.resume', { id: workout.sessionId })} aria-label="Вернуться к тренировке: ${esc(workout.name)}, ${workout.start}. ${esc(description)}${exercise ? `. Сейчас: ${esc(exercise.name)}` : ''}">
         <span class="workout-dock__ring" style="--p:${pct}%" aria-hidden="true">${Icon.get('play', { size: 16, sw: 0 })}</span>
-        <span class="workout-dock__text"><span class="workout-dock__name"><strong>${esc(workout.name)}</strong>${count}</span><span class="workout-dock__line">${line}</span></span>
+        <span class="workout-dock__text"><span class="workout-dock__name"><strong>${esc(workout.name)}</strong>${count}</span><span class="workout-dock__line">${line}</span>${isInstrument() ? Segments(workout.done, workout.total) : ''}</span>
         <span class="workout-dock__go" aria-hidden="true"><span>Вернуться</span>${Icon.get('chevR', { size: 18, sw: 2.4 })}</span>
       </button></aside>`;
   };
@@ -205,5 +205,25 @@ const UI = (() => {
     return `<div class="plan-diff"><b>Отличия от программы:</b> ${parts.join(' · ')}${details.length ? `<span>${details.join('; ')}</span>` : ''}<small>Программа клиента не изменена.</small></div>`;
   };
 
-  return { ChangesSummary, ProgramPreview, esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton, WorkoutDock };
+  const isInstrument = () => typeof document !== 'undefined' && document.documentElement?.dataset?.visual === 'instrument';
+  const Segments = (done, total) => total > 0 ? `<span class="segments" role="img" aria-label="Записано ${done} из ${total} подходов">${Array.from({ length: Math.min(total, 60) }, (_, i) => `<i class="${i < done ? 'is-done' : i === done ? 'is-current' : ''}"></i>`).join('')}</span>` : '';
+  const CalmSwitch = () => `<button class="preference-switch" role="switch" aria-checked="${Store.preferences.calm()}" ${act('calm.toggle')}><span>Спокойный интерфейс</span><span class="switch-track" aria-hidden="true"><i></i></span></button>`;
+  const ThemeChoice = () => isInstrument() ? `<fieldset class="theme-choice"><legend>Тема интерфейса</legend>${[['auto', 'По роли'], ['dark', 'Тёмная'], ['light', 'Светлая']].map(([id, label]) => `<button data-theme-choice="${id}" aria-pressed="${(document.documentElement.dataset.themeChoice || 'auto') === id}">${label}</button>`).join('')}</fieldset>` : '';
+  const TransferDates = r => {
+    const to = r.counter || r.to;
+    return `<dl class="transfer-dates"><div><dt>Действует</dt><dd><span>${DB.fmtDate(r.from.date)}</span><strong class="num">${r.from.start}–${r.from.end}</strong></dd></div><span aria-hidden="true">${Icon.get('arrowRight', { size: 18 })}</span><div><dt>Предложено</dt><dd><span>${DB.fmtDate(to.date)}</span><strong class="num">${to.start}–${to.end}</strong></dd></div></dl>`;
+  };
+  const TransferCard = (r, title, actions) => {
+    const to = r.counter || r.to;
+    return `<details class="transfer-card"><summary><strong>${esc(title)}</strong><span class="num">${DB.fmtDate(r.from.date)} ${r.from.start} → ${DB.fmtDate(to.date)} ${to.start}</span><small>${r.awaiting === Store.get().role ? 'Нужен ваш ответ' : 'Ожидает ответа'}</small></summary><div class="transfer-card__body">${TransferDates(r)}<p>До согласия действует прежнее время.</p><div class="transfer-card__actions">${actions}</div></div></details>`;
+  };
+  const Sparkline = (rows, label) => {
+    if (rows.length < 2) return '';
+    const lo = Math.min(...rows.map(r => r.value)), hi = Math.max(...rows.map(r => r.value));
+    const start = Date.parse(rows[0].date), span = Date.parse(rows[rows.length - 1].date) - start;
+    const pts = rows.map(r => ({x: span ? 4 + (Date.parse(r.date) - start) / span * 192 : 100, y: hi === lo ? 24 : 44 - (r.value - lo) / (hi - lo) * 36}));
+    const last = pts[pts.length - 1];
+    return `<svg class="sparkline" viewBox="0 0 200 48" role="img" aria-label="${esc(label)}"><polyline points="${pts.map(p => `${p.x},${p.y}`).join(' ')}"/><circle cx="${last.x}" cy="${last.y}" r="3"/></svg>`;
+  };
+  return { TransferCard, Sparkline, isInstrument, Segments, CalmSwitch, ThemeChoice, TransferDates, ChangesSummary, ProgramPreview, esc, act, tapable, iconBtn, Btn, Pill, Card, Lead, Row, SectionH, TopBar, PageTitle, SaveState, Notice, Empty, Meter, KV, Stats, TabBar, Sheet, Toast, StatusBar, Skeleton, WorkoutDock };
 })();

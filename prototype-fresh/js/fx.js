@@ -19,7 +19,7 @@ const Fx = window.Fx = (() => {
       const shape = i % 3 === 0 ? 'round' : i % 3 === 1 ? 'strip' : 'square';
       return `<i class="fx-bit fx-bit--${shape}" style="--dx:${dx.toFixed(0)}px;--dy:${dy.toFixed(0)}px;--r:${Math.round(Math.random() * 720 - 360)}deg;--c:${color};--d:${Math.round(Math.random() * 120)}ms"></i>`;
     }).join('');
-    layer.innerHTML = `<div class="fx-burst">${bits}</div><div class="fx-panda">${typeof Mascot !== 'undefined' ? Mascot.render(pose, 'inline') : ''}</div>`;
+    layer.innerHTML = `<div class="fx-burst">${bits}</div><div class="fx-panda">${typeof Mascot !== 'undefined' ? Mascot.render(pose, (typeof UI !== 'undefined' && UI.isInstrument()) ? 'celebration' : 'inline') : ''}</div>`;
     device.appendChild(layer);
     setTimeout(() => layer.remove(), 2200);
   }
@@ -46,7 +46,7 @@ const Fx = window.Fx = (() => {
     if (Store.preferences.calm()) return;
     const finished = ['log.finish', 'log.confirmPartial'].includes(name) && after.logging.finished && !before.logging.finished;
     const connected = (name === 'first.accept' && before.inviteState !== 'accepted' && after.inviteState === 'accepted') || (name === 'invite.connected' && before.invite.state !== 'connected' && after.invite.state === 'connected');
-    if (finished || connected) {
+    if (finished || (connected && !(typeof UI !== 'undefined' && UI.isInstrument()))) {
       if (after.toast && !after.toast.kind) Store.set({ toast: { ...after.toast, celebration: true } });
       return celebrate('jump');
     }

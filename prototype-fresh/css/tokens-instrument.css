@@ -1,0 +1,40 @@
+/* Instrument is opt-in. Existing token aliases keep every functional screen themed. */
+@font-face { font-family: 'JetBrains Mono'; src: url('../assets/fonts/JetBrainsMono-variable.ttf') format('truetype'); font-weight: 100 800; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Inter Display'; src: url('../assets/fonts/Inter-variable.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+:root[data-visual="instrument"] {
+  --bg: #0B0C0E; --surface-1: #131417; --surface-2: #1B1C20; --surface-3: #25262B;
+  --line: #2A2B31; --line-strong: #3A3B42; --ink: #F2F2F3; --ink-2: #A3A4AB; --ink-3: #84858D;
+  --signal: #FF7A1F; --signal-ink: #1A0B02; --signal-soft: rgba(255,122,31,.14);
+  --ok: #3DDC97; --warn: #F5C451; --danger: #FF5A4E;
+  --canvas: var(--bg); --surface: var(--surface-1); --sunken: var(--surface-2);
+  --sec: var(--ink-2); --ter: var(--ink-3); --border: var(--line); --hair: var(--line); --border-button: var(--line-strong);
+  --accent: var(--signal); --accent-ink: var(--signal); --accent-2: var(--signal); --accent-soft: var(--signal-soft);
+  --mint: var(--ok); --mint-ink: var(--ok); --mint-soft: var(--surface-2);
+  --amber: var(--warn); --amber-ink: var(--warn); --amber-soft: var(--surface-2); --danger-soft: rgba(255,90,78,.12);
+  --accent-grad: var(--signal); --choco-grad: var(--surface-2); --progress-grad: var(--signal); --progress-grad-bright: var(--signal);
+  --progress-glow: transparent; --dark-glow: transparent; --pop: var(--signal); --pop-ink: var(--signal-ink); --on-dark: #F2F2F3;
+  --lead-bg: var(--surface-3); --lead-ink: var(--ink-2); --disabled: var(--surface-3);
+  --scrim: rgba(0,0,0,.6); --glass: var(--surface-1); --glass-strong: var(--surface-1); --glass-border: var(--line);
+  --stage-bg: #0B0C0E; --bezel: #25262B; --device-shadow: transparent;
+  --ui: 'Inter', system-ui, sans-serif; --disp: 'Inter Display', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace;
+  --r-s: 8px; --r-m: 14px; --r-l: 22px;
+  --r-field: var(--r-s); --r-card: var(--r-m); --r-card-lg: var(--r-m); --r-sheet: var(--r-l); --r-pill: var(--r-s);
+  --r-button: var(--r-s); --r-button-compact: var(--r-s); --r-button-sm: var(--r-s); --r-button-icon: var(--r-s); --r-button-pill: var(--r-s);
+  --r-search: var(--r-s); --r-stepper: var(--r-s); --r-calendar-strip: var(--r-s); --r-status: var(--r-s); --r-status-sm: var(--r-s);
+  --r-panel: var(--r-m); --r-card-inset: var(--r-s); --r-card-compact: var(--r-m); --r-number: var(--r-s); --r-row: var(--r-s);
+  --r-thumbnail: var(--r-s); --r-nav: var(--r-s); --r-notice: var(--r-s); --r-notice-compact: var(--r-s); --r-toast: var(--r-l);
+  --r-day: var(--r-s); --r-cell: var(--r-s); --r-invite: var(--r-m); --r-seal: var(--r-m); --r-focus: var(--r-s); --r-focus-number: var(--r-s); --r-skeleton: var(--r-s);
+  --shadow-card: none; --shadow-raised: none; --shadow-accent: none; --shadow-accent-hover: none; --shadow-fab: none;
+  --shadow-float: 0 12px 32px -12px rgba(0,0,0,.6); --shadow-sheet: 0 -20px 60px rgba(0,0,0,.5);
+  --t-fast: 120ms; --t-base: 200ms; --t-slow: 320ms;
+  --ease-out: cubic-bezier(.2,.8,.2,1); --ease-in-out: cubic-bezier(.6,0,.2,1); --spring: cubic-bezier(.34,1.4,.64,1);
+  --ease-standard: var(--ease-out); --ease-spring: var(--spring); --ease-sheet: var(--ease-out); --dur-sheet: var(--t-slow);
+  color-scheme: dark;
+}
+:root[data-visual="instrument"][data-theme="light"] {
+  --bg: #F4F4F2; --surface-1: #FFFFFF; --surface-2: #ECECE9; --surface-3: #E4E4E0;
+  --line: #E4E4E0; --line-strong: #B6B6B1; --ink: #0E0F12; --ink-2: #55565E; --ink-3: #6E6F77;
+  --accent-ink: #C2461A; --ok: #16754D; --warn: #806008; --danger: #B82C22;
+  --stage-bg: #E4E4E0; color-scheme: light;
+}
+@media (prefers-reduced-motion: reduce) { :root[data-visual="instrument"] { --dur-sheet: 1ms; } }

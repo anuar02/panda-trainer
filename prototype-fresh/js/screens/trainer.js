@@ -250,7 +250,7 @@ const Trainer = (() => {
           <span><b class="num">${done}</b> позади</span>
           <span><b class="num">${left}</b> впереди</span>
           ${ongoing ? `<span><b class="num">${ongoing}</b> сейчас</span>` : ''}
-          ${pending ? `<button class="buddy__req" ${act('tab', { id: 't-inbox' })}><b class="num">${pending}</b> ${DB.plural(pending, ['запрос', 'запроса', 'запросов'])}</button>` : ''}
+          ${pending && !UI.isInstrument() ? `<button class="buddy__req" ${act('tab', { id: 't-inbox' })}><b class="num">${pending}</b> ${DB.plural(pending, ['запрос', 'запроса', 'запросов'])}</button>` : ''}
         </div>
       </div>
     </section>`;
@@ -285,10 +285,12 @@ const Trainer = (() => {
           ${Icon.get('swap', { size: 16, sw: 2.2 })}<span>Перенос · ответить</span>${Icon.get('chevR', { size: 14, style: 'color:var(--ter)' })}</button>`
       : '';
 
-    const pastHint = (!group && !cancelled && (s.date < DB.TODAY || (s.date === DB.TODAY && toMin(s.end) <= nowMin())))
+    const pastHint = (!UI.isInstrument() && !group && !cancelled && (s.date < DB.TODAY || (s.date === DB.TODAY && toMin(s.end) <= nowMin())))
       ? `<span class="today-entry__past">время прошло</span>` : '';
 
-    const programLine = group
+    const programLine = UI.isInstrument()
+      ? `<p class="today-entry__program"><strong>${esc(s.program || (group ? 'Мини-группа' : c?.program) || 'Без программы')}</strong><span>${group ? esc(participantNames(s)) : `${DB.programForClient(s.clientId, s.program || c?.program).length} упр.`}</span></p>`
+      : group
       ? `<p class="today-entry__program"><strong>${esc(participantNames(s))}</strong></p>`
       : `<p class="today-entry__program"><strong>${UI.ProgramPreview(s.clientId, s.program, 'trainer', s.id)}</strong><span>Индивидуальное</span></p>`;
 
@@ -318,20 +320,21 @@ const Trainer = (() => {
       if (att) statusRow = `<div class="today-entry__status">${att}</div>`;
     }
     const journalStatus = Store.logging.status(s.id);
-    if (journalStatus) statusRow += `<div class="today-entry__status">${Pill(journalStatus === 'finished' ? 'Журнал завершён' : 'Журнал в работе', { tone: 'neutral', dot: false })}</div>`;
+    if (journalStatus && !UI.isInstrument()) statusRow += `<div class="today-entry__status">${Pill(journalStatus === 'finished' ? 'Журнал завершён' : 'Журнал в работе', { tone: 'neutral', dot: false })}</div>`;
 
     let caption = '';
     if (role === 'now') caption = captionRow('Идёт сейчас', `до ${s.end}`);
-    else if (role === 'next') caption = captionRow('Следующая тренировка', relHint(toMin(s.start) - nowMin()));
+    else if (role === 'next') caption = captionRow('Следующая тренировка', s.date === DB.TODAY ? relHint(toMin(s.start) - nowMin()) : DB.fmtDate(s.date));
 
+    const sessionProgress = UI.isInstrument() ? Store.logging.sessionProgress(s.id) : null;
     const sameAsDock = journalStatus === 'draft' && Store.logging.resumable()?.sessionId === s.id;
     const entryLabel = journalStatus === 'draft' ? `Открыть журнал · ${title}` : Store.logging.label(s.id);
-    const cta = expanded && !sameAsDock
+    const cta = UI.isInstrument() ? (cancelled ? '' : `<button class="btn btn--soft today-entry__cta" ${act('logging.open', { id: s.id })}>${esc(journalStatus === 'draft' ? `Продолжить${sessionProgress?.total ? ` · ${sessionProgress.done}/${sessionProgress.total}` : ''}` : Store.logging.label(s.id))}</button>`) : expanded && !sameAsDock
       ? `<button class="btn ${journalStatus === 'draft' ? 'btn--soft' : 'btn--primary'} today-entry__cta" ${act('logging.open', { id: s.id })}>
           ${Icon.get('play', { size: 20, sw: 2.4 })}<span>${esc(entryLabel)}</span></button>`
       : '';
 
-    return `<article class="today-entry${expanded ? ' is-expanded' : ''}${cancelled ? ' is-cancelled' : ''}" data-session="${s.id}">
+    return `<article class="today-entry${role === 'now' ? ' is-now' : ''}${expanded ? ' is-expanded' : ''}${cancelled ? ' is-cancelled' : ''}" data-session="${s.id}">
       ${caption}
       <div class="today-entry__time"><time class="num">${s.start}</time><small>до ${s.end}</small></div>
       <div class="today-entry__main">
@@ -340,6 +343,7 @@ const Trainer = (() => {
         ${summaryLine}
         ${statusRow}
         ${requestLink}
+        ${sessionProgress?.total ? UI.Segments(sessionProgress.done, sessionProgress.total) : ''}
       </div>
       ${cta}
     </article>`;
@@ -371,7 +375,32 @@ const Trainer = (() => {
     </button>`;
   }
 
+  function instrumentAgenda(date) {
+    const all = DB.byDate(date).slice().sort(byStart);
+    const now = nowMin();
+    const isToday = date === DB.TODAY;
+    const past = all.filter(s => date < DB.TODAY || (isToday && toMin(s.end) <= now));
+    const remaining = all.filter(s => !past.includes(s));
+    const drafts = past.filter(s => Store.logging.status(s.id) === 'draft').length;
+    const next = remaining.find(s => s.status !== 'cancelled' && Store.logging.status(s.id) !== 'finished');
+    const row = s => todayEntry(s, s.status === 'cancelled' || Store.logging.status(s.id) === 'finished' ? null : isToday && toMin(s.start) <= now && now < toMin(s.end) ? 'now' : s === next ? 'next' : null);
+    let cursor = isToday ? now : null;
+    const agenda = remaining.map(s => {
+      const start = toMin(s.start), end = toMin(s.end);
+      const gap = cursor != null && start > cursor ? gapMarker(cursor, start, date) : '';
+      const overlap = s.status !== 'cancelled' && remaining.some(other => other.id !== s.id && other.status !== 'cancelled' && toMin(other.start) < end && toMin(other.end) > start);
+      if (s.status !== 'cancelled') cursor = Math.max(cursor ?? start, end);
+      return gap + (overlap ? '<p class="timeline-overlap">Пересечение по времени</p>' : '') + row(s);
+    }).join('');
+    return `<div class="today-agenda instrument-agenda">
+      ${past.length ? `<details class="past-sessions"><summary>${past.length} прошло${drafts ? ` · ${drafts} журнал не закрыт` : ''}</summary>${past.map(row).join('')}</details>` : ''}
+      ${isToday ? `<div class="timeline-now"><time class="num">${DB.NOW_TIME}</time><span>сейчас</span></div>` : ''}
+      ${agenda}${!remaining.length ? '<p class="timeline-end">На этот день больше нет занятий</p>' : ''}
+    </div>`;
+  }
+
   function todayAgenda(date) {
+    if (UI.isInstrument()) return instrumentAgenda(date);
     const all = DB.byDate(date);
     if (!all.length) return '';
     const now = nowMin();
@@ -537,14 +566,14 @@ const Trainer = (() => {
           <div class="cal-week-nav">${iconBtn('chevL', { act: 'calendar.shift', args: { offset: -7 }, label: 'Предыдущая неделя' })}<span>${DB.fmtDate(dates[0])} — ${DB.fmtDate(dates[6])}</span>${iconBtn('chevR', { act: 'calendar.shift', args: { offset: 7 }, label: 'Следующая неделя' })}</div>
           <div class="cal-week">${dates.map((date, i) => {
             const count = st.scenario === 'empty' ? 0 : DB.byDate(date).filter(s => s.status !== 'cancelled').length;
-            return `<button class="cal-day${date === st.day ? ' is-selected' : ''}${date === DB.TODAY ? ' is-today' : ''}" ${act('day', { date })} aria-pressed="${date === st.day}" ${date === DB.TODAY ? 'aria-current="date"' : ''} aria-label="${DB.fmtDateLong(date)}${loading ? '' : `, ${count} ${DB.plural(count, ['занятие', 'занятия', 'занятий'])}`}"><span>${DB.DOW[i]}</span><strong class="num">${Number(date.slice(8))}</strong><small>${loading ? '—' : count || '—'}</small></button>`;
+            return `<button class="cal-day${date === st.day ? ' is-selected' : ''}${date === DB.TODAY ? ' is-today' : ''}" ${act('day', { date })} aria-pressed="${date === st.day}" ${date === DB.TODAY ? 'aria-current="date"' : ''} aria-label="${DB.fmtDateLong(date)}${loading ? '' : `, ${count} ${DB.plural(count, ['занятие', 'занятия', 'занятий'])}`}"><span>${DB.DOW[i]}</span><strong class="num">${Number(date.slice(8))}</strong><small>${UI.isInstrument() ? `<i class="cal-load" style="--load:${loading ? 0 : Math.min(24, count * 4)}px" aria-hidden="true"></i>` : loading ? '—' : count || '—'}</small></button>`;
           }).join('')}</div>
-          <p class="cal-key">Количество занятий под датой <span>Алматы</span></p>
+          <p class="cal-key">${UI.isInstrument() ? 'Плотность занятий по дням' : 'Количество занятий под датой'} <span>Алматы</span></p>
         </section>
         <section class="cal-day-section" aria-label="Занятия выбранного дня">
           <div class="cal-day-heading"><h2>${esc(fullDate)}</h2><p>${loading ? 'Загружаем расписание…' : `${live.length} ${DB.plural(live.length, ['занятие', 'занятия', 'занятий'])}${live.length ? ` · ${humanDur(live.reduce((sum, s) => sum + mins(s.start, s.end), 0))} занятий` : ''}`}</p></div>
           ${st.scenario === 'offline' ? Notice('Нет связи. Показано сохранённое расписание.', { icon: 'wifi', tone: 'warn' }) : ''}
-          ${loading ? Skeleton(4) : calendarAgenda(st.day)}
+          ${loading ? Skeleton(4) : UI.isInstrument() ? instrumentAgenda(st.day) : calendarAgenda(st.day)}
         </section>
       </div>${TabBar('trainer', 't-schedule')}
     </div>`;
@@ -558,7 +587,9 @@ const Trainer = (() => {
     const step = c.step;
     const timeOpts = Array.from(new Set(['07:00', '09:00', '11:30', '14:00', '17:00', '18:00', '18:30', '19:00', '20:00', c.start])).sort();
 
-    const stepHead = `<div class="chips" style="padding:4px 16px 12px">
+    const stepHead = UI.isInstrument() ? `<ol class="booking-progress" aria-label="Шаги записи">
+      ${['Клиенты', 'Время', 'Программа'].map((label, i) => `<li class="${i < step ? 'is-complete' : i === step ? 'is-current' : ''}"${i === step ? ' aria-current="step"' : ''}><span class="num">${pad2(i + 1)}</span><span>${label}</span></li>`).join('')}
+    </ol>` : `<div class="chips booking-steps" style="padding:4px 16px 12px">
       ${['Клиенты', 'Время', 'Программа'].map((l, i) => `<span class="chip ${i === step ? 'is-on' : ''}" ${i < step ? act('ns.prev') : ''}>${i + 1}. ${l}</span>`).join('')}
     </div>`;
 
@@ -621,9 +652,10 @@ const Trainer = (() => {
       ${PageTitle({ title: 'Когда и с кем', sub: 'Сначала согласуем время. Программу можно назначить позже.', size: 'sm' })}
       ${stepHead}
       <div class="screen__body" style="padding-bottom:16px">${body}</div>
-      <div style="padding:12px 16px 26px;display:flex;gap:10px">
+      <div class="booking-footer" style="padding:12px 16px 26px;display:flex;gap:10px">
         ${step > 0 ? Btn('Назад', { kind: 'soft', a: 'ns.prev' }) : ''}
-        ${step < 2 ? Btn('Продолжить', { a: 'ns.next', disabled: step === 0 && !c.clientIds.length }) : Btn('Создать занятие', { a: 'ns.save', kind: 'mint' })}
+        ${UI.isInstrument() && step === 0 && !c.clientIds.length ? '<p class="booking-hint">Выберите хотя бы одного клиента</p>' : ''}
+        ${step < 2 ? Btn('Продолжить', { a: 'ns.next', disabled: !UI.isInstrument() && step === 0 && !c.clientIds.length }) : Btn('Создать занятие', { a: 'ns.save', kind: 'mint' })}
       </div>
     </div>`;
   }
@@ -639,6 +671,9 @@ const Trainer = (() => {
     const reqCard = (r) => {
       const c = client(r.clientId);
       const awaitingMe = r.awaiting === 'trainer';
+      if (UI.isInstrument()) return UI.TransferCard(r, c?.name || 'Клиент', awaitingMe
+        ? Btn('Принять', {a:'rs.accept', args:{id:r.id}}) + Btn('Другое время', {kind:'soft', a:'sheet.open', args:{id:'counter', rid:r.id}}) + Btn('Отклонить', {kind:'ghost', a:'rs.decline', args:{id:r.id}})
+        : Btn('Отозвать запрос', {kind:'soft', a:'rs.withdraw', args:{id:r.id}}));
       return Card(`<div style="padding:16px">
         <div class="request-person">
           ${Lead(c ? c.initials : '?', { size: 'sm' })}
@@ -648,17 +683,9 @@ const Trainer = (() => {
           </div>
           ${r.awaiting === 'trainer' ? Pill('Ждёт вас', { tone: 'amber', pulse: true }) : Pill('Ждёт клиента', { tone: 'neutral', dot: false })}
         </div>
-        <div style="margin-top:14px">
-          ${UI.esc('')}<div class="diffcard ${r.state === 'counter' ? '' : 'is-warn'}" style="border:none;background:var(--sunken);padding:14px">
-            <div class="diffcard__grid">
-              <div class="diffcard__side"><div class="t">${r.from.start}–${r.from.end}</div><div class="d">${DB.fmtDateLong(r.from.date)} · действует</div></div>
-              <div class="diffcard__arrow">${Icon.get('arrowRight', { size: 18 })}</div>
-              <div class="diffcard__side"><div class="t">${(r.counter || r.to).start}–${(r.counter || r.to).end}</div><div class="d">${DB.fmtDateLong((r.counter || r.to).date)} · предложено</div></div>
-            </div>
-          </div>
-        </div>
+        ${UI.TransferDates(r)}
         ${awaitingMe && ['pending', 'counter'].includes(r.state) ? `<div class="btn-row" style="margin-top:14px">
-          ${Btn('Принять', { kind: 'mint', size: 'compact', a: 'rs.accept', args: { id: r.id } })}
+          ${Btn('Принять', { kind: 'primary', size: 'compact', a: 'rs.accept', args: { id: r.id } })}
           ${Btn('Другое время', { kind: 'soft', size: 'compact', a: 'sheet.open', args: { id: 'counter', rid: r.id } })}
         </div>
         <div style="margin-top:9px">${Btn('Отклонить', { kind: 'ghost', size: 'compact', a: 'rs.decline', args: { id: r.id } })}</div>` : ''}
@@ -711,7 +738,7 @@ const Trainer = (() => {
       return `<li class="directory-row"><button class="directory-row__open" ${act('client.open', {id:c.id})}>
         <span class="directory-avatar" aria-hidden="true">${esc(c.initials)}</span>
         <span class="directory-row__main"><strong>${esc(c.name)}</strong><span class="directory-row__program">${esc(c.program || 'Программа не назначена')}</span></span>
-        <span class="directory-balance">${c.plan ? `Осталось <strong class="num">${c.plan.remaining}</strong> ${DB.plural(c.plan.remaining,['занятие','занятия','занятий'])}` : 'Нет пакета'}</span>
+        <span class="directory-balance">${c.plan ? UI.isInstrument() ? `<span class="package-balance" aria-label="Осталось ${c.plan.remaining} из ${c.plan.bought} занятий"><strong class="num" aria-hidden="true">${pad2(c.plan.remaining)} <span>/ ${pad2(c.plan.bought)}</span></strong><span class="package-balance__track" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, c.plan.bought > 0 ? c.plan.remaining / c.plan.bought * 100 : 0))}%"></i></span><span aria-hidden="true">осталось занятий</span></span>` : `Осталось <strong class="num">${c.plan.remaining}</strong> ${DB.plural(c.plan.remaining,['занятие','занятия','занятий'])}` : 'Нет пакета'}</span>
         <span class="directory-row__next">${Icon.get('calendar',{size:14})}<span>${next ? `${esc(date)} · ${next.start}${next.kind === 'group' ? ' · мини-группа' : ''}` : 'Нет будущих занятий'}</span>${Icon.get('chevR',{size:14})}</span>
         ${c.plan?.due > 0 || !connected ? `<span class="directory-row__flags">${c.plan?.due > 0 ? `<span class="directory-due">К оплате ${DB.fmtMoney(c.plan.due)}</span>` : ''}${!connected ? '<span class="directory-connection">Не подключён</span>' : ''}</span>` : ''}
       </button></li>`;
@@ -761,7 +788,7 @@ const Trainer = (() => {
       </div>
     </div>`;
 
-    const chips = `<div class="chips" style="padding:18px 16px 10px">
+    const chips = `<div class="chips client-tabs" style="padding:18px 16px 10px">
       ${tabs.map(t => `<span class="chip chip--soft ${tab === t ? 'is-on' : ''}" ${act('client.tab', { tab: t })} role="button" tabindex="0">${tabLabels[t]}</span>`).join('')}
     </div>`;
 
@@ -953,6 +980,7 @@ const Trainer = (() => {
       if (!r) return '';
       return `<div class="wrest${r.done ? ' is-done' : ''}" role="timer" aria-live="off">
         <div class="wrest__bar" data-rest-bar="${active}" style="--p:${Math.min(100, 100 - r.left / r.total * 100)}%"></div>
+        ${UI.isInstrument() ? `<div class="rest-ring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="rest-ring__track" cx="50" cy="50" r="44"/><circle class="rest-ring__arc" cx="50" cy="50" r="44" pathLength="100" data-rest-ring="${active}" style="stroke-dashoffset:${100 - r.left / r.total * 100}"/>${Array.from({length: Math.max(1, Math.floor(r.total / 15))}, (_, i) => `<path d="M50 1v4" transform="rotate(${i * 360 / Math.max(1, Math.floor(r.total / 15))} 50 50)"/>`).join('')}</svg><b class="num" data-rest-left="${active}">${r.label}</b></div>` : ''}
         <div class="wrest__row">
           <span class="wrest__icon" aria-hidden="true">${Icon.get(r.done ? 'check' : 'clock', { size: 18, sw: 2.4 })}</span>
           <span class="wrest__txt">${r.done ? 'Отдых окончен' : 'Отдых'} <b class="num" data-rest-left="${active}">${r.label}</b></span>
@@ -978,7 +1006,7 @@ const Trainer = (() => {
       const draftVerb = p.draft ? 'Продолжить' : 'Записать';
       return `<div class="wcomposer${p.draft ? ' is-draft' : ''}" data-composer="${e.id}:${si}">
         <div class="wcomposer__head"><b>Подход ${si + 1}${planned && si >= planned ? ' · сверх плана' : ''}</b><span>${esc(p.source)}</span>
-          <button class="wcomposer__more" ${act('sheet.open', { id: 'setlog', cid: active, ex: e.id, si })} aria-label="${draftVerb} подход ${si + 1}: ${esc(e.name)}" title="Подробный ввод">${Icon.get('edit', { size: 17 })}</button></div>
+          <button class="wcomposer__more" ${act('sheet.open', { id: 'setlog', cid: active, ex: e.id, si })} aria-label="${draftVerb} подход ${si + 1}: ${esc(e.name)}" title="Подробный ввод">${Icon.get('edit', { size: 17 })}<span class="composer-edit-label">Править</span></button></div>
         <div class="wcomposer__fields${bw ? ' is-single' : ''}">
           ${bw ? '' : stepper('kg', 'Вес, кг', p.kg, 2.5, 'decimal')}
           ${stepper('reps', unit === 'сек' ? 'Секунды' : 'Повторы', p.reps, unit === 'сек' ? 5 : 1, 'numeric')}
@@ -1061,7 +1089,8 @@ const Trainer = (() => {
       ? focusCard + list
       : exs.map(e => {
           if (e.skipped && e.replacedBy && !valuesOf(e).some(Boolean)) return '';
-          return cardOf(e, exCard(e, { quick: false }));
+          const parts = exCard(e, { quick: false });
+          return parts ? cardOf(e, parts) : '';
         }).filter(Boolean).join('<div style="height:12px"></div>');
 
     const saveState = lg.storageError
@@ -1081,13 +1110,14 @@ const Trainer = (() => {
             <div class="log-head__sub num">${DB.fmtDateLong(s.date)} · ${s.start}–${s.end}${participants.length === 1 ? ` · ${esc(programName || 'Без программы')}` : ''}</div></div>
             ${participants.length === 1 && totalSets && eligible && !lg.finished ? `<div class="log-head__score num" aria-label="Записано ${doneSets} из ${totalSets} подходов"><b>${doneSets}</b><span>/${totalSets}</span></div>` : ''}
           </div>
-          ${participants.length === 1 && totalSets && eligible && !lg.finished ? `<div class="log-progress">${Meter(doneSets, totalSets)}</div>` : ''}
+          ${participants.length === 1 && totalSets && eligible && !lg.finished ? `<div class="log-progress">${UI.isInstrument() ? UI.Segments(doneSets, totalSets) : Meter(doneSets, totalSets)}</div>` : ''}
           ${saveState ? `<div class="log-head__save">${saveState}</div>` : ''}
           ${lg.storageError ? `<div class="log-recovery">${lg.storageConflict ? '<p>Скачайте копию этой вкладки перед перезагрузкой. Автоматическое объединение не поддерживается.</p>' : Btn('Повторить сохранение', { kind: 'soft', size: 'compact', a: 'log.retry' })}${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
           ${lg.completedElsewhere ? `<div class="log-recovery" role="status"><p>Журнал завершён в другой вкладке. Результаты открыты для просмотра. Прежние данные этой вкладки доступны в копии журнала. Скачайте её перед перезагрузкой.</p>${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
           ${lg.finished ? `<div class="log-completed" role="status">
             <p class="log-completed__program">${esc(programName || 'Без программы')}</p>
-            ${doneSets ? `<div class="log-completed__score num"><b>${doneSets}</b><span>${DB.plural(doneSets, ['подход записан', 'подхода записано', 'подходов записано'])}${totalSets ? ` из ${totalSets}` : ''}</span></div>` : ''}
+            ${doneSets ? `<div class="log-completed__score num" aria-label="${doneSets} подходов записано"><b aria-hidden="true" data-result-count="${doneSets}">${doneSets}</b><span>${DB.plural(doneSets, ['подход записан', 'подхода записано', 'подходов записано'])}${totalSets ? ` из ${totalSets}` : ''}</span></div>` : ''}
+            ${UI.isInstrument() && doneSets ? (() => { const volume = exs.reduce((sum, e) => sum + valuesOf(e).reduce((n, v) => n + (v ? v.kg * v.reps : 0), 0), 0); return `<p class="result-volume" aria-label="Объём: ${DB.fmtNumber(volume)} килограммов"><b class="num" aria-hidden="true" data-result-count="${volume}">${DB.fmtNumber(volume)}</b><span>кг · объём тренировки</span></p>`; })() : ''}
             <strong>${doneSets ? 'Журнал завершён' : 'Нет записанных подходов'}</strong><p>${doneSets ? 'Ниже — сохранённые результаты.' : 'Журнал завершён без результатов. Вес и повторения не были записаны.'}</p>${draftSets ? `<p>${draftSets === 1 ? 'Черновик не учтён' : 'Черновики не учтены'}: ${draftSets}. В результаты входят только сохранённые подходы.</p>` : ''}<p class="log-completed__attendance">Посещение и списание не изменены.</p>${UI.ChangesSummary(active)}${lg.finished && Store.programs.options(active).length ? Btn('Обновить программу клиента', {kind:'soft', a:'sheet.open', args:{id:'programUpdate',cid:active}}) : ''}</div>` : ''}
         </div>
         ${participants.length > 1 ? `<div class="log-context">${strip}<div class="log-context__who">
@@ -1141,12 +1171,16 @@ const Trainer = (() => {
 
   /* ── Пакеты и оплаты ──────────────────────────────────────────────────────── */
 
+  function paymentTable() {
+    return `<div class="payment-table"><table><caption class="sr-only">Активные покупки, суммы в тенге</caption><thead><tr><th>Стоимость, ₸</th><th>Получено, ₸</th><th>К оплате, ₸</th></tr></thead>${Store.get().billing.purchases.map(p => `<tbody><tr><th colspan="3"><button ${act('sheet.open', {id:'pay',cid:p.clientId,due:p.due})} aria-label="Записать оплату: ${esc(client(p.clientId).name)}, ${esc(p.title)}"><span><strong>${esc(client(p.clientId).short)}</strong><small>${esc(p.title)} · ${p.units - p.used} занятий осталось</small></span>${Icon.get('plus', {size:18})}</button></th></tr><tr><td class="num">${DB.fmtNumber(p.price)}</td><td class="num">${DB.fmtNumber(p.paid)}</td><td class="num">${DB.fmtNumber(p.due)}</td></tr><tr><td colspan="3">${Meter(p.paid, p.price)}</td></tr></tbody>`).join('')}</table></div>`;
+  }
+
   function billing() {
     return `<div class="screen reference-screen">
       ${TopBar({ back: 'nav.back', title: 'Пакеты и оплаты' })}
       <div class="screen__body" style="padding:4px 16px 20px">
         <div class="label" style="margin-left:6px">Активные покупки</div>
-        ${Store.get().billing.purchases.map(p => {
+        ${UI.isInstrument() ? paymentTable() : Store.get().billing.purchases.map(p => {
           const c = client(p.clientId);
           return Card(`<div style="padding:16px">
             <div style="display:flex;align-items:center;gap:12px">
@@ -1232,7 +1266,7 @@ const Trainer = (() => {
             <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:2px">Независимый тренер</div>
           </div>
         </div>
-        <button class="btn btn--soft" role="switch" aria-checked="${Store.preferences.calm()}" ${act('calm.toggle')}>Спокойный интерфейс · ${Store.preferences.calm() ? 'вкл' : 'выкл'}</button>
+        ${UI.CalmSwitch()}${UI.ThemeChoice()}
         ${Store.field.enabled ? `<p class="client-footnote">Полевой режим: события сохраняются только в этом браузере.</p>${Btn('Выгрузить полевой журнал', {kind:'soft',a:'field.export'})}${Btn('Очистить полевой журнал', {kind:'ghost',a:'field.clear'})}` : ''}
         ${Btn('Мои упражнения', { kind: 'soft', a: 'sheet.open', args: { id: 'myExercises' } })}
         ${Stats([[String(todayCount), 'занятий сегодня'], [String(pending), 'ждут ответа'], [String(count), 'клиентов в базе']])}
@@ -1241,7 +1275,6 @@ const Trainer = (() => {
           ['layers', 'Библиотека и шаблоны', 't-library'],
           ['wallet', 'Пакеты и оплаты', 't-billing'],
           ['bell', 'Уведомления', null, 'sheet:notifications'],
-          ['settings', 'Настройки', null],
         ].map(([icon, title, screen, kind], i, arr) => Row({
           lead: Lead(icon, { size: 'sm', icon: true }),
           title,
@@ -1260,6 +1293,7 @@ const Trainer = (() => {
 
   function wide() {
     const st = Store.get();
+    if (UI.isInstrument()) return `<div class="wide instrument-workspace"><main class="workspace-day">${today()}</main><aside class="workspace-client" aria-label="Карточка выбранного клиента"><div class="workspace-heading"><span>Клиент</span><select data-workspace-client aria-label="Клиент в кабинете">${DB.clients.filter(c => c.id !== 'c7').map(c => `<option value="${c.id}" ${st.activeClient === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>${clientCard()}</aside></div>`;
     const pending = Store.reschedule.awaiting('trainer').length;
     const navItems = [
       ['t-today', 'home', 'Сегодня'],
@@ -1280,7 +1314,7 @@ const Trainer = (() => {
         <div class="wide__head">
           <div>
             <h1 style="font-family:var(--disp);font-weight:800;font-size:2rem;letter-spacing:-.6px">Сегодня</h1>
-            <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:6px">${esc(DB.todayLabel())} · ${DB.byDate(st.day).length} занятия · 2 требуют ответа</div>
+            <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:6px">${esc(DB.todayLabel())} · ${DB.byDate(st.day).length} занятия · ${pending} требуют ответа</div>
           </div>
           <div style="display:flex;gap:10px;align-items:center">
             ${Btn('Создать занятие', { kind: 'primary', size: 'sm', a: 'tab', args: { id: 't-new' }, icon: 'plus' })}
@@ -1289,7 +1323,7 @@ const Trainer = (() => {
         <div class="wide__grid">
           <div>
             <div class="label" style="margin-left:4px">Лента дня</div>
-            ${feed(st.day)}
+            ${UI.isInstrument() ? todayAgenda(st.day) : feed(st.day)}
           </div>
           <div>
             <div class="label" style="margin-left:4px">Требует внимания</div>

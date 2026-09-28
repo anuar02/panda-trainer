@@ -94,10 +94,12 @@ const Workout = (() => {
       const r = restOf(cid);
       document.querySelectorAll(`[data-rest-left="${cid}"]`).forEach(el => { el.textContent = r.label; });
       document.querySelectorAll(`[data-rest-bar="${cid}"]`).forEach(el => { el.style.setProperty('--p', `${Math.min(100, 100 - r.left / r.total * 100)}%`); });
+      document.querySelectorAll(`[data-rest-ring="${cid}"]`).forEach(el => { el.style.strokeDashoffset = String(100 - r.left / r.total * 100); });
       if (r.done && !rest[cid].buzzed) {
         rest[cid].buzzed = true;
         try { navigator.vibrate?.([90, 60, 90]); } catch (_) { }
         Store.commit();
+        if (!Store.preferences.calm()) document.querySelectorAll('.wrest.is-done .rest-ring, .workout-dock.is-resting').forEach(el => el.classList.add('is-rest-finished'));
       }
     }
   }
@@ -125,6 +127,7 @@ const Workout = (() => {
     const exs = Store.logging.exercises(cid);
     const changed = exs.find(e => (is[e.id] || []).filter(valid).length > (was[e.id] || []).filter(valid).length);
     if (!changed) return;
+    if (hasWindow && !Store.preferences.calm()) { try { navigator.vibrate?.(10); } catch (_) { } }
     started.clear();
     if (focus[cid] === changed.id && !openSets(changed, is[changed.id] || []).length) delete focus[cid];
     const remaining = exs.some(e => !e.skipped && openSets(e, is[e.id] || []).length);

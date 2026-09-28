@@ -21,6 +21,7 @@ const Mascot = (() => {
     pose = LEGACY[pose] || pose;
     if (!Object.hasOwn(POSES, pose)) pose = 'front';
     const p = POSES[pose];
+    if (typeof UI !== 'undefined' && UI.isInstrument() && !['onboarding', 'celebration'].includes(context)) return face(pose === 'sleep' ? 'calm' : 'smile', context === 'hero' ? 32 : 40);
     const box = context === 'onboarding' ? 'onboarding-art' : context === 'hero' ? 'panda-hero' : context === 'inline' ? 'panda-inline' : 'client-empty__mascot';
     const z = pose === 'sleep' ? '<span class="panda__z" aria-hidden="true"><i>z</i><i>z</i><i>z</i></span>' : '';
     return `<span class="mascot panda ${box}" data-mascot="${pose}" data-motion="${calm ? 'none' : p.motion}" aria-hidden="true">
@@ -31,7 +32,7 @@ const Mascot = (() => {
   }
 
   function face(mood = 'smile', size = 40, cls = '') {
-    if (typeof Store !== 'undefined' && Store.preferences.calm()) return Icon.get('check', { size });
+    if (typeof Store !== 'undefined' && Store.preferences.calm()) return Icon.get('clock', { size: Math.min(size, 32) });
     if (!FACES.includes(mood)) mood = 'smile';
     return `<img class="panda-face${cls ? ' ' + cls : ''}" src="${DIR}face-${mood}.png" width="${size}" height="${Math.round(size * 0.87)}" alt="" aria-hidden="true" decoding="async" draggable="false">`;
   }
