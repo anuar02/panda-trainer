@@ -25,24 +25,24 @@ const Sheets = (() => {
       if (!p.c) return '';
       const key = s.id + ':' + p.clientId;
       const att = st.attendance[key];
-      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--hair)">
+      return `<div class="attendance-person">
         ${Lead(p.c.initials, { size: 'sm' })}
-        <div style="flex:1;min-width:0">
-          <div style="font-size:0.90625rem;font-weight:600">${esc(p.c.short)}</div>
+        <div class="attendance-person__identity">
+          <div style="font-size:0.90625rem;font-weight:600">${esc(p.c.name)}</div>
           <div style="font-size:0.875rem;color:var(--sec);margin-top:1px">
-            ${att === 'present' ? 'Присутствовал' : att === 'noshow' ? 'Неявка' : 'Посещение не отмечено'}
+            ${att === 'present' ? 'Присутствовал' : att === 'noshow' ? 'Неявка' : 'Пока не отмечено'}
           </div>
         </div>
-        ${att ? Pill(att === 'present' ? (st.recorded['charge:' + s.id + ':' + p.clientId] ? 'Посещение · списано' : 'Без списания') : 'Неявка', { tone: att === 'present' ? 'mint' : 'danger', dot: false })
-          : `<div style="display:flex;gap:6px">
+        <div class="attendance-person__actions">${att ? Pill(att === 'present' ? (st.recorded['charge:' + s.id + ':' + p.clientId] ? 'Посещение · списано' : 'Без списания') : 'Неявка', { tone: att === 'present' ? 'mint' : 'danger', dot: false })
+          : `<div class="attendance-person__buttons">
               <button class="btn btn--soft btn--sm" ${act('attendance.mark', { sid: s.id, cid: p.clientId, value: 'present' })}>Пришёл</button>
               <button class="btn btn--ghost btn--sm" ${act('attendance.mark', { sid: s.id, cid: p.clientId, value: 'noshow' })}>Не пришёл</button>
-            </div>`}
+            </div>`}</div>
       </div>`;
     }).join('');
 
     return `<div class="sheet__title">${esc(s.title)}</div>
-      <div class="sheet__sub">${DB.fmtDateLong(s.date)} · ${s.start}–${s.end} · ${s.kind === 'group' ? 'мини-группа' : 'индивидуальное'}</div>
+      <div class="sheet__sub">${DB.fmtDateLong(s.date)} · ${s.start}–${s.end}</div>
       ${r && ['pending', 'counter'].includes(r.state) ? `<div style="margin-top:14px">${Notice(`${r.author === 'trainer' ? 'Тренер' : 'Клиент'} предложил перенос на ${DB.fmtDateLong((r.counter || r.to).date)}, ${(r.counter || r.to).start}. До подтверждения действует ${DB.fmtDateLong(r.from.date)}, ${r.from.start}.`, { tone: 'warn', icon: 'swap' })}</div>` : ''}
       <div style="margin-top:16px">
         <div class="label" style="margin-left:0">Посещение и списание</div>
@@ -53,7 +53,7 @@ const Sheets = (() => {
         ${s.status !== 'cancelled' ? Btn('Перенести занятие', { kind: 'soft', a: 'sheet.open', args: { id: 'trainerMove', sid: s.id }, icon: 'swap' }) : ''}
         ${s.status !== 'cancelled' ? Btn('Отменить запись', { kind: 'ghost', a: 'session.cancel', args: { sid: s.id } }) : ''}
       </div>
-      <div style="margin-top:14px">${Notice('Отмена не списывает занятие автоматически. Списание за отмену или неявку — отдельное действие с причиной.', { tone: 'info', icon: 'info' })}</div>`;
+      <div style="margin-top:14px"><p class="attendance-help">Отмена не списывает занятие. Списание за отмену или неявку оформляется отдельно, с причиной.</p></div>`;
   }
 
   /* ── Set logging ─────────────────────────────────────────────────────────── */

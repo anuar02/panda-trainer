@@ -59,6 +59,17 @@ if (task === '05-client-value') {
   ];
 }
 if (task === '06-field') screens = [{path:'profile',role:'trainer',screen:'t-profile',field:true}];
+if (task === '10-page-fixes' || task === '11-panda-eyes') {
+  const pages = [
+    {path:'attendance',role:'trainer',screen:'t-today',actions:"Store.ui.openSheet('session',{sid:'s3'});"},
+    {path:'attendance-group',role:'trainer',screen:'t-today',actions:"Store.ui.openSheet('session',{sid:'s6'});"},
+    {path:'inbox',role:'trainer',screen:'t-inbox',actions:"Object.values(Store.get().requests).forEach(r=>{r.state='accepted';}); Store.commit();"},
+    {path:'clients',role:'trainer',screen:'t-clients'},
+    {path:'results-empty',role:'trainer',screen:'t-session',actions:"Store.logging.open('s1'); Store.logging.finish(); Store.logging.confirmPartial();"},
+    {path:'results-partial',role:'trainer',screen:'t-session',actions:results},
+  ];
+  screens = task === '11-panda-eyes' ? pages.filter(s=>s.path==='inbox') : pages.flatMap(s=>[s,{...s,path:`large/${s.path}`,rootSize:20}]);
+}
 if (task === 'large-text') {
   const all = ['t-today','t-schedule','t-new','t-inbox','t-clients','t-client','t-session','t-library','t-template','t-billing','t-invite','t-profile','c-home','c-first','c-program','c-history','c-progress','c-profile'];
   screens = all.flatMap(screen => {
@@ -96,6 +107,7 @@ try {
       await page.waitForTimeout(350);
       if (spec.actions) await page.evaluate(spec.actions);
       await page.waitForTimeout(spec.wait ?? 120);
+      if (['10-page-fixes', '11-panda-eyes'].includes(task)) await page.evaluate(() => document.activeElement?.blur());
       if (spec.scroll) await page.locator('.screen__body').evaluate(el => { el.scrollTop = el.scrollHeight; });
       await page.evaluate(() => document.getAnimations().forEach(a => { if (a.effect?.target?.closest('.fx-celebrate,.hold,.panda')) return; try { a.finish(); } catch { a.cancel(); } }));
       await page.addStyleTag({content:'*,*::before,*::after { animation-play-state:paused !important; caret-color:transparent !important; }'});

@@ -582,3 +582,24 @@ test('group dock counts drafts across participants and marks each participant', 
   assert.match(run('UI.WorkoutDock()'), /Черновики: 2 участн/);
   assert.match(run('UI.WorkoutDock()'), /20:00/);
 });
+
+
+test('completed empty journal explains missing results without displaying planned weights', () => {
+  const { run } = app();
+  run(start + 'Store.logging.finish(); Store.logging.confirmPartial();');
+  const html = run('Trainer.session()');
+  assert.match(html, /Нет записанных подходов/);
+  assert.doesNotMatch(html, /class="setrow|log-progress|Ниже — сохранённые результаты/);
+  assert.equal(run("Store.logging.exercises('c5').length"), 4);
+});
+
+test('completed partial journal displays saved values rather than draft or unrecorded sets', () => {
+  const { run } = app();
+  run(start + write);
+  run("Store.logging.edit('c5','e1',0); Store.logging.input({kg:'99',reps:'20'}); Store.ui.closeSheet(); Store.logging.finish(); Store.logging.confirmPartial();");
+  const html = run('Trainer.session()');
+  assert.match(html, /8,5 кг/);
+  assert.match(html, /Черновик не учтён/);
+  assert.doesNotMatch(html, /99 кг|не записан|setrow__plan|log-progress/);
+  assert.equal((html.match(/class="setrow is-done"/g) || []).length, 1);
+});

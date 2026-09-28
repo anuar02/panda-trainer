@@ -671,17 +671,14 @@ const Trainer = (() => {
       ${TopBar({ back: 'nav.back', title: 'Входящие' })}
       <div class="screen__body" style="padding:4px 16px 20px">
         <div class="label" style="margin:6px 6px 12px">Активные</div>
-        ${active.length ? active.map(r => `<div style="margin-bottom:12px">${reqCard(r)}</div>`).join('') : Card(Empty({ icon: 'check', title: 'Всё согласовано', sub: 'Новых запросов на перенос нет.' }), { pad: true })}
+        ${active.length ? active.map(r => `<div style="margin-bottom:12px">${reqCard(r)}</div>`).join('') : `<div class="inbox-clear">${Mascot.render('sit', 'empty')}<div><h2>Всё согласовано</h2><p>Новых запросов на перенос нет.</p></div></div>`}
         ${past.length ? `<div class="label" style="margin:20px 6px 12px">История</div>${Card(past.map((r, i) => {
           const c = client(r.clientId);
           const label = { accepted: 'Перенос принят', declined: 'Отклонён', withdrawn: 'Отозван', stale: 'Устарел' }[r.state] || r.state;
-          return Row({
-            lead: Lead(c ? c.initials : '?', { size: 'sm' }),
-            title: c ? c.short : 'Клиент',
-            meta: `${label} · ${DB.fmtDate(r.from.date)} → ${DB.fmtDate((r.counter || r.to).date)}`,
-            right: r.state === 'accepted' ? Pill('Принят', { tone: 'mint', dot: false }) : Pill('Закрыт', { tone: 'neutral', dot: false }),
-            last: i === past.length - 1,
-          });
+          return `<div class="inbox-history-item">
+            ${Lead(c ? c.initials : '?', { size: 'sm' })}
+            <div><strong>${esc(c ? c.name : 'Клиент')}</strong><span class="inbox-history-item__state">${esc(label)}</span><span class="inbox-history-item__dates">${DB.fmtDate(r.from.date)} · ${r.from.start} → ${DB.fmtDate((r.counter || r.to).date)} · ${(r.counter || r.to).start}</span></div>
+          </div>`;
         }).join(''), { rows: true })}` : ''}
       </div>
     </div>`;
@@ -714,7 +711,7 @@ const Trainer = (() => {
       return `<li class="directory-row"><button class="directory-row__open" ${act('client.open', {id:c.id})}>
         <span class="directory-avatar" aria-hidden="true">${esc(c.initials)}</span>
         <span class="directory-row__main"><strong>${esc(c.name)}</strong><span class="directory-row__program">${esc(c.program || 'Программа не назначена')}</span></span>
-        <span class="directory-balance" aria-label="${c.plan ? `Осталось ${c.plan.remaining} ${DB.plural(c.plan.remaining,['занятие','занятия','занятий'])}` : 'Нет пакета'}">${c.plan ? `<strong class="num">${c.plan.remaining}</strong><small>осталось</small>` : '<small>Нет<br>пакета</small>'}</span>
+        <span class="directory-balance">${c.plan ? `Осталось <strong class="num">${c.plan.remaining}</strong> ${DB.plural(c.plan.remaining,['занятие','занятия','занятий'])}` : 'Нет пакета'}</span>
         <span class="directory-row__next">${Icon.get('calendar',{size:14})}<span>${next ? `${esc(date)} · ${next.start}${next.kind === 'group' ? ' · мини-группа' : ''}` : 'Нет будущих занятий'}</span>${Icon.get('chevR',{size:14})}</span>
         ${c.plan?.due > 0 || !connected ? `<span class="directory-row__flags">${c.plan?.due > 0 ? `<span class="directory-due">К оплате ${DB.fmtMoney(c.plan.due)}</span>` : ''}${!connected ? '<span class="directory-connection">Не подключён</span>' : ''}</span>` : ''}
       </button></li>`;
@@ -856,7 +853,7 @@ const Trainer = (() => {
     const activeClient = client(active);
     const programName = lg.plans[active]?.name;
     const exs = Store.logging.exercises(active);
-    const { total: totalSets, done: doneSets } = Store.logging.progress(active);
+    const { total: totalSets, done: doneSets, drafts: draftSets } = Store.logging.progress(active);
     const eligible = Store.logging.eligible(active);
 
     const strip = participants.length > 1 ? `<div class="pstrip" role="group" aria-label="Участники и записанные подходы">
@@ -885,6 +882,7 @@ const Trainer = (() => {
 
     const exCard = (e, { quick = true, focusMode = false } = {}) => {
       const arr = valuesOf(e);
+      if ((lg.finished || (e.skipped && e.replacedBy)) && !arr.some(Boolean)) return '';
       const nextIndex = focusMode ? Workout.openSets(e, arr)[0] ?? -1 : (e === nextEx ? Array.from({ length: e.sets }).findIndex((_, i) => !arr[i]) : -1);
       const unit = unitOf(e);
       const hasPrev = e.prev && e.prev.reps > 0;
@@ -892,10 +890,10 @@ const Trainer = (() => {
       const prev = !hasPrev ? '—' : e.prev.kg ? `${DB.fmtNumber(e.prev.kg)} кг × ${e.prev.reps}` : `${e.prev.reps} ${unit}`;
       const prevMeta = hasPrev ? `прошлый раз ${prev}` : 'первый раз';
       const planned = e.origin === 'added' ? 0 : (e.plannedSets ?? e.sets);
-      const indices = e.skipped ? arr.map((v, i) => (v ? i : -1)).filter(i => i >= 0) : Array.from({ length: e.sets }, (_, i) => i);
+      const indices = (lg.finished || e.skipped) ? arr.map((v, i) => (v ? i : -1)).filter(i => i >= 0) : Array.from({ length: e.sets }, (_, i) => i);
       const rowsHtml = indices.map(si => {
         const v = arr[si];
-        const draft = lg.drafts[active]?.[e.id]?.[si];
+        const draft = !lg.finished && lg.drafts[active]?.[e.id]?.[si];
         const isNext = interactive && !v && si === nextIndex;
         const verb = draft ? 'Продолжить' : v ? 'Изменить' : 'Записать';
         const draftText = draft ? (weighted
@@ -933,7 +931,7 @@ const Trainer = (() => {
       const tag = e.origin === 'replaced' ? `<span class="extag extag--swap">${Icon.get('swap', { size: 12, sw: 2.4 })}вместо ${esc(e.replaces)}</span>`
         : e.origin === 'added' ? `<span class="extag extag--add">${Icon.get('plus', { size: 12, sw: 2.6 })}не из программы</span>`
         : e.skipped ? `<span class="extag extag--skip">${e.replacedBy ? 'заменено' : 'пропущено'}</span>` : '';
-      const goal = e.skipped ? `записано ${arr.filter(Boolean).length}`
+      const goal = lg.finished ? `Записано ${arr.filter(Boolean).length} из ${e.sets} подходов` : e.skipped ? `записано ${arr.filter(Boolean).length}`
         : e.origin === 'added' ? `${e.sets} ${DB.plural(e.sets, ['подход', 'подхода', 'подходов'])}`
         : e.reps ? `цель ${planned} × ${e.reps}${e.target ? ' · ' + DB.fmtNumber(e.target) + ' кг' : ''}` : `цель ${planned} ${DB.plural(planned, ['подход', 'подхода', 'подходов'])}`;
       const last = e.sets - 1;
@@ -1070,7 +1068,7 @@ const Trainer = (() => {
       ? SaveState('error', lg.storageConflict ? 'Журнал изменён в другой вкладке · местные правки не отправлены' : 'Только в памяти вкладки · не закрывайте её')
       : '';
 
-    return `<div class="screen session-journal${participants.length > 1 ? ' session-journal--group' : ''}${interactive ? ' session-journal--live' : ''}">
+    return `<div class="screen session-journal${lg.finished ? ' session-journal--results' : ''}${participants.length > 1 ? ' session-journal--group' : ''}${interactive ? ' session-journal--live' : ''}">
       <div class="topbar" style="padding-bottom:2px">
         <div class="topbar__side">${lg.finished ? iconBtn('chevL', { act: 'log.leave', label: 'Назад к расписанию', size: 24 }) : `<button class="log-minimize" ${act('log.minimize')} aria-label="Свернуть тренировку">${Icon.get('chevD', { size: 18 })}<span>Свернуть</span></button>`}</div>
         <div class="log-screen-status"><span class="log-screen-status__default">${lg.finished ? 'Результаты' : 'Журнал тренировки'}</span><span class="log-screen-status__client">${esc(participants.length > 1 ? `Мини-группа · ${activeClient.short}` : activeClient.name)}</span></div>
@@ -1088,13 +1086,14 @@ const Trainer = (() => {
           ${lg.storageError ? `<div class="log-recovery">${lg.storageConflict ? '<p>Скачайте копию этой вкладки перед перезагрузкой. Автоматическое объединение не поддерживается.</p>' : Btn('Повторить сохранение', { kind: 'soft', size: 'compact', a: 'log.retry' })}${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
           ${lg.completedElsewhere ? `<div class="log-recovery" role="status"><p>Журнал завершён в другой вкладке. Результаты открыты для просмотра. Прежние данные этой вкладки доступны в копии журнала. Скачайте её перед перезагрузкой.</p>${Btn('Скачать копию журнала', { kind: 'soft', size: 'compact', a: 'log.export' })}</div>` : ''}
           ${lg.finished ? `<div class="log-completed" role="status">
-            <div class="log-completed__score num"><b>${doneSets}</b><span>из ${totalSets} подходов</span></div>
-            <strong>Журнал завершён</strong><p>Посещение и списание не изменены. Ниже — подтверждённые результаты.</p>${UI.ChangesSummary(active)}${lg.finished && Store.programs.options(active).length ? Btn('Обновить программу клиента', {kind:'soft', a:'sheet.open', args:{id:'programUpdate',cid:active}}) : ''}</div>` : ''}
+            <p class="log-completed__program">${esc(programName || 'Без программы')}</p>
+            ${doneSets ? `<div class="log-completed__score num"><b>${doneSets}</b><span>${DB.plural(doneSets, ['подход записан', 'подхода записано', 'подходов записано'])}${totalSets ? ` из ${totalSets}` : ''}</span></div>` : ''}
+            <strong>${doneSets ? 'Журнал завершён' : 'Нет записанных подходов'}</strong><p>${doneSets ? 'Ниже — сохранённые результаты.' : 'Журнал завершён без результатов. Вес и повторения не были записаны.'}</p>${draftSets ? `<p>${draftSets === 1 ? 'Черновик не учтён' : 'Черновики не учтены'}: ${draftSets}. В результаты входят только сохранённые подходы.</p>` : ''}<p class="log-completed__attendance">Посещение и списание не изменены.</p>${UI.ChangesSummary(active)}${lg.finished && Store.programs.options(active).length ? Btn('Обновить программу клиента', {kind:'soft', a:'sheet.open', args:{id:'programUpdate',cid:active}}) : ''}</div>` : ''}
         </div>
         ${participants.length > 1 ? `<div class="log-context">${strip}<div class="log-context__who">
           <div class="log-context__identity">${lg.finished ? 'Результаты' : eligible ? 'Записываем' : 'Участник'}: <b>${esc(activeClient ? activeClient.name : '')}</b> <span class="log-context-meta">· ${esc(programName || 'Без программы')}</span></div>${lg.plans[active]?.reply === 'pending' ? '<div class="log-context-meta">Участие пока не подтверждено</div>' : ''}
         </div></div>` : ''}
-        <div class="wbody">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${ProgramOrEmpty(activeClient, programName, rows, exs.length, interactive, active)}</div>
+        <div class="wbody">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${lg.finished ? rows : ProgramOrEmpty(activeClient, programName, rows, exs.length, interactive, active)}</div>
         ${notesCard(active, lg)}
         ${lg.finished ? '' : '<p class="log-footnote">Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере.</p>'}
         <div style="height:12px"></div>
