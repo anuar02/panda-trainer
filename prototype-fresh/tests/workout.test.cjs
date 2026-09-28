@@ -106,3 +106,19 @@ test('planks use seconds in the composer and a group shows the active participan
   assert.match(group, /Записываем: <b>Алия/);
   assert.equal((group.match(/data-composer=/g) || []).length, 1);
 });
+
+test('the minimised workout bar shows progress, the current exercise and a running rest', () => {
+  const { run } = app();
+  run("Store.nav.role('trainer'); Store.logging.open('s1'); Store.logging.minimize()");
+  const idle = run('UI.WorkoutDock()');
+  assert.match(idle, /Дана Ержанова<\/strong><b class="num">0\/12<\/b>/);
+  assert.match(idle, /workout-dock__ex">Приседания со штангой/);
+  assert.match(idle, /aria-label="Вернуться к тренировке: Дана Ержанова, 09:00\. 0 из 12 подходов\. Сейчас: Приседания со штангой"/);
+  run("Store.logging.resume('s1')");
+  run(recordAfter('c5', 'e1', 0, { kg: 50, reps: 10 }));
+  run('Store.logging.minimize()');
+  const resting = run('UI.WorkoutDock()');
+  assert.match(resting, /workout-dock is-resting/);
+  assert.match(resting, /Отдых <span class="num" data-rest-left="c5">1:30<\/span>/);
+  assert.match(resting, /дальше Приседания со штангой/);
+});
