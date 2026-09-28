@@ -502,6 +502,14 @@ const Store = (() => {
       changeLog({ values, dirty: true, quickUndo: null });
       return true;
     },
+    record(clientId, exId, setId, value) {
+      if (state.sheet || clientId !== state.logging.active || !logging.setValue(clientId, exId, setId, value)) return false;
+      const drafts = clone(state.logging.drafts);
+      if (drafts[clientId]?.[exId]) drafts[clientId][exId][setId] = null;
+      const quickUndo = { sessionId: state.logging.sessionId, clientId, exId, setId, value: { kg: value.kg, reps: value.reps } };
+      changeLog({ drafts, quickUndo, feedback: `Подход ${setId + 1} записан · ${DB.client(clientId).short}` });
+      return true;
+    },
     edit(clientId, exId, setId) {
       const ex = logging.exercises(clientId).find(e => e.id === exId);
       if (state.logging.finished || !eligible(clientId) || !ex || ex.skipped || !Number.isInteger(setId) || setId < 0 || setId >= ex.sets) return;

@@ -45,8 +45,8 @@ const Flex = (() => {
     if (!sheet || sheet.id !== 'exPick') return;
     const { mode, cid, ex } = sheet.data;
     Store.ui.closeSheet();
-    if (mode === 'replace') Store.logging.replaceExercise(cid, ex, spec);
-    else Store.logging.addExercise(cid, spec);
+    const id = mode === 'replace' ? Store.logging.replaceExercise(cid, ex, spec) : Store.logging.addExercise(cid, spec);
+    if (id && typeof Workout !== 'undefined') { Workout.setFocus(cid, id); return; }
     if (hasWindow) requestAnimationFrame(() => {
       const cards = document.querySelectorAll('.session-journal .excard');
       const target = [...cards].find(card => card.querySelector('.excard__name')?.textContent === Store.logging.exercises(cid).find(e => e.name.toLowerCase() === spec.name.toLowerCase())?.name);

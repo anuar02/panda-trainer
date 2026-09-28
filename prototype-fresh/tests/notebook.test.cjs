@@ -8,7 +8,7 @@ function app() {
   const data = new Map();
   const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0,
     localStorage: { getItem: k => data.get(k) || null, setItem: (k, v) => data.set(k, v) } });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'sheets', 'screens/trainer', 'screens/client']) {
+  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context);
   }
   return code => vm.runInContext(code, context);

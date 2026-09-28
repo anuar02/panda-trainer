@@ -10,7 +10,7 @@ function memory() {
 }
 function app(storage = memory()) {
   const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0, localStorage: storage });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'sheets', 'screens/trainer', 'screens/client', 'voice']) {
+  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client', 'voice']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context, { filename: name });
   }
   return { storage, run: code => vm.runInContext(code, context) };
