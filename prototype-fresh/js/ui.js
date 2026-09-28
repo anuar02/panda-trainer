@@ -103,13 +103,13 @@ const UI = (() => {
   const TABS = {
     trainer: [
       { id: 't-today', label: 'Сегодня', icon: 'home' },
-      { id: 't-schedule', label: 'Расписание', icon: 'calendar' },
+      { id: 't-schedule', label: 'Распи\u00adсание', icon: 'calendar' },
       { id: 't-clients', label: 'Клиенты', icon: 'users' },
       { id: 't-profile', label: 'Профиль', icon: 'user' },
     ],
     client: [
       { id: 'c-home', label: 'Главная', icon: 'home' },
-      { id: 'c-program', label: 'Программа', icon: 'dumbbell' },
+      { id: 'c-program', label: 'Програм\u00adма', icon: 'dumbbell' },
       { id: 'c-history', label: 'История', icon: 'list' },
       { id: 'c-progress', label: 'Прогресс', icon: 'trend' },
       { id: 'c-profile', label: 'Профиль', icon: 'user' },

@@ -37,7 +37,7 @@ const Trainer = (() => {
         : 'Разовое занятие';
     } else {
       title = s.title;
-      meta = UI.ProgramPreview(s.clientId,s.program,'trainer',s.id);
+      meta = UI.ProgramPreview(s.clientId,s.program,'trainer');
     }
 
     const req = s.request || (st.sessionRequests || {})[s.id];

@@ -360,7 +360,7 @@ const Sheets = (() => {
         return Row({
           lead: Lead(c ? c.initials : '?', { size: 'sm' }),
           title: c ? c.short : s.title,
-          meta: `${s.start}–${s.end} · ${UI.ProgramPreview(s.clientId,s.program,'trainer',s.id)}`,
+          meta: `${s.start}–${s.end} · ${UI.ProgramPreview(s.clientId,s.program,'trainer')}`,
           right: Pill('Индивидуальное', { tone: 'neutral', dot: false }),
           a: 'sheet.open', args: { id: 'session', sid: s.id }, last: i === live.length - 1,
         });
@@ -421,7 +421,7 @@ const Sheets = (() => {
     return `<h2 class="sheet__title">Обновить программу ${esc(name)}</h2><p class="sheet__sub">Выберите изменения для следующих тренировок.</p>
       <div class="program-options">${options.map(o => `<label><input type="checkbox" data-program-change value="${esc(o.key)}" ${o.checked ? 'checked' : ''}><span>${esc(o.label)}</span></label>`).join('')}</div>
       ${Btn(`Сохранить в программу ${name}`, {kind:'primary',a:'program.save',args:{cid}})}
-      <p class="client-footnote">Изменится только программа ${esc(name)}. Шаблон «${esc(st.logging.plans[cid]?.name || 'Без программы')}» останется прежним.</p>`;
+      <p class="client-footnote">${st.logging.plans[cid]?.name ? `Изменится только программа ${esc(name)} «${esc(st.logging.plans[cid].name)}». Шаблон и другие программы останутся прежними.` : `Изменятся только тренировки ${esc(name)} без программы. Шаблоны не меняются.`}</p>`;
   }
 
   function render(st) {

@@ -1302,7 +1302,7 @@ var(--stage-bg);
 .log-voice__txt small { font-size: .875rem; opacity: 1; }
 .buddy__stats, .hero-card__top { flex-wrap: wrap; }
 .tabbar__item { min-width: 0; }
-.tabbar__label { white-space: normal; overflow-wrap: anywhere; text-align: center; }
+.tabbar__label { font-size: min(.75rem, 13px); white-space: normal; overflow-wrap: normal; hyphens: manual; text-overflow: clip; text-align: center; }
 .today-entry__program { display: block; }
 .today-entry__program strong { white-space: normal; }
 .today-entry__program > span { display: block; }
