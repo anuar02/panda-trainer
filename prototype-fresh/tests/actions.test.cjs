@@ -15,7 +15,7 @@ function app() {
     window: { visualViewport: view, innerHeight: 800, addEventListener() {}, matchMedia: () => ({ matches: false, addEventListener() {} }) },
     requestAnimationFrame(fn) { frames.push(fn); return frames.length; }, cancelAnimationFrame() {},
     localStorage: { getItem: k => memory.get(k) || null, setItem: (k, v) => memory.set(k, v) } });
-  for (const name of ['icons', 'data', 'template-repository', 'session-repository', 'store', 'ui', 'library', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client']) {
+  for (const name of ['icons', 'data', 'template-repository', 'session-repository', 'store', 'ui', 'library', 'mascot', 'workout', 'sheets', 'screens/trainer', 'screens/client', 'screens/welcome']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context);
   }
   const source = fs.readFileSync(path.join(__dirname, '../js/app.js'), 'utf8');
@@ -152,4 +152,51 @@ test('library opens the selected template without pretending to edit or duplicat
   const html = a.run('Trainer.template()');
   assert.match(html, /Верх Б|Жим гантелей под углом/);
   assert.doesNotMatch(html, /Приседания со штангой|Шаблон дублирован|data-act="toast"/);
+});
+
+test('trainer welcome walks profile, hours and first client, then opens booking', () => {
+  const a = app();
+  a.run("Store.set({ role: 'trainer', screen: 't-welcome' })");
+  assert.match(a.run('Welcome.render()'), /Я тренер — начать/);
+  a.action('welcome.next');
+  a.handlers.input({ target: { matches: s => s === '[data-welcome-field]', dataset: { welcomeField: 'name' }, value: '' } });
+  a.action('welcome.next');
+  assert.equal(a.run('Store.get().welcome.step'), 1);
+  assert.match(a.run('Welcome.render()'), /Введите имя/);
+  a.handlers.input({ target: { matches: s => s === '[data-welcome-field]', dataset: { welcomeField: 'name' }, value: 'Асель' } });
+  a.action('welcome.next');
+  a.action('welcome.day', { value: '5' });
+  a.action('welcome.patch', { key: 'to', value: '20:00' });
+  assert.match(a.run('Welcome.render()'), /пн–пт · 07:00–20:00 · по 60 мин/);
+  a.action('welcome.next');
+  a.action('welcome.later');
+  const done = a.run('Welcome.render()');
+  assert.match(done, /Всё готово, Асель!/);
+  assert.match(done, /Можно добавить в «Клиентах»/);
+  a.action('welcome.finish', { to: 't-new' });
+  assert.equal(a.run('Store.get().screen'), 't-new');
+});
+
+test('client with an invite leaves the trainer welcome for the invite screen', () => {
+  const a = app();
+  a.run("Store.set({ role: 'trainer', screen: 't-welcome' })");
+  a.action('welcome.client');
+  assert.equal(a.run('Store.get().role'), 'client');
+  assert.equal(a.run('Store.get().screen'), 'c-first');
+});
+
+test('today folds finished sessions into one toggle and keeps current ones visible', () => {
+  const a = app();
+  const closed = a.run('Trainer.today()');
+  assert.match(closed, /Прошло 5 занятий/);
+  assert.match(closed, /id="today-past-list" hidden/);
+  assert.match(closed, /Идёт сейчас/);
+  a.action('today.past');
+  assert.match(a.run('Trainer.today()'), /aria-expanded="true"/);
+});
+
+test('prototype-only notices are gone from app screens', () => {
+  const a = app();
+  const text = ['Trainer.profile()', 'Client.profile()', 'Client.history()', 'Client.first()'].map(a.run).join(' ');
+  assert.doesNotMatch(text, /прототип|[Дд]емо|вымышлен|в этом браузере/);
 });

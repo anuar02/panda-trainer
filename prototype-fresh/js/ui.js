@@ -157,7 +157,7 @@ const UI = (() => {
 
   const WorkoutDock = () => {
     const st = Store.get();
-    if (st.role !== 'trainer' || st.screen === 't-session') return '';
+    if (st.role !== 'trainer' || st.screen === 't-session' || st.screen === 't-welcome') return '';
     const workout = Store.logging.resumable();
     if (!workout) return '';
     const draftDetail = workout.group && workout.draftParticipants ? ` · Черновики: ${workout.draftParticipants} участн.` : workout.drafts ? ' · Есть черновик' : '';

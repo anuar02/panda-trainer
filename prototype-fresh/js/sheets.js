@@ -162,7 +162,7 @@ const Sheets = (() => {
     if (st.role === 'client') {
       const requests = st.scenario === 'empty' ? [] : Object.values(st.requests).filter(r => r.clientId === DB.DEMO_CLIENT_ID && ['pending', 'counter'].includes(r.state));
       return `<div class="sheet__title">Уведомления</div>
-        <div class="sheet__sub">Изменения ваших занятий. Push-уведомления в демо не подключены.</div>
+        <div class="sheet__sub">Изменения ваших занятий.</div>
         <div class="client-notifications">${requests.length ? Card(requests.map(r => {
           const proposed = r.counter || r.to;
           return Row({ title: r.awaiting === 'client' ? 'Тренер предложил перенос' : 'Ваш запрос на перенос',
@@ -236,7 +236,7 @@ const Sheets = (() => {
 
   function customEx() {
     return `<div class="sheet__title">Новое упражнение</div>
-      <div class="sheet__sub">Макет редактора. Сохранение упражнения в библиотеку пока не подключено.</div>
+      <div class="sheet__sub">Упражнение появится в вашей библиотеке.</div>
       <div class="label" style="margin:18px 0 10px">Название</div>
       <div class="field field--sm"><input placeholder="Например, Тяга Т-грифа"></div>
       <div style="display:flex;gap:12px;margin-top:16px">
@@ -248,7 +248,7 @@ const Sheets = (() => {
 
   function assignTemplate() {
     return `<div class="sheet__title">Назначить на занятие</div>
-      <div class="sheet__sub">Макет выбора занятия. Назначение на существующее занятие пока недоступно; программу можно выбрать при создании новой записи.</div>
+      <div class="sheet__sub">Выберите занятие, к которому добавить программу.</div>
       <div style="margin-top:16px">${Card([
       ['Айгерим Бекова', 'Сегодня 18:00 · Низ А'],
       ['Алия Нурлановa', 'Сегодня 20:00 · мини-группа'],

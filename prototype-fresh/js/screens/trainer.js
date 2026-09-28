@@ -197,6 +197,13 @@ const Trainer = (() => {
     return parts.join(' · ');
   }
 
+  function groupRsvp(s) {
+    const count = (reply) => s.participants.filter(p => p.reply === reply).length;
+    return [['confirmed', 'check', 'is-ok'], ['pending', 'clock', 'is-wait'], ['cancelled', 'close', 'is-off']]
+      .filter(([reply]) => count(reply))
+      .map(([reply, icon, cls]) => `<span class="rsvp ${cls}">${Icon.get(icon, { size: 14, sw: 2.4 })}<b class="num">${count(reply)}</b></span>`).join('');
+  }
+
   /* ── Header ──────────────────────────────────────────────────────────────── */
 
   function todayHeader() {
@@ -299,7 +306,7 @@ const Trainer = (() => {
       ? (expanded
         ? `<button class="today-entry__summary" ${act('sheet.open', { id: 'session', sid: s.id })}
             aria-label="Участники мини-группы: ${esc(groupSummary(s))}">
-            <span>${esc(groupSummary(s))}</span>${Icon.get('chevR', { size: 15, style: 'color:var(--ter)' })}</button>`
+            <span class="rsvp-row" aria-hidden="true">${UI.isInstrument() ? esc(groupSummary(s)) : groupRsvp(s)}</span>${Icon.get('chevR', { size: 15, style: 'color:var(--ter)' })}</button>`
         : `<p class="today-entry__summary is-static">${esc(groupSummary(s))}</p>`)
       : '';
 
@@ -424,9 +431,22 @@ const Trainer = (() => {
     if (active.length) active.forEach(s => { role[s.id] = 'now'; });
     else if (upcoming.length) role[upcoming[0].id] = 'next';
 
-    let html = '';
-    let cursor = null; // end of the merged union of occupied intervals so far
-    items.forEach(item => {
+    const isToday = date === DB.TODAY;
+    const settled = (s) => s.status === 'cancelled' || (toMin(s.end) <= now && Store.logging.status(s.id) !== 'draft' && !awaitsTrainer(sessionRequest(s)));
+    const isPast = (item) => isToday && (item.type === 'overlap' ? item.g.sessions : [item.s]).every(settled);
+    const pastItems = items.filter(isPast);
+    const pastSessions = pastItems.flatMap(item => item.type === 'overlap' ? item.g.sessions : [item.s]).sort(byStart);
+    const pastLive = pastSessions.filter(s => s.status !== 'cancelled').length;
+    const pastOpen = Boolean(Store.get().todayPastOpen);
+    const pastLabel = `${pastLive ? `Прошло ${pastLive} ${DB.plural(pastLive, ['занятие', 'занятия', 'занятий'])}` : 'Прошедших занятий нет'}${pastSessions.length > pastLive ? ` · ${pastSessions.length - pastLive} ${DB.plural(pastSessions.length - pastLive, ['отмена', 'отмены', 'отмен'])}` : ''}`;
+    const pastBlock = pastSessions.length ? `<section class="today-past${pastOpen ? ' is-open' : ''}">
+      <button type="button" class="today-past__toggle" ${act('today.past')} aria-expanded="${pastOpen}" aria-controls="today-past-list">${Icon.get('check', { size: 16, sw: 2.4 })}<span>${pastLabel}</span><span class="today-past__hint">${pastOpen ? 'Скрыть' : 'Показать'}</span></button>
+      <div class="today-past__list" id="today-past-list"${pastOpen ? '' : ' hidden'}>${pastSessions.map(s => todayEntry(s, null)).join('')}</div>
+    </section>` : '';
+
+    let html = pastBlock;
+    let cursor = isToday && pastItems.length ? now : null; // end of the merged union of occupied intervals so far
+    items.filter(item => !pastItems.includes(item)).forEach(item => {
       const sessions = (item.type === 'overlap' ? item.g.sessions : [item.s]).slice().sort(byStart);
       const liveSessions = sessions.filter(s => s.status !== 'cancelled');
       const start = Math.min(...sessions.map(s => toMin(s.start)));
@@ -1128,7 +1148,7 @@ const Trainer = (() => {
         </div></div>` : ''}
         <div class="wbody">${!eligible ? Notice('Участник отменил запись или отмечен как не пришедший. Запись подходов недоступна; ранее записанное сохранено.', { tone: 'info', icon: 'info' }) : ''}${lg.finished ? rows : ProgramOrEmpty(activeClient, programName, rows, exs.length, interactive, active)}</div>
         ${notesCard(active, lg)}
-        ${lg.finished ? '' : '<p class="log-footnote">Выход не завершает журнал. Посещение и списание — отдельно. Записи хранятся в этом браузере.</p>'}
+        ${lg.finished ? '' : '<p class="log-footnote">Можно выйти и вернуться — журнал сохранится. Посещение и списание отмечаются отдельно.</p>'}
         <div style="height:12px"></div>
       </div>
       <div class="wdock">
@@ -1287,7 +1307,6 @@ const Trainer = (() => {
         <div style="height:16px"></div>
         ${UI.CalmSwitch()}${UI.ThemeChoice()}
         ${Store.field.enabled ? `<p class="client-footnote">Полевой режим: события сохраняются только в этом браузере.</p>${Btn('Выгрузить полевой журнал', {kind:'soft',a:'field.export'})}${Btn('Очистить полевой журнал', {kind:'ghost',a:'field.clear'})}` : ''}
-        <div style="margin-top:16px">${Notice('Это прототип. Данные вымышленные, действия не изменяют реальные записи.', { tone: 'info', icon: 'info' })}</div>
       </div>
       ${TabBar('trainer', 't-profile')}
     </div>`;
