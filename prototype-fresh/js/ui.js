@@ -186,7 +186,7 @@ const UI = (() => {
   const ProgramPreview = (clientId, name, role = 'client', sid = null) => {
     const exercises = DB.programForClient(clientId, name);
     if (exercises.length) return `${esc(name || 'Личная программа')} · ${exercises.slice(0,3).map(e=>esc(e.name)).join(', ')}${exercises.length > 3 ? ` · ещё ${exercises.length-3}` : ''}`;
-    return role === 'client' ? 'Тренер подберёт упражнения на месте' : `Без программы${sid ? ` · <button class="btn btn--ghost btn--sm" ${act('sheet.open',{id:'chooseProgram',sid})}>Выбрать программу</button>` : ''}`;
+    return role === 'client' ? 'Тренер подберёт упражнения на месте' : `Без программы${sid ? ` <button type="button" class="program-pick" ${act('sheet.open',{id:'chooseProgram',sid})}>Выбрать программу</button>` : ''}`;
   };
 
   const ChangesSummary = (clientId) => {

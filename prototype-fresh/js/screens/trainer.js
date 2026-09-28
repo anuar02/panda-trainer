@@ -791,7 +791,7 @@ const Trainer = (() => {
       </div>
     </div>`;
 
-    const chips = `<div class="chips client-tabs" role="tablist" aria-label="Разделы клиента" style="padding:18px 16px 10px">
+    const chips = `<div class="chips client-tabs" role="tablist" aria-label="Разделы клиента">
       ${tabs.map(t => `<button type="button" class="chip chip--soft ${tab === t ? 'is-on' : ''}" ${act('client.tab', { tab: t })} role="tab" aria-selected="${tab === t}">${tabLabels[t]}</button>`).join('')}
     </div>`;
 
@@ -1197,15 +1197,16 @@ const Trainer = (() => {
             <div style="margin-top:12px">${Btn('Записать оплату', { kind: 'soft', size: 'compact', a: 'sheet.open', args: { id: 'pay', cid: c.id, due: p.due } })}</div>
           </div>`);
         }).join('<div style="height:12px"></div>')}
-        <div class="label" style="margin:18px 6px 10px">Движение занятий · отдельная история</div>
-        ${Card(Store.get().billing.unitTx.map((u, i) => {
+        <div class="label" style="margin:18px 6px 10px">Списания и возвраты занятий</div>
+        ${Card(Store.get().billing.unitTx.map((u, i) => [u, i]).sort(([a, i], [b, j]) => b.date.localeCompare(a.date) || i - j).map(([u], i, list) => {
           const c = client(u.clientId);
+          const delta = `${u.delta > 0 ? '+' : '−'}${Math.abs(u.delta)}`;
           return Row({
             lead: Lead(u.delta > 0 ? 'refresh' : 'minus', { size: 'sm', icon: true, tone: u.delta > 0 ? 'mint' : '' }),
-            title: `${u.delta > 0 ? '+' : ''}${u.delta} занятие · ${c.short}`,
+            title: esc(c.short),
             meta: `${DB.fmtDate(u.date)} · ${u.reason}`,
-            right: `<span class="num" style="font-family:var(--disp);font-weight:800;color:${u.delta > 0 ? 'var(--mint-ink)' : 'var(--ink)'}">${u.delta > 0 ? '+' : ''}${u.delta}</span>`,
-            last: i === Store.get().billing.unitTx.length - 1,
+            right: `<span class="num" style="font-family:var(--disp);font-weight:800;color:${u.delta > 0 ? 'var(--mint-ink)' : 'var(--ink)'}" aria-label="${u.delta > 0 ? 'возврат' : 'списание'} ${Math.abs(u.delta)} ${DB.plural(Math.abs(u.delta), ['занятие', 'занятия', 'занятий'])}">${delta}</span>`,
+            last: i === list.length - 1,
           });
         }).join(''), { rows: true })}
       </div>
@@ -1247,7 +1248,7 @@ const Trainer = (() => {
           <p>Карточка создана 12 сентября. Программа и покупка не назначены.</p>
           <div style="margin-top:14px;display:flex;justify-content:center">${statePill}</div>
           ${inv.link ? `<div class="field field--sm" style="margin-top:16px;font-family:var(--ui);font-weight:600;font-size:0.875rem">${Icon.get('link', { size: 18, style: 'color:var(--ter)' })}<input readonly value="${esc(inv.link)}" style="font-family:var(--ui);font-weight:600;font-size:0.875rem"></div>
-          <div style="font-size:0.875rem;color:var(--sec);margin-top:8px">Действует до ${esc(inv.expires)}</div>` : ''}
+          <div style="font-size:0.875rem;color:var(--sec);margin-top:8px">Действует до ${DB.fmtDateFull(inv.expires)}</div>` : ''}
         </div>
         <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">${actions}</div>
         <div style="margin-top:16px">${Notice('Истёкшая или отозванная ссылка не раскрывает данные. Повторное принятие другим аккаунтом не создаёт дубликат карточки.', { tone: 'info', icon: 'lock' })}</div>

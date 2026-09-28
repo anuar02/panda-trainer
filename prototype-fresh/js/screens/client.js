@@ -156,12 +156,17 @@ const Client = (() => {
 
   function program() {
     const c = me();
-    const session = upcoming()[0];
-    const name = Store.get().scenario === 'empty' ? null : session ? (session.kind === 'group' ? c.program : session.program) : c.program;
+    const planOf = (s) => s.kind === 'group' ? c.program : s.program;
+    const all = Store.get().scenario === 'empty' ? [] : upcoming();
+    const next = all[0];
+    const session = all.find(s => DB.programForClient(ME, planOf(s)).length);
+    const name = Store.get().scenario === 'empty' ? null : session ? planOf(session) : next ? null : c.program;
     const exs = DB.programForClient(ME, name);
+    const onSite = next && session && next !== session ? `<p class="client-program__note">${next.date === DB.TODAY ? 'Сегодня' : DB.fmtDateLong(next.date)} в ${next.start} тренер подберёт упражнения на месте. Ниже — план следующего занятия.</p>` : '';
     return shell('c-program', `
       ${PageTitle({ title: 'Программа', size: 'sm' })}
       <div class="client-content client-program">
+        ${onSite}
         ${exs.length ? `<div class="client-program__heading"><h2>${esc(name)}</h2><p>${session ? `${DB.fmtDateLong(session.date)} · ${session.start}–${session.end}` : 'Текущий план от тренера'}</p></div>` : ''}
         ${!exs.length ? quietEmpty('dumbbell', 'Программа появится здесь', 'Тренер ещё не добавил упражнения. Время занятия можно посмотреть на главной.', 'reading')
           : Card(exs.map((e, i) => Row({
@@ -252,7 +257,6 @@ const Client = (() => {
           ${Lead(c.initials)}
           <div><h2>${esc(c.name)}</h2><p>Начало занятий: ${esc(c.since)}</p></div>
         </div>
-        ${UI.CalmSwitch()}${UI.ThemeChoice()}
         <section><h2 class="client-section-title">Личные данные</h2>
           ${Card(`<dl class="client-details"><div><dt>Телефон</dt><dd>${esc(c.phone || 'Не указан')}</dd></div><div><dt>Тренер</dt><dd>${esc(DB.trainer.full)}</dd></div></dl>`, { pad: true })}
         </section>
@@ -262,6 +266,9 @@ const Client = (() => {
             ${Meter(plan.remaining, plan.bought)}
             <dl class="client-details client-details--payment"><div><dt>К оплате</dt><dd class="num">${DB.fmtMoney(plan.due)}</dd></div></dl>
             <p class="client-footnote">${plan.due > 0 ? 'Оплату согласуйте с тренером.' : 'По текущему пакету задолженности нет.'} Оплата в приложении не подключена.</p></div>`) : quietEmpty('wallet', 'Пакета пока нет', 'Условия и количество занятий можно согласовать с тренером.')}
+        </section>
+        <section><h2 class="client-section-title">Настройки</h2>
+          ${UI.CalmSwitch()}${UI.ThemeChoice()}
         </section>
         ${Btn('Уведомления', { kind: 'soft', icon: 'bell', a: 'sheet.open', args: { id: 'notifications' } })}
         <p class="client-footnote">Демонстрационные данные. Изменение профиля и настройки аккаунта пока недоступны.</p>

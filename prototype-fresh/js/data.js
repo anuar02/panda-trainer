@@ -26,6 +26,7 @@ const DB = (() => {
   })();
   const DOW = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
   const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  const MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
   const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
   const trainer = {
@@ -693,6 +694,10 @@ const DB = (() => {
       const [y, m, dd] = iso.split('-').map(Number);
       const dow = DOW[(new Date(Date.UTC(y, m - 1, dd)).getUTCDay() + 6) % 7];
       return `${dow}, ${dd} ${MONTHS_SHORT[m - 1]}`;
+    },
+    fmtDateFull(iso) {
+      const [y, m, dd] = iso.split('-').map(Number);
+      return `${dd} ${MONTHS_GEN[m - 1]}`;
     },
     todayLabel() { return this.fmtDateLong(this.TODAY); },
     isToday(iso) { return iso === this.TODAY; },

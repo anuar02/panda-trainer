@@ -86,8 +86,11 @@ test('all registered screens generate HTML in the four demo scenarios', () => {
 test('client program and exercise details use the selected plan, including time units', () => {
   const a = app();
   a.action('role', { role: 'client' });
-  // At the default demo time the upcoming appointment has no assigned program.
-  assert.match(a.run('Client.program()'), /Программа появится здесь/);
+  // The nearest appointment has no program, so the tab says so and shows the next planned one.
+  const first = a.run('Client.program()');
+  assert.match(first, /тренер подберёт упражнения на месте/);
+  assert.match(first, /Низ А/);
+  assert.doesNotMatch(first, /Программа появится здесь/);
   a.run("DB.sessions.find(s => s.id === 's7').program = 'Full Body'");
   assert.match(a.run('Client.program()'), /Отжимания/);
   a.action('sheet.open', { id: 'exercise', ex: 'e4', program: 'Full Body' });
