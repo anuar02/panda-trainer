@@ -1,0 +1,93 @@
+/* Dark theme for the current and firm appearances. Instrument has its own tokens. */
+:root:not([data-visual="instrument"])[data-theme="dark"] {
+  --canvas: #0b0c0e;
+  --surface: #151619;
+  --sunken: #1d1e23;
+  --scrim: rgba(0, 0, 0, 0.62);
+  --ink: #f2f2f3;
+  --sec: #a3a4ab;
+  --ter: #84858d;
+  --border: #2a2b31;
+  --hair: #212227;
+  --border-button: #3a3b42;
+  --on-dark: #f2f2f3;
+  --disabled: #2f3036;
+
+  --mint: #3ddc97;
+  --mint-soft: rgba(61, 220, 151, 0.13);
+  --mint-ink: #3ddc97;
+  --amber: #f5c451;
+  --amber-soft: rgba(245, 196, 81, 0.14);
+  --amber-ink: #f5c451;
+  --danger: #ff5a4e;
+  --danger-soft: rgba(255, 90, 78, 0.13);
+
+  --choco-grad: linear-gradient(150deg, #26272e 0%, #18191d 100%);
+  --glass: rgba(21, 22, 25, 0.82);
+  --glass-strong: rgba(21, 22, 25, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --bezel: linear-gradient(160deg, #2a2b31, #0b0c0e);
+  --device-shadow: rgba(0, 0, 0, 0.65);
+
+  --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 0 0 1px #2a2b31;
+  --shadow-raised: 0 18px 40px -18px rgba(0, 0, 0, 0.8), 0 0 0 1px #2a2b31;
+  --shadow-sheet: 0 -16px 50px rgba(0, 0, 0, 0.55);
+  --shadow-float: 0 14px 34px -14px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.07);
+  --shadow-fab: 0 12px 26px -10px rgba(0, 0, 0, 0.8);
+
+  color-scheme: dark;
+}
+
+:root:not([data-visual="instrument"])[data-theme="dark"],
+:root:not([data-visual="instrument"])[data-theme="dark"][data-palette="ink"] {
+  --accent: #6f86ff;
+  --accent-ink: #8c9eff;
+  --accent-soft: rgba(111, 134, 255, 0.16);
+  --accent-2: #8c9eff;
+  --lead-bg: linear-gradient(145deg, #232845, #1b1f36);
+  --lead-ink: #aab8ff;
+  --stage-bg:
+    radial-gradient(900px 600px at 12% -10%, rgba(91, 116, 240, 0.16), transparent 60%),
+    radial-gradient(800px 700px at 105% 110%, rgba(255, 150, 60, 0.08), transparent 60%),
+    #08090b;
+}
+
+:root:not([data-visual="instrument"]):not([data-palette])[data-theme="dark"] {
+  --accent: #ff7a1f;
+  --accent-ink: #ff9a52;
+  --accent-soft: rgba(255, 122, 31, 0.15);
+  --accent-2: #ff9a52;
+  --lead-bg: linear-gradient(145deg, #3a2417, #2a1a11);
+  --lead-ink: #ffb07a;
+  --stage-bg:
+    radial-gradient(900px 600px at 12% -10%, rgba(255, 150, 60, 0.14), transparent 60%),
+    radial-gradient(800px 700px at 105% 110%, rgba(224, 86, 27, 0.1), transparent 60%),
+    #08090b;
+}
+
+:root:not([data-visual="instrument"])[data-theme="dark"][data-palette="teal"] {
+  --accent: #2dd4bf;
+  --accent-ink: #5eead4;
+  --accent-soft: rgba(45, 212, 191, 0.14);
+  --accent-2: #5eead4;
+  --lead-bg: linear-gradient(145deg, #173532, #11272a);
+  --lead-ink: #7eeede;
+  --stage-bg:
+    radial-gradient(900px 600px at 12% -10%, rgba(45, 212, 191, 0.12), transparent 60%),
+    radial-gradient(800px 700px at 105% 110%, rgba(255, 150, 60, 0.08), transparent 60%),
+    #08090b;
+}
+
+:root:not([data-visual="instrument"])[data-theme="dark"] :is(
+  .pill--ink, .rail__item[aria-current='true'], .day.is-on, .wide__nav.is-on, .cal-add, .cal-day.is-selected,
+  .directory-add, .directory-filters .is-selected, .rolebar button[aria-pressed='true'], .chip.is-on, .voice__send, .lib-groups button.is-on
+) { color: #0b0c0e; }
+:root:not([data-visual="instrument"])[data-theme="dark"] .btn--primary:disabled { color: var(--sec); }
+:root:not([data-visual="instrument"])[data-theme="dark"] :is(.directory-filters .is-selected span, .cal-day.is-selected > span, .cal-day.is-selected small, .day.is-on .day__dow) { color: rgba(11, 12, 14, 0.66); }
+:root:not([data-visual="instrument"])[data-theme="dark"] .day.is-on .day__dots i { background: rgba(11, 12, 14, 0.7); }
+:root:not([data-visual="instrument"])[data-theme="dark"] .chip--soft { background: var(--sunken); border-color: var(--border); color: var(--sec); }
+:root:not([data-visual="instrument"])[data-theme="dark"] .chip--soft.is-on { background: var(--ink); color: #0b0c0e; }
+:root:not([data-visual="instrument"])[data-theme="dark"] .workout-dock__ring { background: conic-gradient(var(--accent-2) var(--p), rgba(255, 255, 255, 0.12) 0); }
+:root:not([data-visual="instrument"])[data-theme="dark"] .workout-dock__ring::before { background: #0b0c0e; }
+:root:not([data-visual="instrument"])[data-theme="dark"] .tabbar__item .count { box-shadow: 0 0 0 2px var(--surface); }
+:root:not([data-visual="instrument"])[data-theme="dark"] :is(.exercise-thumb, .exercise-guide__media) { background: #e9e9e6; }
