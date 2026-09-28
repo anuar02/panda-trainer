@@ -29,7 +29,7 @@
         ['t-template', 'Шаблон', 'list'],
         ['t-billing', 'Пакеты и оплаты', 'wallet'],
       ] },
-      { group: 'Прочее', items: [['t-profile', 'Профиль', 'settings']] },
+      { group: 'Прочее', items: [['t-profile', 'Профиль', 'settings'], ['t-welcome', 'Первый вход', 'sparkles']] },
     ],
     client: [
       { group: 'Клиент', items: [
@@ -57,6 +57,7 @@
     't-billing': () => Trainer.billing(),
     't-invite': () => Trainer.invite(),
     't-profile': () => Trainer.profile(),
+    't-welcome': () => Welcome.render(),
     'c-home': () => Client.home(),
     'c-first': () => Client.first(),
     'c-program': () => Client.program(),
@@ -186,8 +187,10 @@
     'cres.cancel': (d) => Store.sessions.cancel(d.sid),
 
     /* first login */
+    ...(typeof Welcome !== 'undefined' ? Welcome.actions : {}),
+    'today.past': () => Store.set({ todayPastOpen: !Store.get().todayPastOpen }),
     'first.state': (d) => Store.set({ inviteState: d.state }),
-    'first.accept': () => { Store.set({ inviteState: 'accepted' }); Store.nav.tab('c-home'); Store.ui.toast('', 'Демо: открыт главный экран клиента'); },
+    'first.accept': () => { Store.set({ inviteState: 'accepted' }); Store.nav.tab('c-home'); Store.ui.toast('', 'Вы подключены к тренеру'); },
 
     /* logging */
     'logging.open': (d) => Store.logging.open(d.id),
@@ -270,8 +273,9 @@
     't-billing': { title: 'Пакеты и оплаты', text: 'Две независимые истории: движение занятий и оплаты.', rules: ['Частичная оплата уменьшает долг, не посещения.', 'Нет подходящего пакета → посещение без привязки.', 'Повторное списание не создаёт вторую операцию.'] },
     't-invite': { title: 'Приглашение', text: 'Честные состояния: не подключён · ссылка создана · подключился.', rules: ['Открытие share-sheet ≠ отправка.', 'Срок действия, отзыв, перевыпуск.', 'Клиент подключается к существующей карточке.'] },
     't-profile': { title: 'Профиль', text: 'Настройки и точки входа в служебные разделы.', rules: [] },
+    't-welcome': { title: 'Первый вход тренера', text: 'Приветствие и три коротких шага: имя, рабочее время, первый клиент. Любой шаг можно пропустить.', rules: ['Клиент с приглашением уходит в свой сценарий.', 'Рабочее время задаёт свободные окна на «Сегодня».', 'Первого клиента можно добавить позже.'] },
     'c-home': { title: 'Главная клиента', text: 'Одна крупная карточка: действующее время и отдельно запрос переноса.', rules: ['До подтверждения действует прежнее время.', 'Свой запрос можно отозвать.', 'Отмена — в дополнительных действиях, с подтверждением.'] },
-    'c-first': { title: 'Первый вход', text: 'Демо приглашения с вымышленными данными. Настоящие вход и проверка доступа не подключены.', rules: ['Иллюстрация не является фотографией тренера.', 'Истёкшая и отозванная ссылка не имитируют отправку запроса.', 'Переключатели сверху показывают демосостояния.'] },
+    'c-first': { title: 'Первый вход клиента', text: 'Приглашение от тренера: активная, истёкшая и отозванная ссылка.', rules: ['Иллюстрация не является фотографией тренера.', 'Истёкшая и отозванная ссылка не имитируют отправку запроса.', 'Переключатели сверху показывают демосостояния.'] },
     'c-program': { title: 'Программа', text: 'План ближайшего занятия; по нажатию — прошлый результат выбранного упражнения.', rules: ['Если программа не назначена, чужая не подставляется.', 'Редактирование результатов клиентом пока недоступно.'] },
     'c-history': { title: 'История', text: 'Занятия и движение занятий раздельно.', rules: ['Неявки и штрафные списания не считаются посещениями.'] },
     'c-progress': { title: 'Прогресс', text: 'Только факты. Одна тренировка — одна запись без тренда.', rules: ['Незаписанное не равно нулю.', 'Рабочий вес сравнивается с повторами.', 'Чужих результатов и рейтинга нет.'] },
@@ -615,6 +619,7 @@
   document.addEventListener('input', (e) => {
     if (e.target.closest?.('.sheet')) document.querySelector('.sheet')?.getAnimations().forEach(animation => animation.cancel());
     if (Library.input(e)) return;
+    if (typeof Welcome !== 'undefined' && Welcome.input(e)) return;
     if (e.target.matches('[data-reschedule-field]')) {
       Store.silent({ reschedulePick: { ...Store.get().reschedulePick, [e.target.dataset.rescheduleField]: e.target.value } });
       return;

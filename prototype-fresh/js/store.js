@@ -836,7 +836,7 @@ const Store = (() => {
       }
       const purchase = state.billing.purchases.find(p => p.clientId === clientId && p.used < p.units);
       if (!purchase) {
-        ui.toast('warn', 'В демо нет пакета с доступными занятиями. Можно отметить посещение без списания.');
+        ui.toast('warn', 'Нет пакета с доступными занятиями. Можно отметить посещение без списания.');
         return false;
       }
       const session = DB.sessions.find(s => s.id === sessionId);
@@ -940,7 +940,7 @@ const Store = (() => {
         status: 'proposed', attendance: null, participants: c.clientIds.map(clientId => ({ clientId, reply: 'pending', program })) };
       if (!SessionRepository.upsert(session)) return fail(SessionRepository.error());
       set({ sheet: null, screen: 't-schedule', day: c.date, newSession: { ...c, step: 0, clientIds: [], collisionAck: false, program: null, programLater: false } });
-      ui.toast('', 'Занятие сохранено в этом браузере · ждём согласия клиента');
+      ui.toast('', 'Занятие создано · ждём согласия клиента');
       return id;
     },
   };
@@ -985,7 +985,7 @@ const Store = (() => {
       const next = { ...s, participants, status: participants.every(p => p.reply !== 'pending') ? 'confirmed' : 'proposed' };
       if (!SessionRepository.upsert(next)) return requestFailure(SessionRepository.error());
       set({ sheet: null });
-      ui.toast('', 'Участие подтверждено · сохранено в этом браузере');
+      ui.toast('', 'Участие подтверждено');
       return true;
     },
   };
@@ -1064,7 +1064,7 @@ const Store = (() => {
       try { localStorage.setItem(clientProgramsKey, JSON.stringify({version:2,byClient})); }
       catch { ui.toast('warn','Программа не сохранена: хранилище недоступно.'); return false; }
       ui.closeSheet();
-      ui.toast('', `Программа ${DB.client(clientId).short} сохранена в этом браузере`);
+      ui.toast('', `Программа ${DB.client(clientId).short} сохранена`);
       return true;
     },
   };

@@ -157,7 +157,7 @@ const UI = (() => {
 
   const WorkoutDock = () => {
     const st = Store.get();
-    if (st.role !== 'trainer' || st.screen === 't-session') return '';
+    if (st.role !== 'trainer' || st.screen === 't-session' || st.screen === 't-welcome') return '';
     const workout = Store.logging.resumable();
     if (!workout) return '';
     const draftDetail = workout.group && workout.draftParticipants ? ` · Черновики: ${workout.draftParticipants} участн.` : workout.drafts ? ' · Есть черновик' : '';
@@ -186,7 +186,7 @@ const UI = (() => {
   const ProgramPreview = (clientId, name, role = 'client', sid = null) => {
     const exercises = DB.programForClient(clientId, name);
     if (exercises.length) return `${esc(name || 'Личная программа')} · ${exercises.slice(0,3).map(e=>esc(e.name)).join(', ')}${exercises.length > 3 ? ` · ещё ${exercises.length-3}` : ''}`;
-    return role === 'client' ? 'Тренер подберёт упражнения на месте' : `Без программы${sid ? ` · <button class="btn btn--ghost btn--sm" ${act('sheet.open',{id:'chooseProgram',sid})}>Выбрать программу</button>` : ''}`;
+    return role === 'client' ? 'Тренер подберёт упражнения на месте' : `Без программы${sid ? ` <button type="button" class="program-pick" ${act('sheet.open',{id:'chooseProgram',sid})}>Выбрать программу</button>` : ''}`;
   };
 
   const ChangesSummary = (clientId) => {
