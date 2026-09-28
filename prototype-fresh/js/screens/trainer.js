@@ -14,6 +14,7 @@ const Trainer = (() => {
     return t(end) - t(start);
   };
   const dur = (s) => (mins(s.start, s.end) === 60 ? '60 мин' : mins(s.start, s.end) + ' мин');
+  const remainingLessons = (n) => `осталось ${n} ${DB.plural(n, ['занятие', 'занятия', 'занятий'])}`;
 
   /* ── Session row ─────────────────────────────────────────────────────────── */
 
@@ -309,7 +310,9 @@ const Trainer = (() => {
           <span class="today-entry__name-right">${pastHint}${Icon.get('chevR', { size: 16, style: 'color:var(--ter)' })}</span></button>`;
 
     let statusRow = '';
-    if (expanded) {
+    if (expanded && group && !cancelled) {
+      statusRow = '';
+    } else if (expanded) {
       statusRow = `<div class="today-entry__status">${agreementPill(s)}</div>`;
     } else if (cancelled) {
       statusRow = `<div class="today-entry__status">${Pill('Отменено', { tone: 'neutral', dot: false })}</div>`;
@@ -600,7 +603,7 @@ const Trainer = (() => {
         ${Card(DB.clients.map((x, i, arr) => Row({
           lead: Lead(x.initials, { tone: c.clientIds.includes(x.id) ? 'ink' : '', size: 'sm' }),
           title: x.name,
-          meta: x.program ? esc(x.program) + (x.plan ? ` · осталось ${x.plan.remaining}` : '') : 'Без программы · выберите на следующем шаге',
+          meta: x.program ? esc(x.program) + (x.plan ? ` · ${remainingLessons(x.plan.remaining)}` : '') : 'Без программы · выберите на следующем шаге',
           right: c.clientIds.includes(x.id) ? Icon.get('check', { size: 20, sw: 2.6 }) : '',
           a: 'ns.toggle', args: { id: x.id }, last: i === arr.length - 1,
         })).join(''), { rows: true })}
@@ -788,8 +791,8 @@ const Trainer = (() => {
       </div>
     </div>`;
 
-    const chips = `<div class="chips client-tabs" style="padding:18px 16px 10px">
-      ${tabs.map(t => `<span class="chip chip--soft ${tab === t ? 'is-on' : ''}" ${act('client.tab', { tab: t })} role="button" tabindex="0">${tabLabels[t]}</span>`).join('')}
+    const chips = `<div class="chips client-tabs" role="tablist" aria-label="Разделы клиента" style="padding:18px 16px 10px">
+      ${tabs.map(t => `<button type="button" class="chip chip--soft ${tab === t ? 'is-on' : ''}" ${act('client.tab', { tab: t })} role="tab" aria-selected="${tab === t}">${tabLabels[t]}</button>`).join('')}
     </div>`;
 
     let content = '';
@@ -1041,7 +1044,7 @@ const Trainer = (() => {
         const after = visible.slice(position).find(e => !e.skipped && Workout.openSets(e, valuesOf(e)).length) || visible.find(e => e !== focusEx && !e.skipped && Workout.openSets(e, valuesOf(e)).length);
         const complete = !focusEx.skipped && si < 0;
         focusCard = `<section class="wfocus excard${focusEx.skipped ? ' excard--skipped' : ''}" aria-label="Текущее упражнение">
-          <div class="wfocus__eyebrow"><span>Сейчас · ${position} из ${visible.length}</span>${after ? `<button class="wfocus__skipto" ${act('workout.focus', { cid: active, ex: after.id })}>Дальше: ${esc(after.name)} ${Icon.get('chevR', { size: 14, sw: 2.4 })}</button>` : ''}</div>
+          <div class="wfocus__eyebrow"><span>Сейчас · ${position} из ${visible.length}</span>${after ? `<button class="wfocus__skipto" ${act('workout.focus', { cid: active, ex: after.id })}><span>Дальше: ${esc(after.name)}</span>${Icon.get('chevR', { size: 14, sw: 2.4 })}</button>` : ''}</div>
           <div class="excard__head">
             <div class="excard__title"><h2 class="excard__name wfocus__name" tabindex="-1">${esc(focusEx.name)}</h2>${parts.tag}</div>
             <div class="excard__goal num">${parts.goal}</div>
@@ -1172,7 +1175,7 @@ const Trainer = (() => {
   /* ── Пакеты и оплаты ──────────────────────────────────────────────────────── */
 
   function paymentTable() {
-    return `<div class="payment-table"><table><caption class="sr-only">Активные покупки, суммы в тенге</caption><thead><tr><th>Стоимость, ₸</th><th>Получено, ₸</th><th>К оплате, ₸</th></tr></thead>${Store.get().billing.purchases.map(p => `<tbody><tr><th colspan="3"><button ${act('sheet.open', {id:'pay',cid:p.clientId,due:p.due})} aria-label="Записать оплату: ${esc(client(p.clientId).name)}, ${esc(p.title)}"><span><strong>${esc(client(p.clientId).short)}</strong><small>${esc(p.title)} · ${p.units - p.used} занятий осталось</small></span>${Icon.get('plus', {size:18})}</button></th></tr><tr><td class="num">${DB.fmtNumber(p.price)}</td><td class="num">${DB.fmtNumber(p.paid)}</td><td class="num">${DB.fmtNumber(p.due)}</td></tr><tr><td colspan="3">${Meter(p.paid, p.price)}</td></tr></tbody>`).join('')}</table></div>`;
+    return `<div class="payment-table"><table><caption class="sr-only">Активные покупки, суммы в тенге</caption><thead><tr><th>Стоимость, ₸</th><th>Получено, ₸</th><th>К оплате, ₸</th></tr></thead>${Store.get().billing.purchases.map(p => `<tbody><tr><th colspan="3"><button ${act('sheet.open', {id:'pay',cid:p.clientId,due:p.due})} aria-label="Записать оплату: ${esc(client(p.clientId).name)}, ${esc(p.title)}"><span><strong>${esc(client(p.clientId).short)}</strong><small>${esc(p.title)} · ${remainingLessons(p.units - p.used)}</small></span>${Icon.get('plus', {size:18})}</button></th></tr><tr><td class="num">${DB.fmtGroup(p.price)}</td><td class="num">${DB.fmtGroup(p.paid)}</td><td class="num">${DB.fmtGroup(p.due)}</td></tr><tr><td colspan="3">${Meter(p.paid, p.price)}</td></tr></tbody>`).join('')}</table></div>`;
   }
 
   function billing() {
@@ -1266,23 +1269,23 @@ const Trainer = (() => {
             <div style="font-size:0.875rem;font-weight:500;color:var(--sec);margin-top:2px">Независимый тренер</div>
           </div>
         </div>
-        ${UI.CalmSwitch()}${UI.ThemeChoice()}
-        ${Store.field.enabled ? `<p class="client-footnote">Полевой режим: события сохраняются только в этом браузере.</p>${Btn('Выгрузить полевой журнал', {kind:'soft',a:'field.export'})}${Btn('Очистить полевой журнал', {kind:'ghost',a:'field.clear'})}` : ''}
-        ${Btn('Мои упражнения', { kind: 'soft', a: 'sheet.open', args: { id: 'myExercises' } })}
         ${Stats([[String(todayCount), 'занятий сегодня'], [String(pending), 'ждут ответа'], [String(count), 'клиентов в базе']])}
         <div style="height:16px"></div>
         ${Card([
           ['layers', 'Библиотека и шаблоны', 't-library'],
+          ['dumbbell', 'Мои упражнения', null, 'myExercises'],
           ['wallet', 'Пакеты и оплаты', 't-billing'],
-          ['bell', 'Уведомления', null, 'sheet:notifications'],
-        ].map(([icon, title, screen, kind], i, arr) => Row({
+          ['bell', 'Уведомления', null, 'notifications'],
+        ].map(([icon, title, screen, sheet], i, arr) => Row({
           lead: Lead(icon, { size: 'sm', icon: true }),
           title,
-          meta: title === 'Настройки' ? 'Пока недоступны' : '',
-          right: title === 'Настройки' ? '' : Icon.get('chevR', { size: 20, style: 'color:var(--ter)' }),
-          a: title === 'Настройки' ? null : screen ? 'nav.go' : 'sheet.open', args: screen ? { id: screen } : { id: 'notifications' },
+          right: Icon.get('chevR', { size: 20, style: 'color:var(--ter)' }),
+          a: screen ? 'nav.go' : 'sheet.open', args: { id: screen || sheet },
           last: i === arr.length - 1,
         })).join(''), { rows: true })}
+        <div style="height:16px"></div>
+        ${UI.CalmSwitch()}${UI.ThemeChoice()}
+        ${Store.field.enabled ? `<p class="client-footnote">Полевой режим: события сохраняются только в этом браузере.</p>${Btn('Выгрузить полевой журнал', {kind:'soft',a:'field.export'})}${Btn('Очистить полевой журнал', {kind:'ghost',a:'field.clear'})}` : ''}
         <div style="margin-top:16px">${Notice('Это прототип. Данные вымышленные, действия не изменяют реальные записи.', { tone: 'info', icon: 'info' })}</div>
       </div>
       ${TabBar('trainer', 't-profile')}

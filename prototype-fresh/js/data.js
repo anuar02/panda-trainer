@@ -670,7 +670,8 @@ const DB = (() => {
     },
     // Display only: keep numeric storage and the user's unfinished input untouched.
     fmtNumber(n) { return typeof n === 'number' && Number.isFinite(n) ? new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 20, useGrouping: false }).format(n) : '—'; },
-    fmtMoney(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009') + ' ₸'; },
+    fmtGroup(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '\u2009'); },
+    fmtMoney(n) { return DB.fmtGroup(n) + ' ₸'; },
     addMinutes(t, m) {
       const [h, mm] = t.split(':').map(Number);
       const total = (h * 60 + mm + m + 1440) % 1440;

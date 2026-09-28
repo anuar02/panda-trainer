@@ -22,7 +22,7 @@ const screens = ['t-today','t-schedule','t-new','t-inbox','t-clients','t-client'
     const metrics=await p.evaluate(()=>{
      const target=document.querySelector('#screen');
      const overflow=[...target.querySelectorAll('.screen, .screen__body, .wide, .tabbar')].filter(e=>e.clientWidth&&e.scrollWidth>e.clientWidth+1).map(e=>({class:e.className,width:e.clientWidth,scroll:e.scrollWidth}));
-     const small=[...target.querySelectorAll('.icon-button,.topbar__back,.topbar__close,.chip[role="button"],.buddy__req')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.width<43.9||r.height<43.9);}).map(e=>({label:e.getAttribute('aria-label')||e.textContent.trim(),w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height}));
+     const small=[...target.querySelectorAll('.icon-button,.topbar__back,.topbar__close,.topbar__btn,.chip[role="button"],.client-tabs [role="tab"],.buddy__req,.lib-favorite,.lib-groups button,.lib-filters > button,.lib-equipment select,.theme-choice button')].filter(e=>{const r=e.getBoundingClientRect();return r.width>0&&(r.width<43.9||r.height<43.9);}).map(e=>({label:e.getAttribute('aria-label')||e.textContent.trim(),w:e.getBoundingClientRect().width,h:e.getBoundingClientRect().height}));
      return {overflow,small,theme:document.documentElement.dataset.theme,text:target.innerText.includes('Ошибка экрана')};
     });
     report.screens.push({width,scenario,screen,...metrics});
