@@ -34,6 +34,18 @@ const routes = {
   'c-first': null,
 };
 const selected = process.env.SCREENS?.split(',') ?? Object.keys(routes);
+const scenarioScreens = {
+  't-today': 'trainer-today',
+  'c-home': 'client-home',
+  't-schedule': 'trainer-schedule',
+  'c-program': 'client-program',
+  'c-history': 'client-history',
+  'c-progress': 'client-progress',
+  't-clients': 'trainer-clients',
+  't-library': 'trainer-library',
+  't-profile': 'trainer-profile',
+  'c-profile': 'client-profile',
+};
 for (const screen of selected) {
   if (!(screen in routes))
     throw new Error(`Unknown reference screen: ${screen}`);
@@ -149,11 +161,11 @@ try {
           app: null,
           status: !exists
             ? 'route-missing'
-            : scenario !== 'normal'
+            : scenario !== 'normal' && !scenarioScreens[screen]
               ? 'state-not-implemented'
               : 'captured-not-approved',
         };
-        if (exists && scenario === 'normal') {
+        if (exists && (scenario === 'normal' || scenarioScreens[screen])) {
           const context = await browser.newContext({
             viewport: { width: 390, height: 844 },
             deviceScaleFactor: 2,
@@ -167,15 +179,40 @@ try {
           page.on('pageerror', (error) =>
             errors.push(`${screen}/${theme}: ${error.message}`),
           );
-          await page.goto(`${app.url}/${route}`, { waitUntil: 'networkidle' });
-          await page.getByRole('heading').first().waitFor();
+          await page.goto(`${app.url}/${route}?scenario=${scenario}`, {
+            waitUntil: 'networkidle',
+          });
+          if (scenarioScreens[screen])
+            await page
+              .getByTestId(`${scenarioScreens[screen]}-${scenario}`)
+              .waitFor();
+          else await page.getByRole('heading').first().waitFor();
           await page.evaluate(() => document.fonts.ready);
           await page.screenshot({
-            path: path.join(output, `app/${screen}__normal__${theme}.png`),
+            path: path.join(output, `app/${screen}__${scenario}__${theme}.png`),
             animations: 'disabled',
           });
-          capture.app = `app/${screen}__normal__${theme}.png`;
+          capture.app = `app/${screen}__${scenario}__${theme}.png`;
           capture.headings = await page.getByRole('heading').allTextContents();
+          capture.headingMetrics = await page
+            .getByRole('heading')
+            .evaluateAll((elements) =>
+              elements.map((element) => {
+                const style = getComputedStyle(element);
+                const bounds = element.getBoundingClientRect();
+                return {
+                  text: element.textContent,
+                  fontFamily: style.fontFamily,
+                  fontSize: style.fontSize,
+                  lineHeight: style.lineHeight,
+                  color: style.color,
+                  x: bounds.x,
+                  y: bounds.y,
+                  width: bounds.width,
+                  height: bounds.height,
+                };
+              }),
+            );
           capture.tabs = await page.getByRole('tab').allTextContents();
           await context.close();
         }

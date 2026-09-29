@@ -1,9 +1,9 @@
-import { Text as NativeText, type TextProps } from 'react-native';
+import { StyleSheet, Text as NativeText, type TextProps } from 'react-native';
 import { extendTailwindMerge } from 'tailwind-merge';
 const mergeClasses = extendTailwindMerge({
   extend: { classGroups: { 'font-size': ['text-title', 'text-body'] } },
 });
-export function Text({ className = '', ...props }: TextProps) {
+export function Text({ className = '', style, ...props }: TextProps) {
   return (
     <NativeText
       className={mergeClasses(
@@ -11,6 +11,7 @@ export function Text({ className = '', ...props }: TextProps) {
         className,
       )}
       {...props}
+      style={style ? { ...StyleSheet.flatten(style) } : undefined}
     />
   );
 }

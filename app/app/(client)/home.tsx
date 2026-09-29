@@ -1,4 +1,5 @@
-import { PlaceholderScreen } from '@/features/navigation/placeholder-screen';
+import { ClientHomeScreen } from '@/features/client-home/client-home-screen';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
 export default function Screen() {
-  return <PlaceholderScreen section="home" />;
+  return <ClientHomeScreen scenario={useDemoScenario()} />;
 }

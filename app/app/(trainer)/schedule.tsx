@@ -1,6 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { Screen } from '@/ui/screen';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
+import { TrainerScheduleScreen } from '@/features/trainer-schedule/trainer-schedule-screen';
 export default function Route() {
-  const { t } = useTranslation();
-  return <Screen title={t('tabs.schedule').replace('\u00ad', '')} />;
+  return <TrainerScheduleScreen scenario={useDemoScenario()} />;
 }

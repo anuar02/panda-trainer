@@ -1,4 +1,5 @@
-import { ProfileScreen } from '@/features/navigation/profile-screen';
+import { ClientProfileScreen } from '@/features/profiles/profile-screens';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
 export default function Screen() {
-  return <ProfileScreen role="client" />;
+  return <ClientProfileScreen scenario={useDemoScenario()} />;
 }

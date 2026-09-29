@@ -1,0 +1,48 @@
+export const programExercises = [
+  {
+    id: 'e1',
+    name: 'squat',
+    sets: 4,
+    reps: 8,
+    weight: 80,
+    record: 100,
+    timed: false,
+  },
+  {
+    id: 'e2',
+    name: 'deadlift',
+    sets: 3,
+    reps: 10,
+    weight: 60,
+    record: 75,
+    timed: false,
+  },
+  {
+    id: 'e3',
+    name: 'legpress',
+    sets: 3,
+    reps: 12,
+    weight: 120,
+    record: 150,
+    timed: false,
+  },
+  {
+    id: 'e4',
+    name: 'lunges',
+    sets: 3,
+    reps: 12,
+    weight: 16,
+    record: 20,
+    timed: false,
+  },
+  {
+    id: 'e5',
+    name: 'plank',
+    sets: 3,
+    reps: 45,
+    weight: 0,
+    record: 0,
+    timed: true,
+  },
+] as const;
+export type ProgramExercise = (typeof programExercises)[number];

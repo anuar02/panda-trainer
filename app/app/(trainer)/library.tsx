@@ -1,6 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { Screen } from '@/ui/screen';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
+import { TrainerLibraryScreen } from '@/features/trainer-library/trainer-library-screen';
 export default function Route() {
-  const { t } = useTranslation();
-  return <Screen title={t('tabs.library').replace('\u00ad', '')} />;
+  return <TrainerLibraryScreen scenario={useDemoScenario()} />;
 }

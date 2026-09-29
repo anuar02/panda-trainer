@@ -1,6 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { Screen } from '@/ui/screen';
+import { ClientHistoryScreen } from '@/features/client-history/client-history-screen';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
 export default function Route() {
-  const { t } = useTranslation();
-  return <Screen title={t('tabs.history').replace('\u00ad', '')} />;
+  return <ClientHistoryScreen scenario={useDemoScenario()} />;
 }

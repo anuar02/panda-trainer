@@ -1,6 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { Screen } from '@/ui/screen';
-export default function Route() {
-  const { t } = useTranslation();
-  return <Screen title={t('tabs.program').replace('\u00ad', '')} />;
+import { ClientProgramScreen } from '@/features/client-program/client-program-screen';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
+export default function Screen() {
+  return <ClientProgramScreen scenario={useDemoScenario()} />;
 }

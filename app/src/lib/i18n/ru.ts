@@ -1,4 +1,23 @@
+import { clientHome } from '@/features/client-home/ru';
+import { trainerToday } from '@/features/trainer-today/ru';
+import { trainerSchedule } from '@/features/trainer-schedule/ru';
+import { clientProgram } from '@/features/client-program/ru';
+import { clientHistory } from '@/features/client-history/ru';
+import { clientProgress } from '@/features/client-progress/ru';
+import { trainerClients } from '@/features/trainer-clients/ru';
+import { trainerLibrary } from '@/features/trainer-library/ru';
+import { profiles } from '@/features/profiles/ru';
+
 export const ru = {
+  clientHome,
+  trainerToday,
+  trainerSchedule,
+  clientProgram,
+  clientHistory,
+  clientProgress,
+  trainerClients,
+  trainerLibrary,
+  profiles,
   common: {
     appName: 'Тренировочный блокнот',
     trainer: 'Тренер',

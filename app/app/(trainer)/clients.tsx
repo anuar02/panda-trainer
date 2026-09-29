@@ -1,4 +1,5 @@
-import { PlaceholderScreen } from '@/features/navigation/placeholder-screen';
+import { TrainerClientsScreen } from '@/features/trainer-clients/trainer-clients-screen';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
 export default function Screen() {
-  return <PlaceholderScreen section="clients" />;
+  return <TrainerClientsScreen scenario={useDemoScenario()} />;
 }

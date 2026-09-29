@@ -6,6 +6,16 @@ import { Sheet } from '../src/ui/sheet';
 const mockPresent = jest.fn();
 const mockDismiss = jest.fn();
 let mockOnDismiss: () => void;
+let mockOnBlur: () => void;
+let mockFocused = true;
+const mockNavigation = {
+  isFocused: () => mockFocused,
+  addListener: jest.fn((event: string, listener: () => void) => {
+    if (event === 'blur') mockOnBlur = listener;
+    return jest.fn();
+  }),
+};
+jest.mock('expo-router', () => ({ useNavigation: () => mockNavigation }));
 jest.mock('@gorhom/bottom-sheet', () => {
   const React = jest.requireActual<typeof import('react')>('react');
   const { View } =
@@ -33,7 +43,10 @@ jest.mock('@gorhom/bottom-sheet', () => {
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockFocused = true;
+});
 test('does not dismiss a modal before its first presentation', async () => {
   const onClose = jest.fn();
   const view = await render(
@@ -95,3 +108,37 @@ test.each(['button', 'back'])(
     subscription.mockRestore();
   },
 );
+test('route blur dismisses the owned modal and notifies only once', async () => {
+  const onClose = jest.fn();
+  const view = await render(<Sheet open title="Шторка" onClose={onClose} />);
+  await act(async () => {
+    mockFocused = false;
+    mockOnBlur();
+  });
+  expect(mockDismiss).toHaveBeenCalledTimes(1);
+  expect(onClose).toHaveBeenCalledTimes(1);
+  await act(async () => mockOnDismiss());
+  expect(onClose).toHaveBeenCalledTimes(1);
+  await view.rerender(<Sheet open={false} title="Шторка" onClose={onClose} />);
+  mockFocused = true;
+  await view.rerender(<Sheet open={false} title="Шторка" onClose={onClose} />);
+  expect(mockPresent).toHaveBeenCalledTimes(1);
+  await view.rerender(<Sheet open title="Шторка" onClose={onClose} />);
+  expect(mockPresent).toHaveBeenCalledTimes(2);
+});
+
+test('unmount dismisses the portal without firing a stale close callback', async () => {
+  const onClose = jest.fn();
+  const view = await render(<Sheet open title="Шторка" onClose={onClose} />);
+  await view.unmount();
+  expect(mockDismiss).toHaveBeenCalledTimes(1);
+  await act(async () => mockOnDismiss());
+  expect(onClose).not.toHaveBeenCalled();
+});
+
+test('an unfocused owner never presents a new modal', async () => {
+  mockFocused = false;
+  await render(<Sheet open title="Шторка" onClose={jest.fn()} />);
+  expect(mockPresent).not.toHaveBeenCalled();
+  expect(mockDismiss).not.toHaveBeenCalled();
+});
