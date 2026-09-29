@@ -1,0 +1,805 @@
+{
+ "baseURL": "http://127.0.0.1:4187",
+ "viewport": "390x844@2x",
+ "errors": [],
+ "shots": [
+  {
+   "screen": "t-today",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-schedule",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-schedule__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-new",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-new__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-inbox",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-inbox__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-clients",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-clients__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-client",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-invite",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-invite__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-session",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-session__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-library",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-library__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-template",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-billing",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-billing__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-profile",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-profile__normal__auto-dark.png"
+  },
+  {
+   "screen": "t-welcome",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-welcome__normal__auto-dark.png"
+  },
+  {
+   "screen": "c-home",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-home__normal__auto-light.png"
+  },
+  {
+   "screen": "c-program",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-program__normal__auto-light.png"
+  },
+  {
+   "screen": "c-history",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-history__normal__auto-light.png"
+  },
+  {
+   "screen": "c-progress",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-progress__normal__auto-light.png"
+  },
+  {
+   "screen": "c-profile",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-profile__normal__auto-light.png"
+  },
+  {
+   "screen": "c-first",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-first__normal__auto-light.png"
+  },
+  {
+   "screen": "t-today",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-schedule",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-schedule__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-new",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-new__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-inbox",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-inbox__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-clients",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-clients__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-client",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-invite",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-invite__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-session",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-session__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-library",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-library__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-template",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-billing",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-billing__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-profile",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-profile__empty__auto-dark.png"
+  },
+  {
+   "screen": "t-welcome",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-welcome__empty__auto-dark.png"
+  },
+  {
+   "screen": "c-home",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-home__empty__auto-light.png"
+  },
+  {
+   "screen": "c-program",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-program__empty__auto-light.png"
+  },
+  {
+   "screen": "c-history",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-history__empty__auto-light.png"
+  },
+  {
+   "screen": "c-progress",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-progress__empty__auto-light.png"
+  },
+  {
+   "screen": "c-profile",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-profile__empty__auto-light.png"
+  },
+  {
+   "screen": "c-first",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-first__empty__auto-light.png"
+  },
+  {
+   "screen": "t-today",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-schedule",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-schedule__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-new",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-new__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-inbox",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-inbox__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-clients",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-clients__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-client",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-invite",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-invite__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-session",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-session__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-library",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-library__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-template",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-billing",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-billing__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-profile",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-profile__loading__auto-dark.png"
+  },
+  {
+   "screen": "t-welcome",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-welcome__loading__auto-dark.png"
+  },
+  {
+   "screen": "c-home",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-home__loading__auto-light.png"
+  },
+  {
+   "screen": "c-program",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-program__loading__auto-light.png"
+  },
+  {
+   "screen": "c-history",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-history__loading__auto-light.png"
+  },
+  {
+   "screen": "c-progress",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-progress__loading__auto-light.png"
+  },
+  {
+   "screen": "c-profile",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-profile__loading__auto-light.png"
+  },
+  {
+   "screen": "c-first",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-first__loading__auto-light.png"
+  },
+  {
+   "screen": "t-today",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-schedule",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-schedule__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-new",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-new__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-inbox",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-inbox__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-clients",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-clients__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-client",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-invite",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-invite__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-session",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-session__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-library",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-library__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-template",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-billing",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-billing__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-profile",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-profile__offline__auto-dark.png"
+  },
+  {
+   "screen": "t-welcome",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-welcome__offline__auto-dark.png"
+  },
+  {
+   "screen": "c-home",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-home__offline__auto-light.png"
+  },
+  {
+   "screen": "c-program",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-program__offline__auto-light.png"
+  },
+  {
+   "screen": "c-history",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-history__offline__auto-light.png"
+  },
+  {
+   "screen": "c-progress",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-progress__offline__auto-light.png"
+  },
+  {
+   "screen": "c-profile",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-profile__offline__auto-light.png"
+  },
+  {
+   "screen": "c-first",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "light",
+   "file": "c-first__offline__auto-light.png"
+  },
+  {
+   "screen": "t-today",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-today__normal__dark.png"
+  },
+  {
+   "screen": "t-schedule",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-schedule__normal__dark.png"
+  },
+  {
+   "screen": "t-new",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-new__normal__dark.png"
+  },
+  {
+   "screen": "t-inbox",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-inbox__normal__dark.png"
+  },
+  {
+   "screen": "t-clients",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-clients__normal__dark.png"
+  },
+  {
+   "screen": "t-client",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-client__normal__dark.png"
+  },
+  {
+   "screen": "t-invite",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-invite__normal__dark.png"
+  },
+  {
+   "screen": "t-session",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-session__normal__dark.png"
+  },
+  {
+   "screen": "t-library",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-library__normal__dark.png"
+  },
+  {
+   "screen": "t-template",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-template__normal__dark.png"
+  },
+  {
+   "screen": "t-billing",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-billing__normal__dark.png"
+  },
+  {
+   "screen": "t-profile",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-profile__normal__dark.png"
+  },
+  {
+   "screen": "t-welcome",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-welcome__normal__dark.png"
+  },
+  {
+   "screen": "c-home",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "c-home__normal__dark.png"
+  },
+  {
+   "screen": "c-program",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "c-program__normal__dark.png"
+  },
+  {
+   "screen": "c-history",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "c-history__normal__dark.png"
+  },
+  {
+   "screen": "c-progress",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "c-progress__normal__dark.png"
+  },
+  {
+   "screen": "c-profile",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "c-profile__normal__dark.png"
+  },
+  {
+   "screen": "c-first",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "c-first__normal__dark.png"
+  },
+  {
+   "screen": "t-today",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-today__normal__light.png"
+  },
+  {
+   "screen": "t-schedule",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-schedule__normal__light.png"
+  },
+  {
+   "screen": "t-new",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-new__normal__light.png"
+  },
+  {
+   "screen": "t-inbox",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-inbox__normal__light.png"
+  },
+  {
+   "screen": "t-clients",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-clients__normal__light.png"
+  },
+  {
+   "screen": "t-client",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-client__normal__light.png"
+  },
+  {
+   "screen": "t-invite",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-invite__normal__light.png"
+  },
+  {
+   "screen": "t-session",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "dark",
+   "file": "t-session__normal__light.png"
+  },
+  {
+   "screen": "t-library",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-library__normal__light.png"
+  },
+  {
+   "screen": "t-template",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-template__normal__light.png"
+  },
+  {
+   "screen": "t-billing",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-billing__normal__light.png"
+  },
+  {
+   "screen": "t-profile",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-profile__normal__light.png"
+  },
+  {
+   "screen": "t-welcome",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-welcome__normal__light.png"
+  },
+  {
+   "screen": "c-home",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "c-home__normal__light.png"
+  },
+  {
+   "screen": "c-program",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "c-program__normal__light.png"
+  },
+  {
+   "screen": "c-history",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "c-history__normal__light.png"
+  },
+  {
+   "screen": "c-progress",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "c-progress__normal__light.png"
+  },
+  {
+   "screen": "c-profile",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "c-profile__normal__light.png"
+  },
+  {
+   "screen": "c-first",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "c-first__normal__light.png"
+  }
+ ]
+}

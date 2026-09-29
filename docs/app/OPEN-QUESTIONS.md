@@ -25,3 +25,5 @@
 | --- | --- | --- | --- |
 | — | Swift или React Native | React Native (Expo) | [ADR 0001](decisions/0001-react-native-expo.md) |
 | — | Бэкенд | Supabase | [ADR 0002](decisions/0002-supabase.md) |
+| — | Какой вид прототипа переносить | `prototype-fresh` по умолчанию, «Чернила» (не «Инструмент») | [ADR 0007](decisions/0007-ui-reference.md) |
+| — | Тема по умолчанию | По роли: тренер тёмная, клиент светлая, журнал всегда тёмный | [ADR 0007](decisions/0007-ui-reference.md) |

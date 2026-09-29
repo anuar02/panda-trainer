@@ -27,6 +27,10 @@
 
 ### Документация
 
+- Паритет с прототипом: эталон `prototype-fresh` по умолчанию и тема по роли
+  ([ADR 0007](docs/app/decisions/0007-ui-reference.md)), правила и чек-лист
+  ([docs/app/UI-PARITY.md](docs/app/UI-PARITY.md)), скрипт эталонных снимков и замеров
+  `prototype-fresh/review/parity/capture.cjs`, раздел в PR-шаблоне и CONVENTIONS.
 - Handoff по итогам ревью каркаса: исправления, закрытие этапа 1 и старт этапа 2
   ([docs/app/CODEX-STAGE-1-FIXES-HANDOFF.md](docs/app/CODEX-STAGE-1-FIXES-HANDOFF.md)).
 - [ADR 0006](docs/app/decisions/0006-app-foundation.md): версии каркаса, тема и проверки.
