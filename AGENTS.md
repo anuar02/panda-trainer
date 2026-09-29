@@ -49,3 +49,16 @@ no API key, $0).
 и handoff `design-exploration/CLAUDE-RED-PANDA-HANDOFF.md`.
 Маскот рассчитан на плавную риг-анимацию (простые формы, плоский цвет, Rive).
 Рысь №7 и `CODEX-LYNX-MASCOT-HANDOFF.md` — история, не действующий референс.
+
+## Разработка приложения (с 29 сентября 2026)
+
+Стек: React Native (Expo) + Supabase. Перед любой задачей по приложению прочитай
+`docs/app/README.md` и раздел «Где остановились» в `docs/app/ROADMAP.md`.
+Правила кода и документации — `docs/app/CONVENTIONS.md`. Коротко:
+
+- В коде приложения (`app/`) не писать комментарии; TypeScript strict, без `any`.
+- Каждый PR обновляет `CHANGELOG.md` («Не выпущено») и отмечает пункты в
+  `docs/app/ROADMAP.md`. Выбор библиотеки, подхода или изменение правила — новый ADR
+  в `docs/app/decisions/`.
+- Продуктовое решение не угадывать: вопрос — в `docs/app/OPEN-QUESTIONS.md`.
+- Реальные данные клиентов и платные сервисы — только с согласия владельца.
