@@ -7,6 +7,7 @@
     "@expo-google-fonts/montserrat": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
     "@gorhom/bottom-sheet": "^5.2.14",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.25",
     "expo-constants": "~57.0.19",
     "expo-font": "~57.0.4",
@@ -56,7 +57,8 @@
     "test": "jest --runInBand",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
     "db": "supabase --workdir ..",
-    "export": "expo export --platform all"
+    "export": "expo export --platform all",
+    "parity": "expo export --platform web && node scripts/parity.mjs"
   },
   "private": true,
   "engines": {

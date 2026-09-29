@@ -1,14 +1,20 @@
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type PropsWithChildren,
 } from 'react';
-import { useColorScheme, View } from 'react-native';
+import { View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { vars } from 'nativewind';
 import tokens from './tokens.json';
-export type Appearance = 'system' | 'light' | 'dark';
+export type Appearance = 'auto' | 'light' | 'dark';
+export type Role = 'trainer' | 'client';
+export const appearanceStorageKey = 'panda-trainer.appearance';
 type Theme = {
   appearance: Appearance;
   scheme: 'light' | 'dark';
@@ -16,17 +22,46 @@ type Theme = {
   setAppearance: (value: Appearance) => void;
 };
 const ThemeContext = createContext<Theme>({
-  appearance: 'system',
+  appearance: 'auto',
   scheme: 'light',
   colors: tokens.colors.light,
   setAppearance: (_value: Appearance) => {},
 });
-export function ThemeProvider({ children }: PropsWithChildren) {
-  const system = useColorScheme();
-  const [appearance, setAppearance] = useState<Appearance>('system');
-  const scheme =
-    appearance === 'system'
-      ? system === 'dark'
+export function ThemeProvider({
+  children,
+  role = 'client',
+  workout = false,
+}: PropsWithChildren<{ role?: Role; workout?: boolean }>) {
+  const [appearance, updateAppearance] = useState<Appearance>('auto');
+  const changed = useRef(false);
+  const writes = useRef(Promise.resolve());
+  useEffect(() => {
+    let active = true;
+    void AsyncStorage.getItem(appearanceStorageKey)
+      .then((value) => {
+        if (
+          active &&
+          !changed.current &&
+          (value === 'auto' || value === 'light' || value === 'dark')
+        )
+          updateAppearance(value);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+  const setAppearance = useCallback((value: Appearance) => {
+    changed.current = true;
+    updateAppearance(value);
+    writes.current = writes.current
+      .then(() => AsyncStorage.setItem(appearanceStorageKey, value))
+      .catch(() => {});
+  }, []);
+  const scheme = workout
+    ? 'dark'
+    : appearance === 'auto'
+      ? role === 'trainer'
         ? 'dark'
         : 'light'
       : appearance;
@@ -45,7 +80,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
   );
   const value = useMemo(
     () => ({ appearance, setAppearance, scheme, colors }),
-    [appearance, scheme, colors],
+    [appearance, scheme, colors, setAppearance],
   );
   return (
     <ThemeContext.Provider value={value}>

@@ -23,6 +23,7 @@ const props = ['font-family', 'font-size', 'font-weight', 'line-height', 'letter
   const specs = {};
   for (const theme of themes) {
     await page.goto(`${baseURL}/?present&theme=${theme}`);
+    await page.addStyleTag({ content: '#device { height: 844px; flex: none; }' });
     await page.evaluate(() => document.fonts.ready);
     for (const scenario of scenarios) {
       for (const screen of screens) {
@@ -35,8 +36,12 @@ const props = ['font-family', 'font-size', 'font-weight', 'line-height', 'letter
         if (theme !== 'auto' && scenario !== 'normal') continue;
         const file = `${screen}__${scenario}__${theme === 'auto' ? `auto-${resolved}` : theme}.png`;
         const device = await page.$('#device') || page;
+        const frame = device === page ? { width: 390, height: 844 } : await device.boundingBox();
+        if (!frame || Math.abs(frame.width - 390) > 0.5 || Math.abs(frame.height - 844) > 0.5) {
+          throw new Error(`Invalid reference frame: ${JSON.stringify(frame)}`);
+        }
         await device.screenshot({ path: path.join(out, file) });
-        index.push({ screen, scenario, theme, resolved, file });
+        index.push({ screen, scenario, theme, resolved, file, width: frame.width, height: frame.height });
         if (scenario !== 'normal') continue;
         const key = resolved;
         specs[key] = specs[key] || { variables: {}, classes: {} };

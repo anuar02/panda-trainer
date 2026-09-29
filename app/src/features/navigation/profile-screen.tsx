@@ -19,7 +19,7 @@ export function ProfileScreen({ role }: { role: 'trainer' | 'client' }) {
       <Card>
         <Text className="font-strong">{t('profile.appearance')}</Text>
         <View className="flex-row flex-wrap gap-2">
-          {(['system', 'light', 'dark'] as const).map((value) => (
+          {(['auto', 'dark', 'light'] as const).map((value) => (
             <Chip
               key={value}
               label={t(`profile.${value}`)}

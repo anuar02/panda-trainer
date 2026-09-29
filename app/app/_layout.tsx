@@ -9,7 +9,7 @@ import {
   Inter_600SemiBold,
 } from '@expo-google-fonts/inter';
 import { Montserrat_600SemiBold } from '@expo-google-fonts/montserrat';
-import { Stack } from 'expo-router';
+import { Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -34,6 +34,8 @@ function Navigation() {
   );
 }
 export default function RootLayout() {
+  const segments: readonly string[] = useSegments();
+  const role = segments[0] === '(trainer)' ? 'trainer' : 'client';
   const [loaded, error] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -48,7 +50,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
-        <ThemeProvider>
+        <ThemeProvider role={role} workout={segments.includes('session')}>
           <BottomSheetModalProvider>
             <ToastProvider>
               {error ? (

@@ -62,9 +62,9 @@ export const ru = {
   },
   profile: {
     appearance: 'Оформление',
-    system: 'Как на устройстве',
-    light: 'Светлое',
-    dark: 'Тёмное',
+    auto: 'Авто (по роли)',
+    light: 'Светлая',
+    dark: 'Тёмная',
     role: 'Ваш блокнот',
     description: 'Настройте удобный для себя вид.',
   },
