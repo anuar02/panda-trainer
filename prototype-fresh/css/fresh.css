@@ -594,6 +594,12 @@ var(--stage-bg);
   filter: drop-shadow(0 6px 10px rgba(90, 40, 10, 0.12));
 }
 .panda-face { display: block; height: auto; user-select: none; }
+.panda--clip { cursor: default; }
+.panda--clip .panda__glow, .panda--clip .panda__shadow { display: none; }
+.panda__clip { position: relative; display: block; height: 100%; max-width: 100%; overflow: hidden; }
+.panda__poster, .panda__media { position: absolute; display: block; width: var(--clip-width); height: var(--clip-height); max-width: none; left: var(--clip-left); top: var(--clip-top); pointer-events: none; }
+.panda--clip[data-playback="playing"] .panda__poster { visibility: hidden; }
+[data-calm="true"] .fx-celebrate { display: none; }
 
 .panda[data-motion="idle"] .panda__body { animation: pandaIdle 3.4s ease-in-out infinite; }
 .panda[data-motion="idle"] .panda__shadow { animation: shadowIdle 3.4s ease-in-out infinite; }
@@ -745,7 +751,7 @@ var(--stage-bg);
   overflow: hidden;
   pointer-events: none;
   z-index: 200;
-  animation: fxFade 2.2s ease both;
+  animation: fxFade var(--celebration-duration, 2.2s) ease both;
   background: radial-gradient(circle at 50% 70%, rgba(255, 178, 61, 0.2), transparent 60%);
 }
 .device--wide .fx-celebrate { inset: 8px; border-radius: 20px; }
@@ -770,9 +776,10 @@ var(--stage-bg);
   width: 170px;
   height: 200px;
   margin-left: -85px;
-  animation: fxPanda 2.2s var(--ease-spring) both;
+  animation: fxPanda var(--celebration-duration, 2.2s) var(--ease-spring) both;
 }
 .fx-panda .panda { width: 100%; height: 100%; }
+.fx-panda:has(.panda--clip) { animation-name: fxFade; }
 .fx-sparkle { position: absolute; width: 0; height: 0; pointer-events: none; z-index: 150; }
 .fx-sparkle i {
   position: absolute;

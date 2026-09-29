@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "artboard": "Red Panda",
+  "stateMachine": "Panda",
+  "viewModel": {
+    "name": "Default",
+    "viewModel": "Panda",
+    "properties": [
+      {
+        "name": "wave",
+        "path": "wave",
+        "type": "trigger",
+        "changed": false
+      },
+      {
+        "name": "tap",
+        "path": "tap",
+        "type": "trigger",
+        "changed": true
+      },
+      {
+        "name": "state",
+        "path": "state",
+        "type": "string",
+        "value": "tap",
+        "changed": true
+      }
+    ]
+  },
+  "globals": [],
+  "nested": []
+}

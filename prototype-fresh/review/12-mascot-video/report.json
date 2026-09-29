@@ -1,0 +1,13 @@
+{
+  "report": [
+    "Wave plays once and survives a screen rerender without restarting.",
+    "Trainer onboarding advances to thumbs; celebration plays jump and removes its layer.",
+    "Client invitation, hero and empty screens have no video.",
+    "reduced: static PNG, no media downloads or celebration.",
+    "calm: static PNG, no media downloads or celebration.",
+    "Safari user-agent fallback: WebP plays once, then poster (Chromium simulation, not native Safari).",
+    "Failed media request leaves a visible poster.",
+    "Changing reduced motion stops active playback immediately."
+  ],
+  "errors": []
+}

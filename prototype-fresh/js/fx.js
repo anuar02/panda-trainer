@@ -6,7 +6,8 @@ const Fx = window.Fx = (() => {
     if (reduce.matches || Store.preferences.calm()) return;
     const device = document.getElementById('device');
     if (!device) return;
-    device.querySelector('.fx-celebrate')?.remove();
+    const old = device.querySelector('.fx-celebrate');
+    if (old) { if (typeof Mascot !== 'undefined') Mascot.unmount(old); old.remove(); }
     const layer = document.createElement('div');
     layer.className = 'fx-celebrate';
     layer.setAttribute('aria-hidden', 'true');
@@ -19,9 +20,12 @@ const Fx = window.Fx = (() => {
       const shape = i % 3 === 0 ? 'round' : i % 3 === 1 ? 'strip' : 'square';
       return `<i class="fx-bit fx-bit--${shape}" style="--dx:${dx.toFixed(0)}px;--dy:${dy.toFixed(0)}px;--r:${Math.round(Math.random() * 720 - 360)}deg;--c:${color};--d:${Math.round(Math.random() * 120)}ms"></i>`;
     }).join('');
-    layer.innerHTML = `<div class="fx-burst">${bits}</div><div class="fx-panda">${typeof Mascot !== 'undefined' ? Mascot.render(pose, (typeof UI !== 'undefined' && UI.isInstrument()) ? 'celebration' : 'inline') : ''}</div>`;
+    layer.innerHTML = `<div class="fx-burst">${bits}</div><div class="fx-panda">${typeof Mascot !== 'undefined' ? Mascot.render(pose, 'celebration', { video: true }) : ''}</div>`;
+    const duration = layer.querySelector('[data-clip]') ? 6200 : 2200;
+    layer.style.setProperty('--celebration-duration', `${duration}ms`);
     device.appendChild(layer);
-    setTimeout(() => layer.remove(), 2200);
+    if (typeof Mascot !== 'undefined') Mascot.mount(layer);
+    setTimeout(() => { if (typeof Mascot !== 'undefined') Mascot.unmount(layer); layer.remove(); }, duration);
   }
 
   function sparkle(el) {
@@ -54,7 +58,7 @@ const Fx = window.Fx = (() => {
 
   document.addEventListener('click', (event) => {
     const panda = event.target.closest('.panda');
-    if (!panda || reduce.matches || Store.preferences.calm()) return;
+    if (!panda || panda.hasAttribute('data-clip') || reduce.matches || Store.preferences.calm()) return;
     panda.classList.remove('is-poked');
     void panda.offsetWidth;
     panda.classList.add('is-poked');

@@ -38,7 +38,7 @@ const Welcome = (() => {
 
   function intro() {
     return `<div class="welcome-intro">
-      ${Mascot.render('welcome', 'onboarding')}
+      ${Mascot.render('welcome', 'onboarding', { video: true })}
       <p class="welcome-kicker">Привет!</p>
       <h1 class="welcome-title">Клиенты, расписание и тренировки — в одном месте</h1>
       <p class="welcome-text">Настроим всё за минуту: как вас зовут, когда вы работаете и кто ваш первый клиент.</p>
@@ -101,7 +101,7 @@ const Welcome = (() => {
       ['users', 'Первый клиент', client ? `${esc(client)} · ссылка готова` : 'Можно добавить в «Клиентах»', Boolean(client)],
     ];
     return `<div class="welcome-intro welcome-intro--done">
-      ${Mascot.render('approved', 'onboarding')}
+      ${Mascot.render('approved', 'onboarding', { video: true })}
       <h1 class="welcome-title">Всё готово, ${esc(w.name)}!</h1>
       <p class="welcome-text">Осталось запланировать первое занятие — остальное подскажем по ходу.</p>
     </div>

@@ -1,0 +1,41 @@
+[
+  {
+    "case": "idle",
+    "state": "idle",
+    "passed": true
+  },
+  {
+    "case": "wave",
+    "state": "wave",
+    "passed": true
+  },
+  {
+    "case": "wave-return",
+    "state": "idle",
+    "passed": true
+  },
+  {
+    "case": "tap",
+    "state": "tap",
+    "passed": true
+  },
+  {
+    "case": "tap-return",
+    "state": "idle",
+    "passed": true
+  },
+  {
+    "case": "wave-repeat",
+    "state": "wave",
+    "passed": true
+  },
+  {
+    "case": "tap-interrupt",
+    "state": "tap",
+    "passed": true
+  },
+  {
+    "case": "standalone tap + no artboard background paint",
+    "passed": true
+  }
+]

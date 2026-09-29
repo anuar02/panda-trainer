@@ -417,6 +417,7 @@
       ${UI.Sheet(!!st.sheet, sheetInner, st.sheet?.id)}
       ${UI.Toast(st.toast)}
     `;
+    Mascot.mount(screenEl);
 
     const dock = UI.WorkoutDock();
     if (dock) {

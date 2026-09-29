@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 460">
+  <defs><clipPath id="bodyrive"><path d="M200 64C288 64 334 110 334 206C334 318 300 404 200 404S66 318 66 206C66 110 112 64 200 64Z"/></clipPath>
+    <clipPath id="tailrive"><rect x="-32" y="-176" width="64" height="190" rx="32"/></clipPath></defs>
+  <g data-part="root">
+    <g data-part="tail">
+      <rect x="-32" y="-176" width="64" height="190" rx="32" fill="#bf4a24"/>
+      <g clip-path="url(#tailrive)" fill="#8f3419">
+        <rect x="-40" y="-62" width="80" height="20"/><rect x="-40" y="-106" width="80" height="20"/>
+        <rect x="-40" y="-150" width="80" height="20"/><rect x="-40" y="-190" width="80" height="18"/>
+      </g>
+    </g>
+    <g data-part="feet" fill="#5a2c1b">
+      <ellipse cx="156" cy="404" rx="34" ry="18"/><ellipse cx="244" cy="404" rx="34" ry="18"/>
+      <path d="M144 414v-8M156 416v-9M168 414v-8M232 414v-8M244 416v-9M256 414v-8" stroke="#7a4428" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <g data-part="bodyG">
+      <g data-part="earL"><g>
+      <path d="M84 118C78 76 90 42 104 36Q140 48 158 86Z" fill="#fdebd5"/>
+      <path d="M98 104C95 78 101 60 108 56Q130 66 142 88Z" fill="#5a2c1b"/></g></g><g data-part="earR"><g transform="matrix(-1 0 0 1 400 0)">
+      <path d="M84 118C78 76 90 42 104 36Q140 48 158 86Z" fill="#fdebd5"/>
+      <path d="M98 104C95 78 101 60 108 56Q130 66 142 88Z" fill="#5a2c1b"/></g></g>
+      <g data-part="ribbon" fill="#46241a">
+        <path d="M322 106Q348 112 362 134L352 140Q342 124 320 118Z"/>
+        <path d="M322 114Q340 132 342 158L331 158Q330 136 318 122Z"/>
+      </g>
+      <path d="M200 64C288 64 334 110 334 206C334 318 300 404 200 404S66 318 66 206C66 110 112 64 200 64Z" fill="#bf4a24"/>
+      <g clip-path="url(#bodyrive)">
+        <path d="M40 292Q200 330 360 292V440H40Z" fill="#5a2c1b"/>
+        <path d="M136 300 148 322 162 306 174 328 188 310 200 332 212 310 226 328 238 306 252 322 264 300Q200 312 136 300Z" fill="#bf4a24"/>
+        <path d="M40 116Q200 56 360 116" stroke="#46241a" stroke-width="24" fill="none"/>
+      </g>
+      <ellipse cx="324" cy="112" rx="10" ry="12" fill="#46241a"/>
+      <g data-part="face">
+        <path d="M92 196C80 230 98 262 140 268Q124 246 132 222Z" fill="#fdebd5"/>
+        <path d="M308 196C320 230 302 262 260 268Q276 246 268 222Z" fill="#fdebd5"/>
+        <ellipse cx="200" cy="238" rx="44" ry="30" fill="#fdebd5"/>
+        <ellipse data-part="browL" cx="156" cy="132" rx="17" ry="8.5" fill="#fdebd5"/>
+        <ellipse data-part="browR" cx="244" cy="132" rx="17" ry="8.5" fill="#fdebd5"/>
+        
+    <clipPath id="eyeLrive"><circle cx="158" cy="178" r="31"/></clipPath>
+    <g data-part="eyeOpenL" clip-path="url(#eyeLrive)">
+      <circle cx="158" cy="178" r="31" fill="#fffdf8"/>
+      <g data-part="pupilL">
+        <circle cx="158" cy="182" r="17" fill="#1d1612"/>
+        <circle cx="164" cy="175" r="5.5" fill="#fff"/>
+      </g>
+      <g data-part="lidL"><rect x="124" y="80" width="68" height="67" fill="#bf4a24"/></g>
+    </g>
+    <path data-face="happy" d="M138 186Q158 160 178 186" stroke="#1d1612" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <clipPath id="eyeRrive"><circle cx="242" cy="178" r="31"/></clipPath>
+    <g data-part="eyeOpenR" clip-path="url(#eyeRrive)">
+      <circle cx="242" cy="178" r="31" fill="#fffdf8"/>
+      <g data-part="pupilR">
+        <circle cx="242" cy="182" r="17" fill="#1d1612"/>
+        <circle cx="248" cy="175" r="5.5" fill="#fff"/>
+      </g>
+      <g data-part="lidR"><rect x="208" y="80" width="68" height="67" fill="#bf4a24"/></g>
+    </g>
+    <path data-face="happy" d="M222 186Q242 160 262 186" stroke="#1d1612" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path d="M186 222Q200 215 214 222Q210 233 200 235Q190 233 186 222Z" fill="#1d1612"/>
+        <g stroke="#1d1612" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path data-face="smile" d="M200 235V240M184 238Q192 248 200 240Q208 248 216 238"/>
+          <g data-face="laugh"><path d="M182 238Q200 272 218 238Q200 246 182 238Z" fill="#5a1a12"/>
+            <path d="M191 254Q200 262 209 254Q200 250 191 254Z" fill="#ef7a70" stroke="none"/></g>
+          <ellipse data-face="oh" cx="200" cy="248" rx="6" ry="8" fill="#5a1a12"/>
+          <path data-face="frown" d="M186 250Q200 240 214 250"/>
+        </g>
+      </g>
+    </g>
+    <g transform="translate(100,256)">
+    <g data-part="armL">
+      <rect x="-19" y="-14" width="38" height="92" rx="19" fill="#5a2c1b"/>
+      <rect x="-20" y="42" width="40" height="15" fill="#ff7a1f"/><rect x="-20" y="48" width="40" height="3" fill="#ffc08f"/>
+      <g data-part="palmL" fill="#4a2518" style="display:none">
+        <ellipse cx="0" cy="66" rx="8" ry="7"/><circle cx="-9" cy="55" r="3.6"/><circle cx="0" cy="52" r="3.6"/><circle cx="9" cy="55" r="3.6"/>
+      </g>
+    </g></g>
+    <g transform="translate(300,256)">
+    <g data-part="armR">
+      <rect x="-19" y="-14" width="38" height="92" rx="19" fill="#5a2c1b"/>
+      
+      <g data-part="palmR" fill="#4a2518" style="display:none">
+        <ellipse cx="0" cy="66" rx="8" ry="7"/><circle cx="-9" cy="55" r="3.6"/><circle cx="0" cy="52" r="3.6"/><circle cx="9" cy="55" r="3.6"/>
+      </g>
+    </g></g>
+  </g>
+</svg>

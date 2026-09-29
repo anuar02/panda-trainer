@@ -1,0 +1,8 @@
+name: red-panda-rive-2026-09-29
+logs:
+  file: build/rive.log
+  problems: build/problems.log
+
+exclude:
+  - mascot
+  - review

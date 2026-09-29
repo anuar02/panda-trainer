@@ -8,7 +8,7 @@ function app(storage = new Map(), search = '') {
   const context = vm.createContext({ console, URLSearchParams, location:{search}, setTimeout:()=>0,
     localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},
     window:{matchMedia:()=>({matches:false})},
-    document:{addEventListener(){},getElementById(){return {querySelector(){},appendChild(){bursts++;}};},createElement(){return {setAttribute(){}};}} });
+    document:{addEventListener(){},getElementById(){return {querySelector(){},appendChild(){bursts++;}};},createElement(){return {setAttribute(){},querySelector(){},style:{setProperty(){}}};}} });
   for (const file of ['data','session-repository','store','fx']) vm.runInContext(fs.readFileSync(path.join(__dirname,'../js',file+'.js'),'utf8'),context);
   return {run:s=>vm.runInContext(s,context),bursts:()=>bursts};
 }
