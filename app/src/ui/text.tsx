@@ -1,10 +1,8 @@
 import { Text as NativeText, type TextProps } from 'react-native';
 import { extendTailwindMerge } from 'tailwind-merge';
-
 const mergeClasses = extendTailwindMerge({
   extend: { classGroups: { 'font-size': ['text-title'] } },
 });
-
 export function Text({ className = '', ...props }: TextProps) {
   return (
     <NativeText

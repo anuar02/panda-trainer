@@ -30,6 +30,12 @@
 
 ### PR A — исправления каркаса (`fix/foundation-review`)
 
+Реализация A1–A9 завершена 29.09.2026. Локально: `npm run check` —
+10 поведенческих тестов + 42 проверки контраста; экспорт iOS/Android/web;
+db lint без ошибок и pgTAP 1/1. CI и нативная проверка фиксируются в отчёте
+[`app/review/foundation/README.md`](../../app/review/foundation/README.md).
+PR B и C остаются отдельными задачами, ADR 0004 не подтверждён.
+
 **A1. Шторка вызывает `onClose` дважды** — `app/src/ui/sheet.tsx`.
 Сейчас: кнопка «Закрыть» или системная «Назад» → `onClose()` → родитель ставит
 `open=false` → эффект вызывает `dismiss()` → `onDismiss` → `handleDismiss` → `onClose()`

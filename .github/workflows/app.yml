@@ -13,6 +13,7 @@ concurrency:
 jobs:
   app:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: app
@@ -31,21 +32,16 @@ jobs:
           CI: '1'
   database:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     env:
       SUPABASE_TELEMETRY_DISABLED: '1'
-    defaults:
-      run:
-        working-directory: app
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: supabase/setup-cli@v1
         with:
-          node-version: '22.18.0'
-          cache: npm
-          cache-dependency-path: app/package-lock.json
-      - run: npm ci
-      - run: npm run db -- start
-      - run: npm run db -- db lint --local --fail-on warning
-      - run: npm run db -- test db
+          version: '2.118.0'
+      - run: supabase start --workdir .
+      - run: supabase db lint --local --fail-on warning --workdir .
+      - run: supabase test db --workdir .
       - if: always()
-        run: npm run db -- stop
+        run: supabase stop --workdir .

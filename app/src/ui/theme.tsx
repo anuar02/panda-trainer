@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useMemo,
   useState,
   type PropsWithChildren,
 } from 'react';
@@ -8,9 +9,15 @@ import { useColorScheme, View } from 'react-native';
 import { vars } from 'nativewind';
 import tokens from './tokens.json';
 export type Appearance = 'system' | 'light' | 'dark';
-const ThemeContext = createContext({
-  appearance: 'system' as Appearance,
-  scheme: 'light' as 'light' | 'dark',
+type Theme = {
+  appearance: Appearance;
+  scheme: 'light' | 'dark';
+  colors: typeof tokens.colors.light;
+  setAppearance: (value: Appearance) => void;
+};
+const ThemeContext = createContext<Theme>({
+  appearance: 'system',
+  scheme: 'light',
   colors: tokens.colors.light,
   setAppearance: (_value: Appearance) => {},
 });
@@ -23,16 +30,25 @@ export function ThemeProvider({ children }: PropsWithChildren) {
         ? 'dark'
         : 'light'
       : appearance;
-  const colors = tokens.colors[scheme];
-  const variables = vars(
-    Object.fromEntries(
-      Object.entries(colors).map(([key, value]) => [`--color-${key}`, value]),
-    ),
+  const colors = useMemo(() => tokens.colors[scheme], [scheme]);
+  const variables = useMemo(
+    () =>
+      vars(
+        Object.fromEntries(
+          Object.entries(colors).map(([key, value]) => [
+            `--color-${key}`,
+            value,
+          ]),
+        ),
+      ),
+    [colors],
+  );
+  const value = useMemo(
+    () => ({ appearance, setAppearance, scheme, colors }),
+    [appearance, scheme, colors],
   );
   return (
-    <ThemeContext.Provider
-      value={{ appearance, setAppearance, scheme, colors }}
-    >
+    <ThemeContext.Provider value={value}>
       <View className="flex-1 bg-canvas" style={variables}>
         {children}
       </View>

@@ -34,20 +34,22 @@ export function Sheet({
     }
   }, [open]);
   const handleDismiss = useCallback(() => {
+    const notify = presented.current;
     presented.current = false;
-    onClose();
+    if (notify) onClose();
   }, [onClose]);
+  const dismiss = useCallback(() => ref.current?.dismiss(), []);
   useEffect(() => {
     if (!open) return;
     const subscription = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        onClose();
+        dismiss();
         return true;
       },
     );
     return () => subscription.remove();
-  }, [open, onClose]);
+  }, [open, dismiss]);
   const backdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -55,7 +57,7 @@ export function Sheet({
         appearsOnIndex={0}
         disappearsOnIndex={-1}
         accessibilityLabel={t('common.close')}
-        accessibilityHint={t('common.close')}
+        accessibilityHint=""
       />
     ),
     [t],
@@ -86,7 +88,6 @@ export function Sheet({
       }}
     >
       <BottomSheetScrollView
-        accessibilityLabel={title}
         contentContainerStyle={{
           padding: tokens.spacing.page,
           paddingBottom: insets.bottom + tokens.spacing.page,
@@ -100,7 +101,7 @@ export function Sheet({
         <Button
           label={t('common.close')}
           variant="secondary"
-          onPress={onClose}
+          onPress={dismiss}
         />
       </BottomSheetScrollView>
     </BottomSheetModal>

@@ -1,5 +1,7 @@
 import '../global.css';
 import '@/lib/i18n';
+import { useEffect } from 'react';
+import * as SplashScreen from 'expo-splash-screen';
 import {
   useFonts,
   Inter_400Regular,
@@ -10,13 +12,13 @@ import { Montserrat_600SemiBold } from '@expo-google-fonts/montserrat';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { ToastProvider } from '@/ui/toast';
 import { Text } from '@/ui/text';
-import { LoadingState } from '@/ui/states';
+void SplashScreen.preventAutoHideAsync();
 function Navigation() {
   const { scheme, colors } = useTheme();
   return (
@@ -39,6 +41,10 @@ export default function RootLayout() {
     Montserrat_600SemiBold,
   });
   const { t } = useTranslation();
+  useEffect(() => {
+    if (loaded || error) void SplashScreen.hideAsync();
+  }, [loaded, error]);
+  if (!loaded && !error) return null;
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
@@ -46,11 +52,11 @@ export default function RootLayout() {
           <BottomSheetModalProvider>
             <ToastProvider>
               {error ? (
-                <Text accessibilityRole="alert">{t('common.fontError')}</Text>
-              ) : loaded ? (
-                <Navigation />
+                <SafeAreaView className="flex-1 bg-canvas p-page">
+                  <Text accessibilityRole="alert">{t('common.fontError')}</Text>
+                </SafeAreaView>
               ) : (
-                <LoadingState />
+                <Navigation />
               )}
             </ToastProvider>
           </BottomSheetModalProvider>

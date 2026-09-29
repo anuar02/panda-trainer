@@ -7,7 +7,8 @@
 
 - Проверен план `a83d5a6` (PR #16); исходный HEAD `e0b6760` содержит изменения прототипа.
 - Существующие unit-тесты прототипа: 82/82.
-- `npm ci`, TypeScript strict, ESLint, Prettier; тесты приложения: 48/48.
+- `npm ci`, TypeScript strict, ESLint, Prettier; 6 поведенческих тестов и
+  42 проверки контраста (48/48 на момент PR #17).
 - `expo install --check`: зависимости соответствуют SDK 57.
 - Metro export: бандлы iOS/Android и статический web.
 - Локальный Supabase: миграция и сид применены, `db lint` без ошибок, pgTAP 1/1 PASS.
@@ -40,8 +41,7 @@
   Стек `useLinking.native.js` → `onUnhandledLinking` совпадает с
   [Expo #49378](https://github.com/expo/expo/issues/49378).
   Warning не подавляется; переходы и шторка после него работают.
-- Автоматизация нажатий iOS через Computer Use недоступна:
-  `Sky Computer Use native pipe startup failed`. Проверка iOS пока ограничена
+- Проверка iOS пока ограничена
   запуском, deep links и снимками. Нужен проход вкладок, темы, шторки,
   клавиатуры, крупного текста и уменьшения движения на iOS.
 - Смена системного font scale при работающем Expo Go Android вызвала сбой
@@ -52,17 +52,6 @@
 
 ## Локальное окружение базы
 
-Существующий корневой `.env.local` не соответствует dotenv. Его содержимое не
-изменялось. Для проверки использован изолированный workdir:
-
-```sh
-mkdir -p /tmp/trainerapp-foundation-db
-ln -sfn "$PWD/supabase" /tmp/trainerapp-foundation-db/supabase
-app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db start
-app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db db lint --local --fail-on warning
-app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db test db
-app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db stop
-```
-
-В чистом checkout GitHub Actions обычные команды `npm run db -- …` проходят.
+При несовместимом корневом `.env.local` используется изолированный workdir по
+[инструкции базы](../../../supabase/README.md).
 Облачные проекты, реальные данные клиентов и платные сборки не использовались.
