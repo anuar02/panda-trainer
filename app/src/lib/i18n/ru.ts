@@ -22,6 +22,11 @@ export const ru = {
     home: 'К началу',
   },
   tabs: {
+    navigation: 'Основная навигация',
+    schedule: 'Распи\u00adсание',
+    library: 'Библиотека',
+    program: 'Программа',
+    history: 'История',
     today: 'Сегодня',
     clients: 'Клиенты',
     templates: 'Шаблоны',
