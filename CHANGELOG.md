@@ -14,10 +14,16 @@
 - Каркас Expo SDK 57 в отдельном `app/`: восемь вкладок двух ролей, NativeWind,
   светлая/тёмная тема «Чернила», Inter/Montserrat, русская локализация и базовые компоненты.
 - TypeScript strict, ESLint без `any`/комментариев/прямого JSX-текста, Prettier,
-  46 unit-проверок; CI для приложения, бандлов и локального Supabase.
+  48 unit-проверок; CI для приложения, бандлов и локального Supabase.
 - Конфигурация Supabase, пустая начальная миграция и pgTAP guard таблиц без RLS.
   [Инструкции запуска](app/README.md), [проверка этапа](app/review/foundation/README.md).
-  PR пока не создан.
+  [PR #17](https://github.com/anuar02/panda-trainer/pull/17).
+
+### Исправлено
+
+- Шторка открывается с первого раза и повторно после закрытия жестом: `dismiss()`
+  больше не вызывается до первого `present()` или после завершённого закрытия.
+  [PR #17](https://github.com/anuar02/panda-trainer/pull/17).
 
 ### Документация
 

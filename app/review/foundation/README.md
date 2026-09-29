@@ -1,40 +1,68 @@
 # Проверка каркаса — 29 сентября 2026
 
-Этап 1 реализован в коде, но ещё не принят на двух нативных платформах и базе.
+[Draft PR #17](https://github.com/anuar02/panda-trainer/pull/17).
+Каркас реализован; полная нативная приёмка ещё не закрыта.
 
 ## Пройдено
 
-- Проверен план `a83d5a6` (в main через PR #16); текущий HEAD `e0b6760`
-  содержит последующие изменения браузерного прототипа.
+- Проверен план `a83d5a6` (PR #16); исходный HEAD `e0b6760` содержит изменения прототипа.
 - Существующие unit-тесты прототипа: 82/82.
-- Чистый `npm ci` для `app/` (Node 22.18, npm 10).
-- `npm run check`: TypeScript strict, ESLint, Prettier, 46/46 тестов.
-- `expo install --check`: зависимости соответствуют локальной карте SDK 57.
-- `npm run export`: бандлы iOS и Android (Hermes), статический web-export.
-- Браузерный проход навигации; снимки здесь имеют префикс `web-` и не являются
-  снимками iPhone или Android. Детали — `web-check.json`.
-- `git diff --check`; граф контекста обновлён `graft build`.
+- `npm ci`, TypeScript strict, ESLint, Prettier; тесты приложения: 48/48.
+- `expo install --check`: зависимости соответствуют SDK 57.
+- Metro export: бандлы iOS/Android и статический web.
+- Локальный Supabase: миграция и сид применены, `db lint` без ошибок, pgTAP 1/1 PASS.
+  Стек этого проекта остановлен после проверки.
+- GitHub Actions для исходного коммита `2297224`: оба job `app` и `database` PASS
+  ([запуск](https://github.com/anuar02/panda-trainer/actions/runs/36551453348)).
+- Web: две роли, все восемь вкладок, светлая/тёмная темы, ширина 320 px;
+  контраст инверсного текста проверен через computed CSS. `web-check.json`.
+- Android API 36, Pixel 9, Expo Go 57.0.9: выбор ролей, все восемь вкладок,
+  смена роли и темы; deep link `/review`.
+- Android: шторка открывается, закрывается системной кнопкой и жестом, затем
+  повторно открывается. Исправлен вызов `dismiss()` до первого `present()` и
+  повторный вызов после жеста; два unit-теста защищают эти случаи.
+- Android: поле принимает текст с открытой нативной клавиатурой; тост появляется
+  после нажатия. Снимки `android-keyboard.png`, `android-toast.png`.
+- Android: масштаб 150% — профиль, вкладки и галерея читаемы; шторка открывается
+  при выключенных системных анимациях. Исходные настройки восстановлены.
+- iOS 26.2, iPhone 16e, Expo Go 57.0.9: приложение запускается, открываются
+  `/today`, `/home`, `/review`; сохранены нативные снимки обеих навигаций.
+- `git diff --check`; граф обновлён `graft build`.
 
-## Осталось до закрытия этапа
+Снимки `android-*` и `ios-*` — нативные эмуляторы/симуляторы.
+Значок шестерёнки и предупреждение поверх некоторых снимков относятся к Expo Go.
+Снимки `web-*` относятся только к браузеру. Настоящие телефоны не проверялись.
 
-1. Docker доступен; образы Supabase загружены, проверка базы выполняется.
-   Существующий корневой `.env.local` содержит текст, не соответствующий dotenv.
-   Для локальной проверки используется `/tmp/trainerapp-foundation-db` с symlink
-   `supabase` на каталог проекта, без чтения или изменения этого env-файла.
-2. Повторить нативный запуск Android и проверить начальную ссылку. Expo Go установлен
-   на Pixel_9, Metro собрал debug-бандл, но выдал:
-   `Can't perform a React state update on a component that hasn't mounted yet`.
-   Стек указывает в `expo-router/build/fork/useLinking.native.js`, обработчик
-   `url.then` → `onUnhandledLinking`; стек совпадает с [Expo #49378](https://github.com/expo/expo/issues/49378).
-   Последняя стабильная версия Router 57.0.23 ещё содержит этот callback.
-   Начальный экран Android подтверждён (`android-roles.png`); проверка переходов продолжается.
-   Не отключать warning и не считать этот запуск успешной приёмкой.
-3. Проверить iOS. Для локального development build SDK 57 нужен Xcode 26.4+;
-   установлен Xcode 26.2. Проверка в совместимом Expo Go ещё не выполнена.
-4. На обеих платформах пройти две роли, все вкладки, смену темы и `/review`:
-   шторку (жест, back, закрытие), поле с клавиатурой, тост, крупный текст,
-   системное уменьшение движения. Сохранить нативные снимки в этот каталог.
-5. Создать PR и получить зелёный GitHub Actions. Workflow подготовлен, удалённо
-   ещё не запускался; облачные проекты и платные сборки не создавались.
+## Ограничения и оставшаяся приёмка
 
-После этой приёмки следующий этап — вход и схема данных v1.
+- В Expo Router 57.0.23 сохраняется гонка начальной ссылки:
+  `Can't perform a React state update on a component that hasn't mounted yet`.
+  Стек `useLinking.native.js` → `onUnhandledLinking` совпадает с
+  [Expo #49378](https://github.com/expo/expo/issues/49378).
+  Warning не подавляется; переходы и шторка после него работают.
+- Автоматизация нажатий iOS через Computer Use недоступна:
+  `Sky Computer Use native pipe startup failed`. Проверка iOS пока ограничена
+  запуском, deep links и снимками. Нужен проход вкладок, темы, шторки,
+  клавиатуры, крупного текста и уменьшения движения на iOS.
+- Смена системного font scale при работающем Expo Go Android вызвала сбой
+  Worklets (`Required value was null`). При установке масштаба до чистого запуска
+  приложение работает; проверены профиль и галерея. Исходный масштаб 1.0 восстановлен.
+- Для development build SDK 57 требуется Xcode 26.4+; установлен 26.2.
+  Проверка выполнялась в готовом Expo Go, локальный native build не выполнялся.
+
+## Локальное окружение базы
+
+Существующий корневой `.env.local` не соответствует dotenv. Его содержимое не
+изменялось. Для проверки использован изолированный workdir:
+
+```sh
+mkdir -p /tmp/trainerapp-foundation-db
+ln -sfn "$PWD/supabase" /tmp/trainerapp-foundation-db/supabase
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db start
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db db lint --local --fail-on warning
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db test db
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db stop
+```
+
+В чистом checkout GitHub Actions обычные команды `npm run db -- …` проходят.
+Облачные проекты, реальные данные клиентов и платные сборки не использовались.

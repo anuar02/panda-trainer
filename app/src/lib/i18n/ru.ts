@@ -9,6 +9,8 @@ export const ru = {
     clientHint: 'Ваши тренировки и результаты.',
     backToRoles: 'Сменить роль',
     close: 'Закрыть',
+    sheetHandle: 'Ручка шторки',
+    sheetHandleHint: 'Потяните вниз, чтобы закрыть.',
     retry: 'Попробовать снова',
     loading: 'Загружаем…',
     error: 'Не получилось загрузить',
