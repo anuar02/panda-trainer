@@ -17,9 +17,16 @@ const Client = (() => {
       .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
   }
 
+  // Generic booking titles carry no information; a named session («Растяжка») does.
+  const GENERIC_TITLES = ['Индивидуальная', 'Мини-группа'];
+  const sessionName = s => s.program || (GENERIC_TITLES.includes(s.title) ? 'Тренировка' : s.title);
+  const sessionKind = s => s.kind === 'group' ? 'Занятие в мини-группе' : 'Индивидуальная тренировка';
+  // Marks made in this demo win; past demo bookings carry their own recorded attendance.
+  const attendanceOf = s => Store.get().attendance[s.id + ':' + ME] || (s.clientId === ME ? s.attendance : null) || null;
+
   /* ── Главная ─────────────────────────────────────────────────────────────── */
 
-  function requestCard(r) {
+  function requestCard(r, offline = false) {
     const proposed = r.counter || r.to;
     return `<div class="pending client-request">
       <div class="pending__lbl">${Icon.get('swap', { size: 14 })} Перенос занятия</div>
@@ -29,10 +36,10 @@ const Client = (() => {
       </dl>
       <p class="client-request__status">${r.awaiting === 'client' ? 'Нужен ваш ответ.' : 'Ждём ответа тренера.'} До согласия действует прежнее время.</p>
       <div style="margin-top:12px;display:grid;gap:9px">
-      ${r.awaiting === 'client' ? Btn('Подтвердить перенос', { a: 'rs.accept', args: { id: r.id } })
-        + Btn('Предложить другое', { kind: 'soft', size: 'compact', a: 'cres.open', args: { sid: r.sessionId } })
-        + Btn('Отклонить', { kind: 'ghost', size: 'compact', a: 'rs.decline', args: { id: r.id } })
-        : Btn('Отозвать запрос', { kind: 'soft', size: 'compact', a: 'rs.withdraw', args: { id: r.id } })}
+      ${r.awaiting === 'client' ? Btn('Подтвердить перенос', { a: 'rs.accept', args: { id: r.id }, disabled: offline })
+        + Btn('Предложить другое', { kind: 'soft', size: 'compact', a: 'cres.open', args: { sid: r.sessionId }, disabled: offline })
+        + Btn('Отклонить', { kind: 'ghost', size: 'compact', a: 'rs.decline', args: { id: r.id }, disabled: offline })
+        : Btn('Отозвать запрос', { kind: 'soft', size: 'compact', a: 'rs.withdraw', args: { id: r.id }, disabled: offline })}
       </div></div>`;
   }
 
@@ -44,34 +51,30 @@ const Client = (() => {
     const next = list[0];
     const myReq = reqs.find(r => r.sessionId === next?.id);
     const needsConfirmation = next?.participants.some(p => p.clientId === ME && p.reply === 'pending');
+    const offline = st.scenario === 'offline';
 
-    if (st.scenario === 'loading') {
-      return shell('c-home', `<div style="padding:16px">${Skeleton(4)}</div>`);
-    }
+    if (st.scenario === 'loading') return shell('c-home', '');
     if (!next || st.scenario === 'empty') {
-      return shell('c-home', `${PageTitle({ title: `Привет, ${c.short}`, size: 'sm' })}<div class="client-content">${quietEmpty('calendar', 'Записей нет', 'Согласуйте следующее занятие с тренером. Он добавит время — запись появится здесь.')}</div>`);
+      return shell('c-home', `${PageTitle({ title: `Привет, ${c.short}`, size: 'sm' })}<div class="client-content">${quietEmpty('calendar', 'Записей нет', 'Согласуйте следующее занятие с тренером. Он добавит время — запись появится здесь.', 'rest')}</div>`);
     }
 
     const hero = Card(`<div class="hero-card">
       <div class="hero-card__top">
-        <div style="font-size:13px;font-weight:600;color:var(--sec)">${
-          next.date === DB.TODAY ? 'Сегодня' : esc('Ближайшее занятие')
-        }</div>
+        <div class="hero-card__date">${next.date === DB.TODAY ? 'Сегодня · ' : ''}${DB.fmtDateLong(next.date)}</div>
         ${myReq
           ? Pill('Есть перенос', { tone: 'amber', dot: false })
           : needsConfirmation ? Pill('Подтвердите участие', { tone: 'amber', dot: false }) : Pill('Подтверждено', { tone: 'mint', dot: false })}
       </div>
-      <div class="hero-card__date">${DB.fmtDateLong(next.date)}</div>
       <div class="hero-card__when num">${next.start}–<span>${next.end}</span></div>
       <div class="hero-card__meta">
-        <h2>${next.program ? esc(next.program) : 'Программа появится позже'}</h2>
-        <span>${next.kind === 'group' ? 'Занятие в мини-группе' : 'Индивидуальная тренировка'}</span>
+        <h2>${esc(sessionName(next))}</h2>
+        <span>${sessionKind(next)}${next.program ? '' : ' · программа появится позже'}</span>
       </div>
-      ${myReq ? requestCard(myReq) : ''}
+      ${myReq ? requestCard(myReq, offline) : ''}
       <div class="hero-card__actions">
-        ${needsConfirmation ? Btn('Подтвердить участие', { a: 'session.confirm', args: { sid: next.id } }) : ''}
-        ${!myReq ? Btn('Предложить перенос', { kind: 'soft', size: 'compact', a: 'cres.open', args: { sid: next.id }, icon: 'swap' }) : ''}
-        ${Btn('Отменить запись', { kind: 'ghost', size: 'compact', a: 'sheet.open', args: { id: 'cCancel', sid: next.id } })}
+        ${needsConfirmation ? Btn('Подтвердить участие', { a: 'session.confirm', args: { sid: next.id }, disabled: offline }) : ''}
+        ${!myReq ? Btn('Предложить перенос', { kind: 'soft', size: 'compact', a: 'cres.open', args: { sid: next.id }, icon: 'swap', disabled: offline }) : ''}
+        ${Btn('Отменить запись', { kind: 'ghost', size: 'compact', a: 'sheet.open', args: { id: 'cCancel', sid: next.id }, disabled: offline })}
       </div>
     </div>`, { flush: true });
 
@@ -83,25 +86,26 @@ const Client = (() => {
     </div>`);
 
     const rest = list.filter(s => s.id !== (next && next.id));
+    // A pending reschedule belongs to its booking: shown inside that row, not in a detached list.
     const restBlock = rest.length ? `<div class="client-upcoming">
       ${SectionH('Следующие занятия')}
-      ${Card(rest.map((s, i) => Row({
-        title: `${DB.fmtDate(s.date)} · ${s.start}`,
-        meta: `${esc(s.program || 'Программа появится позже')}${s.kind === 'group' ? ' · Мини-группа' : ''}`,
-        last: i === rest.length - 1,
-      })).join(''), { rows: true })}
+      ${Card(rest.map((s, i) => {
+        const r = reqs.find(x => x.sessionId === s.id);
+        return `<div class="client-upcoming__item">${Row({
+          title: `${DB.fmtDate(s.date)} · ${s.start}`,
+          meta: `${esc(sessionName(s))}${s.kind === 'group' ? ' · Мини-группа' : ''}${s.program ? '' : ' · программа позже'}`,
+          right: r ? Pill('Перенос', { tone: 'amber', dot: false }) : '',
+          last: i === rest.length - 1,
+        })}${r ? `<div class="client-upcoming__request">${requestCard(r, offline)}</div>` : ''}</div>`;
+      }).join(''), { rows: true })}
     </div>` : '';
 
     return shell('c-home', `
       ${PageTitle({ title: `Привет, ${c.short}`, size: 'sm' })}
-      ${st.scenario === 'offline' ? `<div style="padding:0 16px 14px">${Notice('Нет связи. Показаны данные демо.', { tone: 'warn', icon: 'wifioff' })}</div>` : ''}
+      ${st.scenario === 'offline' ? `<div style="padding:0 16px 14px">${Notice('Нет связи. Показаны сохранённые данные; перенос и отмена станут доступны, когда связь вернётся.', { tone: 'warn', icon: 'wifioff' })}</div>` : ''}
       <div style="padding:0 16px">${hero}</div>
-      ${reqs.filter(r => r.sessionId !== next.id).length ? `<section class="client-requests"><h2>Переносы других занятий</h2>${reqs.filter(r => r.sessionId !== next.id).map(requestCard).join('')}</section>` : ''}
-      <div style="padding:16px 16px 0">${balance}</div>
       ${restBlock}
-      <div style="padding:18px 16px 0">
-        ${Btn('История занятий', { kind: 'soft', a: 'nav.go', args: { id: 'c-history' }, icon: 'list' })}
-      </div>
+      <div style="padding:22px 16px 0">${balance}</div>
       <div style="height:20px"></div>`);
   }
 
@@ -114,7 +118,7 @@ const Client = (() => {
     const states = {
       invite: {
         title: 'Данияр приглашает вас', sub: 'Тренер создал для вас карточку. Подключитесь, чтобы видеть расписание, программу и остаток пакета.',
-        pill: Pill('Ссылка активна', { tone: 'mint', pulse: true }), action: Btn('Подключиться', { kind: 'primary', a: 'first.accept' }),
+        pill: Pill('Ссылка активна', { tone: 'mint' }), action: Btn('Подключиться', { kind: 'primary', a: 'first.accept' }),
       },
       expired: {
         title: 'Ссылка истекла', sub: 'Попросите тренера прислать новое приглашение. Отправка запроса из приложения пока не подключена.',
@@ -130,7 +134,7 @@ const Client = (() => {
       },
       no_session: {
         title: 'Занятий пока нет', sub: 'Согласуйте первое занятие с тренером. Он добавит время и программу; запрос свободного времени из приложения пока недоступен.',
-        pill: Pill('Программа появится позже', { tone: 'amber', dot: false }), action: Btn('На главную демо', { kind: 'primary', a: 'tab', args: { id: 'c-home' } }),
+        pill: Pill('Записей пока нет', { tone: 'neutral', dot: false }), action: Btn('На главную демо', { kind: 'primary', a: 'tab', args: { id: 'c-home' } }),
       },
     };
     const s = states[inv];
@@ -159,8 +163,11 @@ const Client = (() => {
 
   function program() {
     const c = me();
-    const session = upcoming()[0];
-    const name = Store.get().scenario === 'empty' ? null : session ? (session.kind === 'group' ? c.program : session.program) : c.program;
+    // The nearest booking may have no plan yet (e.g. a stretching slot); show the
+    // nearest one that does, and fall back to the client's current template.
+    const planOf = s => s.kind === 'group' ? c.program : s.program;
+    const session = upcoming().find(planOf);
+    const name = Store.get().scenario === 'empty' ? null : session ? planOf(session) : c.program;
     const exs = DB.programFor(name);
     return shell('c-program', `
       ${PageTitle({ title: 'Программа', size: 'sm' })}
@@ -186,14 +193,14 @@ const Client = (() => {
     const st = Store.get();
     const items = (st.scenario === 'empty' ? [] : DB.sessions)
       .filter(s => (s.clientId === ME || s.participants?.some(p => p.clientId === ME))
-        && (s.status === 'cancelled' || s.participants?.some(p => p.clientId === ME && p.reply === 'cancelled') || st.attendance[s.id + ':' + ME] || Store.logging.status(s.id) === 'finished' || s.date < DB.TODAY || (s.date === DB.TODAY && s.end <= DB.NOW_TIME)))
+        && (s.status === 'cancelled' || s.participants?.some(p => p.clientId === ME && p.reply === 'cancelled') || attendanceOf(s) || Store.logging.status(s.id) === 'finished' || s.date < DB.TODAY || (s.date === DB.TODAY && s.end <= DB.NOW_TIME)))
       .sort((a, b) => (b.date + b.start).localeCompare(a.date + a.start));
     const unit = (st.scenario === 'empty' ? [] : st.billing.unitTx).filter(u => u.clientId === ME).slice().sort((a, b) => b.date.localeCompare(a.date));
     const attendancePill = s => {
-      const att = st.attendance[s.id + ':' + ME];
+      const att = attendanceOf(s);
       const cancelled = s.status === 'cancelled' || s.participants?.some(p => p.clientId === ME && p.reply === 'cancelled');
       const label = att === 'present' ? 'Посещение' : att === 'noshow' ? 'Неявка' : cancelled ? 'Отменено' : Store.logging.status(s.id) === 'finished' ? 'Журнал завершён' : 'Нет отметки';
-      return Pill(label, { tone: att === 'present' ? 'mint' : 'neutral', dot: false });
+      return Pill(label, { tone: att === 'present' ? 'mint' : att === 'noshow' ? 'danger' : 'neutral', dot: false });
     };
 
     return shell('c-history', `
@@ -201,7 +208,7 @@ const Client = (() => {
       <div class="client-content client-history">
         <section><h2 class="client-section-title">Прошедшие занятия</h2>
         ${items.length ? Card(items.map(s => `<article class="client-history__entry">
-          <time class="client-history__date num" datetime="${s.date}T${s.start}" aria-label="${DB.fmtDateLong(s.date)} · ${s.start}"><strong>${s.date.slice(8)}</strong><span>${DB.MONTHS_SHORT[Number(s.date.slice(5, 7)) - 1]}</span><small>${s.start}</small></time>
+          <time class="client-history__date num" datetime="${s.date}T${s.start}" aria-label="${DB.fmtDateLong(s.date)} · ${s.start}"><strong>${Number(s.date.slice(8))}</strong><span>${DB.MONTHS_SHORT[Number(s.date.slice(5, 7)) - 1]}</span><small>${s.start}</small></time>
           <div class="client-history__record"><h3>${esc(s.program || 'Без программы')}</h3>
           <p>${s.kind === 'group' ? 'Мини-группа' : 'Индивидуальное занятие'}</p>
           ${attendancePill(s)}</div>
@@ -213,7 +220,7 @@ const Client = (() => {
           right: `<span class="client-unit num" aria-label="${u.delta > 0 ? 'Возврат' : 'Списание'}: ${Math.abs(u.delta)}">${u.delta > 0 ? '+' : '−'}${Math.abs(u.delta)}</span>`,
           last: i === unit.length - 1,
         })).join(''), { rows: true }) : quietEmpty('list', 'Списаний пока нет', 'Изменения остатка пакета будут показаны отдельно от посещений.')}
-        <p class="client-footnote">Списание не подтверждает посещение: оно может быть связано с неявкой. Записи демо показывают только часть истории.</p></section>
+        <p class="client-footnote">Списание не подтверждает посещение: оно может быть связано с неявкой.</p></section>
       </div>
       <div style="height:20px"></div>`);
   }
@@ -223,20 +230,27 @@ const Client = (() => {
   function progress() {
     const c = me();
     const h = Store.get().scenario === 'empty' ? [] : DB.history[ME] || [];
-    const visits = Store.get().scenario === 'empty' ? [] : DB.sessions.filter(s => Store.get().attendance[s.id + ':' + ME] === 'present').map(s => s.date);
-    const cells = DB.WEEK.map(d => {
-      const on = visits.includes(d);
-      return `<div class="heat__cell ${on ? 'is-on' : 'is-off'}" aria-label="${DB.fmtDateLong(d)}: ${on ? 'посещение отмечено' : 'нет отметки посещения'}">${Number(d.slice(8))}</div>`;
+    // Four calendar weeks ending with the current one: enough to show a rhythm.
+    const marks = {};
+    if (Store.get().scenario !== 'empty') DB.sessions.forEach(s => { const v = attendanceOf(s); if (v) marks[s.date] = v; });
+    const monday = new Date(DB.WEEK[0] + 'T12:00:00Z');
+    const days = Array.from({ length: 28 }, (_, i) => { const d = new Date(monday); d.setUTCDate(d.getUTCDate() - 21 + i); return d.toISOString().slice(0, 10); });
+    const cells = days.map(d => {
+      const m = marks[d];
+      const state = m === 'present' ? 'посещение' : m === 'noshow' ? 'неявка' : d > DB.TODAY ? 'впереди' : 'нет отметки';
+      return `<div class="heat__cell ${m === 'present' ? 'is-on' : m === 'noshow' ? 'is-skip' : d > DB.TODAY ? 'is-future' : 'is-off'}${d === DB.TODAY ? ' is-today' : ''}" role="img" aria-label="${DB.fmtDateLong(d)}: ${state}">${Number(d.slice(8))}</div>`;
     }).join('');
+    const present = days.filter(d => marks[d] === 'present').length;
+    const noshow = days.filter(d => marks[d] === 'noshow').length;
 
     return shell('c-progress', `
       ${PageTitle({ title: 'Прогресс', size: 'sm' })}
-      ${h.length ? progressBlocks(c, h) : `<div class="client-content">${quietEmpty('trend', 'Первые результаты — впереди', 'Когда тренер запишет подходы, здесь можно будет сравнить результаты. Пока данных нет.', 'rest')}</div>`}
+      ${h.length ? progressBlocks(c, h) : `<div class="client-content">${quietEmpty('trend', 'Первые результаты — впереди', 'Когда тренер запишет подходы, здесь можно будет сравнить результаты. Пока данных нет.', 'ready')}</div>`}
       <section class="client-content client-visits">
-        <h2 class="client-section-title">Посещения за неделю</h2>
+        <h2 class="client-section-title">Посещения за 4 недели</h2>
         <div class="card card--pad">
           <div class="heat">${['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].map(d => `<div class="client-weekday">${d}</div>`).join('')}${cells}</div>
-          <p class="client-footnote">${visits.some(d => DB.WEEK.includes(d)) ? 'Зелёным отмечены подтверждённые посещения.' : 'На этой неделе пока нет отметок о посещении.'} Отмена и неявка не учитываются.</p>
+          <p class="client-footnote">${present || noshow ? `Посещений: ${present}${noshow ? ` · неявок: ${noshow}` : ''}. Зелёным — подтверждённые посещения, красным — неявки.` : 'Отметок о посещении пока нет.'} Отменённые занятия не отмечаются.</p>
         </div>
       </section>
       <div style="height:20px"></div>`);
@@ -276,6 +290,15 @@ const Client = (() => {
     return `<div class="client-empty${mascot ? ' client-empty--mascot' : ''}">${mascot ? Mascot.render(mascot) : Lead(icon, { icon: true })}<h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
   }
 
+  // Loading keeps the section title and mirrors the shape of the content that
+  // will arrive, so the layout does not jump when data lands.
+  const TITLES = { 'c-home': `Привет, ${me().short}`, 'c-program': 'Программа', 'c-history': 'История', 'c-progress': 'Прогресс', 'c-profile': 'Профиль' };
+  function loading(tab) {
+    const bar = (w, h, extra = '') => `<div class="sk" style="width:${w};height:${h}px${extra}"></div>`;
+    const hero = Card(`<div class="hero-card">${bar('46%', 14)}${bar('62%', 32, ';margin-top:14px')}${bar('54%', 18, ';margin-top:22px')}${bar('100%', 44, ';margin-top:22px;border-radius:var(--r-button-compact)')}</div>`);
+    return `${PageTitle({ title: TITLES[tab], size: 'sm' })}<div class="client-content" role="status" aria-label="Загрузка раздела">${tab === 'c-home' ? hero : Skeleton(4)}</div>`;
+  }
+
   function shell(tab, body) {
     const scenario = Store.get().scenario;
     return `<div class="screen client-screen">
@@ -283,7 +306,7 @@ const Client = (() => {
         <div class="trainer-chip"><span class="trainer-chip__av" aria-hidden="true">${esc(DB.trainer.full.split(' ').map(w => w[0]).join('').slice(0, 2))}</span><span class="trainer-chip__text"><small>Ваш тренер</small>${esc(DB.trainer.name)}</span></div>
         <div class="topbar__side">${iconBtn('bell', { act: 'sheet.open', args: { id: 'notifications' }, label: 'Уведомления', size: 22 })}</div>
       </div>
-      <div class="screen__body">${scenario === 'loading' ? `<div class="client-content" role="status" aria-label="Загрузка раздела">${Skeleton(4)}</div>` : `${scenario === 'offline' && tab !== 'c-home' ? '<p class="client-offline" role="status">Нет связи. Показаны данные демо.</p>' : ''}${body}`}</div>
+      <div class="screen__body">${scenario === 'loading' ? loading(tab) : `${scenario === 'offline' && tab !== 'c-home' ? '<p class="client-offline" role="status">Нет связи. Показаны данные демо.</p>' : ''}${body}`}</div>
       ${TabBar('client', tab)}
     </div>`;
   }

@@ -29,7 +29,7 @@ test('mascot: static red panda poses and short-screen CTA', async ({ page }, inf
   await page.screenshot({ path: info.outputPath('panda-approved-short.png') });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator('#toolbar [data-act="scenario"][data-s="empty"]').click();
-  for (const [screen, pose] of [['Программа', 'reading'], ['Прогресс', 'rest']]) {
+  for (const [screen, pose] of [['Программа', 'reading'], ['Прогресс', 'ready'], ['Главная', 'rest']]) {
     await page.locator('#rail').getByRole('button', { name: screen, exact: true }).click();
     await page.setViewportSize(viewport);
     await expect(mascot).toHaveAttribute('data-mascot', pose);

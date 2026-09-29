@@ -1,0 +1,15 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "secondaryWidth": 320,
+  "roles": 2,
+  "tabs": 8,
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "inverseTextContrast": "verified in rendered CSS",
+  "errors": []
+}

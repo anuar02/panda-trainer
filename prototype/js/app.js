@@ -285,7 +285,10 @@
         <button ${act('role', { role: 'client' })} aria-pressed="${st.role === 'client'}">${Icon.get('user', { size: 16 })} Клиент</button>
       </div>
       <div class="toolbar" role="group" aria-label="Состояние">
-        ${scenarios.map(([id, s]) => `<button class="tool" ${act('scenario', { s: id })} aria-pressed="${st.scenario === id}" title="${esc(s.desc)}">${esc(s.label)}</button>`).join('')}
+        ${scenarios.map(([id, s]) => {
+          const copy = st.role === 'client' && s.client ? s.client : s;
+          return `<button class="tool" ${act('scenario', { s: id })} aria-pressed="${st.scenario === id}" title="${esc(copy.desc)}">${esc(copy.label)}</button>`;
+        }).join('')}
       </div>
       <div class="toolbar" role="group" aria-label="Оформление">
         <button class="tool" data-visual-choice="current" aria-pressed="${document.documentElement.dataset.visual !== 'firm'}">Текущий</button>
@@ -344,13 +347,14 @@
     device.classList.toggle('device--wide', wide);
 
     const screenEl = document.getElementById('screen');
-    screenEl.innerHTML = `
-      ${html}
-      ${wide ? '' : UI.StatusBar()}
-      <span class="device__home"></span>
-      ${UI.Sheet(!!st.sheet, sheetInner, st.sheet?.id)}
-      ${UI.Toast(st.toast)}
-    `;
+    const { sheetLayer, toastEl } = overlays(screenEl);
+    // Replace the screen but keep the sheet and toast nodes, so their CSS
+    // transitions have a previous state to animate from.
+    for (const child of [...screenEl.childNodes]) if (child !== sheetLayer && child !== toastEl) child.remove();
+    sheetLayer.insertAdjacentHTML('beforebegin', `${html}${wide ? '' : UI.StatusBar()}<span class="device__home"></span>`);
+    const reduceMotion = motionPreference.matches;
+    syncSheet(sheetLayer, st, sheetInner, reduceMotion || keyboardAction || st.sheet?.id === 'setlog' || lastFrame?.sheetId === 'setlog');
+    syncToast(toastEl, st.toast);
 
     const dock = UI.WorkoutDock();
     if (dock) {
@@ -364,7 +368,6 @@
     if (body) body.scrollTop = justFinished ? 0 : journalScroll.get(journalKey) || 0;
     const strip = screenEl.querySelector('.pstrip');
     if (strip) strip.scrollLeft = stripScroll;
-    const reduceMotion = motionPreference.matches;
     // Repetitive set entry and keyboard actions are immediate. An occasional sheet
     // may enter spatially; edits and close never wait for decorative movement.
     if (!reduceMotion && !keyboardAction && st.sheet && st.sheet.id !== 'setlog' && !sameSheet) {
@@ -416,7 +419,68 @@
       body.addEventListener('scroll', syncContext, { passive: true });
       syncContext();
     }
-    lastFrame = { journalKey, sessionId: st.logging.sessionId, finished: st.logging.finished, sheetKey: nextSheetKey };
+    lastFrame = { journalKey, sessionId: st.logging.sessionId, finished: st.logging.finished, sheetKey: nextSheetKey, sheetId: st.sheet?.id };
+  }
+
+  /* ── Persistent overlays ─────────────────────────────────────────────────── */
+
+  let overlayNodes = null;
+  function overlays(screenEl) {
+    if (overlayNodes?.sheetLayer.isConnected) return overlayNodes;
+    const tpl = document.createElement('template');
+    tpl.innerHTML = UI.Sheet(false, '', '') + UI.Toast(null);
+    const [sheetLayer, toastEl] = tpl.content.children;
+    screenEl.append(sheetLayer, toastEl);
+    overlayNodes = { sheetLayer, toastEl };
+    return overlayNodes;
+  }
+
+  /* Runs `change` with CSS transitions off, so the new state applies at once. */
+  function withoutTransition(els, change) {
+    els.forEach(el => { el.style.transition = 'none'; });
+    change();
+    els.forEach(el => { void el.offsetWidth; el.style.transition = ''; });
+  }
+
+  function syncSheet(layer, st, inner, instant) {
+    const sheet = layer.querySelector('.sheet');
+    const scrim = layer.querySelector('.sheet__scrim');
+    const open = Boolean(st.sheet);
+    const wasOpen = layer.classList.contains('is-open');
+    // Closing keeps the old content so the sheet slides out whole; inert keeps it
+    // out of the tab order while it leaves.
+    if (open) {
+      sheet.dataset.sheet = st.sheet.id;
+      sheet.querySelector('.sheet__body').innerHTML = inner;
+    }
+    const apply = () => {
+      layer.classList.toggle('is-open', open);
+      layer.setAttribute('aria-hidden', String(!open));
+      layer.inert = !open;
+    };
+    // Opening slides in through the WAAPI call in render(); the CSS transition
+    // would double it. Frequent and keyboard actions skip motion entirely.
+    if (instant) withoutTransition([sheet, scrim], apply);
+    else if (open && !wasOpen) withoutTransition([sheet], apply);
+    else apply();
+    // Once closed, drop the old content so hidden ids and text never shadow the page.
+    if (!open && wasOpen) {
+      const clear = () => { if (!layer.classList.contains('is-open')) sheet.querySelector('.sheet__body').innerHTML = ''; };
+      if (instant) clear();
+      else setTimeout(clear, parseFloat(getComputedStyle(sheet).getPropertyValue('--dur-sheet')) + 40);
+    }
+  }
+
+  let lastToast = null;
+  function syncToast(el, toast) {
+    // Hiding keeps the text so it fades out instead of blinking empty.
+    if (toast && toast !== lastToast) {
+      el.className = `toast${toast.kind ? ' is-' + toast.kind : ''}`;
+      el.innerHTML = UI.Toast(toast).replace(/^<div[^>]*>|<\/div>$/g, '');
+      void el.offsetWidth;
+    }
+    el.classList.toggle('is-on', Boolean(toast));
+    lastToast = toast;
   }
 
   /* ── Event delegation ────────────────────────────────────────────────────── */
@@ -468,7 +532,10 @@
   document.addEventListener('keydown', (e) => {
     // Typing/keyboard navigation settles any in-flight drawer immediately.
     document.querySelector('.sheet')?.getAnimations().forEach(animation => animation.cancel());
-    if (e.key === 'Escape') { if (Store.get().sheet) Store.ui.closeSheet(); return; }
+    if (e.key === 'Escape') {
+      if (Store.get().sheet) { keyboardAction = true; try { Store.ui.closeSheet(); } finally { keyboardAction = false; } }
+      return;
+    }
     if (e.key === 'Enter' && e.target.matches('[data-log-field]') && !e.isComposing) {
       e.preventDefault();
       if (e.target.dataset.logField === 'kg') document.getElementById('log-reps')?.focus();

@@ -188,6 +188,14 @@ const DB = (() => {
       status: 'confirmed', attendance: null, participants: [{ clientId: 'c2', reply: 'confirmed' }],
       request: { id: 'r2', sessionId: 's9', clientId: 'c2', type: 'reschedule', from: { date: '2026-09-15', start: '14:00', end: '15:00' }, to: { date: '2026-09-16', start: '11:30', end: '12:30' }, state: 'pending', awaiting: 'trainer', author: 'client' },
     },
+    // Айгерим's past bookings. Attendance, charges (unitTx) and recorded sets
+    // (history) must describe the same visits: 4 held sessions + 1 no-show = 5 used.
+    ...[['2026-08-19', 'present'], ['2026-08-26', 'present'], ['2026-09-02', 'present'], ['2026-09-09', 'present'], ['2026-09-11', 'noshow']]
+      .map(([date, attendance], i) => ({
+        id: 'sp' + (i + 1), date, start: '18:00', end: '19:00', kind: 'personal',
+        title: 'Индивидуальная', program: 'Низ А', clientId: 'c1',
+        status: 'confirmed', attendance, participants: [{ clientId: 'c1', reply: 'confirmed' }],
+      })),
   ];
 
   /* ── Active session demo (Мади · Жим лёжа) ─────────────────────────────────
@@ -239,14 +247,14 @@ const DB = (() => {
   /* ── Payments (two independent histories) ───────────────────────────────── */
 
   const purchases = [
-    { id: 'p1', clientId: 'c1', title: 'Пакет 12 занятий', price: 60000, paid: 20000, due: 40000, date: '2026-08-28', expires: '2026-11-28', units: 12, used: 5 },
+    { id: 'p1', clientId: 'c1', title: 'Пакет 12 занятий', price: 60000, paid: 20000, due: 40000, date: '2026-08-18', expires: '2026-11-18', units: 12, used: 5 },
     { id: 'p2', clientId: 'c2', title: 'Пакет 8 занятий', price: 44000, paid: 44000, due: 0, date: '2026-07-14', expires: '2026-10-14', units: 8, used: 6 },
     { id: 'p3', clientId: 'c4', title: 'Разовые занятия', price: 24000, paid: 18000, due: 6000, date: '2026-09-01', expires: null, units: 4, used: 3 },
     { id: 'p4', clientId: 'c5', title: 'Пакет 12 занятий', price: 60000, paid: 60000, due: 0, date: '2026-06-10', expires: '2026-10-10', units: 12, used: 7 },
   ];
 
   const payments = [
-    { id: 'pay1', clientId: 'c1', amount: 20000, date: '2026-08-28', method: 'Kaspi', note: 'Первая часть' },
+    { id: 'pay1', clientId: 'c1', amount: 20000, date: '2026-08-18', method: 'Kaspi', note: 'Первая часть' },
     { id: 'pay2', clientId: 'c2', amount: 44000, date: '2026-07-14', method: 'Перевод', note: '' },
     { id: 'pay3', clientId: 'c4', amount: 18000, date: '2026-09-01', method: 'Наличные', note: 'Остаток 6 000' },
     { id: 'pay4', clientId: 'c5', amount: 60000, date: '2026-06-10', method: 'Kaspi', note: '' },
@@ -260,6 +268,9 @@ const DB = (() => {
     { id: 'u4', clientId: 'c2', delta: +1, date: '2026-09-12', reason: 'Исправление: неявка снята', source: 'p2' },
     { id: 'u5', clientId: 'c4', delta: -1, date: '2026-09-08', reason: 'Проведённое занятие', source: 'p3' },
     { id: 'u6', clientId: 'c1', delta: -1, date: '2026-09-02', reason: 'Проведённое занятие', source: 'p1' },
+    { id: 'u7', clientId: 'c1', delta: -1, date: '2026-08-19', reason: 'Проведённое занятие', source: 'p1' },
+    { id: 'u8', clientId: 'c1', delta: -1, date: '2026-08-26', reason: 'Проведённое занятие', source: 'p1' },
+    { id: 'u9', clientId: 'c1', delta: -1, date: '2026-09-11', reason: 'Неявка', source: 'p1' },
   ];
 
   /* ── Client history (Прогресс) ──────────────────────────────────────────── */
@@ -294,10 +305,14 @@ const DB = (() => {
   /* ── Visual states used by the prototype toolbar ────────────────────────── */
 
   const SCENARIOS = {
-    normal: { label: 'Обычный день', desc: '7 занятий, 2 требуют ответа, пересечение 18:00/18:30.' },
-    empty: { label: 'Пустой день', desc: 'Нет занятий — объяснение и «Добавить занятие».' },
-    loading: { label: 'Загрузка', desc: 'Скелетоны вместо ленты.' },
-    offline: { label: 'Нет связи', desc: 'Журнал сохраняется локально; синхронизация с сервером не реализована.' },
+    normal: { label: 'Обычный день', desc: '7 занятий, 2 требуют ответа, пересечение 18:00/18:30.',
+      client: { label: 'Обычный', desc: 'Ближайшая запись, перенос на рассмотрении, пакет и история.' } },
+    empty: { label: 'Пустой день', desc: 'Нет занятий — объяснение и «Добавить занятие».',
+      client: { label: 'Пусто', desc: 'Новый клиент: записей, программы и истории ещё нет.' } },
+    loading: { label: 'Загрузка', desc: 'Скелетоны вместо ленты.',
+      client: { label: 'Загрузка', desc: 'Скелетон повторяет форму будущего содержимого.' } },
+    offline: { label: 'Нет связи', desc: 'Журнал сохраняется локально; синхронизация с сервером не реализована.',
+      client: { label: 'Нет связи', desc: 'Данные только для чтения: перенос и отмена недоступны до восстановления связи.' } },
   };
 
   return {

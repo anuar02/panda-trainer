@@ -66,7 +66,7 @@ const Trainer = (() => {
         <div class="session__title">${esc(title)} ${s.status !== 'cancelled' && !group && c ? `<span class="kind">${esc(s.program || '')}</span>` : ''}</div>
         <div class="session__meta">${meta}</div>
         ${group ? participantMini(s) : ''}
-        ${req && req.state === 'pending' ? `<div style="margin-top:9px">${Pill('Ожидает ответа тренера', { tone: 'amber', pulse: true })}</div>` : ''}
+        ${req && req.state === 'pending' ? `<div style="margin-top:9px">${Pill('Ожидает ответа тренера', { tone: 'amber' })}</div>` : ''}
         ${attPill ? `<div style="margin-top:9px">${attPill}</div>` : ''}
         ${actions}
       </div>
@@ -609,7 +609,7 @@ const Trainer = (() => {
             <div style="font-size:15.5px;font-weight:700">${esc(c ? c.name : 'Клиент')}</div>
             <div style="font-size:13px;font-weight:500;color:var(--sec);margin-top:2px">Запрос на перенос · ${r.author === 'trainer' ? 'предложено вами' : 'предложено клиентом'}</div>
           </div>
-          ${r.awaiting === 'trainer' ? Pill('Ждёт вас', { tone: 'amber', pulse: true }) : Pill('Ждёт клиента', { tone: 'neutral', dot: false })}
+          ${r.awaiting === 'trainer' ? Pill('Ждёт вас', { tone: 'amber' }) : Pill('Ждёт клиента', { tone: 'neutral', dot: false })}
         </div>
         <div style="margin-top:14px">
           ${UI.esc('')}<div class="diffcard ${r.state === 'counter' ? '' : 'is-warn'}" style="border:none;background:var(--sunken);padding:14px">
@@ -1038,7 +1038,7 @@ const Trainer = (() => {
     const inv = st.invite;
     const statePill = {
       not_connected: Pill('Не подключён', { tone: 'neutral', dot: false }),
-      link_created: Pill('Ссылка создана', { tone: 'amber', pulse: true }),
+      link_created: Pill('Ссылка создана', { tone: 'amber' }),
       connected: Pill('Подключился', { tone: 'mint', dot: false }),
     }[inv.state];
 

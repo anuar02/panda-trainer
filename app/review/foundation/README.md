@@ -1,0 +1,68 @@
+# Проверка каркаса — 29 сентября 2026
+
+[Draft PR #17](https://github.com/anuar02/panda-trainer/pull/17).
+Каркас реализован; полная нативная приёмка ещё не закрыта.
+
+## Пройдено
+
+- Проверен план `a83d5a6` (PR #16); исходный HEAD `e0b6760` содержит изменения прототипа.
+- Существующие unit-тесты прототипа: 82/82.
+- `npm ci`, TypeScript strict, ESLint, Prettier; тесты приложения: 48/48.
+- `expo install --check`: зависимости соответствуют SDK 57.
+- Metro export: бандлы iOS/Android и статический web.
+- Локальный Supabase: миграция и сид применены, `db lint` без ошибок, pgTAP 1/1 PASS.
+  Стек этого проекта остановлен после проверки.
+- GitHub Actions для исходного коммита `2297224`: оба job `app` и `database` PASS
+  ([запуск](https://github.com/anuar02/panda-trainer/actions/runs/36551453348)).
+- Web: две роли, все восемь вкладок, светлая/тёмная темы, ширина 320 px;
+  контраст инверсного текста проверен через computed CSS. `web-check.json`.
+- Android API 36, Pixel 9, Expo Go 57.0.9: выбор ролей, все восемь вкладок,
+  смена роли и темы; deep link `/review`.
+- Android: шторка открывается, закрывается системной кнопкой и жестом, затем
+  повторно открывается. Исправлен вызов `dismiss()` до первого `present()` и
+  повторный вызов после жеста; два unit-теста защищают эти случаи.
+- Android: поле принимает текст с открытой нативной клавиатурой; тост появляется
+  после нажатия. Снимки `android-keyboard.png`, `android-toast.png`.
+- Android: масштаб 150% — профиль, вкладки и галерея читаемы; шторка открывается
+  при выключенных системных анимациях. Исходные настройки восстановлены.
+- iOS 26.2, iPhone 16e, Expo Go 57.0.9: приложение запускается, открываются
+  `/today`, `/home`, `/review`; сохранены нативные снимки обеих навигаций.
+- `git diff --check`; граф обновлён `graft build`.
+
+Снимки `android-*` и `ios-*` — нативные эмуляторы/симуляторы.
+Значок шестерёнки и предупреждение поверх некоторых снимков относятся к Expo Go.
+Снимки `web-*` относятся только к браузеру. Настоящие телефоны не проверялись.
+
+## Ограничения и оставшаяся приёмка
+
+- В Expo Router 57.0.23 сохраняется гонка начальной ссылки:
+  `Can't perform a React state update on a component that hasn't mounted yet`.
+  Стек `useLinking.native.js` → `onUnhandledLinking` совпадает с
+  [Expo #49378](https://github.com/expo/expo/issues/49378).
+  Warning не подавляется; переходы и шторка после него работают.
+- Автоматизация нажатий iOS через Computer Use недоступна:
+  `Sky Computer Use native pipe startup failed`. Проверка iOS пока ограничена
+  запуском, deep links и снимками. Нужен проход вкладок, темы, шторки,
+  клавиатуры, крупного текста и уменьшения движения на iOS.
+- Смена системного font scale при работающем Expo Go Android вызвала сбой
+  Worklets (`Required value was null`). При установке масштаба до чистого запуска
+  приложение работает; проверены профиль и галерея. Исходный масштаб 1.0 восстановлен.
+- Для development build SDK 57 требуется Xcode 26.4+; установлен 26.2.
+  Проверка выполнялась в готовом Expo Go, локальный native build не выполнялся.
+
+## Локальное окружение базы
+
+Существующий корневой `.env.local` не соответствует dotenv. Его содержимое не
+изменялось. Для проверки использован изолированный workdir:
+
+```sh
+mkdir -p /tmp/trainerapp-foundation-db
+ln -sfn "$PWD/supabase" /tmp/trainerapp-foundation-db/supabase
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db start
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db db lint --local --fail-on warning
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db test db
+app/node_modules/.bin/supabase --workdir /tmp/trainerapp-foundation-db stop
+```
+
+В чистом checkout GitHub Actions обычные команды `npm run db -- …` проходят.
+Облачные проекты, реальные данные клиентов и платные сборки не использовались.

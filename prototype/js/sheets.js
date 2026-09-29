@@ -270,7 +270,7 @@ const Sheets = (() => {
     const pick = st.reschedulePick || { date: s.date, start: s.start };
     const duration = (Number(s.end.slice(0, 2)) - Number(s.start.slice(0, 2))) * 60 + Number(s.end.slice(3)) - Number(s.start.slice(3));
     return `<div class="sheet__title">${st.sheet.data.rid ? 'Встречное предложение' : 'Перенос занятия'}</div>
-      <div class="sheet__sub">${esc(client(s.clientId).name)} · ${duration} мин</div>
+      <div class="sheet__sub">${st.role === 'client' ? `С тренером ${esc(DB.trainer.name)}` : esc(client(s.clientId).name)} · ${duration} мин</div>
       <div class="reschedule-current"><strong>Действует</strong><span>${DB.fmtDateLong(s.date)}, ${s.start}–${s.end}</span></div>
       <p class="log-editor-hint">Дата и время ниже — предложение. Расписание изменится только после ответа второй стороны.</p>
       <div class="reschedule-fields">
@@ -287,7 +287,7 @@ const Sheets = (() => {
     if (!s) return '<div class="sheet__title">Выберите занятие</div>';
     return `<div class="sheet__title">Отменить запись?</div>
       <div class="reschedule-current">${DB.fmtDateLong(s.date)}, ${s.start}–${s.end}</div>
-      <div class="sheet__sub">При отмене тренер отдельно решает вопрос списания. Отмена не создаёт автоматический штраф и не гарантирует, что занятие не будет списано.</div>
+      <div class="sheet__sub">Тренер получит уведомление. Спишется ли занятие из пакета, тренер решит отдельно — автоматически ничего не списывается.</div>
       <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
         ${Btn('Отменить запись', { kind: 'danger', a: 'cres.cancel', args: { sid: s.id } })}
         ${Btn('Оставить занятие', { kind: 'soft', a: 'sheet.close' })}

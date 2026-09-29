@@ -1,0 +1,1 @@
+-- Initial baseline. Domain tables, grants and RLS policies arrive in stage 2.
