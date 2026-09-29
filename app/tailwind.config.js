@@ -30,6 +30,10 @@ module.exports = {
         button: `${tokens.size.button}px`,
       },
       fontSize: {
+        body: [
+          `${tokens.fontSize.body}px`,
+          { lineHeight: `${tokens.lineHeight.body}px` },
+        ],
         title: [`${tokens.fontSize.title}px`, { lineHeight: '36px' }],
       },
     },
