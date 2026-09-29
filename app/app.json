@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Тренировочный блокнот",
+    "slug": "panda-trainer",
+    "version": "0.1.0",
+    "scheme": "panda-trainer",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "predictiveBackGestureEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router", "expo-font", "expo-system-ui"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,0 +1,1 @@
+-- Intentionally empty until the fictional fixtures in stage 2.
