@@ -11,6 +11,10 @@
 
 ## Решение
 
+Подробнее об отдельных решениях: [ADR 0008](0008-text-class-merging.md),
+[ADR 0009](0009-supabase-cli.md). Цвета заменены эталоном,
+[ADR 0007](0007-ui-reference.md); исходные значения ниже сохранены как история.
+
 - Expo SDK 57 и совместимые версии через `expo install`; NativeWind 4.2.7 и Tailwind 3.
   NativeWind 5 пока RC, SDK 58 — beta: prerelease не используем.
 - Expo Router: маршруты в `app/app/`, две группы вкладок и временный выбор роли.
