@@ -7,6 +7,6 @@ FFMPEG="${FFMPEG:-$(python3 -c 'import imageio_ffmpeg as f; print(f.get_ffmpeg_e
 IN="$1"; OUT="$2"
 KEY="chromakey=0x00B140:0.13:0.06,despill=type=green:mix=0.6:expand=0.1,scale=512:-2:flags=lanczos"
 "$FFMPEG" -y -i "$IN" -vf "$KEY,format=yuva420p" -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 34 -row-mt 1 -an "$OUT.webm"
-"$FFMPEG" -y -i "$IN" -vf "$KEY,fps=24,scale=360:-2:flags=lanczos" -c:v libwebp_anim -lossless 0 -q:v 70 -loop 0 -an "$OUT.webp"
+"$FFMPEG" -y -i "$IN" -vf "$KEY,fps=12,scale=320:-2:flags=lanczos" -c:v libwebp_anim -lossless 0 -q:v 60 -compression_level 6 -loop 0 -an "$OUT.webp"
 "$FFMPEG" -y -i "$IN" -vf "$KEY" -frames:v 1 "$OUT-poster.png"
 ls -la "$OUT".webm "$OUT".webp "$OUT"-poster.png

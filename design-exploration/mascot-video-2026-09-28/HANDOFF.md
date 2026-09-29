@@ -84,6 +84,30 @@ no shadows on the background. Seamless loop.
 - Во фронтенд-коде не писать комментарии (правило пользователя).
 - Сообщения пользователю — по-русски; ключ никогда не выводить и не коммитить.
 
+## Результат 29 сентября: первый ролик `wave`
+
+Прямой API работает. Проверено по https://docs.higgsfield.ai/docs/models/minimax-h3/image-to-video.md:
+
+- База `https://api.higgsfield.ai`, заголовок `Authorization: Key $HIGGSFIELD_API_KEY`
+  (переменная уже содержит `id:secret`). Python `urllib` получает 403 из-за User-Agent —
+  использовать `curl`.
+- Загрузка: `POST /files/generate-upload-url` `{"content_type":"image/png"}` → PUT файла на
+  `upload_url` с заголовками из `upload_headers` → `public_url` в запрос.
+- Генерация: `POST /minimax/h3/image-to-video` с `prompt`, `image_url`, `end_image_url`
+  (тот же URL для петли), `duration: 5`, `aspect_ratio: "1:1"`. Разрешение всегда `2K`,
+  на выходе 1440×1440, 24 fps, 5,17 с, со звуком (скрипт его выкидывает).
+- Цена: `POST /estimate/minimax/h3/image-to-video` с тем же телом — 7,28 кредита ≈ $0,455.
+- Статус: `status_url` из ответа (`platform.higgsfield.ai/requests/<id>/status`), ~3 мин.
+  Видео отдаётся с `d3u0tzju9qaucj.cloudfront.net`, сеть пускает.
+- Другие модели с `end_image_url`: Seedance 2.0/2.5, Wan 3.0/2.7, PixVerse v6 (цены не проверены).
+
+Итог в `out/`: `wave-raw.mp4` (исходник), `wave.webm` (~200 КБ, 512 px),
+`wave.webp` (12 fps, 320 px, ~550 КБ — WebP тяжёлый, 256 px дают ~440 КБ),
+`wave-poster.png`, `wave-contact.png` (раскадровка), `wave-alpha-check.png`
+(светлый/кремовый/тёмный фон). Фон ролика держится на `#00AC40`, кей чистый, морда и
+уши полностью непрозрачны. Шов петли: средняя разница первого и последнего кадра ≈ 1/255.
+Промпт — `prompt-wave.txt`, тело запроса — `out/req-wave.json`.
+
 ## Встраивание в прототип (после одобрения роликов)
 
 1. Файлы положить в `prototype-fresh/assets/mascot/video/<pose>.webm|.webp|-poster.png`.
