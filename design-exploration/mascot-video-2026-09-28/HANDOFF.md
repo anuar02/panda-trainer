@@ -108,6 +108,16 @@ no shadows on the background. Seamless loop.
 уши полностью непрозрачны. Шов петли: средняя разница первого и последнего кадра ≈ 1/255.
 Промпт — `prompt-wave.txt`, тело запроса — `out/req-wave.json`.
 
+## Остальные 6 поз (29 сентября)
+
+`gen_pose.sh <pose>` загружает `keyframes/<pose>-green.png`, берёт `prompt-<pose>.txt` и
+ставит задачу в MiniMax H3 (те же параметры, что у `wave`). Все 6 сгенерированы, шов петли
+у всех ≈ 1/255, фон стабилен. Раскадровка — `out/all-contact.png`.
+
+- `thumbs`, `clipboard`, `sit`, `sleep`, `stretch` — персонаж и стиль держатся.
+- `jump` — **брак**: после приземления хвост перескакивает с левой стороны на правую и
+  обратно (`out/jump-mid.png`). Нужна перегенерация с явным «хвост остаётся слева».
+
 ## Встраивание в прототип (после одобрения роликов)
 
 1. Файлы положить в `prototype-fresh/assets/mascot/video/<pose>.webm|.webp|-poster.png`.
