@@ -488,18 +488,22 @@ test('cancellation after opening journal blocks further input without deleting f
 
 test('client visit calendar is based on recorded attendance, not bookings', () => {
   const { run } = app();
-  assert.equal((run('Client.progress()').match(/heat__cell is-on/g) || []).length, 0);
+  const visits = () => (run('Client.progress()').match(/heat__cell is-on/g) || []).length;
+  const base = visits(); // past demo visits in the 4-week window
+  assert.equal(base, 3);
+  assert.equal((run('Client.progress()').match(/heat__cell is-skip/g) || []).length, 1);
   run("Store.attendance.markOnly('s4','c1')");
-  assert.equal((run('Client.progress()').match(/heat__cell is-on/g) || []).length, 1);
+  assert.equal(visits(), base + 1);
   run("Store.attendance.mark('s4','c1','noshow')");
-  assert.equal((run('Client.progress()').match(/heat__cell is-on/g) || []).length, 0);
+  assert.equal(visits(), base);
 });
 
 test('a completed journal alone is not a client attendance record', () => {
   const { run } = app();
   run("Store.logging.open('s4'); Store.logging.finish(); Store.logging.confirmPartial()");
   assert.match(run('Client.history()'), /Журнал завершён/);
-  assert.equal((run('Client.progress()').match(/heat__cell is-on/g) || []).length, 0);
+  // Only the three past demo visits; the finished journal adds none.
+  assert.equal((run('Client.progress()').match(/heat__cell is-on/g) || []).length, 3);
 });
 
 test('history includes group attendance and labels cancelled bookings honestly', () => {

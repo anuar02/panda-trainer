@@ -57,6 +57,7 @@
 }
 .btn:active { transform: scale(.985); }
 .btn:disabled { cursor: default; }
+.btn--soft:disabled, .btn--ghost:disabled, .btn--outline:disabled { opacity: .45; }
 .btn--primary { background: var(--ink); color: #fff; }
 .btn--primary:disabled { background: #c9c9cd; }
 .btn--soft { background: var(--sunken); color: var(--ink); }
@@ -299,6 +300,9 @@
 .tabbar__item:active .tabbar__icon { color: var(--ink); }
 .tabbar__item:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; border-radius: var(--r-focus); }
 @media (prefers-reduced-motion: reduce) { .tabbar__item::before { transition: none; } }
+/* Five client tabs: the label scales down with the bar so «Программа» fits at 320. */
+.client-screen .tabbar { padding-inline: 2px; container-type: inline-size; }
+.client-screen .tabbar__label { font-size: max(10px, min(10.5px, 3.4cqi)); letter-spacing: -.2px; }
 .tabbar__item .count {
   position: absolute;
   transform: translate(16px, -6px);
@@ -1370,10 +1374,10 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
   font-size: 30px;
   letter-spacing: -.6px;
   line-height: 1.2;
-  margin-top: 5px;
+  margin-top: 14px;
 }
 .hero-card__when span { font-weight: 600; }
-.hero-card__date { font-size: 14px; font-weight: 500; color: var(--sec); margin-top: 20px; }
+.hero-card__date { font-size: 14px; font-weight: 600; color: var(--sec); }
 .hero-card__meta {
   display: grid;
   gap: 4px;
@@ -1383,9 +1387,6 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
 }
 .hero-card__meta h2 { font: 700 18px/1.3 var(--ui); color: var(--ink); }
 .hero-card__actions { display: flex; flex-direction: column; gap: 4px; margin-top: 20px; }
-.client-requests { padding: 0 16px; margin-top: 22px; }
-.client-requests > h2 { font: 700 16px/1.35 var(--ui); margin: 0 4px 12px; }
-.client-request + .client-request { margin-top: 12px; }
 .hero-card .client-request { margin-top: 18px; }
 .client-request.pending { background: var(--surface); border: 1px solid var(--border); padding: 16px; }
 .client-request .pending__lbl { font-size: 13px; letter-spacing: 0; text-transform: none; }
@@ -1407,6 +1408,9 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
 .client-upcoming .section-h h2 { font: 700 16px/1.35 var(--ui); }
 .client-upcoming .row__meta { white-space: normal; overflow-wrap: anywhere; }
 .client-upcoming .row__right:empty { display: none; }
+.client-upcoming__item + .client-upcoming__item { border-top: 1px solid var(--hair); }
+.client-upcoming__request { padding: 0 6px 6px; }
+.client-upcoming__request .client-request { margin: 0; }
 
 /* Client reference screens: readable records, not miniature dashboard tiles. */
 .client-content { padding: 0 16px; }
@@ -1425,8 +1429,9 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
 .client-empty h3 { font: 700 17px/1.4 var(--ui); margin-top: 14px; }
 .client-empty p { font-size: 13px; line-height: 1.55; color: var(--sec); margin-top: 6px; }
 .client-empty + .btn { margin-top: 14px; }
-.client-empty--mascot { background: transparent; padding: 8px 12px 20px; }
-.client-empty__mascot { width: 108px; height: 162px; margin-bottom: 16px; }
+.client-empty--mascot { background: transparent; padding: 8px 12px 20px; text-align: center; }
+.client-empty--mascot p { max-width: 300px; margin-inline: auto; }
+.client-empty__mascot { margin: 0 auto 16px; }
 .client-history > section + section, .client-profile > section { margin-top: 24px; }
 .client-history__entry { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 16px; padding: 20px 16px; }
 .client-history__entry + .client-history__entry { border-top: 1px solid var(--hair); }
@@ -1440,7 +1445,11 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
 .client-unit { font: 700 18px/1.2 var(--disp); white-space: nowrap; }
 .client-visits { margin-top: 24px; }
 .client-weekday { font-size: 11px; font-weight: 500; color: var(--sec); text-align: center; }
-.client-visits .heat__cell.is-off { color: var(--sec); }
+.client-visits .heat { gap: 5px; }
+.client-visits .heat__cell { font-size: 11px; }
+.client-visits .heat__cell.is-off { color: var(--sec); background: var(--canvas); }
+.client-visits .heat__cell.is-future { color: var(--ter); background: transparent; }
+.client-visits .heat__cell.is-today { box-shadow: inset 0 0 0 1.5px var(--accent); }
 .client-profile__person { display: flex; gap: 12px; align-items: center; }
 .client-profile__person > div:last-child { min-width: 0; }
 .client-profile__person h2 { font: 750 20px/1.3 var(--disp); overflow-wrap: anywhere; }
@@ -1466,8 +1475,9 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
 .request-inbox .diffcard__side .t { font: 700 13px/1.4 var(--ui); white-space: nowrap; }
 .request-inbox .diffcard__side .d { font-size: 12px; line-height: 1.5; }
 .progress-records { padding: 0 16px; display: grid; gap: 14px; }
-.progress-picker { display: flex; flex-wrap: wrap; gap: 8px; }
-.progress-picker .chip { max-width: 100%; white-space: normal; text-align: left; min-height: 44px; line-height: 1.4; }
+.progress-picker { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; }
+.progress-picker::-webkit-scrollbar { display: none; }
+.progress-picker .chip { flex-shrink: 0; white-space: nowrap; min-height: 44px; line-height: 1.4; }
 .progress-records h2 { font: 650 16px/1.4 var(--ui); }
 .progress-summary__date { color: var(--sec); font-size: 12px; margin-top: 6px; }
 .progress-summary__value { display: flex; align-items: baseline; gap: 8px; margin-top: 18px; }
@@ -1603,7 +1613,9 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
 .invite-card p { font-size: 14px; font-weight: 500; color: var(--sec); line-height: 1.5; margin-top: 8px; }
 
 /* Authored illustration is reserved for first connection, never set entry. */
-.onboarding .screen__body { padding: 12px 20px 32px; }
+.onboarding .screen__body { padding: 52px 20px 32px; }
+@media (max-width: 600px) { .device .onboarding .screen__body { padding-top: 12px; } }
+.onboarding-states { scroll-snap-type: x proximity; mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
 .onboarding-demo { margin-bottom: 20px; min-width: 0; }
 .onboarding-demo > span { display: block; font-size: 11px; color: var(--sec); margin-bottom: 8px; }
 .onboarding-states { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; }
@@ -1615,11 +1627,14 @@ button.setrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 
    multiplying into the canvas; this also slightly brightens the illustration. */
 .onboarding-art { width: 216px; height: 216px; margin: 0 auto 16px; }
 .client-empty__mascot { width: 162px; height: 162px; }
-.mascot { display: flex; justify-content: center; overflow: hidden; contain: layout paint; mix-blend-mode: multiply; pointer-events: none; user-select: none; }
+.mascot { display: flex; align-items: center; justify-content: center; overflow: hidden; contain: layout paint; mix-blend-mode: multiply; pointer-events: none; user-select: none; }
 .mascot__crop { position: relative; display: block; height: 100%; overflow: hidden; flex: none; }
 .mascot-art { position: absolute; display: block; max-width: none; filter: brightness(1.08); }
 /* Exclude the adjacent jumping pose's hand from the waiting crop. */
 .mascot[data-mascot="waiting"] .mascot__crop { clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%, 0 25%, 8% 25%); }
+/* …and the stretching pose's tail from the sleeping crop. */
+.mascot[data-mascot="rest"] .mascot__crop { clip-path: polygon(6.5% 0, 100% 0, 100% 100%, 0 100%, 0 64%, 6.5% 64%); }
+.client-empty__mascot[data-mascot="rest"] { width: 200px; height: 126px; }
 @media (max-height: 650px) {
   .onboarding-art { width: 120px; height: 120px; }
   .onboarding-demo { margin-bottom: 12px; }

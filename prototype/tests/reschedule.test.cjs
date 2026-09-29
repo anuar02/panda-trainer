@@ -6,9 +6,9 @@ const vm = require('node:vm');
 
 function app() {
   const memory = new Map();
-  const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0,
+  const context = vm.createContext({ console, URLSearchParams, setTimeout: () => 0, window: {},
     localStorage: { getItem: k => memory.get(k) || null, setItem: (k, v) => memory.set(k, v) } });
-  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'sheets', 'screens/trainer', 'screens/client']) {
+  for (const name of ['icons', 'data', 'session-repository', 'store', 'ui', 'mascot', 'sheets', 'screens/trainer', 'screens/client']) {
     vm.runInContext(fs.readFileSync(path.join(__dirname, '../js', name + '.js'), 'utf8'), context);
   }
   return code => vm.runInContext(code, context);
@@ -107,14 +107,16 @@ test('existing live request cannot be duplicated', () => {
   assert.equal(run('Object.keys(Store.get().requests).length'), 2);
 });
 
-test('client hero stays chronological, later transfer is a separate card', () => {
+test('client hero stays chronological, later transfer stays with its booking', () => {
   const run = app(); run("Store.nav.role('client')");
   const html = run('Client.home()');
   const text = html.replace(/<[^>]*>/g, '');
   assert.ok(text.indexOf('21:15–22:00') >= 0);
   assert.ok(text.indexOf('18:00–19:00') >= 0);
   assert.ok(text.indexOf('21:15–22:00') < text.indexOf('18:00–19:00'));
-  assert.match(html, /Переносы других занятий/);
+  // The Thursday request is rendered inside the Thursday row, not a detached list.
+  assert.match(html, /class="client-upcoming__item">[\s\S]*?17 сен · 18:00[\s\S]*?client-upcoming__request[\s\S]*?Отозвать запрос/);
+  assert.doesNotMatch(html, /Переносы других занятий/);
   assert.match(html, /data-act="cres.open" data-sid="s7"/);
   run("Store.sessions.cancel('s7'); Store.sessions.cancel('s8')");
   assert.match(run('Client.home()'), /Записей нет/);

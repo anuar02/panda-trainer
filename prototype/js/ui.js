@@ -35,8 +35,8 @@ const UI = (() => {
       ${icon ? Icon.get(icon, { size: 20, sw: 2.4 }) : ''}<span>${esc(label)}</span></button>`;
 
   /* ── Pill ────────────────────────────────────────────────────────────────── */
-  const Pill = (label, { tone = 'mint', dot = true, pulse = false, cls = '' } = {}) =>
-    `<span class="pill pill--${tone}${dot ? '' : ' pill--nodot'}${pulse ? ' pill--pulse' : ''}${cls ? ' ' + cls : ''}">
+  const Pill = (label, { tone = 'mint', dot = true, cls = '' } = {}) =>
+    `<span class="pill pill--${tone}${dot ? '' : ' pill--nodot'}${cls ? ' ' + cls : ''}">
       ${dot ? '<i class="pill__dot"></i>' : ''}${esc(label)}</span>`;
 
   /* ── Card ────────────────────────────────────────────────────────────────── */

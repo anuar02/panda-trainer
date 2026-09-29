@@ -131,7 +131,11 @@ const Store = (() => {
         if (state.toast && state.toast.at === at) set({ toast: null });
       }, 2600);
     },
-    scenario(s) { set({ scenario: s, screen: state.role === 'trainer' ? 't-today' : 'c-home', stack: [] }); },
+    scenario(s) {
+      // A client comparing states stays in the same section; the trainer returns to the agenda.
+      const screen = state.role === 'trainer' ? 't-today' : state.screen === 'c-first' ? 'c-home' : state.screen;
+      set({ scenario: s, screen, stack: [] });
+    },
     wide(v) { set({ wide: v }); },
     clientTab(t) { set({ clientTab: t }); },
     sessionTab(t) { set({ sessionTab: t }); },
