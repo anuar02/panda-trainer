@@ -1,4 +1,5 @@
 import { SvgXml } from 'react-native-svg';
+import { Platform } from 'react-native';
 import paths from './paths.json';
 export type IconName = keyof typeof paths;
 export function Icon({
@@ -14,7 +15,8 @@ export function Icon({
 }) {
   return (
     <SvgXml
-      accessible={false}
+      accessible={Platform.OS === 'web' ? undefined : false}
+      aria-hidden
       width={size}
       height={size}
       color={color}

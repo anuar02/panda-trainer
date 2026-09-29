@@ -179,6 +179,10 @@ try {
           page.on('pageerror', (error) =>
             errors.push(`${screen}/${theme}: ${error.message}`),
           );
+          page.on('console', (message) => {
+            if (message.type() === 'error')
+              errors.push(`${screen}/${theme}: ${message.text()}`);
+          });
           await page.goto(`${app.url}/${route}?scenario=${scenario}`, {
             waitUntil: 'networkidle',
           });

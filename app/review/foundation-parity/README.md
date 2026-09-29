@@ -10,6 +10,10 @@
   сценария. Это не подключённые к серверу продуктовые экраны.
 - `npm run check`: 161 тест в 24 suites; TypeScript, ESLint и Prettier проходят.
   `npm run export`: Android/iOS/web. Новых зависимостей нет.
+- Повторный полный прогон с учётом console.error также дал 0 ошибок. Отдельный
+  dev-warning `accessible=false` на SVG воспроизведён через Playwright CLI и
+  исправлен платформенной передачей атрибута + `aria-hidden`; после reload
+  warning отсутствует. Предупреждение зависимости pointerEvents остаётся.
 - Полный чистый capture: 114 эталонов, 60 снимков приложения, 54 отсутствующие
   комбинации девяти глубоких маршрутов, 0 browser runtime errors. Отсутствуют
   new/inbox/client/invite/session/template/billing/welcome/first. Детали шаблона
