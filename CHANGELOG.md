@@ -27,6 +27,8 @@
 
 ### Документация
 
+- Handoff по итогам ревью каркаса: исправления, закрытие этапа 1 и старт этапа 2
+  ([docs/app/CODEX-STAGE-1-FIXES-HANDOFF.md](docs/app/CODEX-STAGE-1-FIXES-HANDOFF.md)).
 - [ADR 0006](docs/app/decisions/0006-app-foundation.md): версии каркаса, тема и проверки.
 
 - План разработки приложения на React Native (Expo) и Supabase: этапы 0–11,
