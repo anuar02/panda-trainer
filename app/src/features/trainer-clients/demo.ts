@@ -40,6 +40,7 @@ export const demoClients: DemoClient[] = [
     next: { date: 'today', time: '20:00', group: true },
   },
   { id: 'c6', phone: '+7 708 441 60 38', remaining: null, due: 0, next: null },
+  { id: 'c7', phone: '', remaining: null, due: 0, next: null },
 ];
 
 export function filterClients(

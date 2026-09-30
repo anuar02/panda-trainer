@@ -26,6 +26,10 @@ import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { ToastProvider } from '@/ui/toast';
 import { Text } from '@/ui/text';
+import {
+  SchedulingDemoProvider,
+  useSchedulingDemo,
+} from '@/features/scheduling-demo/provider';
 import { WorkoutDemoProvider } from '@/features/workout-demo';
 void SplashScreen.preventAutoHideAsync();
 function Navigation() {
@@ -42,9 +46,25 @@ function Navigation() {
     </>
   );
 }
+function ConnectedNavigation() {
+  const scheduling = useSchedulingDemo();
+  return (
+    <WorkoutDemoProvider
+      catalog={scheduling.state.sessions}
+      catalogReady={scheduling.hydrated && !scheduling.readError}
+      onFinishedSessionIds={scheduling.registerFinished}
+    >
+      <Navigation />
+    </WorkoutDemoProvider>
+  );
+}
 export default function RootLayout() {
   const segments: readonly string[] = useSegments();
-  const role = segments[0] === '(trainer)' ? 'trainer' : 'client';
+  const role = ['(trainer)', 'new', 'client', 'session', 'inbox'].includes(
+    segments[0] ?? '',
+  )
+    ? 'trainer'
+    : 'client';
   const [loaded, error] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
@@ -73,9 +93,9 @@ export default function RootLayout() {
                   <Text accessibilityRole="alert">{t('common.fontError')}</Text>
                 </SafeAreaView>
               ) : (
-                <WorkoutDemoProvider>
-                  <Navigation />
-                </WorkoutDemoProvider>
+                <SchedulingDemoProvider waitForWorkout>
+                  <ConnectedNavigation />
+                </SchedulingDemoProvider>
               )}
             </ToastProvider>
           </BottomSheetModalProvider>

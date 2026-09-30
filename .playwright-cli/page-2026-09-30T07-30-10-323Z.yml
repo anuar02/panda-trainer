@@ -1,0 +1,114 @@
+- generic [ref=f2e515]:
+  - generic [ref=f2e516]:
+    - button "Свернуть тренировку" [ref=f2e517] [cursor=pointer]:
+      - generic [ref=f2e520]: Свернуть
+    - generic [ref=f2e521]: Журнал тренировки
+    - generic [ref=f2e522]:
+      - button "Ещё" [disabled]
+  - generic [ref=f2e528]:
+    - generic [ref=f2e530]:
+      - generic [ref=f2e531]:
+        - heading "Айгерим Бекова" [level=1] [ref=f2e532]
+        - generic [ref=f2e533]: вт, 15 сен · 19:00–20:00 · Низ А
+      - generic "Записано 1 из 16 подходов" [ref=f2e666]: 1/16
+    - generic [ref=f2e536]:
+      - generic [ref=f2e537]:
+        - generic [ref=f2e538]:
+          - generic [ref=f2e539]: Сейчас · 1 из 5
+          - 'button "Дальше: Румынская тяга" [ref=f2e540] [cursor=pointer]'
+        - generic [ref=f2e544]:
+          - heading "Приседания со штангой" [level=1] [ref=f2e545]
+          - generic [ref=f2e546]: цель 4 × 8 · 80 кг
+          - 'button "Изменить упражнение: Приседания со штангой" [ref=f2e547] [cursor=pointer]'
+        - generic [ref=f2e552]:
+          - 'button "Изменить подход 1: Приседания со штангой" [ref=f2e668] [cursor=pointer]':
+            - generic [ref=f2e554]: "1"
+            - generic [ref=f2e556]: 80 кг × 8
+          - 'button "Записать подход 2: Приседания со штангой" [ref=f2e557] [cursor=pointer]':
+            - generic [ref=f2e558]: "2"
+            - generic [ref=f2e560]: сейчас
+          - 'button "Записать подход 3: Приседания со штангой" [ref=f2e561] [cursor=pointer]':
+            - generic [ref=f2e562]: "3"
+            - generic [ref=f2e564]: —
+          - 'button "Записать подход 4: Приседания со штангой" [ref=f2e565] [cursor=pointer]':
+            - generic [ref=f2e566]: "4"
+            - generic [ref=f2e568]: —
+        - generic [ref=f2e569]:
+          - generic [ref=f2e570]:
+            - generic [ref=f2e571]: Подход 2
+            - generic [ref=f2e572]: предыдущий подход
+            - 'button "Изменить подход 2: Приседания со штангой" [ref=f2e671] [cursor=pointer]':
+              - generic [ref=f2e576]: Править
+          - generic [ref=f2e577]:
+            - generic [ref=f2e578]:
+              - generic [ref=f2e579]: Вес, кг
+              - textbox "Вес, кг" [ref=f2e580]:
+                - /placeholder: "80"
+                - text: "80"
+              - generic [ref=f2e581]:
+                - 'button "Вес, кг: меньше на 2,5" [ref=f2e582] [cursor=pointer]'
+                - 'button "Вес, кг: больше на 2,5" [ref=f2e584] [cursor=pointer]'
+            - generic [ref=f2e587]:
+              - generic [ref=f2e588]: Повторы
+              - textbox "Повторы" [ref=f2e589]:
+                - /placeholder: "8"
+                - text: "8"
+              - generic [ref=f2e590]:
+                - 'button "Повторы: меньше на 1" [ref=f2e591] [cursor=pointer]'
+                - 'button "Повторы: больше на 1" [ref=f2e593] [cursor=pointer]'
+          - button "Записать подход 2" [active] [ref=f2e672] [cursor=pointer]
+        - generic [ref=f2e674]:
+          - generic [ref=f2e678]: Отдых 1:30
+          - button "Отдых на 15 секунд меньше" [ref=f2e679] [cursor=pointer]:
+            - generic [ref=f2e680]: −15
+          - button "Отдых на 15 секунд больше" [ref=f2e681] [cursor=pointer]:
+            - generic [ref=f2e682]: "+15"
+          - button "Хватит" [ref=f2e683] [cursor=pointer]
+        - 'button "Добавить подход: Приседания со штангой" [ref=f2e602] [cursor=pointer]':
+          - generic [ref=f2e605]: Подход
+      - generic [ref=f2e606]:
+        - generic [ref=f2e607]:
+          - generic [ref=f2e608]: Упражнения
+          - generic [ref=f2e609]: 0/5
+        - generic [ref=f2e610]:
+          - button "Приседания со штангой" [ref=f2e611] [cursor=pointer]:
+            - generic [ref=f2e612]: "1"
+            - generic [ref=f2e614]:
+              - generic [ref=f2e615]: Приседания со штангой
+              - generic [ref=f2e616]: 80 кг × 8
+            - generic [ref=f2e617]: сейчас
+          - button "Румынская тяга" [ref=f2e618] [cursor=pointer]:
+            - generic [ref=f2e619]: "2"
+            - generic [ref=f2e621]:
+              - generic [ref=f2e622]: Румынская тяга
+              - generic [ref=f2e623]: 3 подхода · прошлый раз 60 кг × 10
+            - generic [ref=f2e624]: 0/3
+          - button "Жим ногами" [ref=f2e625] [cursor=pointer]:
+            - generic [ref=f2e626]: "3"
+            - generic [ref=f2e628]:
+              - generic [ref=f2e629]: Жим ногами
+              - generic [ref=f2e630]: 3 подхода · прошлый раз 120 кг × 12
+            - generic [ref=f2e631]: 0/3
+          - button "Выпады с гантелями" [ref=f2e632] [cursor=pointer]:
+            - generic [ref=f2e633]: "4"
+            - generic [ref=f2e635]:
+              - generic [ref=f2e636]: Выпады с гантелями
+              - generic [ref=f2e637]: 3 подхода · прошлый раз 16 кг × 12
+            - generic [ref=f2e638]: 0/3
+          - button "Планка" [ref=f2e639] [cursor=pointer]:
+            - generic [ref=f2e640]: "5"
+            - generic [ref=f2e642]:
+              - generic [ref=f2e643]: Планка
+              - generic [ref=f2e644]: 3 подхода · прошлый раз 45 сек
+            - generic [ref=f2e645]: 0/3
+        - button "Добавить упражнение" [ref=f2e646] [cursor=pointer]
+    - generic [ref=f2e650]: Можно выйти и вернуться — журнал сохранится. Посещение и списание отмечаются отдельно.
+  - generic [ref=f2e651]:
+    - button "Отменить запись" [ref=f2e685] [cursor=pointer]:
+      - generic [ref=f2e686]: Отменить
+    - generic [ref=f2e653]:
+      - button "Голос" [disabled]:
+        - generic [ref=f2e661]:
+          - generic [ref=f2e662]: Голос
+          - generic [ref=f2e663]: держите и говорите
+      - button "Завершить" [ref=f2e664] [cursor=pointer]

@@ -19,6 +19,14 @@ import {
 import { todayStyles as s } from './measurements';
 import { StatusPill } from '@/ui/status-pill';
 import { useJournalLabels } from '@/features/workout-demo';
+import {
+  createSchedulingState,
+  schedulingToday,
+  schedulingNow,
+  type SchedulingSession,
+} from '@/domain/scheduling';
+import { useOptionalSchedulingDemo } from '@/features/scheduling-demo/provider';
+import { SchedulingSessionSheet } from '@/features/scheduling-demo/session-sheet';
 
 function Gradient({
   start,
@@ -103,6 +111,53 @@ export function TrainerTodayScreen({
   const [pastOpen, setPastOpen] = useState(false);
   const [selected, setSelected] = useState<DemoSession | 'group' | null>(null);
   const journal = useJournalLabels();
+  const scheduling = useOptionalSchedulingDemo();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const todaySessions = (scheduling?.state.sessions ?? [])
+    .filter(
+      (session) =>
+        session.date === schedulingToday && session.status !== 'cancelled',
+    )
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const initialSessions = createSchedulingState().sessions.filter(
+    (session) => session.date === schedulingToday,
+  );
+  const changed =
+    scheduling !== null &&
+    (todaySessions.length !== initialSessions.length ||
+      todaySessions.some(
+        (session) =>
+          !initialSessions.some(
+            (initial) =>
+              initial.id === session.id &&
+              initial.start === session.start &&
+              initial.end === session.end &&
+              initial.program === session.program,
+          ),
+      ));
+  const pending = Object.values(scheduling?.state.requests ?? {}).filter(
+    (request) =>
+      request.awaiting === 'trainer' &&
+      (request.state === 'pending' || request.state === 'counter'),
+  );
+  const openRequests = () => router.push('/inbox');
+  const create = (start?: string) =>
+    router.push({
+      pathname: '/new',
+      params: { date: schedulingToday, ...(start ? { start } : {}) },
+    });
+  const select = (session: DemoSession | 'group') =>
+    scheduling
+      ? setSelectedId(session === 'group' ? 's6' : session.id)
+      : setSelected(session);
+  const currentCount = todaySessions.filter(
+    (session) => session.start <= schedulingNow && session.end > schedulingNow,
+  ).length;
+  const pastCount = todaySessions.filter(
+    (session) => session.end <= schedulingNow,
+  ).length;
+  const futureCount = todaySessions.length - currentCount - pastCount;
+
   const secondary = { color: colors.secondary };
   const accent = { color: scheme === 'dark' ? '#8c9eff' : colors.accent };
   const hair = scheme === 'dark' ? '#212227' : '#efefeb';
@@ -122,7 +177,7 @@ export function TrainerTodayScreen({
                 start: session.start,
                 end: session.end,
               })}
-              onPress={() => setSelected(session)}
+              onPress={() => select(session)}
               style={s.nameButton}
             >
               <Text style={s.compactName}>{name}</Text>
@@ -166,12 +221,161 @@ export function TrainerTodayScreen({
     );
   }
 
+  function liveEntry(session: SchedulingSession) {
+    const active =
+      session.start <= schedulingNow && session.end > schedulingNow;
+    const name = session.clientId
+      ? t(`trainerClients.people.${session.clientId as 'c1'}.name`)
+      : session.title;
+    return (
+      <View key={session.id} style={[s.entry, { borderTopColor: hair }]}>
+        {active && (
+          <>
+            <View
+              style={[s.activeStripe, { backgroundColor: colors.accent }]}
+            />
+            <View style={s.caption}>
+              <Text style={[s.small, secondary]}>
+                {t('trainerToday.happening')}
+              </Text>
+              <Text style={[s.small, s.strong, { color: colors.accent }]}>
+                {t('trainerToday.until', { time: session.end })}
+              </Text>
+            </View>
+          </>
+        )}
+        <View style={s.row}>
+          <Time start={session.start} end={session.end} expanded={active} />
+          <View style={s.main}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('trainerToday.sessionLabel', {
+                name,
+                start: session.start,
+                end: session.end,
+              })}
+              onPress={() => setSelectedId(session.id)}
+              style={s.nameButton}
+            >
+              <Text style={s.compactName}>{name}</Text>
+              <Icon name="chevR" size={16} color={colors.control} />
+            </Pressable>
+            <View style={s.program}>
+              <Text style={[s.programText, s.strong]}>
+                {session.program ?? t('trainerToday.noProgram')}
+              </Text>
+              <Text style={[s.programText, secondary]}>
+                {t(
+                  session.kind === 'group'
+                    ? 'trainerToday.miniGroup'
+                    : 'trainerToday.personal',
+                )}
+              </Text>
+            </View>
+            {journal.status(session.id) && (
+              <StatusPill label={journal.status(session.id)!} />
+            )}
+          </View>
+        </View>
+        {active &&
+          !(
+            journal.draft(session.id) && journal.dockSessionId === session.id
+          ) && (
+            <Button
+              label={journal.label(session.id)}
+              onPress={() =>
+                router.push({
+                  pathname: '/session/[id]',
+                  params: { id: session.id },
+                })
+              }
+              style={s.cta}
+            />
+          )}
+      </View>
+    );
+  }
+
+  function liveAgenda() {
+    const past = todaySessions.filter(
+      (session) => session.end <= schedulingNow,
+    );
+    const upcoming = todaySessions.filter(
+      (session) => session.end > schedulingNow,
+    );
+    const minutes = (time: string) =>
+      Number(time.slice(0, 2)) * 60 + Number(time.slice(3));
+    return (
+      <>
+        {past.length > 0 && (
+          <View style={s.past}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: pastOpen }}
+              onPress={() => setPastOpen(!pastOpen)}
+              style={s.toggle}
+            >
+              <Icon
+                name="check"
+                size={16}
+                color={colors.success}
+                strokeWidth={2.4}
+              />
+              <Text style={[s.pastLabel, secondary]}>
+                {t('trainerToday.pastCount', { count: past.length })}
+              </Text>
+              <Text style={[s.small, s.strong, accent]}>
+                {t(pastOpen ? 'trainerToday.hide' : 'trainerToday.show')}
+              </Text>
+            </Pressable>
+            {pastOpen && past.map(liveEntry)}
+          </View>
+        )}
+        {upcoming.map((session, index) => {
+          const previous = upcoming[index - 1];
+          const gap = previous
+            ? minutes(session.start) - minutes(previous.end)
+            : 0;
+          return (
+            <View key={session.id}>
+              {previous && gap > 0 && (
+                <Pressable
+                  onPress={() => create(previous.end)}
+                  accessibilityRole="button"
+                  style={[s.gap, { borderTopColor: colors.border }]}
+                >
+                  <View style={[s.gapBorder, { borderColor: colors.border }]} />
+                  <View style={s.time}>
+                    <Text style={[s.gapTime, secondary]}>{previous.end}</Text>
+                    <Text style={[s.endTime, secondary]}>
+                      {t('trainerToday.until', { time: session.start })}
+                    </Text>
+                  </View>
+                  <View style={s.main}>
+                    <Text style={[s.small, s.strong]}>
+                      {t('trainerToday.freeMinutes', { count: gap })}
+                    </Text>
+                    <Text style={[s.endTime, secondary]}>
+                      {t('trainerToday.add')}
+                    </Text>
+                  </View>
+                  <Icon name="plus" size={19} color={colors.secondary} />
+                </Pressable>
+              )}
+              {liveEntry(session)}
+            </View>
+          );
+        })}
+      </>
+    );
+  }
+
   const iconButton = (name: IconName, label: string, primary = false) => (
     <Pressable
-      disabled
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={disabled}
+      accessibilityState={{ disabled: false }}
+      onPress={primary ? () => create() : openRequests}
       style={[
         s.action,
         {
@@ -193,7 +397,9 @@ export function TrainerTodayScreen({
       <View>
         <Icon name={name} size={22} color={primary ? '#ffffff' : colors.ink} />
       </View>
-      {!primary && <Text style={s.badge}>{2}</Text>}
+      {!primary && (
+        <Text style={s.badge}>{scheduling ? pending.length : 2}</Text>
+      )}
     </Pressable>
   );
 
@@ -263,7 +469,8 @@ export function TrainerTodayScreen({
                 <Text style={s.noticeText}>{t('trainerToday.offline')}</Text>
               </View>
             )}
-            {scenario === 'empty' ? (
+            {scenario === 'empty' ||
+            (scheduling && todaySessions.length === 0) ? (
               <View
                 style={[
                   s.empty,
@@ -287,7 +494,7 @@ export function TrainerTodayScreen({
                 </Text>
                 <Button
                   label={t('trainerToday.add')}
-                  disabled
+                  onPress={() => create()}
                   compact
                   icon={<Icon name="plus" size={18} color="#ffffff" />}
                   style={s.emptyButton}
@@ -330,13 +537,42 @@ export function TrainerTodayScreen({
                     />
                   </View>
                   <View style={s.main}>
-                    <Text style={s.buddyLine}>{t('trainerToday.ongoing')}</Text>
+                    <Text style={s.buddyLine}>
+                      {changed
+                        ? currentCount
+                          ? t('trainerToday.ongoingCount', {
+                              count: currentCount,
+                            })
+                          : futureCount === 0
+                            ? t('trainerToday.done')
+                            : t(
+                                pastCount === 0
+                                  ? 'trainerToday.aheadCount'
+                                  : 'trainerToday.leftCount',
+                                { count: futureCount },
+                              )
+                        : t('trainerToday.ongoing')}
+                    </Text>
                     <View
                       style={s.bar}
                       accessibilityRole="image"
-                      accessibilityLabel={t('trainerToday.progress')}
+                      accessibilityLabel={
+                        changed
+                          ? t('trainerToday.progressCount', {
+                              done: pastCount,
+                              total: todaySessions.length,
+                            })
+                          : t('trainerToday.progress')
+                      }
                     >
-                      <View style={s.progress}>
+                      <View
+                        style={[
+                          s.progress,
+                          changed && {
+                            width: `${Math.round((pastCount / Math.max(1, todaySessions.length)) * 100)}%`,
+                          },
+                        ]}
+                      >
                         <Gradient
                           id="today-progress"
                           radius={99}
@@ -348,9 +584,9 @@ export function TrainerTodayScreen({
                     <View style={s.stats}>
                       {(
                         [
-                          ['5', 'behind'],
-                          ['1', 'ahead'],
-                          ['1', 'now'],
+                          [changed ? String(pastCount) : '5', 'behind'],
+                          [changed ? String(futureCount) : '1', 'ahead'],
+                          [changed ? String(currentCount) : '1', 'now'],
                         ] as const
                       ).map(([number, key]) => (
                         <Text key={key} style={s.stat}>
@@ -359,13 +595,16 @@ export function TrainerTodayScreen({
                         </Text>
                       ))}
                       <Pressable
-                        disabled
                         accessibilityRole="button"
-                        accessibilityState={disabled}
+                        onPress={openRequests}
                         style={s.requests}
                       >
                         <Text style={s.requestText}>
-                          {t('trainerToday.requests')}
+                          {scheduling
+                            ? t('trainerToday.requestsCount', {
+                                count: pending.length,
+                              })
+                            : t('trainerToday.requests')}
                         </Text>
                       </Pressable>
                     </View>
@@ -377,7 +616,11 @@ export function TrainerTodayScreen({
                       {t('trainerToday.plan')}
                     </Text>
                     <Text style={[s.small, s.strong, secondary]}>
-                      {t('trainerToday.count')}
+                      {changed
+                        ? t('trainerSchedule.sessions', {
+                            count: todaySessions.length,
+                          })
+                        : t('trainerToday.count')}
                     </Text>
                   </View>
                   <View
@@ -389,169 +632,198 @@ export function TrainerTodayScreen({
                       },
                     ]}
                   >
-                    <View style={s.past}>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityState={{ expanded: pastOpen }}
-                        onPress={() => setPastOpen(!pastOpen)}
-                        style={s.toggle}
-                      >
-                        <Icon
-                          name="check"
-                          size={16}
-                          color={colors.success}
-                          strokeWidth={2.4}
-                        />
-                        <Text style={[s.pastLabel, secondary]}>
-                          {t('trainerToday.past')}
-                        </Text>
-                        <Text style={[s.small, s.strong, accent]}>
-                          {t(
-                            pastOpen
-                              ? 'trainerToday.hide'
-                              : 'trainerToday.show',
-                          )}
-                        </Text>
-                      </Pressable>
-                      {pastOpen &&
-                        demoPastSessions.map((session) =>
-                          sessionEntry(session, true),
-                        )}
-                    </View>
-                    <View style={[s.entry, { borderTopColor: hair }]}>
-                      <Gradient
-                        id="today-active"
-                        start={scheme === 'dark' ? '#6f86ff' : '#2b48d6'}
-                        end="#000000"
-                        startOpacity={0.06}
-                        endOpacity={0}
-                      />
-                      <View
-                        style={[
-                          s.activeStripe,
-                          { backgroundColor: colors.accent },
-                        ]}
-                      />
-                      <View style={s.caption}>
-                        <Text style={[s.small, secondary]}>
-                          {t('trainerToday.happening')}
-                        </Text>
-                        <Text
-                          style={[s.small, s.strong, { color: colors.accent }]}
-                        >
-                          {t('trainerToday.until', { time: '21:00' })}
-                        </Text>
-                      </View>
-                      <View style={s.row}>
-                        <Time start="20:00" end="21:00" expanded />
-                        <View style={s.main}>
-                          <Text style={s.name}>
-                            {t('trainerToday.miniGroup')}
-                          </Text>
-                          <View style={s.program}>
-                            <Text style={[s.programText, s.strong]}>
-                              {t('trainerToday.groupNames')}
-                            </Text>
-                          </View>
+                    {changed ? (
+                      liveAgenda()
+                    ) : (
+                      <>
+                        <View style={s.past}>
                           <Pressable
                             accessibilityRole="button"
-                            accessibilityLabel={t('trainerToday.participants')}
-                            onPress={() => setSelected('group')}
-                            style={s.rsvp}
+                            accessibilityState={{ expanded: pastOpen }}
+                            onPress={() => setPastOpen(!pastOpen)}
+                            style={s.toggle}
                           >
-                            <View style={s.rsvpItems}>
-                              {(
-                                [
-                                  ['check', colors.success],
-                                  ['clock', colors.warning],
-                                  ['close', colors.control],
-                                ] as const
-                              ).map(([name, color]) => (
-                                <View key={name} style={s.rsvpItem}>
-                                  <Icon
-                                    name={name}
-                                    color={color}
-                                    size={14}
-                                    strokeWidth={2.4}
-                                  />
-                                  <Text style={[s.small, s.strong, secondary]}>
-                                    {1}
-                                  </Text>
-                                </View>
-                              ))}
-                            </View>
                             <Icon
-                              name="chevR"
-                              size={15}
-                              color={colors.control}
-                            />
-                          </Pressable>
-                        </View>
-                      </View>
-                      {journal.status('s6') && (
-                        <StatusPill label={journal.status('s6')!} />
-                      )}
-                      {!(
-                        journal.draft('s6') && journal.dockSessionId === 's6'
-                      ) && (
-                        <Button
-                          label={
-                            journal.draft('s6')
-                              ? t('trainerToday.openJournal', {
-                                  name: t('trainerToday.miniGroup'),
-                                })
-                              : journal.label('s6')
-                          }
-                          variant={journal.draft('s6') ? 'soft' : 'primary'}
-                          icon={
-                            <Icon
-                              name="play"
-                              color="#ffffff"
-                              size={20}
+                              name="check"
+                              size={16}
+                              color={colors.success}
                               strokeWidth={2.4}
                             />
-                          }
-                          onPress={() =>
-                            router.push({
-                              pathname: '/session/[id]',
-                              params: { id: 's6' },
-                            })
-                          }
-                          style={s.cta}
-                        />
-                      )}
-                    </View>
-                    <Pressable
-                      disabled
-                      accessibilityRole="button"
-                      accessibilityState={disabled}
-                      style={[s.gap, { borderTopColor: colors.border }]}
-                    >
-                      <View
-                        style={[s.gapBorder, { borderColor: colors.border }]}
-                      />
-                      <View style={s.time}>
-                        <Text style={[s.gapTime, secondary]}>
-                          {t('trainerToday.freeStart')}
-                        </Text>
-                        <Text style={[s.endTime, secondary]}>
-                          {t('trainerToday.until', { time: '21:15' })}
-                        </Text>
-                      </View>
-                      <View style={s.main}>
-                        <Text style={[s.small, s.strong]}>
-                          {t('trainerToday.free')}
-                        </Text>
-                        <Text style={[s.endTime, secondary]}>
-                          {t('trainerToday.add')}
-                        </Text>
-                      </View>
-                      <Icon name="plus" size={19} color={colors.secondary} />
-                    </Pressable>
-                    {sessionEntry(demoLastSession)}
+                            <Text style={[s.pastLabel, secondary]}>
+                              {t('trainerToday.past')}
+                            </Text>
+                            <Text style={[s.small, s.strong, accent]}>
+                              {t(
+                                pastOpen
+                                  ? 'trainerToday.hide'
+                                  : 'trainerToday.show',
+                              )}
+                            </Text>
+                          </Pressable>
+                          {pastOpen &&
+                            demoPastSessions.map((session) =>
+                              sessionEntry(session, true),
+                            )}
+                        </View>
+                        <View style={[s.entry, { borderTopColor: hair }]}>
+                          <Gradient
+                            id="today-active"
+                            start={scheme === 'dark' ? '#6f86ff' : '#2b48d6'}
+                            end="#000000"
+                            startOpacity={0.06}
+                            endOpacity={0}
+                          />
+                          <View
+                            style={[
+                              s.activeStripe,
+                              { backgroundColor: colors.accent },
+                            ]}
+                          />
+                          <View style={s.caption}>
+                            <Text style={[s.small, secondary]}>
+                              {t('trainerToday.happening')}
+                            </Text>
+                            <Text
+                              style={[
+                                s.small,
+                                s.strong,
+                                { color: colors.accent },
+                              ]}
+                            >
+                              {t('trainerToday.until', { time: '21:00' })}
+                            </Text>
+                          </View>
+                          <View style={s.row}>
+                            <Time start="20:00" end="21:00" expanded />
+                            <View style={s.main}>
+                              <Text style={s.name}>
+                                {t('trainerToday.miniGroup')}
+                              </Text>
+                              <View style={s.program}>
+                                <Text style={[s.programText, s.strong]}>
+                                  {t('trainerToday.groupNames')}
+                                </Text>
+                              </View>
+                              <Pressable
+                                accessibilityRole="button"
+                                accessibilityLabel={t(
+                                  'trainerToday.participants',
+                                )}
+                                onPress={() => select('group')}
+                                style={s.rsvp}
+                              >
+                                <View style={s.rsvpItems}>
+                                  {(
+                                    [
+                                      ['check', colors.success],
+                                      ['clock', colors.warning],
+                                      ['close', colors.control],
+                                    ] as const
+                                  ).map(([name, color]) => (
+                                    <View key={name} style={s.rsvpItem}>
+                                      <Icon
+                                        name={name}
+                                        color={color}
+                                        size={14}
+                                        strokeWidth={2.4}
+                                      />
+                                      <Text
+                                        style={[s.small, s.strong, secondary]}
+                                      >
+                                        {1}
+                                      </Text>
+                                    </View>
+                                  ))}
+                                </View>
+                                <Icon
+                                  name="chevR"
+                                  size={15}
+                                  color={colors.control}
+                                />
+                              </Pressable>
+                            </View>
+                          </View>
+                          {journal.status('s6') && (
+                            <StatusPill label={journal.status('s6')!} />
+                          )}
+                          {!(
+                            journal.draft('s6') &&
+                            journal.dockSessionId === 's6'
+                          ) && (
+                            <Button
+                              label={
+                                journal.draft('s6')
+                                  ? t('trainerToday.openJournal', {
+                                      name: t('trainerToday.miniGroup'),
+                                    })
+                                  : journal.label('s6')
+                              }
+                              variant={journal.draft('s6') ? 'soft' : 'primary'}
+                              icon={
+                                <Icon
+                                  name="play"
+                                  color="#ffffff"
+                                  size={20}
+                                  strokeWidth={2.4}
+                                />
+                              }
+                              onPress={() =>
+                                router.push({
+                                  pathname: '/session/[id]',
+                                  params: { id: 's6' },
+                                })
+                              }
+                              style={s.cta}
+                            />
+                          )}
+                        </View>
+                        <Pressable
+                          onPress={() => create('21:00')}
+                          accessibilityRole="button"
+                          style={[s.gap, { borderTopColor: colors.border }]}
+                        >
+                          <View
+                            style={[
+                              s.gapBorder,
+                              { borderColor: colors.border },
+                            ]}
+                          />
+                          <View style={s.time}>
+                            <Text style={[s.gapTime, secondary]}>
+                              {t('trainerToday.freeStart')}
+                            </Text>
+                            <Text style={[s.endTime, secondary]}>
+                              {t('trainerToday.until', { time: '21:15' })}
+                            </Text>
+                          </View>
+                          <View style={s.main}>
+                            <Text style={[s.small, s.strong]}>
+                              {t('trainerToday.free')}
+                            </Text>
+                            <Text style={[s.endTime, secondary]}>
+                              {t('trainerToday.add')}
+                            </Text>
+                          </View>
+                          <Icon
+                            name="plus"
+                            size={19}
+                            color={colors.secondary}
+                          />
+                        </Pressable>
+                        {sessionEntry(demoLastSession)}
+                      </>
+                    )}
                   </View>
                   <Text style={[s.dayEnd, secondary]}>
-                    {t('trainerToday.end')}
+                    {changed
+                      ? t('trainerToday.endTime', {
+                          time: todaySessions.reduce(
+                            (end, session) =>
+                              session.end > end ? session.end : end,
+                            '',
+                          ),
+                        })
+                      : t('trainerToday.end')}
                   </Text>
                 </View>
               </>
@@ -559,70 +831,77 @@ export function TrainerTodayScreen({
           </ScrollView>
         </>
       )}
-      <Sheet
-        open={selected !== null}
-        onClose={() => setSelected(null)}
-        title={
-          selected === 'group'
-            ? t('trainerToday.miniGroup')
-            : selected
-              ? t(`trainerToday.sessionTitles.${selected.title}`)
-              : ''
-        }
-      >
-        <Text style={secondary}>
-          {t('trainerToday.sessionTime', {
-            date: t('trainerToday.date'),
-            time:
-              selected === 'group'
-                ? '20:00–21:00'
-                : selected
-                  ? `${selected.start}–${selected.end}`
-                  : '',
-          })}
-        </Text>
-        <Text style={s.strong}>{t('trainerToday.attendance')}</Text>
-        {sheetPeople.map((person) => (
-          <View key={person} className="gap-2">
-            <Text style={s.strong}>
-              {t(`trainerToday.people.${person}Full`)}
-            </Text>
-            <Text style={[s.small, secondary]}>
-              {t('trainerToday.unmarked')}
-            </Text>
-            <View style={s.actions}>
-              <Button
-                label={t('trainerToday.present')}
-                variant="soft"
-                compact
-                disabled
-              />
-              <Button
-                label={t('trainerToday.absent')}
-                variant="ghost"
-                compact
-                disabled
-              />
-            </View>
-          </View>
-        ))}
-        <Button
-          label={journal.label(
-            selected === 'group' ? 's6' : (selected?.id ?? ''),
-          )}
-          onPress={() => {
-            if (!selected) return;
-            const id = selected === 'group' ? 's6' : selected.id;
-            setSelected(null);
-            router.push({ pathname: '/session/[id]', params: { id } });
-          }}
+      {scheduling ? (
+        <SchedulingSessionSheet
+          sessionId={selectedId}
+          onClose={() => setSelectedId(null)}
         />
-        <Button label={t('trainerToday.move')} variant="soft" disabled />
-        <Button label={t('trainerToday.cancel')} variant="ghost" disabled />
-        <Text style={[s.small, secondary]}>
-          {t('trainerToday.attendanceHelp')}
-        </Text>
-      </Sheet>
+      ) : (
+        <Sheet
+          open={selected !== null}
+          onClose={() => setSelected(null)}
+          title={
+            selected === 'group'
+              ? t('trainerToday.miniGroup')
+              : selected
+                ? t(`trainerToday.sessionTitles.${selected.title}`)
+                : ''
+          }
+        >
+          <Text style={secondary}>
+            {t('trainerToday.sessionTime', {
+              date: t('trainerToday.date'),
+              time:
+                selected === 'group'
+                  ? '20:00–21:00'
+                  : selected
+                    ? `${selected.start}–${selected.end}`
+                    : '',
+            })}
+          </Text>
+          <Text style={s.strong}>{t('trainerToday.attendance')}</Text>
+          {sheetPeople.map((person) => (
+            <View key={person} className="gap-2">
+              <Text style={s.strong}>
+                {t(`trainerToday.people.${person}Full`)}
+              </Text>
+              <Text style={[s.small, secondary]}>
+                {t('trainerToday.unmarked')}
+              </Text>
+              <View style={s.actions}>
+                <Button
+                  label={t('trainerToday.present')}
+                  variant="soft"
+                  compact
+                  disabled
+                />
+                <Button
+                  label={t('trainerToday.absent')}
+                  variant="ghost"
+                  compact
+                  disabled
+                />
+              </View>
+            </View>
+          ))}
+          <Button
+            label={journal.label(
+              selected === 'group' ? 's6' : (selected?.id ?? ''),
+            )}
+            onPress={() => {
+              if (!selected) return;
+              const id = selected === 'group' ? 's6' : selected.id;
+              setSelected(null);
+              router.push({ pathname: '/session/[id]', params: { id } });
+            }}
+          />
+          <Button label={t('trainerToday.move')} variant="soft" disabled />
+          <Button label={t('trainerToday.cancel')} variant="ghost" disabled />
+          <Text style={[s.small, secondary]}>
+            {t('trainerToday.attendanceHelp')}
+          </Text>
+        </Sheet>
+      )}
     </SafeAreaView>
   );
 }

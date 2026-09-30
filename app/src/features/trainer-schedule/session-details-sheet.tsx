@@ -51,7 +51,11 @@ export function SessionDetailsSheet({
       <Text style={s.strong}>{t('trainerToday.attendance')}</Text>
       {people.map((person) => (
         <View key={person} className="gap-2">
-          <Text style={s.strong}>{t(`trainerToday.people.${person}Full`)}</Text>
+          <Text style={s.strong}>
+            {person === 'newClient'
+              ? session?.title
+              : t(`trainerToday.people.${person}Full`)}
+          </Text>
           <Text style={[s.small, secondary]}>{t('trainerToday.unmarked')}</Text>
           <View style={s.actions}>
             <Button

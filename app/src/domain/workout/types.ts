@@ -62,6 +62,7 @@ export type WorkoutJournal = {
 };
 export type WorkoutState = {
   version: 1;
+  catalog?: WorkoutSession[];
   sessions: Record<string, WorkoutJournal>;
   activeSessionId: string | null;
 };
@@ -74,7 +75,12 @@ export type WorkoutSession = {
   title: string;
   program: string | null;
   clientId: string | null;
-  participants: { clientId: string; reply: WorkoutReply }[];
+  status?: 'proposed' | 'confirmed' | 'cancelled';
+  participants: {
+    clientId: string;
+    reply: WorkoutReply;
+    program?: string | null;
+  }[];
 };
 type SetAddress = { clientId: string; exerciseId: string; setIndex: number };
 export type WorkoutAction =

@@ -1,0 +1,48 @@
+- generic [ref=f1e141]:
+  - generic [ref=f1e142]:
+    - button "Закрыть" [ref=f1e143] [cursor=pointer]
+    - generic [ref=f1e146]: Новое занятие
+  - generic [ref=f1e147]:
+    - heading "Когда и с кем" [level=1] [ref=f1e148]
+    - generic [ref=f1e149]: Сначала согласуем время. Программу можно назначить позже.
+  - generic [ref=f1e150]:
+    - button "1. Клиенты" [ref=f1e205] [cursor=pointer]
+    - button "2. Время" [disabled]
+    - button "3. Программа" [disabled]
+  - generic [ref=f1e155]:
+    - generic [ref=f1e206]: Дата
+    - generic [ref=f1e207]:
+      - button "пн, 14 сен · сегодня" [ref=f1e208] [cursor=pointer]:
+        - generic [ref=f1e209]: "14"
+      - button "вт, 15 сен" [ref=f1e215] [cursor=pointer]:
+        - generic [ref=f1e216]: "15"
+      - button "ср, 16 сен" [ref=f1e220] [cursor=pointer]:
+        - generic [ref=f1e221]: "16"
+      - button "чт, 17 сен" [ref=f1e225] [cursor=pointer]:
+        - generic [ref=f1e226]: "17"
+      - button "пт, 18 сен" [ref=f1e230] [cursor=pointer]:
+        - generic [ref=f1e231]: "18"
+      - button "сб, 19 сен" [ref=f1e235] [cursor=pointer]:
+        - generic [ref=f1e236]: "19"
+      - button "вс, 20 сен" [ref=f1e240] [cursor=pointer]:
+        - generic [ref=f1e241]: "20"
+    - generic [ref=f1e245]: Начало
+    - generic [ref=f1e247]:
+      - button "07:00" [ref=f1e248] [cursor=pointer]
+      - button "09:00" [ref=f1e250] [cursor=pointer]
+      - button "11:30" [ref=f1e252] [cursor=pointer]
+      - button "14:00" [ref=f1e254] [cursor=pointer]
+      - button "17:00" [ref=f1e256] [cursor=pointer]
+      - button "18:00" [ref=f1e258] [cursor=pointer]
+      - button "18:30" [ref=f1e260] [cursor=pointer]
+      - button "19:00" [ref=f1e262] [cursor=pointer]
+      - button "20:00" [ref=f1e264] [cursor=pointer]
+    - generic [ref=f1e266]: Длительность
+    - generic [ref=f1e268]:
+      - button "45 мин" [ref=f1e269] [cursor=pointer]
+      - button "60 мин" [ref=f1e271] [cursor=pointer]
+      - button "75 мин" [ref=f1e273] [cursor=pointer]
+      - button "90 мин" [ref=f1e275] [cursor=pointer]
+  - generic [ref=f1e200]:
+    - button "Назад" [ref=f1e277] [cursor=pointer]
+    - button "Продолжить" [active] [ref=f1e204] [cursor=pointer]

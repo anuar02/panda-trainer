@@ -149,10 +149,10 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | --- | --- | --- | --- |
 | `t-today` Сегодня | `(trainer)/today` | 4 | нет |
 | `t-schedule` Расписание | `(trainer)/schedule` | 4 | нет |
-| `t-new` Новое занятие | шторка/экран из «+» | 4 | нет |
-| `t-inbox` Входящие | `(trainer)/inbox` | 4 | нет |
+| `t-new` Новое занятие | `/new` | 4 | нет |
+| `t-inbox` Входящие | `/inbox` | 4 | нет |
 | `t-clients` Клиенты | `(trainer)/clients` | 2 | нет |
-| `t-client` Карточка клиента | `(trainer)/clients/[id]` | 2 | нет |
+| `t-client` Карточка клиента | `/client/[id]` | 2 | нет |
 | `t-invite` Приглашение | `(trainer)/clients/[id]/invite` | 2 | нет |
 | `t-session` Журнал тренировки | `session/[id]` | 5 | не принят |
 | `t-library` Библиотека | `(trainer)/library` | 3 | нет |

@@ -8,6 +8,11 @@ import {
 import { WorkoutDemoProvider } from '../src/features/workout-demo';
 import { createWorkoutState, workoutReducer } from '../src/domain/workout';
 import '../src/lib/i18n';
+import {
+  createSchedulingState,
+  encodeSchedulingState,
+} from '../src/domain/scheduling';
+import { SchedulingDemoProvider } from '../src/features/scheduling-demo/provider';
 import { TrainerTodayScreen } from '../src/features/trainer-today/trainer-today-screen';
 
 const mockPush = jest.fn();
@@ -112,7 +117,7 @@ test('empty and loading omit bookings, offline preserves cached day', async () =
   expect(
     screen.getByRole('button', { name: 'Создать занятие' }).props
       .accessibilityState.disabled,
-  ).toBe(true);
+  ).toBe(false);
 });
 
 test('current group starts the canonical group journal', async () => {
@@ -150,3 +155,79 @@ test.each([
     expect(screen.queryByText('Посещение и списание')).toBeNull();
   },
 );
+
+test('create actions navigate with the canonical date and free-slot time', async () => {
+  const view = await render(<TrainerTodayScreen />);
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Создать занятие' }),
+  );
+  expect(mockPush).toHaveBeenLastCalledWith({
+    pathname: '/new',
+    params: { date: '2026-09-14' },
+  });
+  await fireEvent.press(
+    screen.getByRole('button', { name: /Свободно · 15 мин/ }),
+  );
+  expect(mockPush).toHaveBeenLastCalledWith({
+    pathname: '/new',
+    params: { date: '2026-09-14', start: '21:00' },
+  });
+  await view.rerender(<TrainerTodayScreen scenario="empty" />);
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Добавить занятие' }),
+  );
+  expect(mockPush).toHaveBeenLastCalledWith({
+    pathname: '/new',
+    params: { date: '2026-09-14' },
+  });
+});
+
+test('shared state removes moved appointments and displays newly created entries', async () => {
+  const state = createSchedulingState();
+  state.sessions.find((session) => session.id === 's7')!.date = '2026-09-15';
+  state.sessions.push({
+    id: 'created',
+    revision: 0,
+    date: '2026-09-14',
+    start: '22:15',
+    end: '23:00',
+    kind: 'personal',
+    title: 'Айгерим Бекова',
+    clientId: 'c1',
+    program: null,
+    status: 'proposed',
+    participants: [{ clientId: 'c1', reply: 'pending', program: null }],
+  });
+  const storage = {
+    getItem: async () => encodeSchedulingState(state),
+    setItem: async () => {},
+  };
+  await render(
+    <SchedulingDemoProvider storage={storage}>
+      <TrainerTodayScreen />
+    </SchedulingDemoProvider>,
+  );
+  await waitFor(() => expect(screen.getByText('22:15')).toBeTruthy());
+  expect(screen.queryByText('21:15')).toBeNull();
+  expect(screen.getByText('Последнее занятие до 23:00')).toBeTruthy();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Занятие Айгерим Бекова, 22:15–23:00' }),
+  );
+  expect(
+    screen.getByRole('button', { name: 'Перенести занятие' }),
+  ).toBeTruthy();
+});
+
+test('request action opens the shared inbox', async () => {
+  const storage = { getItem: async () => null, setItem: async () => {} };
+  await render(
+    <SchedulingDemoProvider storage={storage}>
+      <TrainerTodayScreen />
+    </SchedulingDemoProvider>,
+  );
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: '2 запроса' })).toBeEnabled(),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: '2 запроса' }));
+  expect(mockPush).toHaveBeenCalledWith('/inbox');
+});

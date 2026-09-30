@@ -15,10 +15,10 @@ const output = path.resolve(
 const routes = {
   't-today': 'today',
   't-schedule': 'schedule',
-  't-new': null,
+  't-new': 'new',
   't-inbox': 'inbox',
   't-clients': 'clients',
-  't-client': null,
+  't-client': 'client/c1',
   't-invite': null,
   't-session': 'session/s1',
   't-library': 'library',
@@ -35,6 +35,8 @@ const routes = {
 };
 const selected = process.env.SCREENS?.split(',') ?? Object.keys(routes);
 const scenarioScreens = {
+  't-inbox': 'trainer-inbox',
+  't-client': 'client-details',
   't-session': 'workout',
   't-today': 'trainer-today',
   'c-home': 'client-home',

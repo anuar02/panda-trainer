@@ -6,6 +6,23 @@
 
 ## Текущая волна
 
+30.09 — продолжение координатора: входящие `/inbox`, четыре операции переноса,
+история, retry ошибок, Today navigation. 310 тестов / 41 suite; web и iOS smoke.
+Пять глубоких маршрутов остаются; следующий — шаблон. Подробности в
+`app/review/inbox/README.md` и CODEX-CONTINUATION-HANDOFF.
+
+30.09 — завершены scheduling_domain (домен/хранилище и затем связь каталога
+с журналом), scheduling_ui (создание/перенос и Today, безопасные параметры
+маршрутов), client_details (пять разделов и сквозные тесты, динамический Home).
+Root — provider/bridge, Schedule/Home интеграция, маршруты, i18n, capture,
+нативная проверка и документация. 306 тестов / 40 suites. Найденные ревью ошибки
+исправлены: параметры deep link, статичные RSVP/программы групп, safe area,
+вертикальные строки карточки, c7 и статус ожидания переноса.
+Следующая волна: входящие и оставшиеся глубокие маршруты; создавать свежие
+контексты, не продолжать большие контексты этой команды.
+
+Ниже — история предыдущих волн.
+
 Продолжение журнала: три свежих контекста — journal_actions (`domain/workout`,
 domain tests), journal_controls (`features/workout`, screen tests), client_results
 (History/Progress и их tests). Root — runtime/provider/dock, интеграция, capture,

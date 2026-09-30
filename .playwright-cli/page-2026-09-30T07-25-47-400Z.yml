@@ -1,0 +1,81 @@
+- generic [ref=f2e197]:
+  - generic [ref=f2e202]:
+    - generic [ref=f2e203]:
+      - heading "Расписание" [level=1] [ref=f2e204]
+      - button "Добавить занятие на выбранный день" [ref=f2e205] [cursor=pointer]
+    - generic [ref=f2e209]:
+      - generic "Выбор даты" [ref=f2e210]:
+        - generic [ref=f2e211]:
+          - heading "Сентябрь 2026" [level=1] [ref=f2e212]
+          - button "Сегодня" [ref=f2e213] [cursor=pointer]
+        - generic [ref=f2e215]:
+          - button "Предыдущая неделя" [ref=f2e216] [cursor=pointer]
+          - generic [ref=f2e219]: 14 сен — 20 сен
+          - button "Следующая неделя" [ref=f2e220] [cursor=pointer]
+        - generic [ref=f2e223]:
+          - button "14 сентября, 7 занятий" [ref=f2e224] [cursor=pointer]:
+            - generic [ref=f2e225]: пн
+            - generic [ref=f2e226]: "14"
+            - generic [ref=f2e227]: "7"
+          - button "15 сентября, 2 занятия" [ref=f2e228] [cursor=pointer]:
+            - generic [ref=f2e229]: вт
+            - generic [ref=f2e230]: "15"
+            - generic [ref=f2e231]: "2"
+          - button "16 сентября, 0 занятий" [ref=f2e232] [cursor=pointer]:
+            - generic [ref=f2e233]: ср
+            - generic [ref=f2e234]: "16"
+            - generic [ref=f2e235]: —
+          - button "17 сентября, 1 занятие" [ref=f2e236] [cursor=pointer]:
+            - generic [ref=f2e237]: чт
+            - generic [ref=f2e238]: "17"
+            - generic [ref=f2e239]: "1"
+          - button "18 сентября, 0 занятий" [ref=f2e240] [cursor=pointer]:
+            - generic [ref=f2e241]: пт
+            - generic [ref=f2e242]: "18"
+            - generic [ref=f2e243]: —
+          - button "19 сентября, 0 занятий" [ref=f2e244] [cursor=pointer]:
+            - generic [ref=f2e245]: сб
+            - generic [ref=f2e246]: "19"
+            - generic [ref=f2e247]: —
+          - button "20 сентября, 0 занятий" [ref=f2e248] [cursor=pointer]:
+            - generic [ref=f2e249]: вс
+            - generic [ref=f2e250]: "20"
+            - generic [ref=f2e251]: —
+        - generic [ref=f2e252]:
+          - generic [ref=f2e253]: Количество занятий под датой
+          - generic [ref=f2e254]: Алматы
+      - generic "Занятия выбранного дня" [ref=f2e255]:
+        - generic [ref=f2e256]:
+          - heading "Вторник, 15 сентября" [level=1] [ref=f2e257]
+          - generic [ref=f2e258]: 2 занятия · 2 ч занятий
+        - generic [ref=f2e259]:
+          - generic [ref=f2e260]:
+            - button "Арман, 14:00–15:00. Открыть занятие" [ref=f2e261] [cursor=pointer]:
+              - generic [ref=f2e262]:
+                - generic [ref=f2e263]: 14:00
+                - generic [ref=f2e264]: 15:00
+              - generic [ref=f2e265]:
+                - generic [ref=f2e266]: Арман
+                - generic [ref=f2e267]: Сила 5×5
+            - button "Перенос · нужен ваш ответ Предложено 16 сен, 11:30" [ref=f2e271] [cursor=pointer]:
+              - generic [ref=f2e276]:
+                - generic [ref=f2e277]: Перенос · нужен ваш ответ
+                - generic [ref=f2e278]: Предложено 16 сен, 11:30
+          - button "15:00–19:00 Свободно · 4 ч" [ref=f2e281] [cursor=pointer]:
+            - generic [ref=f2e282]:
+              - generic [ref=f2e283]: 15:00–19:00
+              - generic [ref=f2e284]: Свободно · 4 ч
+          - button "Айгерим, 19:00–20:00. Открыть занятие" [ref=f2e288] [cursor=pointer]:
+            - generic [ref=f2e289]:
+              - generic [ref=f2e290]: 19:00
+              - generic [ref=f2e291]: 20:00
+            - generic [ref=f2e292]:
+              - generic [ref=f2e293]: Айгерим
+              - generic [ref=f2e294]: Низ А
+              - generic [ref=f2e295]: Ждём согласия клиента
+  - generic "Основная навигация" [ref=f2e300]:
+    - tab "Сегодня" [ref=f2e301] [cursor=pointer]
+    - tab "Расписание" [ref=f2e306] [cursor=pointer]
+    - tab "Клиенты" [ref=f2e311] [cursor=pointer]
+    - tab "Библиотека" [ref=f2e317] [cursor=pointer]
+    - tab "Профиль" [ref=f2e322] [cursor=pointer]

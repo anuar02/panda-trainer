@@ -1,3 +1,7 @@
+import { trainerInbox } from '@/features/trainer-inbox/ru';
+import { sessionEditorRu } from '@/features/session-editor/ru';
+import { clientDetails } from '@/features/client-details/ru';
+import { schedulingDemo } from '@/features/scheduling-demo/ru';
 import { clientHome } from '@/features/client-home/ru';
 import { trainerToday } from '@/features/trainer-today/ru';
 import { trainerSchedule } from '@/features/trainer-schedule/ru';
@@ -11,6 +15,10 @@ import { workoutRu } from '@/features/workout/workout-copy';
 import { workoutDemo } from '@/features/workout-demo/ru';
 
 export const ru = {
+  trainerInbox,
+  sessionEditor: sessionEditorRu,
+  clientDetails,
+  schedulingDemo,
   clientHome,
   trainerToday,
   trainerSchedule,

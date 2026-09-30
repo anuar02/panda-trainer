@@ -40,6 +40,7 @@ export const trainerClients = {
   reset: 'Сбросить поиск и фильтры',
   dash: '—',
   people: {
+    c7: { name: 'Новый клиент', initials: '?', program: '' },
     c1: { name: 'Айгерим Бекова', initials: 'АБ', program: 'Низ А' },
     c2: { name: 'Арман Оспанов', initials: 'АО', program: 'Сила 5×5' },
     c3: { name: 'Алия Нурлановa', initials: 'АН', program: 'Низ А' },

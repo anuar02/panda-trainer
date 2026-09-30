@@ -22,7 +22,7 @@ export function ClientHistoryScreen({
   const { t, i18n } = useTranslation();
   const demo = useOptionalWorkoutDemo();
   const journals = demo?.hydrated ? workoutClientHistory(demo.state, 'c1') : [];
-  const sessions = workoutSessions
+  const sessions = (demo?.state.catalog ?? workoutSessions)
     .filter(
       (session) =>
         session.id === 's4' ||

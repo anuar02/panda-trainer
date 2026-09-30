@@ -20,6 +20,7 @@ import {
   type WorkoutExercise,
   type WorkoutJournal,
   type WorkoutSet,
+  type WorkoutSession,
 } from '@/domain/workout';
 import { Button } from '@/ui/button';
 import { GradientBackground } from '@/ui/gradient-background';
@@ -40,6 +41,7 @@ import {
 
 type Props = {
   sessionId: string;
+  session?: WorkoutSession;
   scenario?: 'normal' | 'empty' | 'loading' | 'offline';
   journal: WorkoutJournal | null;
   dispatch: (action: WorkoutAction) => void;
@@ -56,6 +58,7 @@ type Editor = { exerciseId: string; index: number; clientId: string };
 
 export function WorkoutScreen({
   sessionId,
+  session: suppliedSession,
   scenario = 'normal',
   journal,
   dispatch,
@@ -79,7 +82,7 @@ export function WorkoutScreen({
   const [editor, setEditor] = useState<Editor | null>(null);
   const [error, setError] = useState(false);
   const scroll = useRef<ScrollView>(null);
-  const session = getWorkoutSession(sessionId);
+  const session = suppliedSession ?? getWorkoutSession(sessionId);
   const number = (value: number) =>
     new Intl.NumberFormat(i18n.language).format(value);
   const formatSet = (value: WorkoutSet, exercise: WorkoutExercise) =>

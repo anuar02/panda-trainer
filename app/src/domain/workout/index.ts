@@ -1,3 +1,4 @@
+import { syncWorkoutCatalog, validWorkoutCatalog } from './catalog';
 import {
   getWorkoutSession,
   workoutClients,
@@ -12,6 +13,7 @@ import type {
   WorkoutSet,
   WorkoutState,
   WorkoutNote,
+  WorkoutSession,
 } from './types';
 import { workoutExerciseKey, workoutExerciseLibrary } from './library';
 
@@ -19,13 +21,24 @@ export * from './types';
 export * from './fixtures';
 export * from './selectors';
 export * from './library';
+export * from './catalog';
 
-export function createWorkoutState(): WorkoutState {
-  return { version: 1, sessions: {}, activeSessionId: null };
+export function createWorkoutState(
+  catalog?: readonly WorkoutSession[],
+): WorkoutState {
+  return {
+    version: 1,
+    sessions: {},
+    activeSessionId: null,
+    ...(catalog ? { catalog: [...catalog] } : {}),
+  };
 }
 
-function createJournal(sessionId: string): WorkoutJournal | null {
-  const session = getWorkoutSession(sessionId);
+function createJournal(
+  sessionId: string,
+  catalog?: readonly WorkoutSession[],
+): WorkoutJournal | null {
+  const session = getWorkoutSession(sessionId, catalog);
   if (!session) return null;
   return {
     sessionId,
@@ -36,12 +49,18 @@ function createJournal(sessionId: string): WorkoutJournal | null {
     plans: Object.fromEntries(
       session.participants.map((p) => {
         const name =
-          session.kind === 'personal'
-            ? session.program
-            : (workoutClients[p.clientId]?.program ?? null);
+          p.program !== undefined
+            ? p.program
+            : session.kind === 'personal'
+              ? session.program
+              : (workoutClients[p.clientId]?.program ?? null);
         return [
           p.clientId,
-          { name, reply: p.reply, exercises: workoutExercises(name) },
+          {
+            name,
+            reply: session.status === 'cancelled' ? 'cancelled' : p.reply,
+            exercises: workoutExercises(name),
+          },
         ];
       }),
     ),
@@ -55,9 +74,7 @@ function createJournal(sessionId: string): WorkoutJournal | null {
 export function workoutEligible(journal: WorkoutJournal, clientId: string) {
   return (
     Object.hasOwn(journal.plans, clientId) &&
-    getWorkoutSession(journal.sessionId)?.participants.some(
-      (p) => p.clientId === clientId && p.reply !== 'cancelled',
-    ) === true
+    journal.plans[clientId]?.reply !== 'cancelled'
   );
 }
 
@@ -141,9 +158,10 @@ export function workoutReducer(
   action: WorkoutAction,
 ): WorkoutState {
   if (action.type === 'open') {
-    if (!getWorkoutSession(action.sessionId)) return state;
+    if (!getWorkoutSession(action.sessionId, state.catalog)) return state;
     const journal =
-      state.sessions[action.sessionId] ?? createJournal(action.sessionId);
+      state.sessions[action.sessionId] ??
+      createJournal(action.sessionId, state.catalog);
     if (!journal) return state;
     const active =
       action.participantId && Object.hasOwn(journal.plans, action.participantId)
@@ -569,8 +587,11 @@ function decodeExercises(
   return result;
 }
 
-export function decodeWorkoutState(raw: string | null): WorkoutState | null {
-  if (raw === null) return createWorkoutState();
+export function decodeWorkoutState(
+  raw: string | null,
+  catalog?: readonly WorkoutSession[],
+): WorkoutState | null {
+  if (raw === null) return createWorkoutState(catalog);
   try {
     const input: unknown = JSON.parse(raw);
     if (
@@ -583,9 +604,12 @@ export function decodeWorkoutState(raw: string | null): WorkoutState | null {
       )
     )
       return null;
-    const state = createWorkoutState();
+    if (input.catalog !== undefined && !validWorkoutCatalog(input.catalog))
+      return null;
+    const savedCatalog = input.catalog as WorkoutSession[] | undefined;
+    const state = createWorkoutState(savedCatalog ?? catalog);
     for (const [id, saved] of Object.entries(input.sessions)) {
-      const journal = createJournal(id);
+      const journal = createJournal(id, savedCatalog ?? catalog);
       if (
         !journal ||
         !record(saved) ||
@@ -698,7 +722,7 @@ export function decodeWorkoutState(raw: string | null): WorkoutState | null {
     )
       return null;
     state.activeSessionId = input.activeSessionId;
-    return state;
+    return catalog ? syncWorkoutCatalog(state, catalog) : state;
   } catch {
     return null;
   }

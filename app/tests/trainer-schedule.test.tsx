@@ -110,7 +110,14 @@ test('empty and loading hide bookings while offline retains the cached agenda', 
   expect(screen.getByText('09:00')).toBeTruthy();
   expect(
     screen.getByRole('button', { name: 'Добавить занятие на выбранный день' }),
-  ).toBeDisabled();
+  ).toBeEnabled();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Добавить занятие на выбранный день' }),
+  );
+  expect(mockPush).toHaveBeenCalledWith({
+    pathname: '/new',
+    params: { date: '2026-09-14' },
+  });
   expect(
     screen.getByRole('button', { name: 'Дана, 09:00–10:00. Открыть занятие' }),
   ).toBeEnabled();

@@ -11,7 +11,7 @@ export function workoutClientHistory(
   state: WorkoutState,
   clientId: string,
 ): WorkoutClientHistory[] {
-  return workoutSessions.flatMap((session) => {
+  return (state.catalog ?? workoutSessions).flatMap((session) => {
     const log = state.sessions[session.id];
     const plan = log?.plans[clientId];
     if (

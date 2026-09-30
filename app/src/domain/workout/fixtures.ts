@@ -4,6 +4,8 @@ export const workoutClients: Record<
   string,
   { name: string; short: string; initials: string; program: string }
 > = {
+  c7: { name: 'Новый клиент', short: 'Без имени', initials: '?', program: '' },
+  c6: { name: 'Тимур Ахметов', short: 'Тимур', initials: 'ТА', program: '' },
   c1: {
     name: 'Айгерим Бекова',
     short: 'Айгерим',
@@ -129,6 +131,9 @@ export const workoutSessions: WorkoutSession[] = [
   personal('s9', 'c2', '14:00', '15:00', '2026-09-15'),
 ];
 
-export function getWorkoutSession(id: string) {
-  return workoutSessions.find((session) => session.id === id);
+export function getWorkoutSession(
+  id: string,
+  catalog: readonly WorkoutSession[] = workoutSessions,
+) {
+  return catalog.find((session) => session.id === id);
 }

@@ -11,7 +11,7 @@ describe('trainer client directory', () => {
   it('sorts the demo directory by Russian client names', () => {
     expect(
       filterClients(demoClients, '', 'all', name).map((person) => person.id),
-    ).toEqual(['c1', 'c3', 'c2', 'c5', 'c4', 'c6']);
+    ).toEqual(['c1', 'c3', 'c2', 'c5', 'c4', 'c7', 'c6']);
   });
 
   it('combines normalized name and phone searches with the current filter', () => {
@@ -34,7 +34,7 @@ describe('trainer client directory', () => {
       filterClients(demoClients, '', 'unscheduled', name).map(
         (person) => person.id,
       ),
-    ).toEqual(['c4', 'c6']);
+    ).toEqual(['c4', 'c7', 'c6']);
     expect(
       filterClients(demoClients, '', 'due', name).map((person) => person.id),
     ).toEqual(['c1', 'c4']);

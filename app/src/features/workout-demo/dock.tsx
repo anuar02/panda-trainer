@@ -41,7 +41,7 @@ export function WorkoutDock() {
   const journal =
     activeJournal && !activeJournal.finished
       ? activeJournal
-      : workoutSessions
+      : (demo?.state.catalog ?? workoutSessions)
           .filter((session) => session.date === '2026-09-14')
           .sort(
             (a, b) =>
@@ -49,7 +49,9 @@ export function WorkoutDock() {
           )
           .map((session) => demo?.state.sessions[session.id])
           .find((entry) => entry && !entry.finished);
-  const session = journal ? getWorkoutSession(journal.sessionId) : undefined;
+  const session = journal
+    ? getWorkoutSession(journal.sessionId, demo?.state.catalog)
+    : undefined;
   const runtime = useWorkoutRuntime(
     journal?.sessionId ?? '',
     journal?.active ?? '',

@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   Pressable,
@@ -205,13 +206,17 @@ export function TrainerClientsScreen({
           <Card flush style={s.list}>
             {list.map((person, index) => (
               <Pressable
-                disabled
+                onPress={() =>
+                  router.push({
+                    pathname: '/client/[id]',
+                    params: { id: person.id },
+                  })
+                }
                 key={person.id}
                 accessibilityRole="button"
                 accessibilityLabel={t(
                   `trainerClients.people.${person.id}.name`,
                 )}
-                accessibilityState={{ disabled: true }}
                 style={[
                   s.row,
                   index > 0 && {

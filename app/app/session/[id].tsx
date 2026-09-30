@@ -16,13 +16,14 @@ export default function SessionRoute() {
   const { state, hydrated, readError, storageStatus, dispatch, retrySave } =
     useWorkoutDemo();
   useEffect(() => {
-    if (hydrated && !readError && getWorkoutSession(sessionId))
+    if (hydrated && !readError && getWorkoutSession(sessionId, state.catalog))
       dispatch({ type: 'open', sessionId });
-  }, [dispatch, hydrated, readError, sessionId]);
+  }, [dispatch, hydrated, readError, sessionId, state.catalog]);
   const leave = () => router.replace('/(trainer)/schedule');
   return (
     <WorkoutScreen
       sessionId={sessionId}
+      session={getWorkoutSession(sessionId, state.catalog)}
       scenario={scenario}
       journal={state.sessions[sessionId] ?? null}
       dispatch={dispatch}

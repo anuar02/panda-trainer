@@ -1,3 +1,7 @@
+import { router } from 'expo-router';
+import { useOptionalSchedulingDemo } from '@/features/scheduling-demo/provider';
+import { scheduleRows } from '@/features/scheduling-demo/adapters';
+import { SchedulingSessionSheet } from '@/features/scheduling-demo/session-sheet';
 import { Fragment, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,16 +30,29 @@ import { useJournalLabels } from '@/features/workout-demo';
 
 export function TrainerScheduleScreen({
   scenario = 'normal',
+  initialDate,
 }: {
   scenario?: DemoScenario;
+  initialDate?: string;
 }) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
-  const [day, setDay] = useState(scheduleToday);
+  const demo = useOptionalSchedulingDemo();
+  const [day, setDay] = useState(initialDate ?? scheduleToday);
+  const create = (start?: string) =>
+    router.push({
+      pathname: '/new',
+      params: { date: day, ...(start ? { start } : {}) },
+    });
   const [selected, setSelected] = useState<ScheduleSession | null>(null);
   const journal = useJournalLabels();
   const loading = scenario === 'loading';
-  const all = scenario === 'empty' ? [] : scheduleSessions;
+  const all =
+    scenario === 'empty'
+      ? []
+      : demo
+        ? scheduleRows(demo.state)
+        : scheduleSessions;
   const sessions = all.filter((session) => session.date === day);
   const clusters = agendaClusters(sessions);
   const dates = weekDates(day);
@@ -83,7 +100,10 @@ export function TrainerScheduleScreen({
           });
 
   function entry(session: ScheduleSession, index: number) {
-    const name = t(`trainerSchedule.people.${session.person}`);
+    const name =
+      session.person === 'newClient' || session.person === 'aliya'
+        ? (session.title ?? '')
+        : t(`trainerSchedule.people.${session.person}`);
     const group = session.person === 'group';
     return (
       <View
@@ -108,14 +128,30 @@ export function TrainerScheduleScreen({
             <Text style={s.name}>{name}</Text>
             <Text style={[s.detail, secondary]}>
               {group
-                ? t('trainerSchedule.groupNames')
+                ? session.participantIds
+                  ? session.participantIds
+                      .map(
+                        (id) =>
+                          t(`trainerClients.people.${id as 'c1'}.name`).split(
+                            ' ',
+                          )[0],
+                      )
+                      .join(', ')
+                  : t('trainerSchedule.groupNames')
                 : session.program
                   ? t(`trainerSchedule.programs.${session.program}`)
                   : t('trainerSchedule.noProgram')}
             </Text>
             {group && (
               <Text style={[s.detail, secondary]}>
-                {t('trainerSchedule.groupSummary')}
+                {session.replies
+                  ? t('schedulingDemo.groupReplies', session.replies)
+                  : t('trainerSchedule.groupSummary')}
+              </Text>
+            )}
+            {session.pending && (
+              <Text style={[s.detail, secondary]}>
+                {t('schedulingDemo.pending')}
               </Text>
             )}
             {journal.status(session.id) && (
@@ -123,7 +159,7 @@ export function TrainerScheduleScreen({
                 {journal.status(session.id)}
               </Text>
             )}
-            {!session.request && (
+            {!session.request && !session.pending && (
               <View style={[s.row, s.confirmed]}>
                 <Icon name="check" size={12} color={colors.success} />
                 <Text style={[s.detail, secondary]}>
@@ -142,10 +178,10 @@ export function TrainerScheduleScreen({
         </Pressable>
         {session.request && (
           <Pressable
-            disabled
+            disabled={!demo}
+            onPress={() => setSelected(session)}
             accessibilityRole="button"
-            accessibilityState={{ disabled: true }}
-            accessibilityHint={t('trainerSchedule.unavailable')}
+            accessibilityState={{ disabled: !demo }}
             style={[s.row, s.request, { backgroundColor: warningBackground }]}
           >
             <Icon name="swap" size={15} color={colors.warning} />
@@ -178,17 +214,27 @@ export function TrainerScheduleScreen({
           {t('trainerSchedule.title')}
         </Text>
         <Pressable
-          disabled
+          onPress={() => create()}
           accessibilityRole="button"
-          accessibilityState={{ disabled: true }}
           accessibilityLabel={t('trainerSchedule.addDay')}
-          accessibilityHint={t('trainerSchedule.unavailable')}
           style={[s.iconButton, { backgroundColor: colors.ink }]}
         >
           <Icon name="plus" color={selectedInk} />
         </Pressable>
       </View>
       <ScrollView contentContainerStyle={s.body}>
+        {demo?.storageStatus === 'error' && (
+          <View>
+            <Text accessibilityRole="alert">
+              {t('schedulingDemo.errors.storage')}
+            </Text>
+            <Button
+              label={t('common.retry')}
+              variant="soft"
+              onPress={demo.retrySave}
+            />
+          </View>
+        )}
         <Card
           flush
           style={s.nav}
@@ -409,7 +455,7 @@ export function TrainerScheduleScreen({
               </Text>
               <View style={s.emptyAction}>
                 <Button
-                  disabled
+                  onPress={() => create()}
                   compact
                   label={t('trainerSchedule.add')}
                   icon={<Icon name="plus" size={18} color="#ffffff" />}
@@ -427,10 +473,8 @@ export function TrainerScheduleScreen({
                   <Fragment key={first.id}>
                     {previous && cluster.start > previous.end && (
                       <Pressable
-                        disabled
+                        onPress={() => create(formatTime(previous.end))}
                         accessibilityRole="button"
-                        accessibilityState={{ disabled: true }}
-                        accessibilityHint={t('trainerSchedule.unavailable')}
                         style={[s.row, s.gap, { borderColor: colors.border }]}
                       >
                         <View style={s.gapLabels}>
@@ -485,10 +529,17 @@ export function TrainerScheduleScreen({
           )}
         </View>
       </ScrollView>
-      <SessionDetailsSheet
-        session={selected}
-        onClose={() => setSelected(null)}
-      />
+      {demo ? (
+        <SchedulingSessionSheet
+          sessionId={selected?.id ?? null}
+          onClose={() => setSelected(null)}
+        />
+      ) : (
+        <SessionDetailsSheet
+          session={selected}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </SafeAreaView>
   );
 }

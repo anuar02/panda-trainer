@@ -5,9 +5,14 @@ export type ScheduleSession = {
   date: string;
   start: string;
   end: string;
-  person: 'dana' | 'madi' | 'arman' | 'aigerim' | 'group';
+  person:
+    'dana' | 'madi' | 'arman' | 'aigerim' | 'group' | 'aliya' | 'newClient';
   program?: 'fullBody' | 'upper' | 'strength' | 'lower';
   request?: { date: string; time: string };
+  title?: string;
+  participantIds?: string[];
+  pending?: boolean;
+  replies?: { confirmed: number; pending: number; cancelled: number };
 };
 
 export const scheduleSessions: readonly ScheduleSession[] = [
