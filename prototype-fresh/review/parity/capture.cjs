@@ -17,26 +17,42 @@ const props = ['font-family', 'font-size', 'font-weight', 'line-height', 'letter
   fs.mkdirSync(out, { recursive: true });
   const browser = await pw.chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  await page.addInitScript(() => localStorage.clear());
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   const index = [];
   const specs = {};
   for (const theme of themes) {
-    await page.goto(`${baseURL}/?present&theme=${theme}`);
-    await page.evaluate(() => document.fonts.ready);
     for (const scenario of scenarios) {
       for (const screen of screens) {
+        if (theme !== 'auto' && scenario !== 'normal') continue;
+        await page.goto(`${baseURL}/?present&theme=${theme}`);
+        await page.addStyleTag({ content: '#device { height: 844px; flex: none; }' });
+        await page.evaluate(() => document.fonts.ready);
         await page.evaluate(({ screen, scenario }) => {
           Store.set({ role: screen[0] === 't' ? 'trainer' : 'client', screen, scenario, sheet: null, wide: false, stack: [] });
           if (screen === 't-session') Store.logging.open('s1');
         }, { screen, scenario });
         await page.waitForTimeout(250);
+        await page.evaluate(() => {
+          for (const animation of document.getAnimations()) {
+            if (animation.effect?.getTiming().iterations === Infinity) {
+              animation.currentTime = 0;
+              animation.pause();
+            } else {
+              animation.finish();
+            }
+          }
+        });
         const resolved = await page.evaluate(() => document.documentElement.dataset.theme);
-        if (theme !== 'auto' && scenario !== 'normal') continue;
         const file = `${screen}__${scenario}__${theme === 'auto' ? `auto-${resolved}` : theme}.png`;
         const device = await page.$('#device') || page;
+        const frame = device === page ? { width: 390, height: 844 } : await device.boundingBox();
+        if (!frame || Math.abs(frame.width - 390) > 0.5 || Math.abs(frame.height - 844) > 0.5) {
+          throw new Error(`Invalid reference frame: ${JSON.stringify(frame)}`);
+        }
         await device.screenshot({ path: path.join(out, file) });
-        index.push({ screen, scenario, theme, resolved, file });
+        index.push({ screen, scenario, theme, resolved, file, width: frame.width, height: frame.height });
         if (scenario !== 'normal') continue;
         const key = resolved;
         specs[key] = specs[key] || { variables: {}, classes: {} };
@@ -79,7 +95,7 @@ const props = ['font-family', 'font-size', 'font-weight', 'line-height', 'letter
   for (const [key, spec] of Object.entries(specs)) {
     fs.writeFileSync(path.join(specOut, `spec-${key}.json`), JSON.stringify(spec, null, 1));
   }
-  fs.writeFileSync(path.join(specOut, 'index.json'), JSON.stringify({ baseURL, viewport: '390x844@2x', errors, shots: index }, null, 1));
+  fs.writeFileSync(path.join(specOut, 'index.json'), JSON.stringify({ baseURL, viewport: '390x844@2x', motion: 'finite-finished-infinite-paused-at-start', fixtures: 'fresh-page-cleared-local-storage-per-shot', errors, shots: index }, null, 1));
   await browser.close();
   console.log(`${index.length} screenshots, specs: ${Object.keys(specs).join(', ')}, errors: ${errors.length}`);
 })();

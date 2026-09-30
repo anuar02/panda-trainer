@@ -1,4 +1,5 @@
-import { PlaceholderScreen } from '@/features/navigation/placeholder-screen';
+import { TrainerTodayScreen } from '@/features/trainer-today/trainer-today-screen';
+import { useDemoScenario } from '@/features/demo/use-demo-scenario';
 export default function Screen() {
-  return <PlaceholderScreen section="today" />;
+  return <TrainerTodayScreen scenario={useDemoScenario()} />;
 }

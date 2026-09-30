@@ -33,9 +33,11 @@ export function ToastProvider({ children }: PropsWithChildren) {
       {children}
       {message && (
         <View
-          pointerEvents="none"
           className="absolute left-page right-page rounded-card bg-ink p-4"
-          style={{ top: insets.top + tokens.spacing.page }}
+          style={{
+            top: insets.top + tokens.spacing.page,
+            pointerEvents: 'none',
+          }}
         >
           <Text className="text-canvas">{message}</Text>
         </View>

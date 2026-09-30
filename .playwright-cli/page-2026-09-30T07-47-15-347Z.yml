@@ -1,0 +1,34 @@
+- generic [ref=f1e11]:
+  - generic [ref=f1e12]:
+    - button "Назад" [ref=f1e13] [cursor=pointer]
+    - heading "Входящие" [level=1] [ref=f1e16]
+  - generic [ref=f1e19]:
+    - generic [ref=f1e20]: Активные
+    - generic [ref=f1e53]:
+      - generic [ref=f1e54]:
+        - generic [ref=f1e55]: АО
+        - generic [ref=f1e57]:
+          - generic [ref=f1e58]: Арман Оспанов
+          - generic [ref=f1e59]: Запрос на перенос · предложено клиентом
+          - generic [ref=f1e60]: Ждёт вас
+      - generic [ref=f1e64]:
+        - generic [ref=f1e85]:
+          - generic [ref=f1e86]: Действует
+          - generic [ref=f1e87]: 15 сен
+          - generic [ref=f1e88]: 14:00–15:00
+        - generic [ref=f1e91]:
+          - generic [ref=f1e92]: Предложено
+          - generic [ref=f1e93]: 16 сен
+          - generic [ref=f1e94]: 11:30–12:30
+      - generic [ref=f1e76]:
+        - button "Принять" [ref=f1e77] [cursor=pointer]
+        - button "Другое время" [ref=f1e79] [cursor=pointer]
+      - button "Отклонить" [ref=f1e82] [cursor=pointer]
+      - generic [ref=f1e84]: сегодня, 08:41
+    - generic [ref=f1e95]: История
+    - generic [ref=f1e97]:
+      - generic [ref=f1e98]: АБ
+      - generic [ref=f1e100]:
+        - generic [ref=f1e101]: Айгерим Бекова
+        - generic [ref=f1e102]: Перенос принят
+        - generic [ref=f1e103]: 17 сен · 18:00 → 18 сен · 19:00

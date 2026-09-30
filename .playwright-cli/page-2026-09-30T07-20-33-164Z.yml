@@ -1,0 +1,46 @@
+- generic [ref=f1e141]:
+  - generic [ref=f1e142]:
+    - button "Закрыть" [ref=f1e143] [cursor=pointer]
+    - generic [ref=f1e146]: Новое занятие
+  - generic [ref=f1e147]:
+    - heading "Когда и с кем" [level=1] [ref=f1e148]
+    - generic [ref=f1e149]: Сначала согласуем время. Программу можно назначить позже.
+  - generic [ref=f1e150]:
+    - button "1. Клиенты" [disabled]
+    - button "2. Время" [disabled]
+    - button "3. Программа" [disabled]
+  - generic [ref=f1e155]:
+    - generic [ref=f1e156]: Кто занимается
+    - generic [ref=f1e157]:
+      - button "Айгерим Бекова" [active] [ref=f1e158] [cursor=pointer]:
+        - generic [ref=f1e159]: АБ
+        - generic [ref=f1e161]:
+          - generic [ref=f1e162]: Айгерим Бекова
+          - generic [ref=f1e163]: Низ А · осталось 7 занятий
+      - button "Арман Оспанов" [ref=f1e164] [cursor=pointer]:
+        - generic [ref=f1e165]: АО
+        - generic [ref=f1e167]:
+          - generic [ref=f1e168]: Арман Оспанов
+          - generic [ref=f1e169]: Сила 5×5 · осталось 2 занятия
+      - button "Алия Нурлановa" [ref=f1e170] [cursor=pointer]:
+        - generic [ref=f1e171]: АН
+        - generic [ref=f1e173]:
+          - generic [ref=f1e174]: Алия Нурлановa
+          - generic [ref=f1e175]: Низ А · осталось 9 занятий
+      - button "Мади Касымов" [ref=f1e176] [cursor=pointer]:
+        - generic [ref=f1e177]: МК
+        - generic [ref=f1e179]:
+          - generic [ref=f1e180]: Мади Касымов
+          - generic [ref=f1e181]: Верх Б · осталось 1 занятие
+      - button "Дана Ержанова" [ref=f1e182] [cursor=pointer]:
+        - generic [ref=f1e183]: ДЕ
+        - generic [ref=f1e185]:
+          - generic [ref=f1e186]: Дана Ержанова
+          - generic [ref=f1e187]: Full Body · осталось 5 занятий
+      - button "Тимур Ахметов" [ref=f1e188] [cursor=pointer]:
+        - generic [ref=f1e189]: ТА
+        - generic [ref=f1e191]:
+          - generic [ref=f1e192]: Тимур Ахметов
+          - generic [ref=f1e193]: Без программы · выберите на следующем шаге
+    - generic [ref=f1e194]: Несколько клиентов создают общее занятие. Выбранная программа будет назначена каждому; результаты записываются отдельно.
+  - button "Продолжить" [ref=f1e204] [cursor=pointer]

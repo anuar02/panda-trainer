@@ -10,6 +10,7 @@ import {
 } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from 'expo-router';
 import { Button } from './button';
 import { Text } from './text';
 import { tokens, useTheme } from './theme';
@@ -21,33 +22,56 @@ export function Sheet({
 }: PropsWithChildren<{ open: boolean; title: string; onClose: () => void }>) {
   const ref = useRef<BottomSheetModal>(null);
   const presented = useRef(false);
+  const navigation = useNavigation();
+  const close = useRef(onClose);
+  useEffect(() => {
+    close.current = onClose;
+  }, [onClose]);
   const { colors } = useTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   useEffect(() => {
-    if (open) {
+    if (open && navigation.isFocused()) {
       presented.current = true;
       ref.current?.present();
     } else if (presented.current) {
       presented.current = false;
       ref.current?.dismiss();
     }
-  }, [open]);
+  }, [open, navigation]);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      if (!presented.current) return;
+      presented.current = false;
+      ref.current?.dismiss();
+      close.current();
+    });
+    const modal = ref.current;
+    return () => {
+      unsubscribe();
+      if (!presented.current) return;
+      presented.current = false;
+      modal?.dismiss();
+    };
+  }, [navigation]);
   const handleDismiss = useCallback(() => {
+    const notify = presented.current;
     presented.current = false;
-    onClose();
+    if (notify) onClose();
   }, [onClose]);
+  const dismiss = useCallback(() => ref.current?.dismiss(), []);
   useEffect(() => {
     if (!open) return;
     const subscription = BackHandler.addEventListener(
       'hardwareBackPress',
       () => {
-        onClose();
+        if (!presented.current) return false;
+        dismiss();
         return true;
       },
     );
     return () => subscription.remove();
-  }, [open, onClose]);
+  }, [open, dismiss]);
   const backdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -55,7 +79,7 @@ export function Sheet({
         appearsOnIndex={0}
         disappearsOnIndex={-1}
         accessibilityLabel={t('common.close')}
-        accessibilityHint={t('common.close')}
+        accessibilityHint=""
       />
     ),
     [t],
@@ -86,7 +110,6 @@ export function Sheet({
       }}
     >
       <BottomSheetScrollView
-        accessibilityLabel={title}
         contentContainerStyle={{
           padding: tokens.spacing.page,
           paddingBottom: insets.bottom + tokens.spacing.page,
@@ -100,7 +123,7 @@ export function Sheet({
         <Button
           label={t('common.close')}
           variant="secondary"
-          onPress={onClose}
+          onPress={dismiss}
         />
       </BottomSheetScrollView>
     </BottomSheetModal>

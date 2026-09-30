@@ -31,11 +31,22 @@ module.exports = defineConfig([
   },
   {
     files: ['**/*.tsx'],
+    ignores: ['tests/**'],
     rules: {
       'no-restricted-syntax': [
         'error',
         {
           selector: 'JSXText[value=/\\S/]',
+          message: 'Use i18n for interface strings.',
+        },
+        {
+          selector:
+            'JSXAttribute[name.name=/^(label|title|placeholder|accessibilityLabel|accessibilityHint|description|subtitle)$/] > Literal[value=/\\S/]',
+          message: 'Use i18n for interface strings.',
+        },
+        {
+          selector:
+            'JSXExpressionContainer > Literal[value=/\\S/][raw=/^[\'\"]/]',
           message: 'Use i18n for interface strings.',
         },
       ],

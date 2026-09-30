@@ -16,7 +16,12 @@
       "bundler": "metro",
       "output": "static"
     },
-    "plugins": ["expo-router", "expo-font", "expo-system-ui"],
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-system-ui",
+      "expo-splash-screen"
+    ],
     "experiments": {
       "typedRoutes": true
     }

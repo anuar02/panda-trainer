@@ -6,12 +6,15 @@
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo-google-fonts/montserrat": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
+    "@formatjs/intl-pluralrules": "6.3.15",
     "@gorhom/bottom-sheet": "^5.2.14",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.25",
     "expo-constants": "~57.0.19",
     "expo-font": "~57.0.4",
     "expo-linking": "~57.0.11",
     "expo-router": "~57.0.23",
+    "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
     "i18next": "^26.4.2",
@@ -24,6 +27,7 @@
     "react-native-reanimated": "4.5.1",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
     "react-native-worklets": "0.10.1",
     "tailwind-merge": "2.6.0"
@@ -55,7 +59,8 @@
     "test": "jest --runInBand",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
     "db": "supabase --workdir ..",
-    "export": "expo export --platform all"
+    "export": "expo export --platform all",
+    "parity": "expo export --platform web && node scripts/parity.mjs"
   },
   "private": true,
   "engines": {
