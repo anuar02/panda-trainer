@@ -1,0 +1,369 @@
+- generic [ref=e6]:
+  - generic [ref=e12]:
+    - generic [ref=e13]:
+      - button "Назад" [ref=e14] [cursor=pointer]
+      - generic [ref=e17]: Новый шаблон
+      - button "Удалить черновик" [ref=e18] [cursor=pointer]
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]: Конструктор тренировки
+        - heading "Соберите свой план" [level=1] [ref=e25]
+        - generic [ref=e26]: От первого упражнения до последнего подхода.
+      - generic [ref=e27]:
+        - generic [ref=e28]: Название шаблона
+        - textbox "Название шаблона" [ref=e29]:
+          - /placeholder: Например, Ноги и ягодицы
+          - text: Мой план проверки
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: Заметка
+          - generic [ref=e33]: необязательно
+        - textbox "Заметка" [ref=e34]:
+          - /placeholder: Цель тренировки или подсказка для себя
+      - generic [ref=e35]:
+        - generic [ref=e36]: Упражнения
+        - generic [ref=e37]: 0 упражнений
+      - generic [ref=e38]:
+        - generic [ref=e42]: Начните с первого упражнения
+        - generic [ref=e43]: Выберите движения из библиотеки, а затем настройте нагрузку.
+      - button "Добавить упражнения" [active] [ref=e44] [cursor=pointer]
+      - generic [ref=e49]: Черновик сохранён на этом устройстве.
+    - generic [ref=e50]:
+      - generic [ref=e51]: 0 подходов в плане
+      - button "Сохранить шаблон" [ref=e52] [cursor=pointer]
+  - button "Закрыть" [ref=e58] [cursor=pointer]
+  - generic [ref=e59]:
+    - slider "Bottom Sheet"
+    - slider "Добавить упражнения" [ref=e61]:
+      - generic [ref=e64]:
+        - heading "Добавить упражнения" [level=1] [ref=e65]
+        - generic [ref=e66]: Отметьте несколько — они появятся в вашем плане.
+        - textbox "Поиск упражнений для шаблона" [ref=e67]:
+          - /placeholder: Найти упражнение
+        - button "Приседания со штангой" [ref=e68] [cursor=pointer]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: Приседания со штангой
+            - generic [ref=e74]: Ноги
+        - button "Румынская тяга" [ref=e77] [cursor=pointer]:
+          - generic [ref=e81]:
+            - generic [ref=e82]: Румынская тяга
+            - generic [ref=e83]: Ноги
+        - button "Жим ногами" [ref=e86] [cursor=pointer]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: Жим ногами
+            - generic [ref=e92]: Ноги
+        - button "Выпады с гантелями" [ref=e95] [cursor=pointer]:
+          - generic [ref=e99]:
+            - generic [ref=e100]: Выпады с гантелями
+            - generic [ref=e101]: Ноги
+        - button "Болгарские выпады" [ref=e104] [cursor=pointer]:
+          - generic [ref=e108]:
+            - generic [ref=e109]: Болгарские выпады
+            - generic [ref=e110]: Ноги
+        - button "Ягодичный мост" [ref=e113] [cursor=pointer]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: Ягодичный мост
+            - generic [ref=e119]: Ноги
+        - button "Становая тяга" [ref=e122] [cursor=pointer]:
+          - generic [ref=e126]:
+            - generic [ref=e127]: Становая тяга
+            - generic [ref=e128]: Спина
+        - button "Тяга в наклоне" [ref=e131] [cursor=pointer]:
+          - generic [ref=e135]:
+            - generic [ref=e136]: Тяга в наклоне
+            - generic [ref=e137]: Спина
+        - button "Тяга блока к поясу" [ref=e140] [cursor=pointer]:
+          - generic [ref=e144]:
+            - generic [ref=e145]: Тяга блока к поясу
+            - generic [ref=e146]: Спина
+        - button "Тяга верхнего блока" [ref=e149] [cursor=pointer]:
+          - generic [ref=e153]:
+            - generic [ref=e154]: Тяга верхнего блока
+            - generic [ref=e155]: Спина
+        - button "Подтягивания" [ref=e158] [cursor=pointer]:
+          - generic [ref=e162]:
+            - generic [ref=e163]: Подтягивания
+            - generic [ref=e164]: Спина
+        - button "Гиперэкстензия" [ref=e167] [cursor=pointer]:
+          - generic [ref=e171]:
+            - generic [ref=e172]: Гиперэкстензия
+            - generic [ref=e173]: Спина
+        - button "Жим лёжа" [ref=e176] [cursor=pointer]:
+          - generic [ref=e180]:
+            - generic [ref=e181]: Жим лёжа
+            - generic [ref=e182]: Грудь
+        - button "Жим гантелей лёжа" [ref=e185] [cursor=pointer]:
+          - generic [ref=e189]:
+            - generic [ref=e190]: Жим гантелей лёжа
+            - generic [ref=e191]: Грудь
+        - button "Жим гантелей под углом" [ref=e194] [cursor=pointer]:
+          - generic [ref=e198]:
+            - generic [ref=e199]: Жим гантелей под углом
+            - generic [ref=e200]: Грудь
+        - button "Отжимания" [ref=e203] [cursor=pointer]:
+          - generic [ref=e207]:
+            - generic [ref=e208]: Отжимания
+            - generic [ref=e209]: Грудь
+        - button "Жим гантелей сидя" [ref=e212] [cursor=pointer]:
+          - generic [ref=e216]:
+            - generic [ref=e217]: Жим гантелей сидя
+            - generic [ref=e218]: Плечи
+        - button "Махи в стороны" [ref=e221] [cursor=pointer]:
+          - generic [ref=e225]:
+            - generic [ref=e226]: Махи в стороны
+            - generic [ref=e227]: Плечи
+        - button "Сгибания на бицепс с гантелями" [ref=e230] [cursor=pointer]:
+          - generic [ref=e234]:
+            - generic [ref=e235]: Сгибания на бицепс с гантелями
+            - generic [ref=e236]: Руки
+        - button "Разгибания на трицепс в блоке" [ref=e239] [cursor=pointer]:
+          - generic [ref=e243]:
+            - generic [ref=e244]: Разгибания на трицепс в блоке
+            - generic [ref=e245]: Руки
+        - button "Планка" [ref=e248] [cursor=pointer]:
+          - generic [ref=e252]:
+            - generic [ref=e253]: Планка
+            - generic [ref=e254]: Кор
+        - button "Скручивания" [ref=e257] [cursor=pointer]:
+          - generic [ref=e261]:
+            - generic [ref=e262]: Скручивания
+            - generic [ref=e263]: Кор
+        - button "Бёрпи" [ref=e266] [cursor=pointer]:
+          - generic [ref=e270]:
+            - generic [ref=e271]: Бёрпи
+            - generic [ref=e272]: Кардио
+        - button "Гоблет-присед" [ref=e275] [cursor=pointer]:
+          - generic [ref=e279]:
+            - generic [ref=e280]: Гоблет-присед
+            - generic [ref=e281]: Ноги
+        - button "Фронтальные приседания" [ref=e284] [cursor=pointer]:
+          - generic [ref=e288]:
+            - generic [ref=e289]: Фронтальные приседания
+            - generic [ref=e290]: Ноги
+        - button "Приседания в Смите" [ref=e293] [cursor=pointer]:
+          - generic [ref=e297]:
+            - generic [ref=e298]: Приседания в Смите
+            - generic [ref=e299]: Ноги
+        - button "Приседания сумо" [ref=e302] [cursor=pointer]:
+          - generic [ref=e306]:
+            - generic [ref=e307]: Приседания сумо
+            - generic [ref=e308]: Ноги
+        - button "Выпады назад" [ref=e311] [cursor=pointer]:
+          - generic [ref=e315]:
+            - generic [ref=e316]: Выпады назад
+            - generic [ref=e317]: Ноги
+        - button "Зашагивания на платформу" [ref=e320] [cursor=pointer]:
+          - generic [ref=e324]:
+            - generic [ref=e325]: Зашагивания на платформу
+            - generic [ref=e326]: Ноги
+        - button "Разгибания ног в тренажёре" [ref=e329] [cursor=pointer]:
+          - generic [ref=e333]:
+            - generic [ref=e334]: Разгибания ног в тренажёре
+            - generic [ref=e335]: Ноги
+        - button "Сгибания ног лёжа" [ref=e338] [cursor=pointer]:
+          - generic [ref=e342]:
+            - generic [ref=e343]: Сгибания ног лёжа
+            - generic [ref=e344]: Ноги
+        - button "Сгибания ног сидя" [ref=e347] [cursor=pointer]:
+          - generic [ref=e351]:
+            - generic [ref=e352]: Сгибания ног сидя
+            - generic [ref=e353]: Ноги
+        - button "Отведение ноги в блоке" [ref=e356] [cursor=pointer]:
+          - generic [ref=e360]:
+            - generic [ref=e361]: Отведение ноги в блоке
+            - generic [ref=e362]: Ноги
+        - button "Приведение ног в тренажёре" [ref=e365] [cursor=pointer]:
+          - generic [ref=e369]:
+            - generic [ref=e370]: Приведение ног в тренажёре
+            - generic [ref=e371]: Ноги
+        - button "Отведение ног в тренажёре" [ref=e374] [cursor=pointer]:
+          - generic [ref=e378]:
+            - generic [ref=e379]: Отведение ног в тренажёре
+            - generic [ref=e380]: Ноги
+        - button "Подъём на носки стоя" [ref=e383] [cursor=pointer]:
+          - generic [ref=e387]:
+            - generic [ref=e388]: Подъём на носки стоя
+            - generic [ref=e389]: Ноги
+        - button "Подъём на носки сидя" [ref=e392] [cursor=pointer]:
+          - generic [ref=e396]:
+            - generic [ref=e397]: Подъём на носки сидя
+            - generic [ref=e398]: Ноги
+        - button "Тяга гантели одной рукой" [ref=e401] [cursor=pointer]:
+          - generic [ref=e405]:
+            - generic [ref=e406]: Тяга гантели одной рукой
+            - generic [ref=e407]: Спина
+        - button "Тяга Т-грифа" [ref=e410] [cursor=pointer]:
+          - generic [ref=e414]:
+            - generic [ref=e415]: Тяга Т-грифа
+            - generic [ref=e416]: Спина
+        - button "Тяга с упором грудью" [ref=e419] [cursor=pointer]:
+          - generic [ref=e423]:
+            - generic [ref=e424]: Тяга с упором грудью
+            - generic [ref=e425]: Спина
+        - button "Пуловер в блоке" [ref=e428] [cursor=pointer]:
+          - generic [ref=e432]:
+            - generic [ref=e433]: Пуловер в блоке
+            - generic [ref=e434]: Спина
+        - button "Тяга прямыми руками" [ref=e437] [cursor=pointer]:
+          - generic [ref=e441]:
+            - generic [ref=e442]: Тяга прямыми руками
+            - generic [ref=e443]: Спина
+        - button "Шраги с гантелями" [ref=e446] [cursor=pointer]:
+          - generic [ref=e450]:
+            - generic [ref=e451]: Шраги с гантелями
+            - generic [ref=e452]: Спина
+        - button "Обратные подтягивания" [ref=e455] [cursor=pointer]:
+          - generic [ref=e459]:
+            - generic [ref=e460]: Обратные подтягивания
+            - generic [ref=e461]: Спина
+        - button "Жим штанги под углом" [ref=e464] [cursor=pointer]:
+          - generic [ref=e468]:
+            - generic [ref=e469]: Жим штанги под углом
+            - generic [ref=e470]: Грудь
+        - button "Сведение рук в кроссовере" [ref=e473] [cursor=pointer]:
+          - generic [ref=e477]:
+            - generic [ref=e478]: Сведение рук в кроссовере
+            - generic [ref=e479]: Грудь
+        - button "Разведение гантелей лёжа" [ref=e482] [cursor=pointer]:
+          - generic [ref=e486]:
+            - generic [ref=e487]: Разведение гантелей лёжа
+            - generic [ref=e488]: Грудь
+        - button "Жим в тренажёре" [ref=e491] [cursor=pointer]:
+          - generic [ref=e495]:
+            - generic [ref=e496]: Жим в тренажёре
+            - generic [ref=e497]: Грудь
+        - button "Отжимания на брусьях" [ref=e500] [cursor=pointer]:
+          - generic [ref=e504]:
+            - generic [ref=e505]: Отжимания на брусьях
+            - generic [ref=e506]: Грудь
+        - button "Отжимания от скамьи" [ref=e509] [cursor=pointer]:
+          - generic [ref=e513]:
+            - generic [ref=e514]: Отжимания от скамьи
+            - generic [ref=e515]: Грудь
+        - button "Жим штанги стоя" [ref=e518] [cursor=pointer]:
+          - generic [ref=e522]:
+            - generic [ref=e523]: Жим штанги стоя
+            - generic [ref=e524]: Плечи
+        - button "Жим Арнольда" [ref=e527] [cursor=pointer]:
+          - generic [ref=e531]:
+            - generic [ref=e532]: Жим Арнольда
+            - generic [ref=e533]: Плечи
+        - button "Махи в наклоне" [ref=e536] [cursor=pointer]:
+          - generic [ref=e540]:
+            - generic [ref=e541]: Махи в наклоне
+            - generic [ref=e542]: Плечи
+        - button "Подъём гантелей перед собой" [ref=e545] [cursor=pointer]:
+          - generic [ref=e549]:
+            - generic [ref=e550]: Подъём гантелей перед собой
+            - generic [ref=e551]: Плечи
+        - button "Тяга каната к лицу" [ref=e554] [cursor=pointer]:
+          - generic [ref=e558]:
+            - generic [ref=e559]: Тяга каната к лицу
+            - generic [ref=e560]: Плечи
+        - button "Обратная бабочка" [ref=e563] [cursor=pointer]:
+          - generic [ref=e567]:
+            - generic [ref=e568]: Обратная бабочка
+            - generic [ref=e569]: Плечи
+        - button "Сгибания со штангой" [ref=e572] [cursor=pointer]:
+          - generic [ref=e576]:
+            - generic [ref=e577]: Сгибания со штангой
+            - generic [ref=e578]: Руки
+        - button "Молотковые сгибания" [ref=e581] [cursor=pointer]:
+          - generic [ref=e585]:
+            - generic [ref=e586]: Молотковые сгибания
+            - generic [ref=e587]: Руки
+        - button "Сгибания на скамье Скотта" [ref=e590] [cursor=pointer]:
+          - generic [ref=e594]:
+            - generic [ref=e595]: Сгибания на скамье Скотта
+            - generic [ref=e596]: Руки
+        - button "Сгибания в блоке" [ref=e599] [cursor=pointer]:
+          - generic [ref=e603]:
+            - generic [ref=e604]: Сгибания в блоке
+            - generic [ref=e605]: Руки
+        - button "Французский жим" [ref=e608] [cursor=pointer]:
+          - generic [ref=e612]:
+            - generic [ref=e613]: Французский жим
+            - generic [ref=e614]: Руки
+        - button "Разгибания рук из-за головы" [ref=e617] [cursor=pointer]:
+          - generic [ref=e621]:
+            - generic [ref=e622]: Разгибания рук из-за головы
+            - generic [ref=e623]: Руки
+        - button "Жим узким хватом" [ref=e626] [cursor=pointer]:
+          - generic [ref=e630]:
+            - generic [ref=e631]: Жим узким хватом
+            - generic [ref=e632]: Руки
+        - button "Боковая планка" [ref=e635] [cursor=pointer]:
+          - generic [ref=e639]:
+            - generic [ref=e640]: Боковая планка
+            - generic [ref=e641]: Кор
+        - button "Обратные скручивания" [ref=e644] [cursor=pointer]:
+          - generic [ref=e648]:
+            - generic [ref=e649]: Обратные скручивания
+            - generic [ref=e650]: Кор
+        - button "Подъём коленей в висе" [ref=e653] [cursor=pointer]:
+          - generic [ref=e657]:
+            - generic [ref=e658]: Подъём коленей в висе
+            - generic [ref=e659]: Кор
+        - button "Мёртвый жук" [ref=e662] [cursor=pointer]:
+          - generic [ref=e666]:
+            - generic [ref=e667]: Мёртвый жук
+            - generic [ref=e668]: Кор
+        - button "Скручивания в блоке" [ref=e671] [cursor=pointer]:
+          - generic [ref=e675]:
+            - generic [ref=e676]: Скручивания в блоке
+            - generic [ref=e677]: Кор
+        - button "Паллоф-пресс" [ref=e680] [cursor=pointer]:
+          - generic [ref=e684]:
+            - generic [ref=e685]: Паллоф-пресс
+            - generic [ref=e686]: Кор
+        - button "Ходьба на дорожке" [ref=e689] [cursor=pointer]:
+          - generic [ref=e693]:
+            - generic [ref=e694]: Ходьба на дорожке
+            - generic [ref=e695]: Кардио
+        - button "Бег на дорожке" [ref=e698] [cursor=pointer]:
+          - generic [ref=e702]:
+            - generic [ref=e703]: Бег на дорожке
+            - generic [ref=e704]: Кардио
+        - button "Велотренажёр" [ref=e707] [cursor=pointer]:
+          - generic [ref=e711]:
+            - generic [ref=e712]: Велотренажёр
+            - generic [ref=e713]: Кардио
+        - button "Гребной тренажёр" [ref=e716] [cursor=pointer]:
+          - generic [ref=e720]:
+            - generic [ref=e721]: Гребной тренажёр
+            - generic [ref=e722]: Кардио
+        - button "Скакалка" [ref=e725] [cursor=pointer]:
+          - generic [ref=e729]:
+            - generic [ref=e730]: Скакалка
+            - generic [ref=e731]: Кардио
+        - button "Кошка-корова" [ref=e734] [cursor=pointer]:
+          - generic [ref=e738]:
+            - generic [ref=e739]: Кошка-корова
+            - generic [ref=e740]: Мобильность
+        - button "Повороты грудного отдела" [ref=e743] [cursor=pointer]:
+          - generic [ref=e747]:
+            - generic [ref=e748]: Повороты грудного отдела
+            - generic [ref=e749]: Мобильность
+        - button "Растяжка сгибателей бедра" [ref=e752] [cursor=pointer]:
+          - generic [ref=e756]:
+            - generic [ref=e757]: Растяжка сгибателей бедра
+            - generic [ref=e758]: Мобильность
+        - button "Мобилизация голеностопа" [ref=e761] [cursor=pointer]:
+          - generic [ref=e765]:
+            - generic [ref=e766]: Мобилизация голеностопа
+            - generic [ref=e767]: Мобильность
+        - button "Круги плечами" [ref=e770] [cursor=pointer]:
+          - generic [ref=e774]:
+            - generic [ref=e775]: Круги плечами
+            - generic [ref=e776]: Мобильность
+        - button "Глубокий присед с опорой" [ref=e779] [cursor=pointer]:
+          - generic [ref=e783]:
+            - generic [ref=e784]: Глубокий присед с опорой
+            - generic [ref=e785]: Мобильность
+        - button "Тяга верхнего блока параллельным хватом" [ref=e788] [cursor=pointer]:
+          - generic [ref=e792]:
+            - generic [ref=e793]: Тяга верхнего блока параллельным хватом
+            - generic [ref=e794]: Спина
+        - button "Готово · 0 упражнений" [ref=e797] [cursor=pointer]
+        - button "Закрыть" [ref=e799] [cursor=pointer]
+    - slider "Ручка шторки" [ref=e803] [cursor=pointer]

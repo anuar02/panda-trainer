@@ -1,3 +1,4 @@
+import type { PlanExercise } from '../templates';
 export type WorkoutSet = { kg: number; reps: number };
 export type WorkoutDraft = { kg: string; reps: string };
 export type WorkoutExercise = {
@@ -67,6 +68,7 @@ export type WorkoutState = {
   activeSessionId: string | null;
 };
 export type WorkoutSession = {
+  planSnapshot?: PlanExercise[];
   id: string;
   date: string;
   start: string;

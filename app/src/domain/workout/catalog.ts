@@ -1,3 +1,4 @@
+import { validPlan } from '../templates';
 import { workoutClients, workoutSessions } from './fixtures';
 import type { WorkoutSession, WorkoutState } from './types';
 
@@ -34,7 +35,14 @@ export function validWorkoutCatalog(value: unknown): value is WorkoutSession[] {
         /^([01]\d|2[0-3]):[0-5]\d$/.test(session.end) || session.end === '24:00'
       ) ||
       minutes(session.end) <= minutes(session.start) ||
-      !programs.includes(session.program as string | null) ||
+      !(
+        programs.includes(session.program as string | null) ||
+        (typeof session.program === 'string' &&
+          !!session.program.trim() &&
+          validPlan(session.planSnapshot))
+      ) ||
+      (session.planSnapshot !== undefined &&
+        (!session.program || !validPlan(session.planSnapshot))) ||
       !Array.isArray(session.participants) ||
       !session.participants.length ||
       (session.status !== undefined &&
@@ -61,7 +69,11 @@ export function validWorkoutCatalog(value: unknown): value is WorkoutSession[] {
           String(participant.reply),
         ) ||
         (participant.program !== undefined &&
-          !programs.includes(participant.program as string | null))
+          !(
+            programs.includes(participant.program as string | null) ||
+            (participant.program === session.program &&
+              validPlan(session.planSnapshot))
+          ))
       )
         return false;
       clients.add(participant.clientId);

@@ -198,3 +198,26 @@ test('rejected proposal stays open and permits correcting a counterproposal', as
     start: '14:00',
   });
 });
+
+test('preselected program survives steps and can be explicitly deferred', async () => {
+  const { onCreate } = await show({ initialProgram: 'strength' });
+  await reachProgram();
+  expect(
+    screen.getByRole('button', { name: 'Силовая А' }).props.accessibilityState
+      .selected,
+  ).toBe(true);
+  await press('Назначить программу позже');
+  await press('Создать занятие');
+  expect(onCreate).toHaveBeenCalledWith(
+    expect.objectContaining({ program: null, programLater: true }),
+  );
+});
+
+test('unknown preselected program is discarded from the draft', async () => {
+  const { onCreate } = await show({ initialProgram: 'constructor' });
+  await reachProgram();
+  await press('Создать занятие');
+  expect(onCreate).toHaveBeenCalledWith(
+    expect.objectContaining({ program: null, programLater: false }),
+  );
+});

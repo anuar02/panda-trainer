@@ -1,0 +1,43 @@
+- generic [ref=f1e6]:
+  - generic [ref=f1e218]:
+    - generic [ref=f1e219]:
+      - button "Назад" [ref=f1e220] [cursor=pointer]
+      - generic [ref=f1e223]: Шаблон
+      - button "Создать копию шаблона" [ref=f1e224] [cursor=pointer]
+    - generic [ref=f1e229]:
+      - generic [ref=f1e230]: Мой шаблон
+      - heading "План проверки копии" [level=1] [ref=f1e231]
+      - generic [ref=f1e232]: Готовая последовательность для следующей тренировки.
+      - generic [ref=f1e233]:
+        - generic [ref=f1e234]: 5 упражнений
+        - generic [ref=f1e235]: 16 подходов
+      - generic [ref=f1e236]:
+        - generic [ref=f1e237]: Порядок упражнений
+        - button "Изменить" [ref=f1e238] [cursor=pointer]
+      - generic [ref=f1e240]:
+        - generic [ref=f1e241]: "01"
+        - button "Приседания со штангой 4 × 8 · 72.5 кг · отдых 90 сек" [ref=f1e243] [cursor=pointer]:
+          - generic [ref=f1e244]: Приседания со штангой
+          - generic [ref=f1e245]: 4 × 8 · 72.5 кг · отдых 90 сек
+      - generic [ref=f1e246]:
+        - generic [ref=f1e247]: "02"
+        - button "Румынская тяга 3 × 10 · 60 кг · отдых 90 сек" [ref=f1e249] [cursor=pointer]:
+          - generic [ref=f1e250]: Румынская тяга
+          - generic [ref=f1e251]: 3 × 10 · 60 кг · отдых 90 сек
+      - generic [ref=f1e252]:
+        - generic [ref=f1e253]: "03"
+        - button "Жим ногами 3 × 12 · 120 кг · отдых 90 сек" [ref=f1e255] [cursor=pointer]:
+          - generic [ref=f1e256]: Жим ногами
+          - generic [ref=f1e257]: 3 × 12 · 120 кг · отдых 90 сек
+      - generic [ref=f1e258]:
+        - generic [ref=f1e259]: "04"
+        - button "Выпады с гантелями 3 × 12 · 16 кг · отдых 90 сек" [ref=f1e261] [cursor=pointer]:
+          - generic [ref=f1e262]: Выпады с гантелями
+          - generic [ref=f1e263]: 3 × 12 · 16 кг · отдых 90 сек
+      - generic [ref=f1e264]:
+        - generic [ref=f1e265]: "05"
+        - button "Планка 3 × 45 сек · отдых 90 сек" [ref=f1e267] [cursor=pointer]:
+          - generic [ref=f1e268]: Планка
+          - generic [ref=f1e269]: 3 × 45 сек · отдых 90 сек
+    - button "Создать занятие с этим планом" [ref=f1e271] [cursor=pointer]
+  - generic: Шаблон сохранён

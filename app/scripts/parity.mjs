@@ -10,7 +10,7 @@ const require = createRequire(path.join(root, 'package.json'));
 const { chromium } = require('playwright');
 const output = path.resolve(
   root,
-  'app/review/foundation-parity/parity/generated',
+  process.env.PARITY_OUTPUT ?? 'app/review/foundation-parity/parity/generated',
 );
 const routes = {
   't-today': 'today',
@@ -22,7 +22,8 @@ const routes = {
   't-invite': null,
   't-session': 'session/s1',
   't-library': 'library',
-  't-template': null,
+  't-template': 'template/t1',
+  't-template-editor': 'template-editor',
   't-billing': null,
   't-profile': 'trainer-profile',
   't-welcome': null,
@@ -35,6 +36,8 @@ const routes = {
 };
 const selected = process.env.SCREENS?.split(',') ?? Object.keys(routes);
 const scenarioScreens = {
+  't-template-editor': 'template-editor',
+  't-template': 'trainer-template',
   't-inbox': 'trainer-inbox',
   't-client': 'client-details',
   't-session': 'workout',
@@ -186,12 +189,23 @@ try {
             if (message.type() === 'error')
               errors.push(`${screen}/${theme}: ${message.text()}`);
           });
-          await page.goto(`${app.url}/${route}?scenario=${scenario}`, {
-            waitUntil: 'networkidle',
-          });
+          await page.goto(
+            `${app.url}/${screen === 't-template-editor' && process.env.BUILDER_TEMPLATE ? `template/${process.env.BUILDER_TEMPLATE}` : route}?scenario=${scenario}`,
+            {
+              waitUntil: 'networkidle',
+            },
+          );
+          if (screen === 't-template-editor' && process.env.BUILDER_TEMPLATE)
+            await page
+              .getByRole('button', { name: 'Изменить', exact: true })
+              .click();
           if (scenarioScreens[screen])
             await page
-              .getByTestId(`${scenarioScreens[screen]}-${scenario}`)
+              .getByTestId(
+                screen === 't-template-editor'
+                  ? 'template-editor'
+                  : `${scenarioScreens[screen]}-${scenario}`,
+              )
               .waitFor();
           else await page.getByRole('heading').first().waitFor();
           await page.evaluate(() => document.fonts.ready);

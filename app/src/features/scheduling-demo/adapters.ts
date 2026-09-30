@@ -37,6 +37,7 @@ export function scheduleRows(state: SchedulingState): ScheduleSession[] {
         program: session.program
           ? programs[session.program as keyof typeof programs]
           : undefined,
+        programName: session.program ?? undefined,
         title: session.title,
         participantIds: session.participants.map((p) => p.clientId),
         replies: {

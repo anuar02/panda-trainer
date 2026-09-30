@@ -1,0 +1,64 @@
+- generic [ref=e263]:
+  - generic [ref=e268]:
+    - generic [ref=e269]:
+      - heading "Расписание" [level=1] [ref=e270]
+      - button "Добавить занятие на выбранный день" [ref=e271] [cursor=pointer]
+    - generic [ref=e275]:
+      - generic "Выбор даты" [ref=e276]:
+        - generic [ref=e277]:
+          - heading "Сентябрь 2026" [level=1] [ref=e278]
+          - button "Сегодня" [ref=e279] [cursor=pointer]
+        - generic [ref=e281]:
+          - button "Предыдущая неделя" [ref=e282] [cursor=pointer]
+          - generic [ref=e285]: 14 сен — 20 сен
+          - button "Следующая неделя" [ref=e286] [cursor=pointer]
+        - generic [ref=e289]:
+          - button "14 сентября, 7 занятий" [ref=e290] [cursor=pointer]:
+            - generic [ref=e291]: пн
+            - generic [ref=e292]: "14"
+            - generic [ref=e293]: "7"
+          - button "15 сентября, 1 занятие" [ref=e294] [cursor=pointer]:
+            - generic [ref=e295]: вт
+            - generic [ref=e296]: "15"
+            - generic [ref=e297]: "1"
+          - button "16 сентября, 1 занятие" [ref=e298] [cursor=pointer]:
+            - generic [ref=e299]: ср
+            - generic [ref=e300]: "16"
+            - generic [ref=e301]: "1"
+          - button "17 сентября, 1 занятие" [ref=e302] [cursor=pointer]:
+            - generic [ref=e303]: чт
+            - generic [ref=e304]: "17"
+            - generic [ref=e305]: "1"
+          - button "18 сентября, 0 занятий" [ref=e306] [cursor=pointer]:
+            - generic [ref=e307]: пт
+            - generic [ref=e308]: "18"
+            - generic [ref=e309]: —
+          - button "19 сентября, 0 занятий" [ref=e310] [cursor=pointer]:
+            - generic [ref=e311]: сб
+            - generic [ref=e312]: "19"
+            - generic [ref=e313]: —
+          - button "20 сентября, 0 занятий" [ref=e314] [cursor=pointer]:
+            - generic [ref=e315]: вс
+            - generic [ref=e316]: "20"
+            - generic [ref=e317]: —
+        - generic [ref=e318]:
+          - generic [ref=e319]: Количество занятий под датой
+          - generic [ref=e320]: Алматы
+      - generic "Занятия выбранного дня" [ref=e321]:
+        - generic [ref=e322]:
+          - heading "Среда, 16 сентября" [level=1] [ref=e323]
+          - generic [ref=e324]: 1 занятие · 1 ч занятий
+        - button "Айгерим, 19:00–20:00. Открыть занятие" [ref=e327] [cursor=pointer]:
+          - generic [ref=e328]:
+            - generic [ref=e329]: 19:00
+            - generic [ref=e330]: 20:00
+          - generic [ref=e331]:
+            - generic [ref=e332]: Айгерим
+            - generic [ref=e333]: Низ А
+            - generic [ref=e334]: Ждём согласия клиента
+  - generic "Основная навигация" [ref=e339]:
+    - tab "Сегодня" [ref=e340] [cursor=pointer]
+    - tab "Расписание" [ref=e345] [cursor=pointer]
+    - tab "Клиенты" [ref=e350] [cursor=pointer]
+    - tab "Библиотека" [ref=e356] [cursor=pointer]
+    - tab "Профиль" [ref=e361] [cursor=pointer]

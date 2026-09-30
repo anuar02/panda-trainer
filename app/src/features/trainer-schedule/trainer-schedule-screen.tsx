@@ -140,7 +140,7 @@ export function TrainerScheduleScreen({
                   : t('trainerSchedule.groupNames')
                 : session.program
                   ? t(`trainerSchedule.programs.${session.program}`)
-                  : t('trainerSchedule.noProgram')}
+                  : (session.programName ?? t('trainerSchedule.noProgram'))}
             </Text>
             {group && (
               <Text style={[s.detail, secondary]}>

@@ -1,0 +1,37 @@
+- generic [ref=e71]:
+  - generic [ref=e72]:
+    - button "Закрыть" [ref=e73] [cursor=pointer]
+    - generic [ref=e76]: Новое занятие
+  - generic [ref=e77]:
+    - heading "Когда и с кем" [level=1] [ref=e78]
+    - generic [ref=e79]: Сначала согласуем время. Программу можно назначить позже.
+  - generic [ref=e80]:
+    - button "1. Клиенты" [ref=e141] [cursor=pointer]
+    - button "2. Время" [ref=e217] [cursor=pointer]
+    - button "3. Программа" [disabled]
+  - generic [ref=e85]:
+    - generic [ref=e218]: Программа
+    - generic [ref=e219]:
+      - button "Низ А" [ref=e220] [cursor=pointer]:
+        - generic [ref=e224]:
+          - generic [ref=e225]: Низ А
+          - generic [ref=e226]: 5 упражнений · средний
+      - button "Верх Б" [ref=e229] [cursor=pointer]:
+        - generic [ref=e233]:
+          - generic [ref=e234]: Верх Б
+          - generic [ref=e235]: 4 упражнения · средний
+      - button "Full Body" [ref=e236] [cursor=pointer]:
+        - generic [ref=e240]:
+          - generic [ref=e241]: Full Body
+          - generic [ref=e242]: 4 упражнения · новичок
+      - button "Сила 5×5" [ref=e243] [cursor=pointer]:
+        - generic [ref=e247]:
+          - generic [ref=e248]: Сила 5×5
+          - generic [ref=e249]: 3 упражнения · продвинутый
+    - button "Назначить программу позже" [ref=e251] [cursor=pointer]:
+      - generic [ref=e256]:
+        - generic [ref=e257]: Назначить программу позже
+        - generic [ref=e258]: Клиент сможет согласовать время без программы
+  - generic [ref=e136]:
+    - button "Назад" [ref=e213] [cursor=pointer]
+    - button "Создать занятие" [active] [ref=e259] [cursor=pointer]

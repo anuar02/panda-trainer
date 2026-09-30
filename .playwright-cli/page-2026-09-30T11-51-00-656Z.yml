@@ -1,0 +1,150 @@
+- generic [ref=f1e12]:
+  - generic [ref=f1e13]:
+    - button "Назад" [ref=f1e14] [cursor=pointer]
+    - generic [ref=f1e17]: Новый шаблон
+    - button "Удалить черновик" [ref=f1e18] [cursor=pointer]
+  - generic [ref=f1e22]:
+    - generic [ref=f1e23]:
+      - generic [ref=f1e24]: Конструктор тренировки
+      - heading "Соберите свой план" [level=1] [ref=f1e25]
+      - generic [ref=f1e26]: От первого упражнения до последнего подхода.
+    - generic [ref=f1e27]:
+      - generic [ref=f1e28]: Название шаблона
+      - textbox "Название шаблона" [ref=f1e29]:
+        - /placeholder: Например, Ноги и ягодицы
+        - text: План проверки копии
+    - generic [ref=f1e30]:
+      - generic [ref=f1e31]:
+        - generic [ref=f1e32]: Заметка
+        - generic [ref=f1e33]: необязательно
+      - textbox "Заметка" [ref=f1e34]:
+        - /placeholder: Цель тренировки или подсказка для себя
+    - generic [ref=f1e35]:
+      - generic [ref=f1e36]: Упражнения
+      - generic [ref=f1e37]: 5 упражнений
+    - generic [ref=f1e38]:
+      - generic [ref=f1e39]:
+        - generic [ref=f1e40]:
+          - generic [ref=f1e41]: "01"
+          - generic [ref=f1e43]: Приседания со штангой
+          - 'button "Удалить: Приседания со штангой" [ref=f1e44] [cursor=pointer]'
+        - generic [ref=f1e47]:
+          - generic [ref=f1e48]:
+            - generic [ref=f1e49]: Подходы
+            - 'textbox "Подходы: Приседания со штангой" [ref=f1e50]': "4"
+          - generic [ref=f1e51]:
+            - generic [ref=f1e52]: Повторения
+            - 'textbox "Повторения: Приседания со штангой" [ref=f1e53]': "8"
+          - generic [ref=f1e54]:
+            - generic [ref=f1e55]: Вес, кг
+            - 'textbox "Вес, кг: Приседания со штангой" [ref=f1e56]': 72,5
+          - generic [ref=f1e57]:
+            - generic [ref=f1e58]: Отдых, сек
+            - 'textbox "Отдых, сек: Приседания со штангой" [ref=f1e59]': "90"
+        - generic [ref=f1e60]:
+          - generic [ref=f1e61]: Считать
+          - 'button "Единица: Приседания со штангой" [ref=f1e62] [cursor=pointer]':
+            - generic [ref=f1e63]: повторения
+          - 'button "Выше: Приседания со штангой" [disabled]'
+          - 'button "Ниже: Приседания со штангой" [ref=f1e68] [cursor=pointer]'
+      - generic [ref=f1e71]:
+        - generic [ref=f1e72]:
+          - generic [ref=f1e73]: "02"
+          - generic [ref=f1e75]: Румынская тяга
+          - 'button "Удалить: Румынская тяга" [ref=f1e76] [cursor=pointer]'
+        - generic [ref=f1e79]:
+          - generic [ref=f1e80]:
+            - generic [ref=f1e81]: Подходы
+            - 'textbox "Подходы: Румынская тяга" [ref=f1e82]': "3"
+          - generic [ref=f1e83]:
+            - generic [ref=f1e84]: Повторения
+            - 'textbox "Повторения: Румынская тяга" [ref=f1e85]': "10"
+          - generic [ref=f1e86]:
+            - generic [ref=f1e87]: Вес, кг
+            - 'textbox "Вес, кг: Румынская тяга" [ref=f1e88]': "60"
+          - generic [ref=f1e89]:
+            - generic [ref=f1e90]: Отдых, сек
+            - 'textbox "Отдых, сек: Румынская тяга" [ref=f1e91]': "90"
+        - generic [ref=f1e92]:
+          - generic [ref=f1e93]: Считать
+          - 'button "Единица: Румынская тяга" [ref=f1e94] [cursor=pointer]':
+            - generic [ref=f1e95]: повторения
+          - 'button "Выше: Румынская тяга" [ref=f1e98] [cursor=pointer]'
+          - 'button "Ниже: Румынская тяга" [ref=f1e101] [cursor=pointer]'
+      - generic [ref=f1e104]:
+        - generic [ref=f1e105]:
+          - generic [ref=f1e106]: "03"
+          - generic [ref=f1e108]: Жим ногами
+          - 'button "Удалить: Жим ногами" [ref=f1e109] [cursor=pointer]'
+        - generic [ref=f1e112]:
+          - generic [ref=f1e113]:
+            - generic [ref=f1e114]: Подходы
+            - 'textbox "Подходы: Жим ногами" [ref=f1e115]': "3"
+          - generic [ref=f1e116]:
+            - generic [ref=f1e117]: Повторения
+            - 'textbox "Повторения: Жим ногами" [ref=f1e118]': "12"
+          - generic [ref=f1e119]:
+            - generic [ref=f1e120]: Вес, кг
+            - 'textbox "Вес, кг: Жим ногами" [ref=f1e121]': "120"
+          - generic [ref=f1e122]:
+            - generic [ref=f1e123]: Отдых, сек
+            - 'textbox "Отдых, сек: Жим ногами" [ref=f1e124]': "90"
+        - generic [ref=f1e125]:
+          - generic [ref=f1e126]: Считать
+          - 'button "Единица: Жим ногами" [ref=f1e127] [cursor=pointer]':
+            - generic [ref=f1e128]: повторения
+          - 'button "Выше: Жим ногами" [ref=f1e131] [cursor=pointer]'
+          - 'button "Ниже: Жим ногами" [ref=f1e134] [cursor=pointer]'
+      - generic [ref=f1e137]:
+        - generic [ref=f1e138]:
+          - generic [ref=f1e139]: "04"
+          - generic [ref=f1e141]: Выпады с гантелями
+          - 'button "Удалить: Выпады с гантелями" [ref=f1e142] [cursor=pointer]'
+        - generic [ref=f1e145]:
+          - generic [ref=f1e146]:
+            - generic [ref=f1e147]: Подходы
+            - 'textbox "Подходы: Выпады с гантелями" [ref=f1e148]': "3"
+          - generic [ref=f1e149]:
+            - generic [ref=f1e150]: Повторения
+            - 'textbox "Повторения: Выпады с гантелями" [ref=f1e151]': "12"
+          - generic [ref=f1e152]:
+            - generic [ref=f1e153]: Вес, кг
+            - 'textbox "Вес, кг: Выпады с гантелями" [ref=f1e154]': "16"
+          - generic [ref=f1e155]:
+            - generic [ref=f1e156]: Отдых, сек
+            - 'textbox "Отдых, сек: Выпады с гантелями" [ref=f1e157]': "90"
+        - generic [ref=f1e158]:
+          - generic [ref=f1e159]: Считать
+          - 'button "Единица: Выпады с гантелями" [ref=f1e160] [cursor=pointer]':
+            - generic [ref=f1e161]: повторения
+          - 'button "Выше: Выпады с гантелями" [ref=f1e164] [cursor=pointer]'
+          - 'button "Ниже: Выпады с гантелями" [ref=f1e167] [cursor=pointer]'
+      - generic [ref=f1e170]:
+        - generic [ref=f1e171]:
+          - generic [ref=f1e172]: "05"
+          - generic [ref=f1e174]: Планка
+          - 'button "Удалить: Планка" [ref=f1e175] [cursor=pointer]'
+        - generic [ref=f1e178]:
+          - generic [ref=f1e179]:
+            - generic [ref=f1e180]: Подходы
+            - 'textbox "Подходы: Планка" [ref=f1e181]': "3"
+          - generic [ref=f1e182]:
+            - generic [ref=f1e183]: Время, сек
+            - 'textbox "Время, сек: Планка" [ref=f1e184]': "45"
+          - generic [ref=f1e185]:
+            - generic [ref=f1e186]: Вес, кг
+            - 'textbox "Вес, кг: Планка" [ref=f1e187]'
+          - generic [ref=f1e188]:
+            - generic [ref=f1e189]: Отдых, сек
+            - 'textbox "Отдых, сек: Планка" [ref=f1e190]': "90"
+        - generic [ref=f1e191]:
+          - generic [ref=f1e192]: Считать
+          - 'button "Единица: Планка" [ref=f1e193] [cursor=pointer]':
+            - generic [ref=f1e194]: секунды
+          - 'button "Выше: Планка" [ref=f1e197] [cursor=pointer]'
+          - 'button "Ниже: Планка" [disabled]'
+    - button "Добавить упражнения" [ref=f1e202] [cursor=pointer]
+    - generic [ref=f1e207]: Черновик сохраняется на этом устройстве.
+  - generic [ref=f1e208]:
+    - generic [ref=f1e209]: 16 подходов в плане
+    - button "Сохранить шаблон" [ref=f1e210] [cursor=pointer]

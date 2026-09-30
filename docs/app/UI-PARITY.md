@@ -156,7 +156,8 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `t-invite` Приглашение | `(trainer)/clients/[id]/invite` | 2 | нет |
 | `t-session` Журнал тренировки | `session/[id]` | 5 | не принят |
 | `t-library` Библиотека | `(trainer)/library` | 3 | нет |
-| `t-template` Шаблон | `(trainer)/library/templates/[id]` | 3 | нет |
+| `t-template` Шаблон | `/template/[id]` | 3 | нет |
+| `t-template-editor` Конструктор | `/template-editor` | 3 | не принят; [отчёт](../../app/review/template-builder/README.md) |
 | `t-billing` Пакеты и оплаты | `(trainer)/clients/[id]/billing` | 6 | нет |
 | `t-profile` Профиль тренера | `(trainer)/profile` | 1–2 | нет |
 | `t-welcome` Первый вход | `(auth)/welcome` | 2 | нет |

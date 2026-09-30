@@ -1,3 +1,4 @@
+import { useOptionalTemplates } from '@/features/template-editor/provider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   createContext,
@@ -43,6 +44,7 @@ export function SchedulingDemoProvider({
   storage = AsyncStorage,
   waitForWorkout = false,
 }: PropsWithChildren<{ storage?: Storage; waitForWorkout?: boolean }>) {
+  const templates = useOptionalTemplates();
   const [state, setState] = useState(createSchedulingState);
   const [hydrated, setHydrated] = useState(false);
   const [readError, setReadError] = useState(false);
@@ -119,10 +121,17 @@ export function SchedulingDemoProvider({
       action: SchedulingAction,
       actor: SchedulingActor = { role: 'trainer' },
     ): SchedulingResult => {
-      if (!ready.current || (waitForWorkout && !workoutReady.current))
+      if (
+        !ready.current ||
+        (waitForWorkout && !workoutReady.current) ||
+        (action.type === 'create' &&
+          templates &&
+          (!templates.ready || templates.readError))
+      )
         return { ok: false, error: 'unavailable' };
       const result = applySchedulingAction(current.current, action, {
         actor,
+        templates: templates?.templates.filter((t) => t.custom),
         today: schedulingToday,
         nowTime: schedulingNow,
         finishedSessionIds: finished.current,
@@ -133,7 +142,7 @@ export function SchedulingDemoProvider({
       persist(result.state);
       return result;
     },
-    [persist, waitForWorkout],
+    [persist, waitForWorkout, templates],
   );
 
   const retrySave = useCallback(() => {

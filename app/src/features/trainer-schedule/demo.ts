@@ -8,6 +8,7 @@ export type ScheduleSession = {
   person:
     'dana' | 'madi' | 'arman' | 'aigerim' | 'group' | 'aliya' | 'newClient';
   program?: 'fullBody' | 'upper' | 'strength' | 'lower';
+  programName?: string;
   request?: { date: string; time: string };
   title?: string;
   participantIds?: string[];

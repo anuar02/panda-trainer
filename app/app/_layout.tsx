@@ -1,3 +1,4 @@
+import { TemplateProvider } from '@/features/template-editor/provider';
 import '../global.css';
 import '@/lib/i18n';
 import { useEffect } from 'react';
@@ -60,9 +61,15 @@ function ConnectedNavigation() {
 }
 export default function RootLayout() {
   const segments: readonly string[] = useSegments();
-  const role = ['(trainer)', 'new', 'client', 'session', 'inbox'].includes(
-    segments[0] ?? '',
-  )
+  const role = [
+    '(trainer)',
+    'new',
+    'client',
+    'session',
+    'inbox',
+    'template',
+    'template-editor',
+  ].includes(segments[0] ?? '')
     ? 'trainer'
     : 'client';
   const [loaded, error] = useFonts({
@@ -93,9 +100,11 @@ export default function RootLayout() {
                   <Text accessibilityRole="alert">{t('common.fontError')}</Text>
                 </SafeAreaView>
               ) : (
-                <SchedulingDemoProvider waitForWorkout>
-                  <ConnectedNavigation />
-                </SchedulingDemoProvider>
+                <TemplateProvider>
+                  <SchedulingDemoProvider waitForWorkout>
+                    <ConnectedNavigation />
+                  </SchedulingDemoProvider>
+                </TemplateProvider>
               )}
             </ToastProvider>
           </BottomSheetModalProvider>

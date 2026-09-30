@@ -1,0 +1,916 @@
+{
+  "date": "2026-09-30",
+  "project": "776db647-e846-4a27-99cb-2ade5be400bf",
+  "source": "docs/app/ROADMAP.md and docs/app/OPEN-QUESTIONS.md",
+  "coverage": [
+    {
+      "stage": 1,
+      "openItems": 1
+    },
+    {
+      "stage": 2,
+      "openItems": 9
+    },
+    {
+      "stage": 3,
+      "openItems": 6
+    },
+    {
+      "stage": 4,
+      "openItems": 9
+    },
+    {
+      "stage": 5,
+      "openItems": 13
+    },
+    {
+      "stage": 6,
+      "openItems": 7
+    },
+    {
+      "stage": 7,
+      "openItems": 7
+    },
+    {
+      "stage": 8,
+      "openItems": 3
+    },
+    {
+      "stage": 9,
+      "openItems": 6
+    },
+    {
+      "stage": 10,
+      "openItems": 8
+    }
+  ],
+  "milestones": [
+    {
+      "key": 1,
+      "id": "d4d1094e-6f86-4a2d-b68d-9dec1611c455",
+      "name": "01 · Каркас"
+    },
+    {
+      "key": 2,
+      "id": "fdf1b0c7-b9c1-4cce-b87b-77740e2a55a5",
+      "name": "02 · Вход и схема данных v1"
+    },
+    {
+      "key": 3,
+      "id": "2c209d4c-9b00-4077-82ef-2bd6c2f898d7",
+      "name": "03 · Библиотека упражнений и шаблоны"
+    },
+    {
+      "key": 4,
+      "id": "286f4b7d-c0f2-43fb-ba35-75cb770dce32",
+      "name": "04 · Расписание"
+    },
+    {
+      "key": 5,
+      "id": "a5a0524a-fc0b-43b3-ad4b-6040aef21362",
+      "name": "05 · Журнал тренировки"
+    },
+    {
+      "key": 6,
+      "id": "d74eb518-4800-4c0a-9f59-ff57cdad51ff",
+      "name": "06 · Посещения, пакеты и оплаты"
+    },
+    {
+      "key": 7,
+      "id": "dfa458d4-60d6-4a4b-a42b-283b4feb9629",
+      "name": "07 · Приложение клиента"
+    },
+    {
+      "key": 8,
+      "id": "36860517-34a2-4dea-b6f8-63347b1b34b8",
+      "name": "08 · Уведомления в приложении"
+    },
+    {
+      "key": 9,
+      "id": "228e1b62-9fff-4859-a2a4-c0744a193d0a",
+      "name": "09 · Маскот и движение"
+    },
+    {
+      "key": 10,
+      "id": "86a57d55-3636-422c-b88e-06a35a4a7a4c",
+      "name": "10 · Готовность к пилоту"
+    },
+    {
+      "key": 11,
+      "id": "aa914272-8158-487d-a0d8-66cc74fb0c93",
+      "name": "11 · После пилота (не планируется детально)"
+    },
+    {
+      "key": "decisions",
+      "id": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "name": "Решения владельца"
+    },
+    {
+      "key": "research",
+      "id": "4ece091e-0b69-443e-b6da-ddd8d66104fc",
+      "name": "Исследование продукта"
+    }
+  ],
+  "issues": [
+    {
+      "key": "S1.1",
+      "stage": 1,
+      "id": "SOM-17",
+      "uuid": "0c6b97f2-97da-4575-b936-b78a54595b3f",
+      "url": "https://linear.app/something-great/issue/SOM-17/prinyat-paritet-karkasa-i-obshej-navigacii",
+      "title": "Принять паритет каркаса и общей навигации",
+      "milestone": "d4d1094e-6f86-4a2d-b68d-9dec1611c455",
+      "blockedBy": [],
+      "sourceItems": [
+        0
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S2.1",
+      "stage": 2,
+      "id": "SOM-18",
+      "uuid": "585b7701-3484-4230-b24e-ab9efc8b17fa",
+      "url": "https://linear.app/something-great/issue/SOM-18/sozdat-bazovuyu-shemu-rls-tipy-i-vymyshlennyj-seed",
+      "title": "Создать базовую схему, RLS, типы и вымышленный seed",
+      "milestone": "fdf1b0c7-b9c1-4cce-b87b-77740e2a55a5",
+      "blockedBy": [],
+      "sourceItems": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S2.2",
+      "stage": 2,
+      "id": "SOM-19",
+      "uuid": "d53a49c6-4d87-4b19-90ee-4d5540009ddf",
+      "url": "https://linear.app/something-great/issue/SOM-19/podklyuchit-soglasovannyj-vhod-i-zhiznennyj-cikl-sessii",
+      "title": "Подключить согласованный вход и жизненный цикл сессии",
+      "milestone": "fdf1b0c7-b9c1-4cce-b87b-77740e2a55a5",
+      "blockedBy": [
+        "S2.1",
+        "Q10"
+      ],
+      "sourceItems": [
+        0,
+        8
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S2.3",
+      "stage": 2,
+      "id": "SOM-20",
+      "uuid": "c0fe7307-a245-4b01-b582-caeaffaffb7d",
+      "url": "https://linear.app/something-great/issue/SOM-20/podklyuchit-onboarding-trenera-i-upravlenie-klientami",
+      "title": "Подключить onboarding тренера и управление клиентами",
+      "milestone": "fdf1b0c7-b9c1-4cce-b87b-77740e2a55a5",
+      "blockedBy": [
+        "S2.2"
+      ],
+      "sourceItems": [
+        6
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S2.4",
+      "stage": 2,
+      "id": "SOM-21",
+      "uuid": "a2f8b21a-eee5-478a-b795-5d84ed3c7d47",
+      "url": "https://linear.app/something-great/issue/SOM-21/realizovat-odnorazovye-priglasheniya-i-deep-links",
+      "title": "Реализовать одноразовые приглашения и deep links",
+      "milestone": "fdf1b0c7-b9c1-4cce-b87b-77740e2a55a5",
+      "blockedBy": [
+        "S2.2"
+      ],
+      "sourceItems": [
+        7
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S3.1",
+      "stage": 3,
+      "id": "SOM-22",
+      "uuid": "1c77c01f-9d93-47a4-b5f8-a290f4523a8c",
+      "url": "https://linear.app/something-great/issue/SOM-22/podklyuchit-servernuyu-biblioteku-poisk-i-arhivirovanie",
+      "title": "Подключить серверную библиотеку, поиск и архивирование",
+      "milestone": "2c209d4c-9b00-4077-82ef-2bd6c2f898d7",
+      "blockedBy": [
+        "S2.1"
+      ],
+      "sourceItems": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S3.2",
+      "stage": 3,
+      "id": "SOM-23",
+      "uuid": "93ed2127-3c3d-4aeb-9951-bd2ea3e2c748",
+      "url": "https://linear.app/something-great/issue/SOM-23/podklyuchit-redaktor-shablonov-k-serveru",
+      "title": "Подключить редактор шаблонов к серверу",
+      "milestone": "2c209d4c-9b00-4077-82ef-2bd6c2f898d7",
+      "blockedBy": [
+        "S3.1"
+      ],
+      "sourceItems": [
+        4
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S3.3",
+      "stage": 3,
+      "id": "SOM-24",
+      "uuid": "608b1f4f-128f-4c0d-ad1d-a317e9e17e92",
+      "url": "https://linear.app/something-great/issue/SOM-24/realizovat-versionirovannye-lichnye-programmy-klientov",
+      "title": "Реализовать версионированные личные программы клиентов",
+      "milestone": "2c209d4c-9b00-4077-82ef-2bd6c2f898d7",
+      "blockedBy": [
+        "S3.2",
+        "Q5"
+      ],
+      "sourceItems": [
+        5
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S4.1",
+      "stage": 4,
+      "id": "SOM-25",
+      "uuid": "d480c267-713a-428a-a498-42da3c43f6e4",
+      "url": "https://linear.app/something-great/issue/SOM-25/sozdat-servernoe-raspisanie-i-pravila-peresechenij",
+      "title": "Создать серверное расписание и правила пересечений",
+      "milestone": "286f4b7d-c0f2-43fb-ba35-75cb770dce32",
+      "blockedBy": [
+        "S2.1"
+      ],
+      "sourceItems": [
+        0,
+        3,
+        4,
+        7
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S4.2",
+      "stage": 4,
+      "id": "SOM-26",
+      "uuid": "01768d3a-e1f8-4fd5-ab36-d68e51a65734",
+      "url": "https://linear.app/something-great/issue/SOM-26/podklyuchit-today-nedelyu-i-sozdanie-zanyatiya-k-serveru",
+      "title": "Подключить Today, неделю и создание занятия к серверу",
+      "milestone": "286f4b7d-c0f2-43fb-ba35-75cb770dce32",
+      "blockedBy": [
+        "S4.1"
+      ],
+      "sourceItems": [
+        1,
+        2
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S4.3",
+      "stage": 4,
+      "id": "SOM-27",
+      "uuid": "69dc4bf1-5b69-4453-8c47-c4e434ef6342",
+      "url": "https://linear.app/something-great/issue/SOM-27/realizovat-perenosy-otmeny-i-proverku-revizij",
+      "title": "Реализовать переносы, отмены и проверку ревизий",
+      "milestone": "286f4b7d-c0f2-43fb-ba35-75cb770dce32",
+      "blockedBy": [
+        "S4.1"
+      ],
+      "sourceItems": [
+        5,
+        6,
+        8
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S5.1",
+      "stage": 5,
+      "id": "SOM-28",
+      "uuid": "06df6462-8418-43ad-9b7a-2ce30812ff2f",
+      "url": "https://linear.app/something-great/issue/SOM-28/sozdat-tablicy-zhurnala-i-izolyaciyu-zametok",
+      "title": "Создать таблицы журнала и изоляцию заметок",
+      "milestone": "a5a0524a-fc0b-43b3-ad4b-6040aef21362",
+      "blockedBy": [
+        "S2.1",
+        "S3.3",
+        "S4.1"
+      ],
+      "sourceItems": [
+        0,
+        7
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S5.2",
+      "stage": 5,
+      "id": "SOM-29",
+      "uuid": "7ee84e9d-8d8b-4bbe-906e-21410e54ffb7",
+      "url": "https://linear.app/something-great/issue/SOM-29/realizovat-sqlite-outbox-i-idempotentnuyu-sinhronizaciyu",
+      "title": "Реализовать SQLite outbox и идемпотентную синхронизацию",
+      "milestone": "a5a0524a-fc0b-43b3-ad4b-6040aef21362",
+      "blockedBy": [
+        "S5.1",
+        "Q3"
+      ],
+      "sourceItems": [
+        1,
+        9,
+        12
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S5.3",
+      "stage": 5,
+      "id": "SOM-30",
+      "uuid": "bcbabe82-f3b3-479a-a60a-3354b345281c",
+      "url": "https://linear.app/something-great/issue/SOM-30/predzagruzhat-trenirovku-i-vosstanavlivat-zhurnal",
+      "title": "Предзагружать тренировку и восстанавливать журнал",
+      "milestone": "a5a0524a-fc0b-43b3-ad4b-6040aef21362",
+      "blockedBy": [
+        "S5.2"
+      ],
+      "sourceItems": [
+        2,
+        8
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S5.4",
+      "stage": 5,
+      "id": "SOM-31",
+      "uuid": "d0766491-8a25-4a78-aaa2-0f6516239053",
+      "url": "https://linear.app/something-great/issue/SOM-31/dovesti-vvod-podhodov-i-mini-gruppy-do-production",
+      "title": "Довести ввод подходов и мини-группы до production",
+      "milestone": "a5a0524a-fc0b-43b3-ad4b-6040aef21362",
+      "blockedBy": [
+        "S5.3"
+      ],
+      "sourceItems": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S5.5",
+      "stage": 5,
+      "id": "SOM-32",
+      "uuid": "a28b1c55-a403-4c17-9c02-6f5afe860c55",
+      "url": "https://linear.app/something-great/issue/SOM-32/zavershat-i-ispravlyat-zhurnal-s-obnovleniem-programmy",
+      "title": "Завершать и исправлять журнал с обновлением программы",
+      "milestone": "a5a0524a-fc0b-43b3-ad4b-6040aef21362",
+      "blockedBy": [
+        "S5.4"
+      ],
+      "sourceItems": [
+        10,
+        11
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S6.1",
+      "stage": 6,
+      "id": "SOM-33",
+      "uuid": "141db002-8245-45b8-ba60-659adcfb3ce6",
+      "url": "https://linear.app/something-great/issue/SOM-33/sozdat-uchyot-paketov-i-atomarnoe-spisanie-poseshenij",
+      "title": "Создать учёт пакетов и атомарное списание посещений",
+      "milestone": "d74eb518-4800-4c0a-9f59-ff57cdad51ff",
+      "blockedBy": [
+        "S4.1"
+      ],
+      "sourceItems": [
+        0,
+        1,
+        2,
+        3,
+        6
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S6.2",
+      "stage": 6,
+      "id": "SOM-34",
+      "uuid": "f256c7d4-0939-4e3c-a504-ed299dc2cd95",
+      "url": "https://linear.app/something-great/issue/SOM-34/podklyuchit-ruchnye-oplaty-dolg-i-ekran-billing",
+      "title": "Подключить ручные оплаты, долг и экран billing",
+      "milestone": "d74eb518-4800-4c0a-9f59-ff57cdad51ff",
+      "blockedBy": [
+        "S6.1"
+      ],
+      "sourceItems": [
+        4,
+        5
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S7.1",
+      "stage": 7,
+      "id": "SOM-35",
+      "uuid": "b2a56afc-62c4-413f-b70b-406f20078886",
+      "url": "https://linear.app/something-great/issue/SOM-35/svyazat-prinyatie-priglasheniya-s-sushestvuyushej-istoriej",
+      "title": "Связать принятие приглашения с существующей историей",
+      "milestone": "dfa458d4-60d6-4a4b-a42b-283b4feb9629",
+      "blockedBy": [
+        "S2.4"
+      ],
+      "sourceItems": [
+        0
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S7.2",
+      "stage": 7,
+      "id": "SOM-36",
+      "uuid": "6e5ef4e6-f9af-4fe2-ac8d-a2c64e9332b1",
+      "url": "https://linear.app/something-great/issue/SOM-36/podklyuchit-klientskie-ekrany-i-dejstviya-k-servernym-dannym",
+      "title": "Подключить клиентские экраны и действия к серверным данным",
+      "milestone": "dfa458d4-60d6-4a4b-a42b-283b4feb9629",
+      "blockedBy": [
+        "S7.1",
+        "S5.5",
+        "S6.2",
+        "S4.3",
+        "Q6",
+        "Q8"
+      ],
+      "sourceItems": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S8.1",
+      "stage": 8,
+      "id": "SOM-37",
+      "uuid": "75cb3cbf-0474-4f3a-a3f7-449c58ed87f8",
+      "url": "https://linear.app/something-great/issue/SOM-37/realizovat-uvedomleniya-neprochitannoe-i-realtime",
+      "title": "Реализовать уведомления, непрочитанное и Realtime",
+      "milestone": "36860517-34a2-4dea-b6f8-63347b1b34b8",
+      "blockedBy": [
+        "S4.3",
+        "S7.2"
+      ],
+      "sourceItems": [
+        0,
+        1,
+        2
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S9.1",
+      "stage": 9,
+      "id": "SOM-38",
+      "uuid": "99069fa8-ac6d-4b4d-942f-1f34dc14eb1a",
+      "url": "https://linear.app/something-great/issue/SOM-38/integrirovat-utverzhdyonnuyu-pandu-i-prinyat-rive",
+      "title": "Интегрировать утверждённую панду и принять Rive",
+      "milestone": "228e1b62-9fff-4859-a2a4-c0744a193d0a",
+      "blockedBy": [],
+      "sourceItems": [
+        0,
+        1,
+        2
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S9.2",
+      "stage": 9,
+      "id": "SOM-39",
+      "uuid": "497d098a-3913-48ff-bfda-5627830b6570",
+      "url": "https://linear.app/something-great/issue/SOM-39/prinyat-krupnyj-tekst-spokojnyj-interfejs-i-dvizhenie",
+      "title": "Принять крупный текст, спокойный интерфейс и движение",
+      "milestone": "228e1b62-9fff-4859-a2a4-c0744a193d0a",
+      "blockedBy": [],
+      "sourceItems": [
+        3,
+        4,
+        5
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S10.1",
+      "stage": 10,
+      "id": "SOM-40",
+      "uuid": "5c3c3c2b-0b9f-418f-bc79-245f281f5626",
+      "url": "https://linear.app/something-great/issue/SOM-40/podgotovit-soglasovannoe-okruzhenie-pilota-i-vosstanovlenie",
+      "title": "Подготовить согласованное окружение пилота и восстановление",
+      "milestone": "86a57d55-3636-422c-b88e-06a35a4a7a4c",
+      "blockedBy": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q9"
+      ],
+      "sourceItems": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S10.2",
+      "stage": 10,
+      "id": "SOM-41",
+      "uuid": "aeac0055-ee97-42ae-8f97-6a6dddcc4950",
+      "url": "https://linear.app/something-great/issue/SOM-41/realizovat-eksport-udalenie-akkaunta-i-dokumenty-privatnosti",
+      "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+      "milestone": "86a57d55-3636-422c-b88e-06a35a4a7a4c",
+      "blockedBy": [
+        "Q1",
+        "Q9"
+      ],
+      "sourceItems": [
+        2
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "S10.3",
+      "stage": 10,
+      "id": "SOM-42",
+      "uuid": "b1493a69-f863-4c8d-9e9e-36eaf3da9fb3",
+      "url": "https://linear.app/something-great/issue/SOM-42/podgotovit-sborki-i-provesti-polevoj-pilot-na-iosandroid",
+      "title": "Подготовить сборки и провести полевой пилот на iOS/Android",
+      "milestone": "86a57d55-3636-422c-b88e-06a35a4a7a4c",
+      "blockedBy": [
+        "S10.1",
+        "S10.2",
+        "S1.1",
+        "S9.1",
+        "S9.2",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8"
+      ],
+      "sourceItems": [
+        4,
+        6,
+        7
+      ],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "A2",
+      "stage": 2,
+      "id": "SOM-43",
+      "uuid": "282395c3-133b-4aa7-bd79-a8afa4caf581",
+      "url": "https://linear.app/something-great/issue/SOM-43/prinyat-ekrany-etapa-2-t-clients-t-client-t-invite-t-welcome",
+      "title": "Принять экраны этапа 2: t-clients, t-client, t-invite, t-welcome",
+      "milestone": "fdf1b0c7-b9c1-4cce-b87b-77740e2a55a5",
+      "blockedBy": [
+        "S2.3",
+        "S2.4"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "A3",
+      "stage": 3,
+      "id": "SOM-44",
+      "uuid": "269cdfb7-41cc-4f3c-848a-016b0c583e52",
+      "url": "https://linear.app/something-great/issue/SOM-44/prinyat-ekrany-etapa-3-t-library-t-template-t-template-editor",
+      "title": "Принять экраны этапа 3: t-library, t-template, t-template-editor",
+      "milestone": "2c209d4c-9b00-4077-82ef-2bd6c2f898d7",
+      "blockedBy": [
+        "S3.3",
+        "NATIVE"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "A4",
+      "stage": 4,
+      "id": "SOM-45",
+      "uuid": "bbbc334d-229d-459f-9973-d7c3b2d31270",
+      "url": "https://linear.app/something-great/issue/SOM-45/prinyat-ekrany-etapa-4-t-today-t-schedule-t-new-t-inbox",
+      "title": "Принять экраны этапа 4: t-today, t-schedule, t-new, t-inbox",
+      "milestone": "286f4b7d-c0f2-43fb-ba35-75cb770dce32",
+      "blockedBy": [
+        "S4.2",
+        "S4.3"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "A5",
+      "stage": 5,
+      "id": "SOM-46",
+      "uuid": "678cb464-fcc7-4cbb-ac19-fdbb18f526b1",
+      "url": "https://linear.app/something-great/issue/SOM-46/prinyat-ekrany-etapa-5-t-session-i-dock-zhurnala",
+      "title": "Принять экраны этапа 5: t-session и dock журнала",
+      "milestone": "a5a0524a-fc0b-43b3-ad4b-6040aef21362",
+      "blockedBy": [
+        "S5.5"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "A6",
+      "stage": 6,
+      "id": "SOM-47",
+      "uuid": "782e027c-667e-4930-8af5-3049900d5bc9",
+      "url": "https://linear.app/something-great/issue/SOM-47/prinyat-ekrany-etapa-6-t-billing-i-dannye-paketovoplat-kartochki",
+      "title": "Принять экраны этапа 6: t-billing и данные пакетов/оплат карточки клиента",
+      "milestone": "d74eb518-4800-4c0a-9f59-ff57cdad51ff",
+      "blockedBy": [
+        "S6.2"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "A7",
+      "stage": 7,
+      "id": "SOM-48",
+      "uuid": "b08939a1-9b9d-4343-bc78-04a24bf1220e",
+      "url": "https://linear.app/something-great/issue/SOM-48/prinyat-ekrany-etapa-7-c-home-c-program-c-history-c-progress-c-profile",
+      "title": "Принять экраны этапа 7: c-home, c-program, c-history, c-progress, c-profile, c-first",
+      "milestone": "dfa458d4-60d6-4a4b-a42b-283b4feb9629",
+      "blockedBy": [
+        "S7.2"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "A8",
+      "stage": 8,
+      "id": "SOM-49",
+      "uuid": "2c73238d-bc10-4bfd-b3bf-49e39fe009ee",
+      "url": "https://linear.app/something-great/issue/SOM-49/prinyat-ekrany-etapa-8-lenta-i-schyotchiki-uvedomlenij-obeih-rolej",
+      "title": "Принять экраны этапа 8: Лента и счётчики уведомлений обеих ролей",
+      "milestone": "36860517-34a2-4dea-b6f8-63347b1b34b8",
+      "blockedBy": [
+        "S8.1"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "NATIVE",
+      "stage": 3,
+      "id": "SOM-50",
+      "uuid": "bdec35fe-7a8b-431b-8069-21056673aa54",
+      "url": "https://linear.app/something-great/issue/SOM-50/ispravit-native-picker-konstruktora-i-provesti-polnuyu-priyomku-polej",
+      "title": "Исправить native picker конструктора и провести полную приёмку полей",
+      "milestone": "2c209d4c-9b00-4077-82ef-2bd6c2f898d7",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q1",
+      "stage": "decisions",
+      "id": "SOM-51",
+      "uuid": "c1a5f293-cbfc-4504-ba8e-5e79d3c00bac",
+      "url": "https://linear.app/something-great/issue/SOM-51/reshenie-1-v-kakoj-strane-mozhno-hranit-dannye-klientov-bekapy-i-logi",
+      "title": "Решение №1: В какой стране можно хранить данные клиентов, бэкапы и логи? Кто подтверждает требования?",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q2",
+      "stage": "decisions",
+      "id": "SOM-52",
+      "uuid": "5bf8d553-3782-4ee9-a3f5-29be5f546325",
+      "url": "https://linear.app/something-great/issue/SOM-52/reshenie-2-byudzhet-na-servisy-supabase-eas-monitoring-i",
+      "title": "Решение №2: Бюджет на сервисы (Supabase, EAS, мониторинг) и сопровождение",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q3",
+      "stage": "decisions",
+      "id": "SOM-53",
+      "uuid": "acee9f43-4e8d-4dde-9ca4-9dd52d505afa",
+      "url": "https://linear.app/something-great/issue/SOM-53/reshenie-3-politika-konfliktov-zhurnala-na-dvuh-ustrojstvah",
+      "title": "Решение №3: Политика конфликтов журнала на двух устройствах",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q4",
+      "stage": "decisions",
+      "id": "SOM-54",
+      "uuid": "f5c67d56-dd95-4826-be3a-4eddae6049f5",
+      "url": "https://linear.app/something-great/issue/SOM-54/reshenie-4-porog-vyigrysha-vremeni-i-dopustimyh-oshibok-dlya",
+      "title": "Решение №4: Порог выигрыша времени и допустимых ошибок для голосового ввода",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q5",
+      "stage": "decisions",
+      "id": "SOM-55",
+      "uuid": "3295bef7-c6ec-4e04-8c82-923dca5a34d3",
+      "url": "https://linear.app/something-great/issue/SOM-55/reshenie-5-chto-delat-s-lichnoj-kopiej-programmy-pri-naznachenii",
+      "title": "Решение №5: Что делать с личной копией программы при назначении другого шаблона",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q6",
+      "stage": "decisions",
+      "id": "SOM-56",
+      "uuid": "270df06a-d1fa-4e84-b70f-815aeffac4f3",
+      "url": "https://linear.app/something-great/issue/SOM-56/reshenie-6-nuzhen-li-klientu-dostup-k-chernovomu-zhurnalu",
+      "title": "Решение №6: Нужен ли клиенту доступ к черновому журналу",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q7",
+      "stage": "decisions",
+      "id": "SOM-57",
+      "uuid": "bfccbe29-228c-4574-9564-af9e82b4ce2e",
+      "url": "https://linear.app/something-great/issue/SOM-57/reshenie-7-push-uvedomleniya-i-napominaniya",
+      "title": "Решение №7: Push-уведомления и напоминания",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q8",
+      "stage": "decisions",
+      "id": "SOM-58",
+      "uuid": "52575f33-a745-41a6-9005-ad96a69288b4",
+      "url": "https://linear.app/something-great/issue/SOM-58/reshenie-8-kto-vvodit-rezultaty-tolko-trener-ili-i-klient",
+      "title": "Решение №8: Кто вводит результаты — только тренер или и клиент",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q9",
+      "stage": "decisions",
+      "id": "SOM-59",
+      "uuid": "b552fff7-62f4-45f6-8f9d-68767eb6f64d",
+      "url": "https://linear.app/something-great/issue/SOM-59/reshenie-9-sroki-hraneniya-dannyh-i-dopustimaya-poterya",
+      "title": "Решение №9: Сроки хранения данных и допустимая потеря несинхронизированных записей",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q10",
+      "stage": "decisions",
+      "id": "SOM-60",
+      "uuid": "da66108a-502f-49b2-a1d4-fb34fd2e25f6",
+      "url": "https://linear.app/something-great/issue/SOM-60/reshenie-10-podtverdit-adr-0004-e-mail-otp-apple-google-kakoj-domen",
+      "title": "Решение №10: Подтвердить ADR 0004: e-mail OTP + Apple + Google; какой домен использовать для приглашений?",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q11",
+      "stage": "decisions",
+      "id": "SOM-61",
+      "uuid": "3776c7f9-d8e8-43d7-9c4f-70f8be2c0154",
+      "url": "https://linear.app/something-great/issue/SOM-61/reshenie-11-hranit-novye-snimki-ekranov-cherez-git-lfs-ili",
+      "title": "Решение №11: Хранить новые снимки экранов через Git LFS или вложениями в PR?",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "Q12",
+      "stage": "decisions",
+      "id": "SOM-62",
+      "uuid": "97d1e709-4899-454b-ace7-3cf4b1a80eeb",
+      "url": "https://linear.app/something-great/issue/SOM-62/reshenie-12-nuzhna-li-proektu-licenziya-i-kakaya",
+      "title": "Решение №12: Нужна ли проекту лицензия и какая?",
+      "milestone": "bcc91845-7516-4c75-998a-9d2b6e75fb5a",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "RESEARCH",
+      "stage": "research",
+      "id": "SOM-63",
+      "uuid": "2ecd3523-9e0c-49c0-97ff-6e9dfa3423de",
+      "url": "https://linear.app/something-great/issue/SOM-63/provesti-intervyu-trenerovklientov-i-trenirovku-s-prototipom",
+      "title": "Провести интервью тренеров/клиентов и тренировку с прототипом",
+      "milestone": "4ece091e-0b69-443e-b6da-ddd8d66104fc",
+      "blockedBy": [],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    },
+    {
+      "key": "POST",
+      "stage": 11,
+      "id": "SOM-64",
+      "uuid": "22f2e973-9833-4f00-b85f-a18e344c55fd",
+      "url": "https://linear.app/something-great/issue/SOM-64/posle-pilota-ocenit-golos-push-lokalizaciyu-i-rasshirenie-platform",
+      "title": "После пилота: оценить голос, push, локализацию и расширение платформ",
+      "milestone": "aa914272-8158-487d-a0d8-66cc74fb0c93",
+      "blockedBy": [
+        "S10.3"
+      ],
+      "sourceItems": [],
+      "importedState": "Backlog"
+    }
+  ],
+  "dependencyWritesConfirmed": [
+    "S2.2",
+    "S2.3",
+    "S2.4",
+    "S3.1",
+    "S3.2",
+    "S3.3",
+    "S4.1",
+    "S4.2",
+    "S4.3",
+    "S5.1",
+    "S5.2",
+    "S5.3",
+    "S5.4",
+    "S5.5",
+    "S6.1",
+    "S6.2",
+    "S7.1",
+    "S7.2",
+    "S8.1",
+    "S10.1",
+    "S10.2",
+    "S10.3",
+    "A2",
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "POST"
+  ],
+  "verification": {
+    "scope": "Planning records only; no application tests run",
+    "openChecklistItems": 69,
+    "issueCount": 48,
+    "milestoneCount": 13,
+    "dependencyCount": 59,
+    "cycleCheck": "passed"
+  }
+}

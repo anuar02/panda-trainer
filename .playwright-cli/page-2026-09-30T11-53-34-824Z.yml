@@ -1,0 +1,51 @@
+- generic [ref=f2e73]:
+  - generic [ref=f2e74]:
+    - button "Закрыть" [ref=f2e75] [cursor=pointer]
+    - generic [ref=f2e78]: Новое занятие
+  - generic [ref=f2e79]:
+    - heading "Когда и с кем" [level=1] [ref=f2e80]
+    - generic [ref=f2e81]: Сначала согласуем время. Программу можно назначить позже.
+  - generic [ref=f2e82]:
+    - button "1. Клиенты" [disabled]
+    - button "2. Время" [disabled]
+    - button "3. Программа" [disabled]
+  - generic [ref=f2e87]:
+    - generic [ref=f2e88]: Кто занимается
+    - generic [ref=f2e89]:
+      - button "Айгерим Бекова" [active] [ref=f2e90] [cursor=pointer]:
+        - generic [ref=f2e91]: АБ
+        - generic [ref=f2e93]:
+          - generic [ref=f2e94]: Айгерим Бекова
+          - generic [ref=f2e95]: Низ А · осталось 7 занятий
+      - button "Арман Оспанов" [ref=f2e96] [cursor=pointer]:
+        - generic [ref=f2e97]: АО
+        - generic [ref=f2e99]:
+          - generic [ref=f2e100]: Арман Оспанов
+          - generic [ref=f2e101]: Сила 5×5 · осталось 2 занятия
+      - button "Алия Нурлановa" [ref=f2e102] [cursor=pointer]:
+        - generic [ref=f2e103]: АН
+        - generic [ref=f2e105]:
+          - generic [ref=f2e106]: Алия Нурлановa
+          - generic [ref=f2e107]: Низ А · осталось 9 занятий
+      - button "Мади Касымов" [ref=f2e108] [cursor=pointer]:
+        - generic [ref=f2e109]: МК
+        - generic [ref=f2e111]:
+          - generic [ref=f2e112]: Мади Касымов
+          - generic [ref=f2e113]: Верх Б · осталось 1 занятие
+      - button "Дана Ержанова" [ref=f2e114] [cursor=pointer]:
+        - generic [ref=f2e115]: ДЕ
+        - generic [ref=f2e117]:
+          - generic [ref=f2e118]: Дана Ержанова
+          - generic [ref=f2e119]: Full Body · осталось 5 занятий
+      - button "Тимур Ахметов" [ref=f2e120] [cursor=pointer]:
+        - generic [ref=f2e121]: ТА
+        - generic [ref=f2e123]:
+          - generic [ref=f2e124]: Тимур Ахметов
+          - generic [ref=f2e125]: Без программы · выберите на следующем шаге
+      - button "Новый клиент" [ref=f2e126] [cursor=pointer]:
+        - generic [ref=f2e127]: "?"
+        - generic [ref=f2e129]:
+          - generic [ref=f2e130]: Новый клиент
+          - generic [ref=f2e131]: Без программы · выберите на следующем шаге
+    - generic [ref=f2e132]: Несколько клиентов создают общее занятие. Выбранная программа будет назначена каждому; результаты записываются отдельно.
+  - button "Продолжить" [ref=f2e142] [cursor=pointer]

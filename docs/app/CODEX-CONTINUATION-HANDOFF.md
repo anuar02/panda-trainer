@@ -3,7 +3,34 @@
 Updated 30 September 2026 after the scheduling/client-details continuation.
 This is verified progress, not a claim that the application or parity is complete.
 
-## Latest continuation: trainer inbox
+## Latest continuation: template builder
+
+`/template-editor` now creates, edits and copies templates, retains a local draft,
+resolves an existing-draft conflict and confirms discard. TemplateProvider feeds
+Library, detail and the session wizard. Custom plans are snapshotted into new
+scheduling sessions and restored into workout journals without mutating fixtures.
+338 tests / 45 suites pass; all-platform export succeeds. See
+[ADR 0019](decisions/0019-demo-template-builder.md) and the
+[review report](../../app/review/template-builder/README.md) for visual/native limits.
+Keep browser and emulator checks headless to avoid obstructing the user's desktop.
+
+## Previous continuation: template route and session handoff
+
+`/template/[id]` renders t1–t4 outside the tab shell. Library opens this route;
+its footer opens `/new?templateId=...`. NewSessionRoute validates that ID against
+the seeded catalog and CreateSessionScreen initializes the selected program.
+ExerciseDetailsSheet is shared with Library. Unknown template routes show a
+not-found state, never silently selecting a different plan. Existing scheduling
+and workout persistence remain authoritative; no new storage or dependencies.
+
+The template editor/copy/create-template controls remain disabled and unfinished.
+Next coherent batch: canonical template builder, recoverable draft persistence,
+custom catalog integration without rewriting historical workout snapshots.
+Verified: 321 tests / 42 suites, typecheck/lint/format, Android/iOS/web export
+(49 routes). iOS visual smoke; Android not attached.
+See `app/review/template/README.md` for validation and open parity items.
+
+## Previous continuation: trainer inbox
 
 `/inbox` now renders canonical request cards from SchedulingDemoProvider, routes
 from Today, accepts/declines/counters/withdraws, and retains resolved history.
@@ -97,7 +124,7 @@ initial favicon 404 is dev-only. Local generated artifacts may not exist in a cl
 
 ## Remaining gaps and next batch
 
-- Five deep routes: invite, template, billing, welcome, first.
+- Four reference deep routes: invite, billing, welcome, first; template editor/copy unfinished.
 - Native date/time picker currently editable ISO date and HH:mm fields; shared
   Sheet layout/footer and dynamic expanded group parity still need work.
 - Workout voice/note creation, technique action, top menu, full motion/haptics.

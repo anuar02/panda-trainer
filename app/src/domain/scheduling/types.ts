@@ -1,3 +1,4 @@
+import type { PlanExercise } from '../templates';
 export type SchedulingRole = 'trainer' | 'client';
 export type SchedulingActor =
   { role: 'trainer' } | { role: 'client'; clientId: string };
@@ -19,6 +20,7 @@ export type SchedulingParticipant = {
 export type SchedulingSession = SessionTime & {
   id: string;
   revision: number;
+  planSnapshot?: PlanExercise[];
   kind: 'personal' | 'group';
   title: string;
   program: string | null;
@@ -48,6 +50,7 @@ export type SchedulingContext = {
   today: string;
   nowTime: string;
   finishedSessionIds?: readonly string[];
+  templates?: readonly { name: string; exercises: PlanExercise[] }[];
 };
 export type SchedulingError =
   | 'forbidden'

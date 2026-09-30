@@ -1,4 +1,6 @@
 export const trainerLibrary = {
+  templateExercises: 'упражнений',
+  templateSets: 'подходов',
   groupEquipment: '{{group}} · {{equipment}}',
   summary: '{{exercises}} · {{sets}}',
   step: '{{number}}. {{text}}',

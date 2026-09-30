@@ -4,6 +4,8 @@ import {
   StyleSheet,
   View,
   type PressableProps,
+  type StyleProp,
+  type TextStyle,
 } from 'react-native';
 import { useState, type ReactNode } from 'react';
 import { Text } from './text';
@@ -12,6 +14,7 @@ import { parity } from './parity-tokens';
 import { GradientBackground } from './gradient-background';
 type Props = Omit<PressableProps, 'children'> & {
   label: string;
+  labelStyle?: StyleProp<TextStyle>;
   variant?: 'primary' | 'secondary' | 'soft' | 'ghost' | 'danger' | 'mint';
   loading?: boolean;
   compact?: boolean;
@@ -19,6 +22,7 @@ type Props = Omit<PressableProps, 'children'> & {
 };
 export function Button({
   label,
+  labelStyle,
   variant = 'primary',
   loading = false,
   disabled,
@@ -93,6 +97,7 @@ export function Button({
       )}
       {!loading && icon && <View className="relative z-[1]">{icon}</View>}
       <Text
+        style={labelStyle}
         className={`text-center font-bold tracking-[0.1px] ${compact ? 'text-[15px] leading-[21.75px]' : 'text-[16.5px] leading-[23.925px]'} ${primary && blocked && scheme === 'dark' ? 'text-secondary' : primary || variant === 'mint' ? 'text-white' : variant === 'ghost' ? 'text-secondary' : variant === 'danger' ? 'text-danger' : 'text-ink'}`}
       >
         {label}

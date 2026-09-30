@@ -8,6 +8,14 @@
 
 ## С чего начать
 
+Обзор продукта и текущих границ — [PROJECT-BRIEF.md](PROJECT-BRIEF.md).
+Полный указатель задач и зависимостей Linear — [DELIVERY-PLAN.md](DELIVERY-PLAN.md).
+Он покрывает открытые пункты этапов, приёмку, решения владельца и исследование.
+
+Документы в Linear: [обзор продукта](https://linear.app/something-great/document/trainerapp-project-brief-8085320dd3c9),
+[карта поставки](https://linear.app/something-great/document/trainerapp-delivery-plan-and-issue-map-7cd363193b60),
+[правила агентов](https://linear.app/something-great/document/trainerapp-agent-rules-35559e89609f).
+
 Сначала [PROJECT-MEMORY.md](PROJECT-MEMORY.md): сохранённые указания владельца
 и проверенный handoff Claude. Они действуют между сессиями.
 
@@ -25,6 +33,10 @@
    снимки и замеры, чек-лист для каждого экрана.
 
 ## Как отслеживаются изменения
+
+Рабочие задачи координируются в [Linear: trainerApp](https://linear.app/something-great/project/trainerapp-827feca01ff7).
+Перед работой прочитай [правила Linear для агентов](LINEAR-WORKFLOW.md) и
+[общий guide](../../LINEAR-AGENT-GUIDE.md). Технические источники остаются в репозитории.
 
 | Что | Где | Когда обновлять |
 | --- | --- | --- |

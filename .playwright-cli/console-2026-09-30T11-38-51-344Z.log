@@ -1,0 +1,7 @@
+[   14860ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:8085/node_modules/expo-router/entry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.routerRoot=app:113080
+[   14988ms] [LOG] Running application "main" with appParams:
+ {rootTag: #root, hydrate: undefined} 
+Development-level warnings: ON.
+Performance optimizations: OFF. @ http://localhost:8085/node_modules/expo-router/entry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.routerRoot=app:113080
+[   15554ms] [WARNING] props.pointerEvents is deprecated. Use style.pointerEvents @ http://localhost:8085/node_modules/expo-router/entry.bundle?platform=web&dev=true&hot=false&lazy=true&transform.routerRoot=app:113080
+[   18107ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8085/favicon.ico:0

@@ -1,0 +1,31 @@
+- generic [ref=e12]:
+  - generic [ref=e13]:
+    - button "Назад" [ref=e14] [cursor=pointer]
+    - generic [ref=e17]: Новый шаблон
+    - button "Удалить черновик" [ref=e18] [cursor=pointer]
+  - generic [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]: Конструктор тренировки
+      - heading "Соберите свой план" [level=1] [ref=e25]
+      - generic [ref=e26]: От первого упражнения до последнего подхода.
+    - generic [ref=e27]:
+      - generic [ref=e28]: Название шаблона
+      - textbox "Название шаблона" [ref=e29]:
+        - /placeholder: Например, Ноги и ягодицы
+    - generic [ref=e30]:
+      - generic [ref=e31]:
+        - generic [ref=e32]: Заметка
+        - generic [ref=e33]: необязательно
+      - textbox "Заметка" [ref=e34]:
+        - /placeholder: Цель тренировки или подсказка для себя
+    - generic [ref=e35]:
+      - generic [ref=e36]: Упражнения
+      - generic [ref=e37]: 0 упражнений
+    - generic [ref=e38]:
+      - generic [ref=e42]: Начните с первого упражнения
+      - generic [ref=e43]: Выберите движения из библиотеки, а затем настройте нагрузку.
+    - button "Добавить упражнения" [ref=e44] [cursor=pointer]
+    - generic [ref=e49]: Черновик сохранён на этом устройстве.
+  - generic [ref=e50]:
+    - generic [ref=e51]: 0 подходов в плане
+    - button "Сохранить шаблон" [ref=e52] [cursor=pointer]

@@ -7,7 +7,7 @@ const baseURL = process.env.BASE_URL || 'http://127.0.0.1:4187';
 const out = process.env.OUT_DIR || path.join(__dirname, 'reference');
 const specOut = process.env.SPEC_DIR || __dirname;
 const only = process.env.SCREENS ? process.env.SCREENS.split(',') : null;
-const screens = ['t-today', 't-schedule', 't-new', 't-inbox', 't-clients', 't-client', 't-invite', 't-session', 't-library', 't-template', 't-billing', 't-profile', 't-welcome', 'c-home', 'c-program', 'c-history', 'c-progress', 'c-profile', 'c-first']
+const screens = ['t-today', 't-schedule', 't-new', 't-inbox', 't-clients', 't-client', 't-invite', 't-session', 't-library', 't-template', 't-template-editor', 't-billing', 't-profile', 't-welcome', 'c-home', 'c-program', 'c-history', 'c-progress', 'c-profile', 'c-first']
   .filter(s => !only || only.includes(s));
 const scenarios = ['normal', 'empty', 'loading', 'offline'];
 const themes = ['auto', 'dark', 'light'];
@@ -29,10 +29,11 @@ const props = ['font-family', 'font-size', 'font-weight', 'line-height', 'letter
         await page.goto(`${baseURL}/?present&theme=${theme}`);
         await page.addStyleTag({ content: '#device { height: 844px; flex: none; }' });
         await page.evaluate(() => document.fonts.ready);
-        await page.evaluate(({ screen, scenario }) => {
-          Store.set({ role: screen[0] === 't' ? 'trainer' : 'client', screen, scenario, sheet: null, wide: false, stack: [] });
+        await page.evaluate(({ screen, scenario, builderTemplate }) => {
+          Store.set({ role: screen[0] === 't' ? 'trainer' : 'client', screen: screen === 't-template-editor' && builderTemplate ? 't-library' : screen, scenario, sheet: null, wide: false, stack: [] });
           if (screen === 't-session') Store.logging.open('s1');
-        }, { screen, scenario });
+          if (screen === 't-template-editor' && builderTemplate) Library.actions['builder.edit']({ id: builderTemplate });
+        }, { screen, scenario, builderTemplate: process.env.BUILDER_TEMPLATE });
         await page.waitForTimeout(250);
         await page.evaluate(() => {
           for (const animation of document.getAnimations()) {

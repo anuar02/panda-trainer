@@ -1,3 +1,4 @@
+import { validPlan } from '../templates';
 import { schedulingClients } from './clients';
 import { workoutSessions } from '../workout/fixtures';
 import type {
@@ -170,9 +171,11 @@ export function applySchedulingAction(
     const end = minutes(draft.start) + draft.duration;
     if (!Number.isInteger(draft.duration) || draft.duration <= 0 || end > 1440)
       return { ok: false, error: 'duration' };
+    const template = context.templates?.find((t) => t.name === draft.program);
     if (
       !draft.programLater &&
-      !schedulingPrograms.includes(draft.program ?? '')
+      ((!schedulingPrograms.includes(draft.program ?? '') && !template) ||
+        (template && !validPlan(template.exercises)))
     )
       return { ok: false, error: 'program' };
     if (schedulingCollisions(state, draft).length && !draft.collisionAck)
@@ -191,6 +194,9 @@ export function applySchedulingAction(
           ? 'Общее занятие'
           : schedulingClients[draft.clientIds[0]!]!.name,
       program,
+      ...(!draft.programLater && template
+        ? { planSnapshot: template.exercises.map((e) => ({ ...e })) }
+        : {}),
       status: 'proposed',
       participants: draft.clientIds.map((clientId) => ({
         clientId,

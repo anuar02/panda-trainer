@@ -17,6 +17,7 @@ export type CreateSessionScreenProps = {
   initialDate?: string;
   initialStart?: string;
   initialClientId?: string;
+  initialProgram?: string;
   getCollisions: (draft: SessionDraft) => readonly EditorCollision[];
   onCreate: (draft: SessionDraft) => EditorResult;
   onClose: () => void;

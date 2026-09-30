@@ -1,0 +1,48 @@
+- generic [ref=e71]:
+  - generic [ref=e72]:
+    - button "Закрыть" [ref=e73] [cursor=pointer]
+    - generic [ref=e76]: Новое занятие
+  - generic [ref=e77]:
+    - heading "Когда и с кем" [level=1] [ref=e78]
+    - generic [ref=e79]: Сначала согласуем время. Программу можно назначить позже.
+  - generic [ref=e80]:
+    - button "1. Клиенты" [ref=e141] [cursor=pointer]
+    - button "2. Время" [disabled]
+    - button "3. Программа" [disabled]
+  - generic [ref=e85]:
+    - generic [ref=e142]: Дата
+    - generic [ref=e143]:
+      - button "пн, 14 сен · сегодня" [ref=e144] [cursor=pointer]:
+        - generic [ref=e145]: "14"
+      - button "вт, 15 сен" [ref=e151] [cursor=pointer]:
+        - generic [ref=e152]: "15"
+      - button "ср, 16 сен" [ref=e156] [cursor=pointer]:
+        - generic [ref=e157]: "16"
+      - button "чт, 17 сен" [ref=e161] [cursor=pointer]:
+        - generic [ref=e162]: "17"
+      - button "пт, 18 сен" [ref=e166] [cursor=pointer]:
+        - generic [ref=e167]: "18"
+      - button "сб, 19 сен" [ref=e171] [cursor=pointer]:
+        - generic [ref=e172]: "19"
+      - button "вс, 20 сен" [ref=e176] [cursor=pointer]:
+        - generic [ref=e177]: "20"
+    - generic [ref=e181]: Начало
+    - generic [ref=e183]:
+      - button "07:00" [ref=e184] [cursor=pointer]
+      - button "09:00" [ref=e186] [cursor=pointer]
+      - button "11:30" [ref=e188] [cursor=pointer]
+      - button "14:00" [ref=e190] [cursor=pointer]
+      - button "17:00" [ref=e192] [cursor=pointer]
+      - button "18:00" [ref=e194] [cursor=pointer]
+      - button "18:30" [ref=e196] [cursor=pointer]
+      - button "19:00" [ref=e198] [cursor=pointer]
+      - button "20:00" [ref=e200] [cursor=pointer]
+    - generic [ref=e202]: Длительность
+    - generic [ref=e204]:
+      - button "45 мин" [ref=e205] [cursor=pointer]
+      - button "60 мин" [ref=e207] [cursor=pointer]
+      - button "75 мин" [ref=e209] [cursor=pointer]
+      - button "90 мин" [ref=e211] [cursor=pointer]
+  - generic [ref=e136]:
+    - button "Назад" [ref=e213] [cursor=pointer]
+    - button "Продолжить" [active] [ref=e140] [cursor=pointer]

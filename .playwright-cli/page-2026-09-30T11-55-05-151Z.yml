@@ -1,0 +1,41 @@
+- generic [ref=f2e73]:
+  - generic [ref=f2e74]:
+    - button "Закрыть" [ref=f2e75] [cursor=pointer]
+    - generic [ref=f2e78]: Новое занятие
+  - generic [ref=f2e79]:
+    - heading "Когда и с кем" [level=1] [ref=f2e80]
+    - generic [ref=f2e81]: Сначала согласуем время. Программу можно назначить позже.
+  - generic [ref=f2e82]:
+    - button "1. Клиенты" [ref=f2e143] [cursor=pointer]
+    - button "2. Время" [ref=f2e219] [cursor=pointer]
+    - button "3. Программа" [disabled]
+  - generic [ref=f2e87]:
+    - generic [ref=f2e220]: Программа
+    - generic [ref=f2e221]:
+      - button "Низ А" [ref=f2e222] [cursor=pointer]:
+        - generic [ref=f2e226]:
+          - generic [ref=f2e227]: Низ А
+          - generic [ref=f2e228]: 5 упражнений · средний
+      - button "Верх Б" [ref=f2e229] [cursor=pointer]:
+        - generic [ref=f2e233]:
+          - generic [ref=f2e234]: Верх Б
+          - generic [ref=f2e235]: 4 упражнения · средний
+      - button "Full Body" [ref=f2e236] [cursor=pointer]:
+        - generic [ref=f2e240]:
+          - generic [ref=f2e241]: Full Body
+          - generic [ref=f2e242]: 4 упражнения · новичок
+      - button "Сила 5×5" [ref=f2e243] [cursor=pointer]:
+        - generic [ref=f2e247]:
+          - generic [ref=f2e248]: Сила 5×5
+          - generic [ref=f2e249]: 3 упражнения · продвинутый
+      - button "План проверки копии" [ref=f2e250] [cursor=pointer]:
+        - generic [ref=f2e254]:
+          - generic [ref=f2e255]: План проверки копии
+          - generic [ref=f2e256]: 5 упражнений
+    - button "Назначить программу позже" [ref=f2e260] [cursor=pointer]:
+      - generic [ref=f2e265]:
+        - generic [ref=f2e266]: Назначить программу позже
+        - generic [ref=f2e267]: Клиент сможет согласовать время без программы
+  - generic [ref=f2e138]:
+    - button "Назад" [ref=f2e215] [cursor=pointer]
+    - button "Создать занятие" [active] [ref=f2e268] [cursor=pointer]

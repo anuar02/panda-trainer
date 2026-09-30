@@ -24,6 +24,7 @@ export function CreateSessionScreen({
   initialDate,
   initialStart,
   initialClientId,
+  initialProgram,
   getCollisions,
   onCreate,
   onClose,
@@ -39,6 +40,9 @@ export function CreateSessionScreen({
       date: initialDate ?? today,
       start: initialStart ?? '19:00',
       clientIds: initialClientId ? [initialClientId] : [],
+      program: templates.some((template) => template.program === initialProgram)
+        ? initialProgram
+        : null,
     }),
   );
   const [error, setError] = useState('');

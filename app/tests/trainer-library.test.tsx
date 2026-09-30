@@ -3,6 +3,9 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import '../src/lib/i18n';
 import { TrainerLibraryScreen } from '../src/features/trainer-library/trainer-library-screen';
 
+const onOpenTemplate = jest.fn();
+beforeEach(() => onOpenTemplate.mockClear());
+
 jest.mock('../src/ui/sheet', () => ({
   Sheet: ({ open, children }: PropsWithChildren<{ open: boolean }>) =>
     open ? children : null,
@@ -16,14 +19,19 @@ jest.mock('react-native-safe-area-context', () => {
 test.each(['normal', 'empty', 'loading', 'offline'] as const)(
   'canonical library retains catalog in %s scenario',
   async (scenario) => {
-    await render(<TrainerLibraryScreen scenario={scenario} />);
+    await render(
+      <TrainerLibraryScreen
+        onOpenTemplate={onOpenTemplate}
+        scenario={scenario}
+      />,
+    );
     expect(screen.getByTestId(`trainer-library-${scenario}`)).toBeTruthy();
     expect(screen.getByText('81 упражнение')).toBeTruthy();
   },
 );
 
 test('search uses aliases, ignores ё, and resets empty results', async () => {
-  await render(<TrainerLibraryScreen />);
+  await render(<TrainerLibraryScreen onOpenTemplate={onOpenTemplate} />);
   await fireEvent.changeText(
     screen.getByLabelText('Поиск упражнений'),
     'barbell bench press',
@@ -42,7 +50,7 @@ test('search uses aliases, ignores ё, and resets empty results', async () => {
 });
 
 test('favorites and technique filter compose locally', async () => {
-  await render(<TrainerLibraryScreen />);
+  await render(<TrainerLibraryScreen onOpenTemplate={onOpenTemplate} />);
   await fireEvent.press(
     screen.getByRole('button', { name: 'В избранное: Выпады с гантелями' }),
   );
@@ -59,22 +67,17 @@ test('favorites and technique filter compose locally', async () => {
   expect(screen.getByText('Пока нет избранных упражнений')).toBeTruthy();
 });
 
-test('template search opens exact plan and disables unavailable writes', async () => {
-  await render(<TrainerLibraryScreen />);
+test('template search routes to the exact plan and keeps the builder unavailable', async () => {
+  await render(<TrainerLibraryScreen onOpenTemplate={onOpenTemplate} />);
   await fireEvent.press(screen.getByText('Шаблоны'));
   expect(screen.getByRole('button', { name: 'Создать шаблон' })).toBeDisabled();
   await fireEvent.changeText(screen.getByLabelText('Поиск шаблонов'), 'Сила');
   await fireEvent.press(screen.getByText('Сила 5×5'));
-  expect(screen.getByText('11 подходов')).toBeTruthy();
-  expect(screen.getByText('5 × 5 · 100 кг')).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'Изменить' })).toBeDisabled();
-  expect(
-    screen.getByRole('button', { name: 'Создать занятие с этим планом' }),
-  ).toBeDisabled();
+  expect(onOpenTemplate).toHaveBeenCalledWith('t4');
 });
 
 test('muscle and equipment filters compose and technique details use the selected exercise', async () => {
-  await render(<TrainerLibraryScreen />);
+  await render(<TrainerLibraryScreen onOpenTemplate={onOpenTemplate} />);
   await fireEvent.press(screen.getByRole('button', { name: 'Ноги' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Оборудование' }));
   await fireEvent.press(screen.getByRole('button', { name: 'гантели' }));

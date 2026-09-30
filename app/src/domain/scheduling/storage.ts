@@ -1,3 +1,4 @@
+import { validPlan } from '../templates';
 import { schedulingClients } from './clients';
 import type { SchedulingState } from './types';
 
@@ -53,6 +54,8 @@ function validState(value: unknown): value is SchedulingState {
       !revision(session.revision) ||
       typeof session.title !== 'string' ||
       !program(session.program) ||
+      (session.planSnapshot !== undefined &&
+        (!session.program || !validPlan(session.planSnapshot))) ||
       !['proposed', 'confirmed', 'cancelled'].includes(
         String(session.status),
       ) ||

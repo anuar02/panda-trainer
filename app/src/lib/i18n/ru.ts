@@ -1,3 +1,4 @@
+import { templateEditor } from '@/features/template-editor/ru';
 import { trainerInbox } from '@/features/trainer-inbox/ru';
 import { sessionEditorRu } from '@/features/session-editor/ru';
 import { clientDetails } from '@/features/client-details/ru';
@@ -27,6 +28,7 @@ export const ru = {
   clientProgress,
   trainerClients,
   trainerLibrary,
+  templateEditor,
   profiles,
   workout: workoutRu,
   workoutDemo,

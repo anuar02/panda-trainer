@@ -1,0 +1,63 @@
+{
+ "baseURL": "http://127.0.0.1:59791",
+ "viewport": "390x844@2x",
+ "motion": "finite-finished-infinite-paused-at-start",
+ "fixtures": "fresh-page-cleared-local-storage-per-shot",
+ "errors": [],
+ "shots": [
+  {
+   "screen": "t-template-editor",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template-editor__normal__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-template-editor",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template-editor__empty__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-template-editor",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template-editor__loading__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-template-editor",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-template-editor__offline__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-template-editor",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-template-editor__normal__dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-template-editor",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-template-editor__normal__light.png",
+   "width": 390,
+   "height": 844
+  }
+ ]
+}

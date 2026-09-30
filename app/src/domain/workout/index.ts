@@ -59,7 +59,20 @@ function createJournal(
           {
             name,
             reply: session.status === 'cancelled' ? 'cancelled' : p.reply,
-            exercises: workoutExercises(name),
+            exercises:
+              session.planSnapshot && name === session.program
+                ? session.planSnapshot.map((e, index) => ({
+                    id: `e${index + 1}`,
+                    name: e.name,
+                    sets: e.sets,
+                    plannedSets: e.sets,
+                    reps: e.reps,
+                    target: e.target,
+                    unit: e.unit,
+                    prev: { kg: 0, reps: 0 },
+                    pr: 0,
+                  }))
+                : workoutExercises(name),
           },
         ];
       }),
