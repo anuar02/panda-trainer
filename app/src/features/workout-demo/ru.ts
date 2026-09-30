@@ -1,0 +1,15 @@
+export const workoutDemo = {
+  resume: 'Вернуться',
+  resumeLabel: 'Вернуться к тренировке: {{name}}, {{start}}. {{detail}}',
+  saveError: 'Ошибка сохранения · вернитесь к журналу',
+  participant: 'Участник',
+  groupName: '{{title}} · {{name}}',
+  groupDrafts: 'Черновики: {{participants}} участн.',
+  draft: 'Есть черновик',
+  notParticipating: 'Участник не участвует',
+  noProgram: 'Без программы',
+  progress: '{{done}} из {{total}} подходов',
+  count: '{{done}}/{{total}}',
+  join: '{{first}} · {{second}}',
+  current: '{{detail}}. Сейчас: {{exercise}}',
+} as const;

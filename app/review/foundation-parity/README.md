@@ -4,6 +4,30 @@
 
 ## Текущий checkpoint — 30.09.2026
 
+- Добавлен связанный демо-журнал `/session/s1`–`s9`: ввод/редактирование подходов,
+  черновики участников, дополнительные подходы, подтверждение частичного
+  завершения и read-only результаты. Today/Schedule показывают действующий статус;
+  dock возвращает в журнал. Хранилище — только локальное демо (ADR 0015).
+- Последняя проверка: 196 тестов / 28 suites, TypeScript/ESLint/Prettier;
+  экспорт Android/iOS/web. Полный capture: 114 эталонов, 66 кадров приложения,
+  48 отсутствующих комбинаций восьми глубоких маршрутов, 0 runtime errors.
+- Playwright CLI: запись `52,5 кг × 10`, восстановление после reload,
+  частичное завершение → read-only результаты, group minimize → Schedule/dock.
+  Найден и исправлен dev-error `transform-origin` у SVG кольца, добавлен тест;
+  после перезапуска ошибка исчезла. Отдельно остаются dev favicon 404 и upstream
+  pointerEvents warning, не скрываемые приложением.
+- Визуальное сравнение исправило toolbar, счётчики, chip circles, edit pill,
+  подписи ввода и исходную panda face. iOS 16e: просмотрен финальный экран;
+  это не тест клавиатуры/жестов/VoiceOver. Android эмулятор в этом проходе
+  не подключён: Android export прошёл, native journal smoke ещё открыт.
+- Осталось: rest timer, undo, add/replace/skip exercise, notes, voice, shared
+  focus между dock и журналом, связь с клиентскими History/Progress, production
+  sync. Новые finished/group/sheet состояния требуют отдельной визуальной
+  приёмки; shared Sheet сохраняет отличающийся footer. Восемь отсутствующих
+  маршрутов: new/inbox/client/invite/template/billing/welcome/first.
+
+Ниже — предыдущий checkpoint десяти вкладок (его цифры сохранены как история):
+
 - Демо-содержимое десяти вкладок: Today, Schedule, Clients, Library, trainer
   Profile; Home, Program, History, Progress, client Profile. Четыре сценария
   соответствуют исходнику; Library и trainer Profile не меняют содержание от

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +17,8 @@ import {
   type TodayScenario,
 } from './demo';
 import { todayStyles as s } from './measurements';
+import { StatusPill } from '@/ui/status-pill';
+import { useJournalLabels } from '@/features/workout-demo';
 
 function Gradient({
   start,
@@ -99,6 +102,7 @@ export function TrainerTodayScreen({
   const { colors, scheme } = useTheme();
   const [pastOpen, setPastOpen] = useState(false);
   const [selected, setSelected] = useState<DemoSession | 'group' | null>(null);
+  const journal = useJournalLabels();
   const secondary = { color: colors.secondary };
   const accent = { color: scheme === 'dark' ? '#8c9eff' : colors.accent };
   const hair = scheme === 'dark' ? '#212227' : '#efefeb';
@@ -153,6 +157,9 @@ export function TrainerTodayScreen({
                 {t('trainerToday.personal')}
               </Text>
             </View>
+            {journal.status(session.id) && (
+              <StatusPill label={journal.status(session.id)!} />
+            )}
           </View>
         </View>
       </View>
@@ -481,19 +488,38 @@ export function TrainerTodayScreen({
                           </Pressable>
                         </View>
                       </View>
-                      <Button
-                        label={t('trainerToday.start')}
-                        icon={
-                          <Icon
-                            name="play"
-                            color="#ffffff"
-                            size={20}
-                            strokeWidth={2.4}
-                          />
-                        }
-                        disabled
-                        style={s.cta}
-                      />
+                      {journal.status('s6') && (
+                        <StatusPill label={journal.status('s6')!} />
+                      )}
+                      {!(
+                        journal.draft('s6') && journal.dockSessionId === 's6'
+                      ) && (
+                        <Button
+                          label={
+                            journal.draft('s6')
+                              ? t('trainerToday.openJournal', {
+                                  name: t('trainerToday.miniGroup'),
+                                })
+                              : journal.label('s6')
+                          }
+                          variant={journal.draft('s6') ? 'soft' : 'primary'}
+                          icon={
+                            <Icon
+                              name="play"
+                              color="#ffffff"
+                              size={20}
+                              strokeWidth={2.4}
+                            />
+                          }
+                          onPress={() =>
+                            router.push({
+                              pathname: '/session/[id]',
+                              params: { id: 's6' },
+                            })
+                          }
+                          style={s.cta}
+                        />
+                      )}
                     </View>
                     <Pressable
                       disabled
@@ -580,7 +606,17 @@ export function TrainerTodayScreen({
             </View>
           </View>
         ))}
-        <Button label={t('trainerToday.start')} disabled />
+        <Button
+          label={journal.label(
+            selected === 'group' ? 's6' : (selected?.id ?? ''),
+          )}
+          onPress={() => {
+            if (!selected) return;
+            const id = selected === 'group' ? 's6' : selected.id;
+            setSelected(null);
+            router.push({ pathname: '/session/[id]', params: { id } });
+          }}
+        />
         <Button label={t('trainerToday.move')} variant="soft" disabled />
         <Button label={t('trainerToday.cancel')} variant="ghost" disabled />
         <Text style={[s.small, secondary]}>

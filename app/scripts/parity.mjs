@@ -20,7 +20,7 @@ const routes = {
   't-clients': 'clients',
   't-client': null,
   't-invite': null,
-  't-session': null,
+  't-session': 'session/s1',
   't-library': 'library',
   't-template': null,
   't-billing': null,
@@ -35,6 +35,7 @@ const routes = {
 };
 const selected = process.env.SCREENS?.split(',') ?? Object.keys(routes);
 const scenarioScreens = {
+  't-session': 'workout',
   't-today': 'trainer-today',
   'c-home': 'client-home',
   't-schedule': 'trainer-schedule',

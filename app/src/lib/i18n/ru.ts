@@ -7,6 +7,8 @@ import { clientProgress } from '@/features/client-progress/ru';
 import { trainerClients } from '@/features/trainer-clients/ru';
 import { trainerLibrary } from '@/features/trainer-library/ru';
 import { profiles } from '@/features/profiles/ru';
+import { workoutRu } from '@/features/workout/workout-copy';
+import { workoutDemo } from '@/features/workout-demo/ru';
 
 export const ru = {
   clientHome,
@@ -18,6 +20,8 @@ export const ru = {
   trainerClients,
   trainerLibrary,
   profiles,
+  workout: workoutRu,
+  workoutDemo,
   common: {
     appName: 'Тренировочный блокнот',
     trainer: 'Тренер',

@@ -21,6 +21,8 @@ import {
   type ScheduleSession,
 } from './demo';
 import { scheduleStyles as s } from './measurements';
+import { SessionDetailsSheet } from './session-details-sheet';
+import { useJournalLabels } from '@/features/workout-demo';
 
 export function TrainerScheduleScreen({
   scenario = 'normal',
@@ -30,6 +32,8 @@ export function TrainerScheduleScreen({
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
   const [day, setDay] = useState(scheduleToday);
+  const [selected, setSelected] = useState<ScheduleSession | null>(null);
+  const journal = useJournalLabels();
   const loading = scenario === 'loading';
   const all = scenario === 'empty' ? [] : scheduleSessions;
   const sessions = all.filter((session) => session.date === day);
@@ -87,15 +91,13 @@ export function TrainerScheduleScreen({
         style={[index > 0 && s.divider, { borderTopColor: hair }]}
       >
         <Pressable
-          disabled
           accessibilityRole="button"
-          accessibilityState={{ disabled: true }}
+          onPress={() => setSelected(session)}
           accessibilityLabel={t('trainerSchedule.open', {
             name,
             start: session.start,
             end: session.end,
           })}
-          accessibilityHint={t('trainerSchedule.unavailable')}
           style={s.entry}
         >
           <View style={s.time}>
@@ -116,9 +118,9 @@ export function TrainerScheduleScreen({
                 {t('trainerSchedule.groupSummary')}
               </Text>
             )}
-            {group && (
+            {journal.status(session.id) && (
               <Text style={[s.detail, secondary]}>
-                {t('trainerSchedule.journal')}
+                {journal.status(session.id)}
               </Text>
             )}
             {!session.request && (
@@ -483,6 +485,10 @@ export function TrainerScheduleScreen({
           )}
         </View>
       </ScrollView>
+      <SessionDetailsSheet
+        session={selected}
+        onClose={() => setSelected(null)}
+      />
     </SafeAreaView>
   );
 }

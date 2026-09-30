@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { ThemeProvider, useTheme } from '@/ui/theme';
 import { ToastProvider } from '@/ui/toast';
 import { Text } from '@/ui/text';
+import { WorkoutDemoProvider } from '@/features/workout-demo';
 void SplashScreen.preventAutoHideAsync();
 function Navigation() {
   const { scheme, colors } = useTheme();
@@ -72,7 +73,9 @@ export default function RootLayout() {
                   <Text accessibilityRole="alert">{t('common.fontError')}</Text>
                 </SafeAreaView>
               ) : (
-                <Navigation />
+                <WorkoutDemoProvider>
+                  <Navigation />
+                </WorkoutDemoProvider>
               )}
             </ToastProvider>
           </BottomSheetModalProvider>

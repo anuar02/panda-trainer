@@ -4,6 +4,7 @@ import { Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/ui/theme';
 import { Icon } from '@/ui/icons';
+import { WorkoutDock } from '@/features/workout-demo';
 type BottomTabBarProps = Parameters<
   NonNullable<ComponentProps<typeof Tabs>['tabBar']>
 >[0];
@@ -44,6 +45,7 @@ export function FloatingTabBar({
         paddingBottom: Math.max(10, insets.bottom),
       }}
     >
+      {role === 'trainer' && <WorkoutDock />}
       <View
         accessibilityLabel={t('tabs.navigation')}
         style={{
