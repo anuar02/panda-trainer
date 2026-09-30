@@ -11,10 +11,14 @@ import type {
   WorkoutJournal,
   WorkoutSet,
   WorkoutState,
+  WorkoutNote,
 } from './types';
+import { workoutExerciseKey, workoutExerciseLibrary } from './library';
 
 export * from './types';
 export * from './fixtures';
+export * from './selectors';
+export * from './library';
 
 export function createWorkoutState(): WorkoutState {
   return { version: 1, sessions: {}, activeSessionId: null };
@@ -51,7 +55,9 @@ function createJournal(sessionId: string): WorkoutJournal | null {
 export function workoutEligible(journal: WorkoutJournal, clientId: string) {
   return (
     Object.hasOwn(journal.plans, clientId) &&
-    journal.plans[clientId]?.reply !== 'cancelled'
+    getWorkoutSession(journal.sessionId)?.participants.some(
+      (p) => p.clientId === clientId && p.reply !== 'cancelled',
+    ) === true
   );
 }
 
@@ -61,7 +67,14 @@ export function workoutProgress(
 ) {
   const exercises = journal.plans[clientId]?.exercises ?? [];
   return {
-    total: exercises.reduce((n, ex) => n + ex.sets, 0),
+    total: exercises.reduce(
+      (n, ex) =>
+        n +
+        (ex.skipped
+          ? (journal.values[clientId]?.[ex.id] ?? []).filter(validSet).length
+          : ex.sets),
+      0,
+    ),
     done: exercises.reduce(
       (n, ex) =>
         n + (journal.values[clientId]?.[ex.id] ?? []).filter(validSet).length,
@@ -97,12 +110,10 @@ export function parseWorkoutSet(
 ): WorkoutSet | null {
   const kgText = draft.kg.trim().replace(',', '.');
   const repsText = draft.reps.trim();
-  const kg = exercise.prev.kg === 0 ? 0 : Number(kgText);
+  const bodyweight = exercise.bodyweight ?? exercise.prev.kg === 0;
+  const kg = bodyweight ? 0 : Number(kgText);
   const reps = Number(repsText);
-  if (
-    (exercise.prev.kg !== 0 && !/^\d+(\.\d+)?$/.test(kgText)) ||
-    !/^\d+$/.test(repsText)
-  )
+  if ((!bodyweight && !/^\d+(\.\d+)?$/.test(kgText)) || !/^\d+$/.test(repsText))
     return null;
   return validSet({ kg, reps }) ? { kg, reps } : null;
 }
@@ -143,7 +154,11 @@ export function workoutReducer(
       activeSessionId: action.sessionId,
       sessions: {
         ...state.sessions,
-        [action.sessionId]: { ...journal, active },
+        [action.sessionId]: {
+          ...journal,
+          active,
+          ...(journal.undo ? { undo: null } : {}),
+        },
       },
     };
   }
@@ -157,7 +172,11 @@ export function workoutReducer(
   });
   if (action.type === 'switch') {
     return Object.hasOwn(journal.plans, action.clientId)
-      ? update({ ...journal, active: action.clientId })
+      ? update({
+          ...journal,
+          active: action.clientId,
+          ...(journal.undo ? { undo: null } : {}),
+        })
       : state;
   }
   if (journal.finished) return state;
@@ -187,14 +206,150 @@ export function workoutReducer(
     return state;
   const plan = journal.plans[action.clientId];
   if (!plan) return state;
+  if (action.type === 'undo') {
+    const undo = journal.undo;
+    if (
+      !undo ||
+      undo.clientId !== action.clientId ||
+      journal.drafts[undo.clientId]?.[undo.exerciseId]?.[undo.setIndex]
+    )
+      return state;
+    const current =
+      journal.values[undo.clientId]?.[undo.exerciseId]?.[undo.setIndex];
+    if (
+      !current ||
+      current.kg !== undo.value.kg ||
+      current.reps !== undo.value.reps
+    )
+      return state;
+    return update({
+      ...journal,
+      undo: null,
+      finishPending: false,
+      values: setEntry(
+        journal.values,
+        undo.clientId,
+        undo.exerciseId,
+        undo.setIndex,
+        undo.previous,
+      ),
+    });
+  }
+  if (
+    action.type === 'addNote' ||
+    action.type === 'removeNote' ||
+    action.type === 'shareNote'
+  ) {
+    const notes = [...(journal.notes?.[action.clientId] ?? [])];
+    if (action.type === 'addNote') {
+      const text = action.text.trim().replace(/\s+/g, ' ').slice(0, 500);
+      if (!text || !/^([01]\d|2[0-3]):[0-5]\d$/.test(action.at)) return state;
+      notes.push({ text, at: action.at, shared: false });
+    } else {
+      const note = notes[action.index];
+      if (!Number.isInteger(action.index) || !note) return state;
+      if (action.type === 'removeNote') notes.splice(action.index, 1);
+      else notes[action.index] = { ...note, shared: !note.shared };
+    }
+    return update({
+      ...journal,
+      notes: { ...journal.notes, [action.clientId]: notes },
+    });
+  }
+  if (
+    action.type === 'addExercise' ||
+    action.type === 'replaceExercise' ||
+    action.type === 'skipExercise'
+  ) {
+    const exercises = plan.exercises.map((ex) => ({ ...ex }));
+    const old =
+      'exerciseId' in action
+        ? exercises.find((ex) => ex.id === action.exerciseId)
+        : undefined;
+    const drafts = {
+      ...journal.drafts,
+      [action.clientId]: { ...journal.drafts[action.clientId] },
+    };
+    const values = {
+      ...journal.values,
+      [action.clientId]: { ...journal.values[action.clientId] },
+    };
+    if (action.type === 'skipExercise') {
+      const skip = action.skip ?? true;
+      if (!old || old.replacedBy || Boolean(old.skipped) === skip) return state;
+      if (skip) delete drafts[action.clientId]?.[old.id];
+      if (
+        skip &&
+        old.origin === 'added' &&
+        !(values[action.clientId]?.[old.id] ?? []).some(validSet)
+      ) {
+        exercises.splice(exercises.indexOf(old), 1);
+        delete values[action.clientId]?.[old.id];
+      } else old.skipped = skip;
+    } else {
+      if (action.type === 'replaceExercise' && (!old || old.skipped))
+        return state;
+      const name = action.spec.name.trim().replace(/\s+/g, ' ').slice(0, 80);
+      if (!name) return state;
+      const library = workoutExerciseLibrary.find((ex) =>
+        [ex.name, ...(ex.aliases ?? [])].some(
+          (alias) => workoutExerciseKey(alias) === workoutExerciseKey(name),
+        ),
+      );
+      const seed = ['Низ А', 'Верх Б', 'Full Body', 'Сила 5×5']
+        .flatMap(workoutExercises)
+        .find((ex) => ex.name === library?.name);
+      let ordinal = 1;
+      while (exercises.some((ex) => ex.id === `x${ordinal}`)) ordinal++;
+      const sets = old
+        ? Math.max(
+            1,
+            old.sets -
+              (values[action.clientId]?.[old.id] ?? []).filter(validSet).length,
+          )
+        : 3;
+      const bodyweight = action.spec.bodyweight ?? library?.bodyweight ?? false;
+      const added: WorkoutExercise = {
+        id: `x${ordinal}`,
+        name: library?.name ?? name,
+        sets,
+        plannedSets: old ? sets : 0,
+        reps: '',
+        target: 0,
+        prev: seed
+          ? { ...seed.prev, ...(bodyweight ? { kg: 0 } : {}) }
+          : { kg: 0, reps: 0 },
+        pr: 0,
+        unit: action.spec.unit ?? library?.unit ?? 'повт',
+        bodyweight,
+        origin: old ? 'replaced' : 'added',
+        ...(old ? { replaces: old.name } : {}),
+      };
+      if (old) {
+        old.skipped = true;
+        old.replacedBy = added.id;
+        delete drafts[action.clientId]?.[old.id];
+        exercises.splice(exercises.indexOf(old) + 1, 0, added);
+      } else exercises.push(added);
+    }
+    return update({
+      ...journal,
+      undo: null,
+      finishPending: false,
+      drafts,
+      values,
+      plans: { ...journal.plans, [action.clientId]: { ...plan, exercises } },
+    });
+  }
+  if (!('exerciseId' in action)) return state;
   const exercise = plan.exercises.find((ex) => ex.id === action.exerciseId);
-  if (!exercise) return state;
+  if (!exercise || exercise.skipped) return state;
   if (action.type === 'addSet' || action.type === 'removeSet') {
     const last = exercise.sets - 1;
     if (
       action.type === 'addSet'
         ? exercise.sets >= 30
-        : exercise.sets <= exercise.plannedSets ||
+        : exercise.sets <= Math.max(1, exercise.plannedSets) ||
           journal.values[action.clientId]?.[exercise.id]?.[last] ||
           journal.drafts[action.clientId]?.[exercise.id]?.[last]
     )
@@ -205,6 +360,7 @@ export function workoutReducer(
     };
     return update({
       ...journal,
+      undo: null,
       finishPending: false,
       values: {
         ...journal.values,
@@ -245,6 +401,7 @@ export function workoutReducer(
   if (action.type === 'draft') {
     return update({
       ...journal,
+      undo: null,
       finishPending: false,
       drafts: setEntry(
         journal.drafts,
@@ -258,6 +415,15 @@ export function workoutReducer(
   if (!validSet(action.value)) return state;
   return update({
     ...journal,
+    undo: {
+      clientId: action.clientId,
+      exerciseId: exercise.id,
+      setIndex: action.setIndex,
+      value: { ...action.value },
+      previous:
+        journal.values[action.clientId]?.[exercise.id]?.[action.setIndex] ??
+        null,
+    },
     finishPending: false,
     values: setEntry(
       journal.values,
@@ -304,6 +470,105 @@ function decodeEntries<T>(
   return result;
 }
 
+function decodeExercises(
+  input: unknown[],
+  originals: WorkoutExercise[],
+): WorkoutExercise[] | null {
+  const result: WorkoutExercise[] = [];
+  for (const item of input) {
+    if (
+      !record(item) ||
+      typeof item.id !== 'string' ||
+      result.some((ex) => ex.id === item.id) ||
+      typeof item.sets !== 'number' ||
+      !Number.isInteger(item.sets) ||
+      item.sets < 1 ||
+      item.sets > 30
+    )
+      return null;
+    const original = originals.find((ex) => ex.id === item.id);
+    if (original) {
+      const expected = { ...original, sets: item.sets };
+      if (
+        item.sets < original.plannedSets ||
+        Object.keys(expected).some(
+          (key) =>
+            JSON.stringify(item[key]) !==
+            JSON.stringify(expected[key as keyof WorkoutExercise]),
+        ) ||
+        item.origin !== undefined ||
+        item.replaces !== undefined ||
+        item.bodyweight !== undefined
+      )
+        return null;
+    } else {
+      if (
+        !/^x[1-9]\d*$/.test(item.id) ||
+        (item.origin !== 'added' && item.origin !== 'replaced') ||
+        typeof item.name !== 'string' ||
+        !item.name.trim() ||
+        item.name.length > 80 ||
+        typeof item.plannedSets !== 'number' ||
+        !Number.isInteger(item.plannedSets) ||
+        item.plannedSets < 0 ||
+        item.plannedSets > item.sets ||
+        (item.origin === 'added'
+          ? item.plannedSets !== 0
+          : item.plannedSets < 1) ||
+        item.reps !== '' ||
+        item.target !== 0 ||
+        item.pr !== 0 ||
+        typeof item.bodyweight !== 'boolean' ||
+        (item.unit !== 'сек' && item.unit !== 'повт') ||
+        !record(item.prev) ||
+        typeof item.prev.kg !== 'number' ||
+        !Number.isFinite(item.prev.kg) ||
+        item.prev.kg < 0 ||
+        typeof item.prev.reps !== 'number' ||
+        !Number.isSafeInteger(item.prev.reps) ||
+        item.prev.reps < 0 ||
+        (item.origin === 'replaced'
+          ? typeof item.replaces !== 'string' || !item.replaces
+          : item.replaces !== undefined)
+      )
+        return null;
+    }
+    if (
+      (item.skipped !== undefined && typeof item.skipped !== 'boolean') ||
+      (item.replacedBy !== undefined &&
+        (typeof item.replacedBy !== 'string' || item.skipped !== true))
+    )
+      return null;
+    result.push(item as WorkoutExercise);
+  }
+  if (originals.some((ex) => !result.some((item) => item.id === ex.id)))
+    return null;
+  if (
+    result
+      .filter((ex) => originals.some((original) => original.id === ex.id))
+      .some((ex, index) => originals[index]?.id !== ex.id)
+  )
+    return null;
+  for (const ex of result) {
+    if (ex.replacedBy) {
+      const target = result.find((item) => item.id === ex.replacedBy);
+      if (
+        !target ||
+        target.origin !== 'replaced' ||
+        target.replaces !== ex.name ||
+        result.indexOf(target) <= result.indexOf(ex)
+      )
+        return null;
+    }
+    if (
+      ex.origin === 'replaced' &&
+      result.filter((item) => item.replacedBy === ex.id).length !== 1
+    )
+      return null;
+  }
+  return result;
+}
+
 export function decodeWorkoutState(raw: string | null): WorkoutState | null {
   if (raw === null) return createWorkoutState();
   try {
@@ -340,33 +605,12 @@ export function decodeWorkoutState(raw: string | null): WorkoutState | null {
           !record(storedPlan) ||
           storedPlan.name !== plan.name ||
           storedPlan.reply !== plan.reply ||
-          !Array.isArray(storedPlan.exercises) ||
-          storedPlan.exercises.length !== plan.exercises.length
+          !Array.isArray(storedPlan.exercises)
         )
           return null;
-        for (let i = 0; i < plan.exercises.length; i++) {
-          const original = plan.exercises[i];
-          if (!original) return null;
-          const stored = storedPlan.exercises[i];
-          if (
-            !record(stored) ||
-            typeof stored.sets !== 'number' ||
-            !Number.isInteger(stored.sets) ||
-            stored.sets < original.plannedSets ||
-            stored.sets > 30
-          )
-            return null;
-          const expected = { ...original, sets: stored.sets };
-          if (
-            Object.keys(expected).some(
-              (key) =>
-                JSON.stringify(stored[key]) !==
-                JSON.stringify(expected[key as keyof WorkoutExercise]),
-            )
-          )
-            return null;
-          plan.exercises[i] = expected;
-        }
+        const exercises = decodeExercises(storedPlan.exercises, plan.exercises);
+        if (!exercises) return null;
+        plan.exercises = exercises;
       }
       const values = decodeEntries(saved.values, journal, validSet);
       const drafts = decodeEntries(
@@ -377,6 +621,67 @@ export function decodeWorkoutState(raw: string | null): WorkoutState | null {
       );
       if (!values || !drafts || (saved.finished && saved.finishPending))
         return null;
+      const notes: Record<string, WorkoutNote[]> = {};
+      if (saved.notes !== undefined) {
+        if (!record(saved.notes)) return null;
+        for (const [clientId, list] of Object.entries(saved.notes)) {
+          if (!Object.hasOwn(journal.plans, clientId) || !Array.isArray(list))
+            return null;
+          notes[clientId] = [];
+          for (const note of list) {
+            if (
+              !record(note) ||
+              typeof note.text !== 'string' ||
+              !note.text.trim() ||
+              note.text.length > 500 ||
+              typeof note.at !== 'string' ||
+              !/^([01]\d|2[0-3]):[0-5]\d$/.test(note.at) ||
+              typeof note.shared !== 'boolean'
+            )
+              return null;
+            notes[clientId].push({
+              text: note.text,
+              at: note.at,
+              shared: note.shared,
+            });
+          }
+        }
+      }
+      if (saved.undo !== undefined && saved.undo !== null) {
+        const undo = saved.undo;
+        if (
+          !record(undo) ||
+          typeof undo.clientId !== 'string' ||
+          undo.clientId !== saved.active ||
+          !workoutEligible(journal, undo.clientId) ||
+          typeof undo.exerciseId !== 'string' ||
+          typeof undo.setIndex !== 'number' ||
+          !Number.isInteger(undo.setIndex) ||
+          undo.setIndex < 0 ||
+          !validSet(undo.value) ||
+          !(undo.previous === null || validSet(undo.previous))
+        )
+          return null;
+        const current =
+          values[undo.clientId]?.[undo.exerciseId]?.[undo.setIndex];
+        if (
+          !current ||
+          current.kg !== undo.value.kg ||
+          current.reps !== undo.value.reps ||
+          drafts[undo.clientId]?.[undo.exerciseId]?.[undo.setIndex] ||
+          journal.plans[undo.clientId]?.exercises.find(
+            (ex) => ex.id === undo.exerciseId,
+          )?.skipped
+        )
+          return null;
+        journal.undo = {
+          clientId: undo.clientId,
+          exerciseId: undo.exerciseId,
+          setIndex: undo.setIndex,
+          value: { ...undo.value },
+          previous: undo.previous === null ? null : { ...undo.previous },
+        };
+      } else if (saved.undo === null) journal.undo = null;
       state.sessions[id] = {
         ...journal,
         active: saved.active,
@@ -384,6 +689,7 @@ export function decodeWorkoutState(raw: string | null): WorkoutState | null {
         finishPending: false,
         values,
         drafts,
+        ...(saved.notes !== undefined ? { notes } : {}),
       };
     }
     if (

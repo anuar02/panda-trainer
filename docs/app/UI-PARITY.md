@@ -98,7 +98,7 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `Sheet` | `sheet`, `sheet__grip` (`--r-sheet` 32) | везде | не совпадает |
 | `Toast` | `toast` (`--r-toast` 20) | везде | проверить |
 | `StatusPill`, `CountBadge` | `pill`, бейджи счётчиков | везде | StatusPill перенесён; badge вкладки открыт |
-| `SetRow`, журнал | классы с `firstSeenOn: "t-session"` в `spec-dark.json` | журнал | нет |
+| `SetRow`, журнал | классы с `firstSeenOn: "t-session"` в `spec-dark.json` | журнал, частично реализован | не принят |
 
 Остальные компоненты добавляются в таблицу по мере переноса экранов.
 
@@ -154,7 +154,7 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `t-clients` Клиенты | `(trainer)/clients` | 2 | нет |
 | `t-client` Карточка клиента | `(trainer)/clients/[id]` | 2 | нет |
 | `t-invite` Приглашение | `(trainer)/clients/[id]/invite` | 2 | нет |
-| `t-session` Журнал тренировки | `(trainer)/session/[id]` | 5 | нет |
+| `t-session` Журнал тренировки | `session/[id]` | 5 | не принят |
 | `t-library` Библиотека | `(trainer)/library` | 3 | нет |
 | `t-template` Шаблон | `(trainer)/library/templates/[id]` | 3 | нет |
 | `t-billing` Пакеты и оплаты | `(trainer)/clients/[id]/billing` | 6 | нет |

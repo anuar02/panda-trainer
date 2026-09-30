@@ -27,6 +27,16 @@ import { Icon } from '@/ui/icons';
 import { Sheet } from '@/ui/sheet';
 import { Text } from '@/ui/text';
 import { workoutStyles as s } from './measurements';
+import {
+  WorkoutExerciseSheet,
+  type ExerciseSheetState,
+} from './workout-exercise-sheet';
+import { WorkoutNotes } from './workout-notes';
+import {
+  useWorkoutRuntime,
+  WorkoutRestPanel,
+  runtimeExercise,
+} from '@/features/workout-demo';
 
 type Props = {
   sessionId: string;
@@ -59,7 +69,13 @@ export function WorkoutScreen({
   onRetrySave,
 }: Props) {
   const { t, i18n } = useTranslation();
-  const [focused, setFocused] = useState<string | null>(null);
+  const [localFocus, setLocalFocus] = useState<string | null>(null);
+  const runtime = useWorkoutRuntime(sessionId, journal?.active ?? '');
+  const focused = runtime.available ? runtime.focusedExerciseId : localFocus;
+  const setFocused = runtime.available ? runtime.focusExercise : setLocalFocus;
+  const [exerciseSheet, setExerciseSheet] = useState<ExerciseSheetState | null>(
+    null,
+  );
   const [editor, setEditor] = useState<Editor | null>(null);
   const [error, setError] = useState(false);
   const scroll = useRef<ScrollView>(null);
@@ -120,12 +136,12 @@ export function WorkoutScreen({
   const values = (exercise: WorkoutExercise) =>
     journal.values[active]?.[exercise.id] ?? [];
   const nextIndex = (exercise: WorkoutExercise) =>
-    Array.from({ length: exercise.sets }).findIndex(
-      (_, i) => !values(exercise)[i],
-    );
-  const focus =
-    exercises.find((exercise) => exercise.id === focused) ??
-    exercises.find((exercise) => nextIndex(exercise) >= 0);
+    exercise.skipped
+      ? -1
+      : Array.from({ length: exercise.sets }).findIndex(
+          (_, i) => !values(exercise)[i],
+        );
+  const focus = runtimeExercise(journal, focused);
   const next = focus
     ? (exercises
         .slice(exercises.indexOf(focus) + 1)
@@ -151,7 +167,10 @@ export function WorkoutScreen({
       draft ??
       (sheet && !saved
         ? { kg: '', reps: '' }
-        : { kg: String(value.kg), reps: String(value.reps) })
+        : {
+            kg: value.reps > 0 ? String(value.kg) : '',
+            reps: value.reps > 0 ? String(value.reps) : '',
+          })
     );
   };
   const updateDraft = (
@@ -206,7 +225,11 @@ export function WorkoutScreen({
     return (
       <View style={s.fields}>
         {(['kg', 'reps'] as const)
-          .filter((field) => field !== 'kg' || exercise.prev.kg !== 0)
+          .filter(
+            (field) =>
+              field !== 'kg' ||
+              !(exercise.bodyweight ?? exercise.prev.kg === 0),
+          )
           .map((field) => {
             const label = t(
               field === 'kg'
@@ -281,11 +304,13 @@ export function WorkoutScreen({
     );
   };
   const goal = (exercise: WorkoutExercise) =>
-    t('workout.goal', {
-      sets: exercise.plannedSets,
-      reps: exercise.reps,
-      weight: exercise.target ? ` · ${number(exercise.target)} кг` : '',
-    });
+    exercise.origin === 'added'
+      ? t('workout.sets', { count: exercise.sets })
+      : t('workout.goal', {
+          sets: exercise.plannedSets,
+          reps: exercise.reps,
+          weight: exercise.target ? ` · ${number(exercise.target)} кг` : '',
+        });
   const selectedExercise =
     editor?.clientId === active
       ? exercises.find((exercise) => exercise.id === editor.exerciseId)
@@ -441,6 +466,7 @@ export function WorkoutScreen({
                       dispatch({ type: 'switch', clientId: id });
                       setFocused(null);
                       setEditor(null);
+                      setExerciseSheet(null);
                       setError(false);
                     }}
                     style={[
@@ -507,19 +533,34 @@ export function WorkoutScreen({
                 <Text accessibilityRole="header" style={s.exerciseName}>
                   {focus.name}
                 </Text>
-                <Text style={s.exerciseGoal}>{goal(focus)}</Text>
-                <Pressable
-                  {...disabledProps}
-                  accessibilityRole="button"
-                  accessibilityLabel={t('workout.more')}
-                  style={s.menu}
-                >
-                  <Icon name="more" size={20} color="#a3a4ab" />
-                </Pressable>
+                <Text style={s.exerciseGoal}>
+                  {focus.skipped
+                    ? t(
+                        focus.replacedBy
+                          ? 'workout.replaced'
+                          : 'workout.skipped',
+                      )
+                    : goal(focus)}
+                </Text>
+                {!focus.skipped && (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t('workout.exerciseMenu', {
+                      name: focus.name,
+                    })}
+                    onPress={() =>
+                      setExerciseSheet({ mode: 'menu', exerciseId: focus.id })
+                    }
+                    style={s.menu}
+                  >
+                    <Icon name="more" size={20} color="#a3a4ab" />
+                  </Pressable>
+                )}
               </View>
               <View style={s.chips}>
                 {Array.from({ length: focus.sets }, (_, i) => {
                   const value = values(focus)[i];
+                  if (focus.skipped && !value) return null;
                   return (
                     <Pressable
                       key={i}
@@ -595,48 +636,66 @@ export function WorkoutScreen({
                     onPress={() => save(focus, index)}
                   />
                 </View>
-              ) : (
+              ) : !focus.skipped ? (
                 <View style={s.complete}>
                   <Text>{t('workout.setsComplete')}</Text>
                 </View>
+              ) : null}
+              <WorkoutRestPanel sessionId={sessionId} clientId={active} />
+              {focus.skipped ? (
+                !focus.replacedBy && (
+                  <Button
+                    variant="soft"
+                    label={t('workout.restoreExercise')}
+                    onPress={() =>
+                      dispatch({
+                        type: 'skipExercise',
+                        clientId: active,
+                        exerciseId: focus.id,
+                        skip: false,
+                      })
+                    }
+                  />
+                )
+              ) : (
+                <View style={s.foot}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={t('workout.addSetLabel', {
+                      name: focus.name,
+                    })}
+                    style={s.addSet}
+                    onPress={() =>
+                      dispatch({
+                        type: 'addSet',
+                        clientId: active,
+                        exerciseId: focus.id,
+                      })
+                    }
+                  >
+                    <Icon name="plus" size={16} color="#8c9eff" />
+                    <Text style={[s.small, s.bold, s.accent]}>
+                      {t('workout.addSet')}
+                    </Text>
+                  </Pressable>
+                  {focus.sets > focus.plannedSets &&
+                    !values(focus)[focus.sets - 1] &&
+                    !journal.drafts[active]?.[focus.id]?.[focus.sets - 1] && (
+                      <Button
+                        compact
+                        variant="ghost"
+                        label={t('workout.removeSet')}
+                        onPress={() =>
+                          dispatch({
+                            type: 'removeSet',
+                            clientId: active,
+                            exerciseId: focus.id,
+                          })
+                        }
+                      />
+                    )}
+                </View>
               )}
-              <View style={s.foot}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('workout.addSetLabel', {
-                    name: focus.name,
-                  })}
-                  style={s.addSet}
-                  onPress={() =>
-                    dispatch({
-                      type: 'addSet',
-                      clientId: active,
-                      exerciseId: focus.id,
-                    })
-                  }
-                >
-                  <Icon name="plus" size={16} color="#8c9eff" />
-                  <Text style={[s.small, s.bold, s.accent]}>
-                    {t('workout.addSet')}
-                  </Text>
-                </Pressable>
-                {focus.sets > focus.plannedSets &&
-                  !values(focus)[focus.sets - 1] &&
-                  !journal.drafts[active]?.[focus.id]?.[focus.sets - 1] && (
-                    <Button
-                      compact
-                      variant="ghost"
-                      label={t('workout.removeSet')}
-                      onPress={() =>
-                        dispatch({
-                          type: 'removeSet',
-                          clientId: active,
-                          exerciseId: focus.id,
-                        })
-                      }
-                    />
-                  )}
-              </View>
             </View>
           )}
           {interactive && !focus && exercises.length > 0 && (
@@ -666,10 +725,12 @@ export function WorkoutScreen({
                 <Text style={s.listTitle}>{t('workout.exercises')}</Text>
                 <Text style={[s.small, s.bold, s.secondary]}>
                   {
-                    exercises.filter((exercise) => nextIndex(exercise) < 0)
-                      .length
+                    exercises.filter(
+                      (exercise) =>
+                        !exercise.skipped && nextIndex(exercise) < 0,
+                    ).length
                   }
-                  {`/${exercises.length}`}
+                  {`/${exercises.filter((exercise) => !exercise.skipped).length}`}
                 </Text>
               </View>
               <View style={s.listRows}>
@@ -703,6 +764,21 @@ export function WorkoutScreen({
                       </View>
                       <View style={s.grow}>
                         <Text style={s.bold}>{exercise.name}</Text>
+                        {(exercise.origin || exercise.skipped) && (
+                          <Text style={[s.small, s.secondary]}>
+                            {exercise.skipped
+                              ? t(
+                                  exercise.replacedBy
+                                    ? 'workout.replaced'
+                                    : 'workout.skipped',
+                                )
+                              : exercise.origin === 'replaced'
+                                ? t('workout.replaces', {
+                                    name: exercise.replaces ?? '',
+                                  })
+                                : t('workout.added')}
+                          </Text>
+                        )}
                         <Text style={[s.small, s.secondary]}>
                           {done.length
                             ? done
@@ -721,7 +797,7 @@ export function WorkoutScreen({
                 })}
               </View>
               <Pressable
-                {...disabledProps}
+                onPress={() => setExerciseSheet({ mode: 'add' })}
                 accessibilityRole="button"
                 accessibilityLabel={t('workout.addExercise')}
                 style={s.addExercise}
@@ -730,6 +806,13 @@ export function WorkoutScreen({
                 <Text>{t('workout.addExercise')}</Text>
               </Pressable>
             </View>
+          )}
+          {interactive && !exercises.length && (
+            <Button
+              variant="soft"
+              label={t('workout.addExercise')}
+              onPress={() => setExerciseSheet({ mode: 'add' })}
+            />
           )}
           {!interactive &&
             exercises.map((exercise) => {
@@ -771,6 +854,11 @@ export function WorkoutScreen({
               );
             })}
         </View>
+        <WorkoutNotes
+          journal={journal}
+          editable={interactive}
+          dispatch={dispatch}
+        />
         {!journal.finished && (
           <Text style={s.footnote}>{t('workout.footnote')}</Text>
         )}
@@ -778,6 +866,20 @@ export function WorkoutScreen({
       <View style={s.dock}>
         {!journal.finished && (
           <View style={s.feedback}>
+            {interactive &&
+              journal.undo?.clientId === active &&
+              !editor &&
+              !exerciseSheet &&
+              !journal.finishPending && (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('workout.undoLabel')}
+                  onPress={() => dispatch({ type: 'undo', clientId: active })}
+                  style={s.undo}
+                >
+                  <Text style={[s.small, s.accent]}>{t('workout.undo')}</Text>
+                </Pressable>
+              )}
             {saving && (
               <Text style={[s.small, s.secondary]}>{t('workout.saving')}</Text>
             )}
@@ -826,6 +928,20 @@ export function WorkoutScreen({
           </View>
         )}
       </View>
+      {interactive && exerciseSheet && (
+        <WorkoutExerciseSheet
+          selection={exerciseSheet}
+          exercises={exercises}
+          clientId={active}
+          dispatch={dispatch}
+          savedCount={
+            (
+              journal.values[active]?.[exerciseSheet.exerciseId ?? ''] ?? []
+            ).filter(Boolean).length
+          }
+          onClose={() => setExerciseSheet(null)}
+        />
+      )}
       <Sheet
         open={!!selectedExercise && !!editor}
         title={selectedExercise?.name ?? t('workout.title')}
@@ -846,16 +962,18 @@ export function WorkoutScreen({
               {t('workout.editorHint')}
             </Text>
             {fields(selectedExercise, editor.index, true)}
-            <Button
-              variant="soft"
-              label={`${t('workout.previous')} · ${formatSet(selectedExercise.prev, selectedExercise)}`}
-              onPress={() =>
-                updateDraft(selectedExercise, editor.index, {
-                  kg: String(selectedExercise.prev.kg),
-                  reps: String(selectedExercise.prev.reps),
-                })
-              }
-            />
+            {selectedExercise.prev.reps > 0 && (
+              <Button
+                variant="soft"
+                label={`${t('workout.previous')} · ${formatSet(selectedExercise.prev, selectedExercise)}`}
+                onPress={() =>
+                  updateDraft(selectedExercise, editor.index, {
+                    kg: String(selectedExercise.prev.kg),
+                    reps: String(selectedExercise.prev.reps),
+                  })
+                }
+              />
+            )}
             <Text
               accessibilityRole={error ? 'alert' : undefined}
               style={error ? s.error : s.secondary}

@@ -21,6 +21,8 @@ import { Text } from '@/ui/text';
 import { GradientBackground } from '@/ui/gradient-background';
 import { useTheme } from '@/ui/theme';
 import { useOptionalWorkoutDemo } from './provider';
+import { useWorkoutRuntime } from './runtime';
+import { runtimeExercise } from './runtime-state';
 
 export function WorkoutDock() {
   const demo = useOptionalWorkoutDemo();
@@ -48,6 +50,10 @@ export function WorkoutDock() {
           .map((session) => demo?.state.sessions[session.id])
           .find((entry) => entry && !entry.finished);
   const session = journal ? getWorkoutSession(journal.sessionId) : undefined;
+  const runtime = useWorkoutRuntime(
+    journal?.sessionId ?? '',
+    journal?.active ?? '',
+  );
   if (!demo?.hydrated || !journal || journal.finished || !session) return null;
   const progress = workoutProgress(journal);
   const clientName =
@@ -60,11 +66,7 @@ export function WorkoutDock() {
   const error = demo.storageStatus === 'error';
   const exercise =
     participating && !error && journal.sessionId === id
-      ? journal.plans[journal.active]?.exercises.find(
-          (entry) =>
-            (journal.values[journal.active]?.[entry.id] ?? []).filter(Boolean)
-              .length < entry.sets,
-        )
+      ? runtimeExercise(journal, runtime.focusedExerciseId)
       : undefined;
   const draftParticipants = Object.keys(journal.plans).filter(
     (clientId) => workoutProgress(journal, clientId).drafts > 0,
@@ -85,7 +87,7 @@ export function WorkoutDock() {
   const description = draftDetail
     ? t('workoutDemo.join', { first: detail, second: draftDetail })
     : detail;
-  const line =
+  const baseLine =
     error || !participating || !progress.total
       ? description
       : exercise
@@ -93,6 +95,22 @@ export function WorkoutDock() {
           ? t('workoutDemo.join', { first: exercise.name, second: draftDetail })
           : exercise.name
         : t('workoutDemo.join', { first: session.start, second: description });
+  const rest =
+    participating && !error && journal.sessionId === id ? runtime.rest : null;
+  const restLabel = rest
+    ? t(rest.done ? 'workoutDemo.restDone' : 'workoutDemo.rest') +
+      (rest.done ? '' : t('workoutDemo.restTime', { time: rest.label }))
+    : '';
+  const line = rest
+    ? exercise
+      ? t('workoutDemo.join', {
+          first: restLabel,
+          second: rest.done
+            ? exercise.name
+            : t('workoutDemo.nextExercise', { name: exercise.name }),
+        })
+      : restLabel
+    : baseLine;
   return (
     <Pressable
       testID="workout-dock"

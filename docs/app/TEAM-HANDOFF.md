@@ -6,6 +6,18 @@
 
 ## Текущая волна
 
+Продолжение журнала: три свежих контекста — journal_actions (`domain/workout`,
+domain tests), journal_controls (`features/workout`, screen tests), client_results
+(History/Progress и их tests). Root — runtime/provider/dock, интеграция, capture,
+docs. После реализации client_results получил только provider-to-client тест,
+journal_actions — read-only review runtime. Глобальные файлы и коммиты у root.
+
+Все три задачи завершены и интегрированы. Root исправил найденные review
+ошибки выбора заменённого упражнения и пересечения rest preference между x1
+разных журналов; добавил нативный plural fix. 227 тестов / 32 suites и экспорт
+трёх платформ проходят. Следующая волна — создание/переносы и карточка клиента,
+с новыми контекстами; voice/production-sync не объявлены готовыми.
+
 30.09 — новая волна журнала со свежими контекстами: workout_domain владеет
 `domain/workout` и domain-тестами; workout_ui — `features/workout` и UI-тестами;
 workout_entrypoints — Today/Schedule и тестами переходов. Координатор — provider,

@@ -42,6 +42,18 @@ export const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   page: { paddingHorizontal: 16 },
+  resultCard: { padding: 18 },
+  resultTitle: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 22.5,
+    lineHeight: 32.625,
+  },
+  best: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 20,
+    lineHeight: 29,
+    marginVertical: 10,
+  },
   empty: {
     paddingTop: 8,
     paddingHorizontal: 12,

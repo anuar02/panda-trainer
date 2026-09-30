@@ -1,3 +1,5 @@
+import '@formatjs/intl-pluralrules/polyfill-force.js';
+import '@formatjs/intl-pluralrules/locale-data/ru.js';
 import { createInstance } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { ru } from './ru';

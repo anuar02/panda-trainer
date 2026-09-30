@@ -3,6 +3,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
+import { workoutClientProgress } from '@/domain/workout';
+import { useOptionalWorkoutDemo } from '@/features/workout-demo';
 import { Card } from '@/ui/card';
 import { GradientBackground } from '@/ui/gradient-background';
 import { Icon } from '@/ui/icons';
@@ -19,7 +21,14 @@ export function ClientProgressScreen({
 }: {
   scenario?: DemoScenario;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const demo = useOptionalWorkoutDemo();
+  const results =
+    scenario !== 'empty' && demo?.hydrated
+      ? workoutClientProgress(demo.state, 'c1')
+      : [];
+  const number = (value: number) =>
+    new Intl.NumberFormat(i18n.language).format(value);
   const { colors, scheme } = useTheme();
   const tx = (key: Exclude<keyof typeof clientProgress, 'weekdays'>) =>
     t(`clientProgress.${key}`);
@@ -61,7 +70,7 @@ export function ClientProgressScreen({
         </Pressable>
       </View>
       <ScrollView contentContainerStyle={s.body}>
-        {scenario === 'loading' ? (
+        {scenario === 'loading' || (demo && !demo.hydrated) ? (
           <View
             style={s.page}
             accessible
@@ -122,75 +131,118 @@ export function ClientProgressScreen({
               {tx('title')}
             </Text>
             <View style={s.page}>
-              <View style={s.empty}>
-                <View style={s.mascot}>
-                  <Svg
-                    width={170}
-                    height={182}
-                    style={s.glow}
-                    accessible={false}
-                  >
-                    <Defs>
-                      <RadialGradient
-                        id="progressGlow"
-                        gradientUnits="userSpaceOnUse"
+              {results.length ? (
+                <>
+                  <Text style={[s.footnote, secondary]}>
+                    {tx('bestExplanation')}
+                  </Text>
+                  {results.map((result) => (
+                    <Card
+                      flush
+                      key={`${result.name}:${result.unit}`}
+                      style={s.resultCard}
+                    >
+                      <Text accessibilityRole="header" style={s.resultTitle}>
+                        {result.name}
+                      </Text>
+                      <Text style={s.best}>
+                        {t(
+                          `clientProgress.${result.best.kg ? 'weightedBest' : 'unweightedBest'}`,
+                          {
+                            weight: number(result.best.kg),
+                            reps: result.best.reps,
+                            unit: result.unit,
+                          },
+                        )}
+                      </Text>
+                      <Text>
+                        {result.delta === null
+                          ? tx('insufficient')
+                          : t('clientProgress.delta', {
+                              value: `${result.delta > 0 ? '+' : ''}${number(result.delta)}`,
+                              unit: result.deltaUnit,
+                            })}
+                      </Text>
+                    </Card>
+                  ))}
+                </>
+              ) : (
+                <View style={s.empty}>
+                  <View style={s.mascot}>
+                    <Svg
+                      width={170}
+                      height={182}
+                      style={s.glow}
+                      accessible={false}
+                    >
+                      <Defs>
+                        <RadialGradient
+                          id="progressGlow"
+                          gradientUnits="userSpaceOnUse"
+                          cx={85}
+                          cy={88.128}
+                          r={73.508}
+                        >
+                          <Stop
+                            offset="0"
+                            stopColor="#ffb23d"
+                            stopOpacity={0.2975}
+                          />
+                          <Stop
+                            offset="0.45"
+                            stopColor="#ff7a1f"
+                            stopOpacity={0.102}
+                          />
+                          <Stop
+                            offset="0.7"
+                            stopColor="#ff7a1f"
+                            stopOpacity={0}
+                          />
+                        </RadialGradient>
+                        <RadialGradient
+                          id="progressShadow"
+                          gradientUnits="objectBoundingBox"
+                          cx="50%"
+                          cy="50%"
+                          r="50%"
+                        >
+                          <Stop
+                            offset="0"
+                            stopColor="#5a280a"
+                            stopOpacity={0.28}
+                          />
+                          <Stop
+                            offset="1"
+                            stopColor="#5a280a"
+                            stopOpacity={0}
+                          />
+                        </RadialGradient>
+                      </Defs>
+                      <Ellipse
                         cx={85}
                         cy={88.128}
-                        r={73.508}
-                      >
-                        <Stop
-                          offset="0"
-                          stopColor="#ffb23d"
-                          stopOpacity={0.2975}
-                        />
-                        <Stop
-                          offset="0.45"
-                          stopColor="#ff7a1f"
-                          stopOpacity={0.102}
-                        />
-                        <Stop
-                          offset="0.7"
-                          stopColor="#ff7a1f"
-                          stopOpacity={0}
-                        />
-                      </RadialGradient>
-                      <RadialGradient
-                        id="progressShadow"
-                        gradientUnits="objectBoundingBox"
-                        cx="50%"
-                        cy="50%"
-                        r="50%"
-                      >
-                        <Stop
-                          offset="0"
-                          stopColor="#5a280a"
-                          stopOpacity={0.28}
-                        />
-                        <Stop offset="1" stopColor="#5a280a" stopOpacity={0} />
-                      </RadialGradient>
-                    </Defs>
-                    <Ellipse
-                      cx={85}
-                      cy={88.128}
-                      rx={78.2}
-                      ry={78.2}
-                      fill="url(#progressGlow)"
-                    />
-                    <Ellipse
-                      cx={85}
-                      cy={167}
-                      rx={49.3}
-                      ry={6}
-                      fill="url(#progressShadow)"
-                    />
-                  </Svg>
-                  <Mascot pose="front" size={170} style={s.mascotImage} />
+                        rx={78.2}
+                        ry={78.2}
+                        fill="url(#progressGlow)"
+                      />
+                      <Ellipse
+                        cx={85}
+                        cy={167}
+                        rx={49.3}
+                        ry={6}
+                        fill="url(#progressShadow)"
+                      />
+                    </Svg>
+                    <Mascot pose="front" size={170} style={s.mascotImage} />
+                  </View>
+                  <Text accessibilityRole="header" style={s.emptyTitle}>
+                    {tx('emptyTitle')}
+                  </Text>
+                  <Text style={[s.emptyText, secondary]}>
+                    {tx('emptyText')}
+                  </Text>
                 </View>
-                <Text accessibilityRole="header" style={s.emptyTitle}>
-                  {tx('emptyTitle')}
-                </Text>
-                <Text style={[s.emptyText, secondary]}>{tx('emptyText')}</Text>
-              </View>
+              )}
             </View>
             <View style={s.visits}>
               <Text accessibilityRole="header" style={s.sectionTitle}>

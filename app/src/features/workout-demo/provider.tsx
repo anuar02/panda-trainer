@@ -16,6 +16,7 @@ import {
   type WorkoutAction,
   type WorkoutState,
 } from '@/domain/workout';
+import { WorkoutRuntimeContext, useRuntimeController } from './runtime';
 
 export const workoutStorageKey = 'panda-trainer.demo-workouts.v1';
 type Storage = Pick<typeof AsyncStorage, 'getItem' | 'setItem'>;
@@ -44,6 +45,7 @@ export function WorkoutDemoProvider({
   const loadTicket = useRef(0);
   const revision = useRef(0);
   const writes = useRef(Promise.resolve());
+  const { value: runtime, afterAction } = useRuntimeController();
 
   const load = useCallback(() => {
     const ticket = ++loadTicket.current;
@@ -104,12 +106,13 @@ export function WorkoutDemoProvider({
       if (!ready.current) return false;
       const next = workoutReducer(current.current, action);
       if (next === current.current) return false;
+      afterAction(current.current, next, action);
       current.current = next;
       setState(next);
       persist(next);
       return true;
     },
-    [persist],
+    [persist, afterAction],
   );
 
   const retrySave = useCallback(() => {
@@ -135,7 +138,11 @@ export function WorkoutDemoProvider({
   );
 
   return (
-    <WorkoutContext.Provider value={value}>{children}</WorkoutContext.Provider>
+    <WorkoutContext.Provider value={value}>
+      <WorkoutRuntimeContext.Provider value={runtime}>
+        {children}
+      </WorkoutRuntimeContext.Provider>
+    </WorkoutContext.Provider>
   );
 }
 

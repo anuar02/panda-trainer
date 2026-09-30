@@ -2,6 +2,8 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
+import { workoutClientHistory, workoutSessions } from '@/domain/workout';
+import { useOptionalWorkoutDemo } from '@/features/workout-demo';
 import { Card } from '@/ui/card';
 import { GradientBackground } from '@/ui/gradient-background';
 import { Icon } from '@/ui/icons';
@@ -17,7 +19,16 @@ export function ClientHistoryScreen({
 }: {
   scenario?: DemoScenario;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const demo = useOptionalWorkoutDemo();
+  const journals = demo?.hydrated ? workoutClientHistory(demo.state, 'c1') : [];
+  const sessions = workoutSessions
+    .filter(
+      (session) =>
+        session.id === 's4' ||
+        journals.some((journal) => journal.sessionId === session.id),
+    )
+    .sort((a, b) => (b.date + b.start).localeCompare(a.date + a.start));
   const { colors, scheme } = useTheme();
   const tx = (key: keyof typeof clientHistory) => t(`clientHistory.${key}`);
   const hair = scheme === 'light' ? '#efefeb' : '#212227';
@@ -80,7 +91,7 @@ export function ClientHistoryScreen({
         </Pressable>
       </View>
       <ScrollView contentContainerStyle={s.body}>
-        {scenario === 'loading' ? (
+        {scenario === 'loading' || (demo && !demo.hydrated) ? (
           <View
             style={s.page}
             accessible
@@ -144,28 +155,79 @@ export function ClientHistoryScreen({
                 quietEmpty('Sessions')
               ) : (
                 <Card flush>
-                  <View style={s.entry}>
+                  {sessions.map((session, index) => (
                     <View
-                      style={[s.date, { borderRightColor: colors.border }]}
-                      accessible
-                      accessibilityLabel={tx('sessionDate')}
+                      key={session.id}
+                      style={[
+                        s.entry,
+                        index > 0 && {
+                          borderTopWidth: 1,
+                          borderTopColor: hair,
+                        },
+                      ]}
                     >
-                      <Text style={s.day}>{tx('day')}</Text>
-                      <Text className="text-secondary" style={s.month}>
-                        {tx('month')}
-                      </Text>
-                      <Text className="text-secondary" style={s.time}>
-                        {tx('time')}
-                      </Text>
+                      <View
+                        style={[s.date, { borderRightColor: colors.border }]}
+                        accessible
+                        accessibilityLabel={
+                          session.id === 's4'
+                            ? tx('sessionDate')
+                            : `${new Intl.DateTimeFormat(i18n.language, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${session.date}T12:00:00Z`))} · ${session.start}`
+                        }
+                      >
+                        <Text style={s.day}>{session.date.slice(8)}</Text>
+                        <Text className="text-secondary" style={s.month}>
+                          {tx('month')}
+                        </Text>
+                        <Text className="text-secondary" style={s.time}>
+                          {session.start}
+                        </Text>
+                      </View>
+                      <View style={s.record}>
+                        <Text style={s.program}>
+                          {session.program ?? tx('noProgram')}
+                        </Text>
+                        <Text className="text-secondary" style={s.sessionKind}>
+                          {tx(session.kind === 'group' ? 'group' : 'personal')}
+                        </Text>
+                        <StatusPill
+                          label={tx(
+                            journals.some(
+                              (journal) => journal.sessionId === session.id,
+                            )
+                              ? 'finished'
+                              : 'unmarked',
+                          )}
+                        />
+                        {journals
+                          .filter((journal) => journal.sessionId === session.id)
+                          .map((journal) => (
+                            <View key={journal.sessionId}>
+                              {!!journal.changes && (
+                                <Text
+                                  className="text-secondary"
+                                  style={s.sessionKind}
+                                >
+                                  {journal.changes}
+                                </Text>
+                              )}
+                              {journal.notes.map((note, index) => (
+                                <Text
+                                  key={`${note.at}-${index}`}
+                                  className="text-secondary"
+                                  style={s.sharedNote}
+                                >
+                                  <Text className="font-bold">
+                                    {tx('noteTrainer')}
+                                  </Text>{' '}
+                                  {note.text}
+                                </Text>
+                              ))}
+                            </View>
+                          ))}
+                      </View>
                     </View>
-                    <View style={s.record}>
-                      <Text style={s.program}>{tx('program')}</Text>
-                      <Text className="text-secondary" style={s.sessionKind}>
-                        {tx('personal')}
-                      </Text>
-                      <StatusPill label={tx('unmarked')} />
-                    </View>
-                  </View>
+                  ))}
                 </Card>
               )}
               <View style={s.nextSection}>

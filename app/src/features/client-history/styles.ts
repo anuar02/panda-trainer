@@ -80,6 +80,7 @@ export const styles = StyleSheet.create({
   record: { flex: 1, minWidth: 0 },
   program: { fontFamily: 'Inter_700Bold', fontSize: 15, lineHeight: 21.75 },
   sessionKind: { fontSize: 14, lineHeight: 21, marginTop: 6, marginBottom: 10 },
+  sharedNote: { fontSize: 14, lineHeight: 21, marginTop: 10, marginBottom: 10 },
   rowsCard: { padding: 6 },
   row: {
     paddingVertical: 14,
