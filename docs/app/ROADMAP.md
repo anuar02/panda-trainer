@@ -9,6 +9,10 @@
 
 ## Где остановились
 
+- 01.10.2026 — владелец подтвердил e-mail OTP + Apple + Google (SOM-60).
+  Следующий пакет — вход и сессия SOM-19. Домен приглашений остаётся pending;
+  production invite links не конфигурируются. [ADR 0004](decisions/0004-auth.md).
+
 - 01.10.2026 — SOM-27: confirm/cancel отдельного booking, actor-scoped receipts,
   revision и защита завершённого журнала. 258 pgTAP и реальные concurrent
   confirm/cancel/retry проходят. Переносы/вся группа/штрафы и transport открыты.
