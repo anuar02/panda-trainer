@@ -53,8 +53,15 @@ node app/review/invitations/verify.cjs \
 Локальная iOS development build 01.10 заблокирована Xcode 26.2 (17C52):
 [Expo SDK 57 требует 26.4+](https://docs.expo.dev/versions/latest/). CoreSimulator
 доступен при нужных разрешениях; ошибка sandbox не считается поломкой сервиса.
-iOS сборка не запускалась. Headless Android debug build запущена отдельно;
-результат ещё не объявляется проверенным.
+iOS сборка не запускалась. Android arm64 debug APK собран: `assembleDebug
+--max-workers=2 -PreactNativeArchitectures=arm64-v8a`, 562 Gradle tasks,
+`BUILD SUCCESSFUL`; подпись APK проверена, Quick Crypto присутствует в binary.
+Лог локально: `/tmp/trainerapp-android-assembleDebug-arm64.log`.
+
+Headless runtime попытка остановилась до загрузки JS: packager status через
+ADB reverse вернул HTTP 403 (`Unable to load script`). Auth/deep links на native
+не проверены. Read-only эмулятор остановлен после сообщения владельца о RAM;
+тестовых аккаунтов/писем эта попытка не создала.
 
 Production-домен, provider credentials и native cold/warm deep links, реальный
 Share/clipboard на телефонах, две физические сессии и owner acceptance остаются

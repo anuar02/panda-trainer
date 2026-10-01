@@ -19,7 +19,9 @@ Layout email screen 390×844 показан в текущей Codex-сессии
 - Реальный Supabase SDK с тестовым WebCrypto: challenge S256 совпадает с SHA-256
   сохранённого verifier. Отдельный тест запрещает открывать OAuth с plain challenge.
 - `npm run export`: iOS, Android и static web после добавления native WebCrypto.
-  Это проверка бандлов, не native binary или живого provider flow.
+  Это проверка бандлов, не живого provider flow. Позже Android arm64 debug APK
+  собран успешно, но runtime остановился до JS из-за packager HTTP 403;
+  [подробности](../invitations/README.md#открыто).
 - Изолированный стек trainerApp-som18, API 55321, DB 55322, Mailpit 55324.
 - auth_email_smoke.py: письмо example.test захвачено локально, неверный код и
   повтор использованного кода отклонены, session refresh и local logout работают.
