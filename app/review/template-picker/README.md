@@ -9,6 +9,19 @@ Other Sheet consumers retain their previous dynamic layout.
 
 ## Verification
 
+Maximum-text continuation: at `accessibility-extra-extra-extra-large`, the fixed
+header pushed search/results/Done offscreen ([before](native/ios-picker-max-before.png)).
+For fontScale > 1.5 or window height < 600, header now scrolls with results and
+Done remains fixed. Native focus scrolls search into view; filtered Планка,
+selected state and Done are visible ([after](native/ios-picker-max-after.png)).
+Done closes the picker and preserves the draft. Restored original `large` size.
+Gesture automation failed with `noWindowsAvailable`, so full swipe acceptance
+is not claimed. [ADR 0024](../../../docs/app/decisions/0024-picker-overflow.md).
+Validation: `npm run check` passes 342 tests / 46 suites, TypeScript, lint and
+formatting. `npm run export` passes all three platforms, 50 routes. The two new
+dimension-transition tests verify large text and short windows, fixed Done,
+and restoration of the normal header layout. Graft rebuilt successfully.
+
 All commands use Node 22.18.0 (the login shell otherwise selects Node 14).
 
 - Latest continuation: `npm run check` passes 340 tests / 46 suites, TypeScript,

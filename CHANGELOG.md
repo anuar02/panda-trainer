@@ -11,6 +11,10 @@
 
 ### Исправлено
 
+- SOM-50: при крупном тексте или коротком окне header picker прокручивается
+  со списком, сохраняя Done видимой. Обычный layout эталона не меняется.
+  [ADR 0024](docs/app/decisions/0024-picker-overflow.md).
+
 - SOM-50: общий Text пересоздаёт native-узел при смене системного fontScale,
   устраняя обрезание текста при живом переключении Dynamic Type на iOS.
   [ADR 0023](docs/app/decisions/0023-live-font-scale.md).

@@ -5,7 +5,7 @@ import {
   screen,
   within,
 } from '@testing-library/react-native';
-import { BackHandler, Text } from 'react-native';
+import { BackHandler, Dimensions, Text } from 'react-native';
 import type { PropsWithChildren, Ref } from 'react';
 import '../src/lib/i18n';
 import { Sheet } from '../src/ui/sheet';
@@ -21,6 +21,16 @@ const mockNavigation = {
     return jest.fn();
   }),
 };
+const originalWindow = Dimensions.get('window');
+const originalScreen = Dimensions.get('screen');
+const normalWindow = { ...originalWindow, height: 800, fontScale: 1 };
+const normalScreen = { ...originalScreen, height: 800, fontScale: 1 };
+function setDimensions(patch: { height?: number; fontScale?: number }) {
+  Dimensions.set({
+    window: { ...normalWindow, ...patch },
+    screen: { ...normalScreen, ...patch },
+  });
+}
 jest.mock('expo-router', () => ({ useNavigation: () => mockNavigation }));
 jest.mock('@gorhom/bottom-sheet', () => {
   const React = jest.requireActual<typeof import('react')>('react');
@@ -61,6 +71,7 @@ jest.mock('react-native-safe-area-context', () => ({
 beforeEach(() => {
   jest.clearAllMocks();
   mockFocused = true;
+  setDimensions({});
 });
 test('does not dismiss a modal before its first presentation', async () => {
   const onClose = jest.fn();
@@ -188,3 +199,51 @@ test('fixed content stays outside the scroll area and omits the generic close ac
   expect(screen.getByText('Done')).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Закрыть' })).toBeNull();
 });
+
+test.each([
+  ['large font scale', { fontScale: 1.6 }],
+  ['short window', { height: 500 }],
+])(
+  'scrolls the fixed header with results for %s and restores it afterward',
+  async (_, compact) => {
+    await render(
+      <Sheet
+        open
+        title="Добавить упражнения"
+        onClose={jest.fn()}
+        fixedContent={{
+          header: (
+            <>
+              <Text testID="picker-hint">Hint</Text>
+              <Text testID="picker-search">Search</Text>
+            </>
+          ),
+          footer: <Text testID="picker-done">Done</Text>,
+        }}
+      >
+        <Text testID="picker-results">Results</Text>
+      </Sheet>,
+    );
+    const scroll = screen.getByTestId('sheet-scroll-view');
+    expect(within(scroll).queryByTestId('picker-hint')).toBeNull();
+    expect(within(scroll).queryByTestId('picker-search')).toBeNull();
+    expect(within(scroll).getByTestId('picker-results')).toBeTruthy();
+    expect(screen.getByTestId('picker-done')).toBeTruthy();
+
+    await act(async () => setDimensions(compact));
+    expect(within(scroll).getByText('Добавить упражнения')).toBeTruthy();
+    expect(within(scroll).getByTestId('picker-hint')).toBeTruthy();
+    expect(within(scroll).getByTestId('picker-search')).toBeTruthy();
+    expect(within(scroll).getByTestId('picker-results')).toBeTruthy();
+    expect(within(scroll).queryByTestId('picker-done')).toBeNull();
+    expect(screen.getByTestId('picker-done')).toBeTruthy();
+
+    await act(async () => setDimensions({}));
+    expect(within(scroll).queryByText('Добавить упражнения')).toBeNull();
+    expect(within(scroll).queryByTestId('picker-hint')).toBeNull();
+    expect(within(scroll).queryByTestId('picker-search')).toBeNull();
+    expect(within(scroll).getByTestId('picker-results')).toBeTruthy();
+    expect(screen.getByText('Добавить упражнения')).toBeTruthy();
+    expect(screen.getByTestId('picker-done')).toBeTruthy();
+  },
+);

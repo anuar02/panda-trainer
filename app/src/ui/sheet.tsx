@@ -42,7 +42,8 @@ export function Sheet({
   const { colors } = useTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
+  const { height, fontScale } = useWindowDimensions();
+  const scrollHeader = fontScale > 1.5 || height < 600;
   useEffect(() => {
     if (open && navigation.isFocused()) {
       presented.current = true;
@@ -114,6 +115,22 @@ export function Sheet({
     ),
     [fixed, colors.border, colors.secondary, t],
   );
+  const header = fixedContent ? (
+    <View>
+      <Text
+        accessibilityRole="header"
+        style={{
+          fontFamily: 'Montserrat_800ExtraBold',
+          fontSize: 23,
+          lineHeight: 33.35,
+          letterSpacing: -0.3,
+        }}
+      >
+        {title}
+      </Text>
+      {fixedContent.header}
+    </View>
+  ) : null;
   return (
     <BottomSheetModal
       ref={ref}
@@ -142,29 +159,18 @@ export function Sheet({
             paddingBottom: Math.max(insets.bottom, 28),
           }}
         >
-          <View>
-            <Text
-              accessibilityRole="header"
-              style={{
-                fontFamily: 'Montserrat_800ExtraBold',
-                fontSize: 23,
-                lineHeight: 33.35,
-                letterSpacing: -0.3,
-              }}
-            >
-              {title}
-            </Text>
-            {fixedContent.header}
-          </View>
+          {!scrollHeader && header}
           <BottomSheetScrollView
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingTop: 12 }}
           >
+            {scrollHeader && header}
             {children}
           </BottomSheetScrollView>
           <View
             style={{
+              flexShrink: 0,
               borderTopWidth: 1,
               borderTopColor: colors.border,
               paddingTop: 12,
