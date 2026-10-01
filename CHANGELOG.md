@@ -11,6 +11,11 @@
 
 ### Добавлено
 
+- SOM-19: email-код, Apple/Google browser OAuth с PKCE, восстановление и выход
+  из сессии; native SecureStore и web sessionStorage. Демо отделено от аккаунта.
+  Layout входа одобрен владельцем; живые provider flows и native-приёмка открыты.
+  [ADR 0032](docs/app/decisions/0032-auth-runtime-and-login.md).
+
 - SOM-27: серверное подтверждение записи клиентом и отмена клиентом/тренером;
   revision и приватные receipts защищают от повторов и устаревшей записи.
   Отмена участника сохраняет остальных; завершённый журнал защищён от смены статуса.

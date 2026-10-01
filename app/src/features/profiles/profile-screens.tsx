@@ -132,7 +132,7 @@ function RoleSwitch() {
       <Button
         label={t('common.backToRoles')}
         variant="ghost"
-        onPress={() => router.replace('/')}
+        onPress={() => router.replace('/demo')}
       />
     </View>
   );

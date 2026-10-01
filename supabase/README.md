@@ -3,6 +3,13 @@
 CLI закреплён в `app/package.json`; конфигурация создана `supabase init`.
 Облачный проект не требуется. PostgreSQL 17, только вымышленные данные.
 
+Email Auth использует шестизначный код из `templates/email-code.html`;
+локальные письма перехватывает Mailpit. После запуска полного локального стека
+из корня можно выполнить `python3 supabase/tests/auth_email_smoke.py --workdir .
+--container supabase_db_trainerApp`: создаётся и удаляется только синтетический
+пользователь `example.test`. Тест проверяет неправильный/повторный код, refresh
+и local logout. Provider credentials и production SMTP не настроены.
+
 Из `app/` после `npm ci`, с запущенным Docker:
 
 ```sh

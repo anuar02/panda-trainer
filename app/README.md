@@ -1,8 +1,9 @@
 # Приложение
 
-Каркас этапа 1: Expo SDK 57, TypeScript strict, Expo Router, NativeWind 4.
-Это навигация и пустые состояния; вход, данные и серверные запросы появятся на этапе 2.
-Выбор роли пока меняет только навигацию и не даёт никаких прав в базе.
+Expo SDK 57, TypeScript strict, Expo Router, NativeWind 4 и Supabase Auth.
+Начальный маршрут открывает вход; `/auth/account` требует действующей сессии.
+Бизнес-экраны пока используют вымышленные данные через отдельный `/demo`.
+Выбор роли в демо меняет только навигацию и не даёт никаких прав в базе.
 
 ## Запуск
 
@@ -20,6 +21,9 @@ npm run android
 `npm run export` проверяет бандлы iOS/Android и статический web-export.
 Для локальной iOS-сборки SDK 57 нужен Xcode 26.4+; Android требует установленного SDK.
 Не использовать EAS и платные сервисы без согласования.
+
+Native Auth использует Quick Crypto: нужен локальный development build
+(`npx expo run:ios` / `npx expo run:android`), Expo Go не поддерживается.
 
 ## Устройство
 
@@ -39,10 +43,18 @@ npm run android
 
 ## Окружение
 
-Каркас открывается без `.env`. На этапе 2 скопировать `.env.example` в `.env.local`:
+Без `.env` доступно демо, а вход сообщает об отсутствии конфигурации.
+Для локального входа скопировать `.env.example` в `.env.local`:
 только URL и публичный anon key локального Supabase. Никаких service role / secret keys.
 Для iOS-симулятора подходит `127.0.0.1`, Android-эмулятора — `10.0.2.2`, телефона —
 LAN-адрес компьютера. Не коммитить `.env.local`.
+
+Код письма доступен в локальном Mailpit. Apple/Google требуют настройки provider
+credentials и redirect allowlist в Supabase; native callback —
+`panda-trainer://auth/callback`, web — `/auth/callback` на origin приложения.
+Production-домен приглашений пока не выбран. Контракт и проверенные сценарии:
+[ADR 0032](../docs/app/decisions/0032-auth-runtime-and-login.md),
+[auth review](review/auth/README.md).
 
 Команды локальной базы: [../supabase/README.md](../supabase/README.md).
 Решения и ограничения: [ADR 0006](../docs/app/decisions/0006-app-foundation.md).

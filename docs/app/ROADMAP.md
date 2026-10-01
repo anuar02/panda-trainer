@@ -9,6 +9,12 @@
 
 ## Где остановились
 
+- 01.10.2026 — SOM-19: email OTP, provider PKCE, хранение/восстановление сессии,
+  выход и смена аккаунта. Локальный Auth/Mailpit и браузерный сценарий проходят;
+  владелец одобрил layout входа. Apple/Google credentials, native-приёмка и два
+  телефона остаются открытыми. Далее — onboarding SOM-20.
+  [ADR 0032](decisions/0032-auth-runtime-and-login.md).
+
 - 01.10.2026 — владелец подтвердил e-mail OTP + Apple + Google (SOM-60).
   Следующий пакет — вход и сессия SOM-19. Домен приглашений остаётся pending;
   production invite links не конфигурируются. [ADR 0004](decisions/0004-auth.md).
@@ -314,6 +320,7 @@
 
 - [ ] Способ входа — по [ADR 0004](decisions/0004-auth.md): OTP-код на e-mail
   (Supabase Auth), Sign in with Apple и Google. Вход по телефону — после пилота.
+  Реализация SOM-19 и локальный email flow готовы; живые provider/native проверки открыты.
 - [x] Таблицы `profiles`, `trainer_workspaces`, `client_records`, `invitations`
   ([DATA-MODEL](DATA-MODEL.md)).
 - [x] RLS на всех таблицах, вспомогательные функции `is_workspace_owner`, `my_client_record_ids`.
@@ -328,6 +335,7 @@
 - [ ] Приглашение: непредсказуемый токен (хранится хэш), срок действия, одноразовое
   принятие через RPC `accept_invitation`; ссылка открывает приложение (deep link).
 - [ ] Выход, смена аккаунта, обработка истёкшей сессии.
+  Реализованы и проверены локально; приёмка на телефонах открыта.
 
 **Готово, когда:** два тестовых тренера и их клиенты на разных телефонах видят только
 свои данные; все тесты прав зелёные.

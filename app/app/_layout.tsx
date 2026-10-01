@@ -32,6 +32,7 @@ import {
   useSchedulingDemo,
 } from '@/features/scheduling-demo/provider';
 import { WorkoutDemoProvider } from '@/features/workout-demo';
+import { AuthProvider } from '@/features/auth/provider';
 void SplashScreen.preventAutoHideAsync();
 function Navigation() {
   const { scheme, colors } = useTheme();
@@ -100,11 +101,13 @@ export default function RootLayout() {
                   <Text accessibilityRole="alert">{t('common.fontError')}</Text>
                 </SafeAreaView>
               ) : (
-                <TemplateProvider>
-                  <SchedulingDemoProvider waitForWorkout>
-                    <ConnectedNavigation />
-                  </SchedulingDemoProvider>
-                </TemplateProvider>
+                <AuthProvider>
+                  <TemplateProvider>
+                    <SchedulingDemoProvider waitForWorkout>
+                      <ConnectedNavigation />
+                    </SchedulingDemoProvider>
+                  </TemplateProvider>
+                </AuthProvider>
               )}
             </ToastProvider>
           </BottomSheetModalProvider>
