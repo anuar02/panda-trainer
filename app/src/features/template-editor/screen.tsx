@@ -10,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/ui/button';
@@ -23,6 +24,8 @@ import { matches, media } from '@/features/trainer-library/fixtures';
 import { styles as libraryStyles } from '@/features/trainer-library/styles';
 import type { TemplateError } from '@/domain/templates';
 import { useTemplates } from './provider';
+const PickerTextInput =
+  Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
 export function TemplateEditorScreen({
   onLeave,
   onSaved,
@@ -443,16 +446,45 @@ export function TemplateEditorScreen({
         open={sheet === 'picker'}
         title={t('templateEditor.add')}
         onClose={() => setSheet(null)}
+        fixedContent={{
+          header: (
+            <>
+              <Text style={[s.pickerHint, secondary]}>
+                {t('templateEditor.pickerHint')}
+              </Text>
+              <View
+                style={[
+                  s.pickerSearch,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: scheme === 'dark' ? '#3a3b42' : '#c9cad0',
+                  },
+                ]}
+              >
+                <Icon name="search" size={20} color={colors.secondary} />
+                <PickerTextInput
+                  style={[s.pickerInput, { color: colors.ink }]}
+                  value={query}
+                  onChangeText={setQuery}
+                  accessibilityLabel={t('templateEditor.search')}
+                  placeholder={t('templateEditor.searchPlaceholder')}
+                  placeholderTextColor={colors.secondary}
+                />
+              </View>
+            </>
+          ),
+          footer: (
+            <Button
+              label={t('templateEditor.done', {
+                count: t('trainerLibrary.exercises', {
+                  count: draft.exercises.length,
+                }),
+              })}
+              onPress={() => setSheet(null)}
+            />
+          ),
+        }}
       >
-        <Text style={secondary}>{t('templateEditor.pickerHint')}</Text>
-        <TextInput
-          style={input}
-          value={query}
-          onChangeText={setQuery}
-          accessibilityLabel={t('templateEditor.search')}
-          placeholder={t('templateEditor.searchPlaceholder')}
-          placeholderTextColor={colors.secondary}
-        />
         {!filtered.length && (
           <View style={s.empty}>
             <Text>{t('templateEditor.noResults')}</Text>
@@ -468,7 +500,10 @@ export function TemplateEditorScreen({
               accessibilityLabel={e.name}
               accessibilityState={{ selected }}
               disabled={store.busy}
-              style={[s.pickerRow, { borderColor: colors.border }]}
+              style={[
+                s.pickerRow,
+                { borderColor: scheme === 'dark' ? '#212227' : '#efefeb' },
+              ]}
               onPress={() => {
                 if (!selected && draft.exercises.length >= 50) {
                   toast(t('templateEditor.errors.limit'));
@@ -502,24 +537,32 @@ export function TemplateEditorScreen({
               </View>
               <View style={s.grow}>
                 <Text style={s.exerciseTitle}>{e.name}</Text>
-                <Text style={[s.small, secondary]}>{e.group}</Text>
+                <Text style={[s.small, secondary, { marginTop: 4 }]}>
+                  {t('trainerLibrary.groupEquipment', e)}
+                </Text>
               </View>
-              <Icon
-                name={selected ? 'check' : 'plus'}
-                size={18}
-                color={selected ? colors.accent : colors.secondary}
-              />
+              <View
+                style={[
+                  s.pickerCheck,
+                  {
+                    backgroundColor: selected ? colors.accent : 'transparent',
+                    borderColor: selected
+                      ? colors.accent
+                      : scheme === 'dark'
+                        ? '#3a3b42'
+                        : '#c9cad0',
+                  },
+                ]}
+              >
+                <Icon
+                  name={selected ? 'check' : 'plus'}
+                  size={18}
+                  color={selected ? '#ffffff' : colors.secondary}
+                />
+              </View>
             </Pressable>
           );
         })}
-        <Button
-          label={t('templateEditor.done', {
-            count: t('trainerLibrary.exercises', {
-              count: draft.exercises.length,
-            }),
-          })}
-          onPress={() => setSheet(null)}
-        />
       </Sheet>
     </SafeAreaView>
   );
@@ -620,6 +663,29 @@ const s = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15.95,
   },
+  pickerHint: {
+    fontSize: 15,
+    lineHeight: 22.5,
+    fontFamily: 'Inter_500Medium',
+    marginTop: 8,
+  },
+  pickerSearch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    marginTop: 16,
+  },
+  pickerInput: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 48,
+    paddingVertical: 12,
+    fontSize: 13,
+    fontFamily: 'Inter_400Regular',
+  },
   pickerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -628,10 +694,18 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     paddingVertical: 8,
   },
+  pickerCheck: {
+    width: 28,
+    height: 28,
+    borderWidth: 1,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   thumb: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,0 +1,164 @@
+{
+  "viewport": "390x844@2x",
+  "systemTheme": "light",
+  "accepted": false,
+  "errors": [],
+  "captures": [
+    {
+      "screen": "t-template-editor",
+      "route": "template-editor",
+      "theme": "auto",
+      "scenario": "normal",
+      "reference": "reference/t-template-editor__normal__auto-dark.png",
+      "app": "app/t-template-editor__normal__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Соберите свой план"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Соберите свой план",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "31.05px",
+          "color": "rgb(242, 242, 243)",
+          "x": 20,
+          "y": 96.5,
+          "width": 350,
+          "height": 31.046875
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-template-editor",
+      "route": "template-editor",
+      "theme": "auto",
+      "scenario": "empty",
+      "reference": "reference/t-template-editor__empty__auto-dark.png",
+      "app": "app/t-template-editor__empty__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Соберите свой план"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Соберите свой план",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "31.05px",
+          "color": "rgb(242, 242, 243)",
+          "x": 20,
+          "y": 96.5,
+          "width": 350,
+          "height": 31.046875
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-template-editor",
+      "route": "template-editor",
+      "theme": "auto",
+      "scenario": "loading",
+      "reference": "reference/t-template-editor__loading__auto-dark.png",
+      "app": "app/t-template-editor__loading__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Соберите свой план"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Соберите свой план",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "31.05px",
+          "color": "rgb(242, 242, 243)",
+          "x": 20,
+          "y": 96.5,
+          "width": 350,
+          "height": 31.046875
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-template-editor",
+      "route": "template-editor",
+      "theme": "auto",
+      "scenario": "offline",
+      "reference": "reference/t-template-editor__offline__auto-dark.png",
+      "app": "app/t-template-editor__offline__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Соберите свой план"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Соберите свой план",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "31.05px",
+          "color": "rgb(242, 242, 243)",
+          "x": 20,
+          "y": 96.5,
+          "width": 350,
+          "height": 31.046875
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-template-editor",
+      "route": "template-editor",
+      "theme": "dark",
+      "scenario": "normal",
+      "reference": "reference/t-template-editor__normal__dark.png",
+      "app": "app/t-template-editor__normal__dark.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Соберите свой план"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Соберите свой план",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "31.05px",
+          "color": "rgb(242, 242, 243)",
+          "x": 20,
+          "y": 96.5,
+          "width": 350,
+          "height": 31.046875
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-template-editor",
+      "route": "template-editor",
+      "theme": "light",
+      "scenario": "normal",
+      "reference": "reference/t-template-editor__normal__light.png",
+      "app": "app/t-template-editor__normal__light.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Соберите свой план"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Соберите свой план",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "31.05px",
+          "color": "rgb(18, 20, 32)",
+          "x": 20,
+          "y": 96.5,
+          "width": 350,
+          "height": 31.046875
+        }
+      ],
+      "tabs": []
+    }
+  ]
+}

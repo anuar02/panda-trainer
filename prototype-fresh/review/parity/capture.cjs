@@ -34,6 +34,7 @@ const props = ['font-family', 'font-size', 'font-weight', 'line-height', 'letter
           if (screen === 't-session') Store.logging.open('s1');
           if (screen === 't-template-editor' && builderTemplate) Library.actions['builder.edit']({ id: builderTemplate });
         }, { screen, scenario, builderTemplate: process.env.BUILDER_TEMPLATE });
+        if (screen === 't-template-editor' && process.env.BUILDER_PICKER === '1') await page.getByRole('button', { name: 'Добавить упражнения', exact: true }).click();
         await page.waitForTimeout(250);
         await page.evaluate(() => {
           for (const animation of document.getAnimations()) {

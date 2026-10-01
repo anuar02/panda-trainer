@@ -43,6 +43,12 @@ edits do not rewrite the session or workout results. See
   descendants not represented by class entries. Empty/loading/offline scenarios
   keep the same editor content, matching the prototype.
 
+## Follow-up — SOM-50
+
+The fixed picker implementation and updated verification are recorded in
+[template-picker](../template-picker/README.md). The checklist below describes
+the original checkpoint; full native/accessibility and owner acceptance remain open.
+
 ## Acceptance still open
 
 - [x] Local creation, editing, copying and durable draft behavior.

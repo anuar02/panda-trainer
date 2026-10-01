@@ -208,6 +208,16 @@ try {
               )
               .waitFor();
           else await page.getByRole('heading').first().waitFor();
+          if (
+            screen === 't-template-editor' &&
+            process.env.BUILDER_PICKER === '1'
+          ) {
+            await page
+              .getByRole('button', { name: 'Добавить упражнения', exact: true })
+              .click();
+            await page.getByRole('button', { name: /^Готово ·/ }).waitFor();
+            await page.waitForTimeout(350);
+          }
           await page.evaluate(() => document.fonts.ready);
           await page.screenshot({
             path: path.join(output, `app/${screen}__${scenario}__${theme}.png`),
