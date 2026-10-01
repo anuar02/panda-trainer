@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path = public, extensions;
-select plan(40);
+select plan(30);
 
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -78,56 +78,22 @@ select throws_ok(
   '23505', null,
   'active exercise names are unique after case and ё normalization'
 );
-select lives_ok(
-  $$insert into public.workout_templates (workspace_id, name, description)
-    values ('61000000-0000-4000-8000-000000000001', '  Моя   программа  ', 'Template test')$$,
-  'trainer can create a template'
-);
-select throws_ok(
-  $$insert into public.workout_templates (workspace_id, name)
-    values ('61000000-0000-4000-8000-000000000001', 'МОЯ ПРОГРАММА')$$,
-  '23505', null,
-  'active template names are unique after case normalization'
-);
-select lives_ok(
-  $$insert into public.template_exercises (workspace_id, template_id, exercise_id, position, planned_sets, planned_reps, planned_weight_g, rest_seconds)
-    select '61000000-0000-4000-8000-000000000001', t.id, e.id, 0, 4, '8–12', 20000, 60
-    from public.workout_templates t cross join public.exercises e
-    where t.workspace_id = '61000000-0000-4000-8000-000000000001' and t.name = 'Моя программа'
-      and e.workspace_id = t.workspace_id and e.name = 'Моя Ёлка'$$,
-  'trainer can add a measured exercise to their template'
-);
-select is((select revision from public.workout_templates where workspace_id = '61000000-0000-4000-8000-000000000001' and name = 'Моя программа'), 2, 'adding a template exercise increments parent revision');
-with changed as (
-  update public.template_exercises te set planned_reps = '10', rest_seconds = 90
-  from public.workout_templates t, public.exercises e
-  where te.workspace_id = t.workspace_id and te.template_id = t.id
-    and te.workspace_id = e.workspace_id and te.exercise_id = e.id
-    and t.name = 'Моя программа' and e.name = 'Моя Ёлка'
-  returning te.revision
-)
-select is((select max(revision) from changed), 2, 'template exercise update increments its revision');
-select is((select revision from public.workout_templates where workspace_id = '61000000-0000-4000-8000-000000000001' and name = 'Моя программа'), 3, 'template exercise update increments parent revision');
+reset role;
+insert into public.workout_templates (workspace_id, name, description)
+values ('61000000-0000-4000-8000-000000000001', 'Archive fixture', 'Existing template');
+insert into public.template_exercises (workspace_id, template_id, exercise_id, position, planned_sets, planned_reps)
+select t.workspace_id, t.id, e.id, 0, 3, '8–12'
+from public.workout_templates t join public.exercises e on e.workspace_id = t.workspace_id
+where t.name = 'Archive fixture' and e.name = 'Моя Ёлка';
 select throws_ok(
   $$insert into public.template_exercises (workspace_id, template_id, exercise_id, position, planned_sets, planned_reps)
-    select '61000000-0000-4000-8000-000000000001', t.id, '81000000-0000-4000-8000-000000000002', 1, 3, '8'
-    from public.workout_templates t where t.workspace_id = '61000000-0000-4000-8000-000000000001' and t.name = 'Моя программа'$$,
-  '23503', null,
-  'composite foreign keys reject an exercise from another workspace'
+    select t.workspace_id, t.id, '81000000-0000-4000-8000-000000000002', 1, 3, '8'
+    from public.workout_templates t where t.name = 'Archive fixture'$$,
+  '23503', null, 'schema rejects a cross-workspace exercise reference'
 );
+set local role authenticated;
 select is(public.normalize_library_name(E'\t  ЁЛКА  \n'), 'елка', 'normalization trims tabs and newlines after collapsing whitespace');
 select is((select count(*)::integer from public.search_exercises('МОЯ ЕЛКА')), 1, 'search treats Cyrillic case and ё/е equally');
-select lives_ok(
-  $$insert into public.template_exercises (workspace_id, template_id, exercise_id, position, planned_sets, planned_seconds)
-    select t.workspace_id, t.id, e.id, 1, 2, '30–45'
-    from public.workout_templates t join public.exercises e on e.workspace_id = t.workspace_id
-    where t.name = 'Моя программа' and e.source_key = 'e69'$$,
-  'timed plans preserve a seconds range'
-);
-select throws_ok(
-  $$update public.template_exercises set planned_seconds = '45–30' where planned_seconds is not null$$,
-  '23514', null, 'descending time ranges are rejected'
-);
 select throws_ok(
   $$insert into public.exercises (workspace_id, name, muscle_group, equipment, measure)
     values ('61000000-0000-4000-8000-000000000002', 'Unauthorized exercise', 'Кор', 'вес тела', 'reps')$$,
@@ -158,18 +124,6 @@ select lives_ok(
     values ('61000000-0000-4000-8000-000000000001', 'моя елка', 'Грудь', 'Штанга', 'reps', false)$$,
   'an archived exercise name can be reused'
 );
-with changed as (
-  update public.workout_templates set archived_at = now()
-  where workspace_id = '61000000-0000-4000-8000-000000000001' and name = 'Моя программа'
-  returning id
-)
-select is(
-  (select count(*)::integer from changed),
-  1,
-  'trainer can archive their template'
-);
-select ok(exists (select 1 from public.workout_templates where workspace_id = '61000000-0000-4000-8000-000000000001' and name = 'Моя программа' and archived_at is not null), 'archived template remains readable');
-
 select set_config('request.jwt.claims', '{"sub":"51000000-0000-4000-8000-000000000003","role":"authenticated"}', true);
 select is((select count(*)::integer from public.exercises), 0, 'client cannot read the trainer exercise library');
 select is((select count(*)::integer from public.workout_templates), 0, 'client cannot read trainer templates');

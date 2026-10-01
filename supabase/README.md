@@ -52,6 +52,25 @@ typecheck/lint/format. Существующий стек trainerApp не сбр�
 
 Новая миграция: `npm run db -- migration new <имя>`.
 
+01.10.2026, SOM-23: `20261001120000_template_commands.sql` закрывает прямые
+записи шаблонов/строк и вводит атомарные save/archive с expected_revision и
+приватным request receipt. Прошли clean reset/seed, db lint без warning,
+148 pgTAP (30 библиотеки, 41 команд шаблона), type drift и app check
+342 теста / 46 suites. Тела обеих применённых RPC совпадают с миграцией.
+Два template concurrency-сценария проверены реальными соединениями:
+
+```sh
+python3 supabase/tests/template_concurrency.py --container supabase_db_trainerApp
+```
+
+Старая конкурентная revision отклоняется без перезаписи; одинаковый request_id
+возвращает исходные ID/revision. При ошибке состава откатываются также имя и
+revision. Архивное упражнение можно сохранить в прежнем шаблоне или копии.
+Старые проверки прямого template CRUD заменены проверками RPC, библиотечный
+тест сохраняет сценарий архива и неизменной ссылки. Оба concurrent runners
+имеют statement timeout; новый runner включён в CI. Удалённый CI и серверный
+UI-flow не запускались. [ADR 0028](../docs/app/decisions/0028-atomic-template-commands.md).
+
 01.10.2026, SOM-25: `20261001110000_schedule_foundation.sql` добавляет расписание
 и `create_booking_set`. Проверены clean reset, lint без warning, 117 pgTAP
 (45 расписания), type drift и app check 342 теста / 46 suites. Два конкурентных

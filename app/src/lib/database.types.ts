@@ -524,6 +524,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      archive_workout_template: {
+        Args: {
+          p_expected_revision: number;
+          p_request_id: string;
+          p_template_id: string;
+        };
+        Returns: Json;
+      };
       canonicalize_library_name: {
         Args: {
           input_name: string;
@@ -555,6 +563,17 @@ export type Database = {
           input_name: string;
         };
         Returns: string;
+      };
+      save_workout_template: {
+        Args: {
+          p_description: string;
+          p_exercises: Json;
+          p_expected_revision: number;
+          p_name: string;
+          p_request_id: string;
+          p_template_id: string;
+        };
+        Returns: Json;
       };
       search_exercises: {
         Args: {

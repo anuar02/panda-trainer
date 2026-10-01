@@ -44,7 +44,7 @@ def request(request_id, day):
 
 
 def identity():
-    return ("set local role authenticated; "
+    return ("set local statement_timeout = '10s'; set local role authenticated; "
             f"set local request.jwt.claims = '{{\"sub\":\"{owner}\",\"role\":\"authenticated\"}}'; ")
 
 

@@ -60,6 +60,11 @@ created_by допускает null для системных операций б
 для прямого UPDATE, чтобы не нарушать сохранённые планы. У строк состава есть
 своя revision; изменение состава также повышает revision шаблона. client_programs и клиентский transport ещё не реализованы.
 
+С SOM-23 запись шаблонов/состава закрыта для прямых запросов, включая column
+grants. save_workout_template атомарно заменяет состав с проверкой revision;
+archive_workout_template сохраняет строки. Приватные receipts позволяют повторить
+успешную команду без дубликатов. [ADR 0028](decisions/0028-atomic-template-commands.md).
+
 ### Расписание
 
 | Таблица | Ключевые поля | Примечание |
@@ -130,6 +135,8 @@ schedule_proposals пока хранит контракт; RPC переноса/
 | Функция | Что гарантирует |
 | --- | --- |
 | `accept_invitation(token)` | Срок, одноразовость, привязка к существующей карточке |
+| `save_workout_template(template_id, expected_revision, name, description, exercises, request_id)` | Реализована: атомарный состав, проверка версии, повтор по приватному receipt |
+| `archive_workout_template(template_id, expected_revision, request_id)` | Реализована: архив с проверкой версии, сохранением состава и безопасным повтором |
 | `create_booking_set(client_record_ids, starts_at, ends_at, collision_ack, request_id)` | Реализована: только владелец, tenant-safe создание, предупреждение о пересечении, сериализация и повтор без дубликатов |
 | `propose_time(booking_id, starts_at, ends_at, base_revision)` | Устаревшая ревизия → отказ с причиной |
 | `respond_to_proposal(proposal_id, accept)` | Атомарная смена времени и ревизии |
