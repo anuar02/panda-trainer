@@ -4,16 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/ui/button';
 import { Sheet } from '@/ui/sheet';
 import { Text } from '@/ui/text';
+import { workspaceTemplateEditorHref } from './editor-routes';
 import { useWorkspaceLibrary } from './provider';
 
-export function useWorkspaceTemplateLauncher() {
+export function useWorkspaceTemplateLauncher(clientId?: string) {
   const { editor } = useWorkspaceLibrary();
   const { t } = useTranslation();
   const [pending, setPending] = useState<{
     id?: string;
     copy?: boolean;
   } | null>(null);
-  const open = () => router.push('/workspace/library/editor');
+  const open = () => router.push(workspaceTemplateEditorHref(clientId));
   const start = (id?: string, copy?: boolean) => {
     if (!editor.ready || editor.busy) return;
     if (editor.draft) setPending({ id, copy });

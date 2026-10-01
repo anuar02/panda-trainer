@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { TrainerLibraryScreen } from '@/features/trainer-library/trainer-library-screen';
 import type { LibraryExercise } from '@/features/trainer-library/fixtures';
 import { useWorkspaceLibrary } from '@/features/workspace-library/provider';
+import { workspaceTemplateRouteHref } from '@/features/workspace-library/editor-routes';
 import { useWorkspaceTemplateLauncher } from '@/features/workspace-library/launcher';
 import {
   createWorkspaceExerciseOperation,
@@ -22,7 +23,7 @@ export default function WorkspaceLibraryRoute() {
     tab?: string;
   }>();
   const store = useWorkspaceLibrary();
-  const launcher = useWorkspaceTemplateLauncher();
+  const launcher = useWorkspaceTemplateLauncher(clientId);
   const { t } = useTranslation();
   const [selected, setSelected] = useState<LibraryExercise | null>(null);
   const [busy, setBusy] = useState(false);
@@ -100,10 +101,7 @@ export default function WorkspaceLibraryRoute() {
         onCreate={() => launcher.start()}
         onResume={launcher.resume}
         onOpenTemplate={(id) =>
-          router.push({
-            pathname: '/workspace/library/template/[id]',
-            params: clientId ? { id, clientId } : { id },
-          })
+          router.push(workspaceTemplateRouteHref(id, clientId))
         }
         onArchiveExercise={busy ? undefined : setSelected}
         onCreateExercise={

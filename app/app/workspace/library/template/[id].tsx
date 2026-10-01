@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { useAuth } from '@/features/auth/provider';
 import { TemplateScreen } from '@/features/trainer-library/template-screen';
 import { useWorkspaceLibrary } from '@/features/workspace-library/provider';
+import { workspaceTemplateLibraryHref } from '@/features/workspace-library/editor-routes';
 import { useWorkspaceTemplateLauncher } from '@/features/workspace-library/launcher';
 import { useClientProgramAssignment } from '@/features/workspace-programs/use-assignment';
 import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
@@ -189,7 +190,7 @@ export default function WorkspaceTemplateRoute() {
     clientId?: string;
   }>();
   const store = useWorkspaceLibrary();
-  const launcher = useWorkspaceTemplateLauncher();
+  const launcher = useWorkspaceTemplateLauncher(clientId);
   const auth = useAuth();
   const context = useOnboardingContext();
   const { t } = useTranslation();
@@ -237,7 +238,7 @@ export default function WorkspaceTemplateRoute() {
         templates={store.library.templates}
         suppliedExercises={exercises}
         suppliedMedia={store.media}
-        onBack={() => router.replace('/workspace/library')}
+        onBack={() => router.replace(workspaceTemplateLibraryHref(clientId))}
         onEdit={() => launcher.start(id)}
         onCopy={() => launcher.start(id, true)}
       />

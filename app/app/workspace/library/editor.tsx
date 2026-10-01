@@ -1,13 +1,18 @@
 import { useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { TemplateEditorScreen } from '@/features/template-editor/screen';
+import {
+  workspaceTemplateLibraryHref,
+  workspaceTemplateRouteHref,
+} from '@/features/workspace-library/editor-routes';
 import { useWorkspaceLibrary } from '@/features/workspace-library/provider';
 import { Button } from '@/ui/button';
 import { Text } from '@/ui/text';
 
 export default function WorkspaceTemplateEditorRoute() {
+  const { clientId } = useLocalSearchParams<{ clientId?: string }>();
   const store = useWorkspaceLibrary();
   const { t } = useTranslation();
   const [failed, setFailed] = useState(false);
@@ -40,12 +45,9 @@ export default function WorkspaceTemplateEditorRoute() {
         store={store.editor}
         suppliedExercises={store.library.exercises}
         suppliedMedia={store.media}
-        onLeave={() => router.replace('/workspace/library')}
+        onLeave={() => router.replace(workspaceTemplateLibraryHref(clientId))}
         onSaved={(id) =>
-          router.replace({
-            pathname: '/workspace/library/template/[id]',
-            params: { id },
-          })
+          router.replace(workspaceTemplateRouteHref(id, clientId))
         }
       />
     </View>
