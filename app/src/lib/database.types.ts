@@ -441,6 +441,70 @@ export type Database = {
           },
         ];
       };
+      private_notes: {
+        Row: {
+          author_user_id: string;
+          client_record_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          device_id: string;
+          id: string;
+          revision: number;
+          text: string;
+          updated_at: string;
+          workout_instance_id: string | null;
+          workspace_id: string;
+        };
+        Insert: {
+          author_user_id: string;
+          client_record_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          device_id: string;
+          id: string;
+          revision?: number;
+          text: string;
+          updated_at?: string;
+          workout_instance_id?: string | null;
+          workspace_id: string;
+        };
+        Update: {
+          author_user_id?: string;
+          client_record_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          device_id?: string;
+          id?: string;
+          revision?: number;
+          text?: string;
+          updated_at?: string;
+          workout_instance_id?: string | null;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'private_notes_workspace_id_client_record_id_fkey';
+            columns: ['workspace_id', 'client_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_records';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'private_notes_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'private_notes_workspace_id_workout_instance_id_fkey';
+            columns: ['workspace_id', 'workout_instance_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_instances';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;
@@ -521,6 +585,183 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'bookings';
             referencedColumns: ['workspace_id', 'id'];
+          },
+        ];
+      };
+      session_notes: {
+        Row: {
+          author_user_id: string;
+          created_at: string;
+          created_by: string | null;
+          device_id: string;
+          id: string;
+          revision: number;
+          text: string;
+          updated_at: string;
+          workout_instance_id: string;
+          workspace_id: string;
+        };
+        Insert: {
+          author_user_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          device_id: string;
+          id: string;
+          revision?: number;
+          text: string;
+          updated_at?: string;
+          workout_instance_id: string;
+          workspace_id: string;
+        };
+        Update: {
+          author_user_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          device_id?: string;
+          id?: string;
+          revision?: number;
+          text?: string;
+          updated_at?: string;
+          workout_instance_id?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_notes_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'session_notes_workspace_id_workout_instance_id_fkey';
+            columns: ['workspace_id', 'workout_instance_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_instances';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+        ];
+      };
+      set_results: {
+        Row: {
+          author_user_id: string;
+          created_at: string;
+          created_by: string | null;
+          deleted_at: string | null;
+          device_id: string;
+          id: string;
+          position: number;
+          reps: number | null;
+          revision: number;
+          seconds: number | null;
+          updated_at: string;
+          weight_g: number | null;
+          workout_exercise_id: string;
+          workout_instance_id: string;
+          workspace_id: string;
+        };
+        Insert: {
+          author_user_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          deleted_at?: string | null;
+          device_id: string;
+          id: string;
+          position: number;
+          reps?: number | null;
+          revision?: number;
+          seconds?: number | null;
+          updated_at?: string;
+          weight_g?: number | null;
+          workout_exercise_id: string;
+          workout_instance_id: string;
+          workspace_id: string;
+        };
+        Update: {
+          author_user_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          deleted_at?: string | null;
+          device_id?: string;
+          id?: string;
+          position?: number;
+          reps?: number | null;
+          revision?: number;
+          seconds?: number | null;
+          updated_at?: string;
+          weight_g?: number | null;
+          workout_exercise_id?: string;
+          workout_instance_id?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'set_results_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'set_results_workspace_id_workout_instance_id_workout_exerc_fkey';
+            columns: [
+              'workspace_id',
+              'workout_instance_id',
+              'workout_exercise_id',
+            ];
+            isOneToOne: false;
+            referencedRelation: 'workout_exercises';
+            referencedColumns: ['workspace_id', 'workout_instance_id', 'id'];
+          },
+        ];
+      };
+      sync_operations: {
+        Row: {
+          applied_at: string;
+          base_revision: number;
+          created_at: string;
+          created_by: string | null;
+          device_id: string;
+          entity_id: string;
+          kind: string;
+          operation_id: string;
+          result: NonNullable<Json>;
+          user_id: string;
+          workspace_id: string;
+        };
+        Insert: {
+          applied_at?: string;
+          base_revision: number;
+          created_at?: string;
+          created_by?: string | null;
+          device_id: string;
+          entity_id: string;
+          kind: string;
+          operation_id: string;
+          result: NonNullable<Json>;
+          user_id: string;
+          workspace_id: string;
+        };
+        Update: {
+          applied_at?: string;
+          base_revision?: number;
+          created_at?: string;
+          created_by?: string | null;
+          device_id?: string;
+          entity_id?: string;
+          kind?: string;
+          operation_id?: string;
+          result?: NonNullable<Json>;
+          user_id?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'sync_operations_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -632,6 +873,187 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      workout_exercises: {
+        Row: {
+          bodyweight_snapshot: boolean;
+          created_at: string;
+          created_by: string | null;
+          equipment_snapshot: string;
+          exercise_id: string;
+          exercise_name_snapshot: string;
+          id: string;
+          instructions_snapshot: string[];
+          measure_snapshot: string;
+          muscle_group_snapshot: string;
+          note: string | null;
+          planned_reps: string | null;
+          planned_seconds: string | null;
+          planned_sets: number;
+          planned_weight_g: number | null;
+          position: number;
+          replaced_from_id: string | null;
+          rest_seconds: number;
+          revision: number;
+          skipped: boolean;
+          source_key_snapshot: string | null;
+          updated_at: string;
+          workout_instance_id: string;
+          workspace_id: string;
+        };
+        Insert: {
+          bodyweight_snapshot: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          equipment_snapshot: string;
+          exercise_id: string;
+          exercise_name_snapshot: string;
+          id: string;
+          instructions_snapshot: string[];
+          measure_snapshot: string;
+          muscle_group_snapshot: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets: number;
+          planned_weight_g?: number | null;
+          position: number;
+          replaced_from_id?: string | null;
+          rest_seconds?: number;
+          revision?: number;
+          skipped?: boolean;
+          source_key_snapshot?: string | null;
+          updated_at?: string;
+          workout_instance_id: string;
+          workspace_id: string;
+        };
+        Update: {
+          bodyweight_snapshot?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          equipment_snapshot?: string;
+          exercise_id?: string;
+          exercise_name_snapshot?: string;
+          id?: string;
+          instructions_snapshot?: string[];
+          measure_snapshot?: string;
+          muscle_group_snapshot?: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets?: number;
+          planned_weight_g?: number | null;
+          position?: number;
+          replaced_from_id?: string | null;
+          rest_seconds?: number;
+          revision?: number;
+          skipped?: boolean;
+          source_key_snapshot?: string | null;
+          updated_at?: string;
+          workout_instance_id?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workout_exercises_workspace_id_exercise_id_fkey';
+            columns: ['workspace_id', 'exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'workout_exercises_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'workout_exercises_workspace_id_workout_instance_id_fkey';
+            columns: ['workspace_id', 'workout_instance_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_instances';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'workout_exercises_workspace_id_workout_instance_id_replace_fkey';
+            columns: [
+              'workspace_id',
+              'workout_instance_id',
+              'replaced_from_id',
+            ];
+            isOneToOne: false;
+            referencedRelation: 'workout_exercises';
+            referencedColumns: ['workspace_id', 'workout_instance_id', 'id'];
+          },
+        ];
+      };
+      workout_instances: {
+        Row: {
+          booking_id: string;
+          client_record_id: string;
+          created_at: string;
+          created_by: string | null;
+          finished_at: string | null;
+          id: string;
+          revision: number;
+          source_program_id: string | null;
+          source_program_revision: number | null;
+          started_at: string;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          booking_id: string;
+          client_record_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          finished_at?: string | null;
+          id: string;
+          revision?: number;
+          source_program_id?: string | null;
+          source_program_revision?: number | null;
+          started_at?: string;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          booking_id?: string;
+          client_record_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          finished_at?: string | null;
+          id?: string;
+          revision?: number;
+          source_program_id?: string | null;
+          source_program_revision?: number | null;
+          started_at?: string;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workout_instances_workspace_id_booking_id_client_record_id_fkey';
+            columns: ['workspace_id', 'booking_id', 'client_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'bookings';
+            referencedColumns: ['workspace_id', 'id', 'client_record_id'];
+          },
+          {
+            foreignKeyName: 'workout_instances_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'workout_instances_workspace_id_source_program_id_client_re_fkey';
+            columns: ['workspace_id', 'source_program_id', 'client_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_programs';
+            referencedColumns: ['workspace_id', 'id', 'client_record_id'];
+          },
+        ];
       };
       workout_templates: {
         Row: {

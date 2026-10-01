@@ -5,6 +5,7 @@
 `20261001100000_exercise_library.sql` и `20261001101000_starter_catalog.sql`.
 Расписание — миграция `20261001110000_schedule_foundation.sql`.
 Личные копии программ — `20261001130000_client_programs.sql`.
+Журнал и заметки — `20261001140000_workout_journal.sql`.
 Остальные таблицы пока проект.
 Источник истины — `supabase/migrations/`. [Границы записи, типы и seed](decisions/0025-identity-rls-foundation.md).
 
@@ -98,6 +99,17 @@ schedule_proposals пока хранит контракт; RPC переноса/
 | `session_notes` | `workout_instance_id`, `text`, `revision` | Открыта клиенту |
 | `private_notes` | `workout_instance_id` или `client_record_id`, `text` | Только тренер, у клиента нет политики чтения |
 | `sync_operations` | `operation_id` (PK), `user_id`, `device_id`, `kind`, `entity_id`, `base_revision`, `applied_at`, `result` | Журнал применённых операций, гарантирует «ровно один раз» |
+
+Шесть таблиц журнала реализованы. IDs задаёт устройство; связи booking/program
+проверяют workspace и клиента. workout_instances хранит started_at и ревизию
+программы-источника; workout_exercises — снимки техники/плана, skipped и ссылку
+на заменённую строку того же журнала. Добавление без плана допускает planned_sets=0.
+Результаты допускают незаполненные значения; NULL не равен нулю. Подтверждение
+введённого подхода остаётся правилом будущей команды, не признаком наличия строки.
+Все прямые записи закрыты. Клиент читает только свой завершённый журнал, включая
+подходы и открытые заметки. private_notes и sync_operations читает только владелец.
+Таблица receipts ещё не означает реализованную синхронизацию.
+[ADR 0030](decisions/0030-journal-read-isolation.md).
 
 ### Деньги и посещения
 

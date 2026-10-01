@@ -52,6 +52,16 @@ typecheck/lint/format. Существующий стек trainerApp не сбр�
 
 Новая миграция: `npm run db -- migration new <имя>`.
 
+01.10.2026, SOM-28: миграция `20261001140000_workout_journal.sql` добавляет шесть
+таблиц журнала. Clean reset/seed, db lint без warning и 225 pgTAP (40 журнала)
+проходят. Fixtures включают незавершённый журнал с упражнениями, результатами
+и открытой заметкой. Type drift и app check (342 теста / 46 suites,
+typecheck/lint/format) проходят. В SQL-проверке клиент не видит строки черновика.
+Проверены приватные заметки и receipts, другие workspace/участники группы, принадлежность программе
+и booking одного клиента, единицы результатов, NULL/0 и упражнение без плана.
+Запись пока закрыта; apply_operations, app transport и два устройства не реализованы.
+[ADR 0030](../docs/app/decisions/0030-journal-read-isolation.md).
+
 01.10.2026, SOM-24: `20261001130000_client_programs.sql` создаёт личные копии
 программ и атомарную команду назначения. Clean reset/seed, db lint без warning
 и 185 pgTAP (37 программ) проходят. Типы совпадают со схемой, app check — 342
