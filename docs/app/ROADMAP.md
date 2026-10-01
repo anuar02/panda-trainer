@@ -9,6 +9,13 @@
 
 ## Где остановились
 
+- 01.10.2026 — SOM-18: реализована базовая схема четырёх таблиц, RLS и column
+  grants, revision/audit, вымышленный повторяемый seed и генерация типов/CI drift
+  check. Изолированный reset/seed, db lint и 32 pgTAP проходят; app check — 342
+  теста / 46 suites. Production-вход, invitation RPC, remote CI и проверка двух
+  телефонов открыты. Следующий независимый backend-пакет — библиотека SOM-22.
+  [ADR 0025](decisions/0025-identity-rls-foundation.md), [проверки](../../supabase/README.md).
+
 - 01.10.2026 — SOM-50: исправлено вытеснение поиска/результатов/Done при
   максимальном Dynamic Type. В ограниченной высоте header переходит в scroll,
   Done остаётся фиксированной. Native поиск и закрытие проверены; swipe через

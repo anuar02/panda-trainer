@@ -59,6 +59,8 @@
     "test": "jest --runInBand",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm test",
     "db": "supabase --workdir ..",
+    "db:types": "node scripts/database-types.mjs",
+    "db:types:check": "node scripts/database-types.mjs --check",
     "export": "expo export --platform all",
     "parity": "expo export --platform web && node scripts/parity.mjs"
   },

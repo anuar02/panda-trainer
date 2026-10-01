@@ -1,7 +1,8 @@
 # Модель данных (Supabase / Postgres)
 
-Статус: проект схемы v1 до первой миграции (29.09.2026). После каждой миграции
-документ обновляется; источник истины — `supabase/migrations/`.
+Статус 01.10.2026: четыре таблицы раздела «Люди и доступ» реализованы миграцией
+`20261001090000_identity_and_workspaces.sql`; остальные разделы пока проект.
+Источник истины — `supabase/migrations/`. [Границы записи, типы и seed](decisions/0025-identity-rls-foundation.md).
 
 Основа: `trainer-crm-agent-plan.md` §3–§4 и `prototype-fresh/SYNC-DESIGN.md`.
 
@@ -28,6 +29,14 @@
 | `trainer_workspaces` | `owner_user_id`, `name`, `timezone` | Одно пространство на тренера в v1 |
 | `client_records` | `workspace_id`, `user_id null`, `display_name`, `phone null`, `archived_at` | Карточка создаётся до регистрации клиента |
 | `invitations` | `client_record_id`, `token_hash`, `expires_at`, `accepted_by null`, `accepted_at null` | Токен — только хэш; принятие через RPC |
+
+У всех четырёх таблиц есть revision и audit-поля. INSERT/UPDATE доступны только
+для безопасных полей через column grants; прямое изменение владельца, workspace,
+связи user_id и audit-полей закрыто. Клиент читает свою карточку, но не пишет её.
+Метаданные invitations читает только владелец без token_hash; создание и принятие
+через RPC ещё не реализованы (SOM-21). profiles читает/меняет только сам пользователь.
+created_by допускает null для системных операций без JWT; Data API не может его
+подменить. Версия повышается триггером, проверка base_revision относится к будущим RPC.
 
 ### Библиотека и программы
 

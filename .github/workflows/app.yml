@@ -40,8 +40,17 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: '2.118.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+        working-directory: app
       - run: supabase start --workdir .
       - run: supabase db lint --local --fail-on warning --workdir .
       - run: supabase test db --workdir .
+      - run: npm run db:types:check
+        working-directory: app
       - if: always()
         run: supabase stop --workdir .

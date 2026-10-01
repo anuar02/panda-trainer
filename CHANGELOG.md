@@ -9,6 +9,13 @@
 
 ## Не выпущено
 
+### Добавлено
+
+- SOM-18: базовые profiles/workspaces/client_records/invitations, RLS и запрет
+  прямой смены связей/владельца и чтения token_hash; revision/audit, вымышленный
+  seed, 32 pgTAP-проверки и генерируемые типы с проверкой актуальности в CI.
+  [ADR 0025](docs/app/decisions/0025-identity-rls-foundation.md).
+
 ### Исправлено
 
 - SOM-50: при крупном тексте или коротком окне header picker прокручивается
