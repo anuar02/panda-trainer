@@ -1,5 +1,5 @@
 import type { Template } from '@/domain/templates';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,10 @@ export function TemplateScreen({
   id,
   onBack,
   onUse,
+  onAssignProgram,
+  assignLabel,
+  assignDisabled = false,
+  feedback,
   scenario = 'normal',
   templates: suppliedTemplates,
   onEdit,
@@ -29,6 +33,10 @@ export function TemplateScreen({
   onCopy?: () => void;
   onBack: () => void;
   onUse?: (id: string) => void;
+  onAssignProgram?: (id: string) => void;
+  assignLabel?: string;
+  assignDisabled?: boolean;
+  feedback?: ReactNode;
   scenario?: DemoScenario;
   suppliedExercises?: LibraryExercise[];
   suppliedMedia?: LibraryMediaMap;
@@ -85,6 +93,7 @@ export function TemplateScreen({
           <Icon name="copy" size={22} color={colors.ink} />
         </Pressable>
       </View>
+      {feedback}
       {template ? (
         <>
           <ScrollView contentContainerStyle={s.body}>
@@ -185,10 +194,16 @@ export function TemplateScreen({
             <Button
               labelStyle={d.useText}
               style={d.useButton}
-              label={t('trainerLibrary.use')}
+              label={
+                onAssignProgram ? (assignLabel ?? '') : t('trainerLibrary.use')
+              }
               icon={<Icon name="calendarPlus" size={18} color="#ffffff" />}
-              disabled={!onUse}
-              onPress={() => onUse?.(template.id)}
+              disabled={onAssignProgram ? assignDisabled : !onUse}
+              onPress={() =>
+                onAssignProgram
+                  ? onAssignProgram(template.id)
+                  : onUse?.(template.id)
+              }
             />
           </View>
         </>

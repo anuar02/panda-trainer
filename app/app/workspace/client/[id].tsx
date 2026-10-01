@@ -1,5 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Redirect,
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+} from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/provider';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
@@ -11,15 +16,20 @@ import {
 import { loadWorkspaceClientDetails } from '@/features/workspace-clients/service';
 import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
+import { useClientProgramAssignment } from '@/features/workspace-programs/use-assignment';
 
 function ClientDetails({
   workspaceId,
   clientId,
+  userId,
   timezone,
+  initialTab,
 }: {
   workspaceId: string;
   clientId: string;
+  userId: string;
   timezone: string;
+  initialTab: 'sessions' | 'program' | 'progress' | 'billing' | 'notes';
 }) {
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState<{
@@ -41,6 +51,17 @@ function ClientDetails({
       active = false;
     };
   }, [attempt, clientId, workspaceId]);
+  const assignment = useClientProgramAssignment({
+    userId,
+    workspaceId,
+    clientRecordId: clientId,
+  });
+  const reloadAssignment = assignment.reload;
+  useFocusEffect(
+    useCallback(() => {
+      reloadAssignment();
+    }, [reloadAssignment]),
+  );
   const current = loaded?.attempt === attempt ? loaded : null;
   return (
     <WorkspaceClientDetailsScreen
@@ -50,6 +71,26 @@ function ClientDetails({
       error={current?.failed ?? false}
       onRetry={() => setAttempt((value) => value + 1)}
       onBack={() => router.replace('/workspace/clients')}
+      initialTab={initialTab}
+      assignmentPending={assignment.pending !== null}
+      assignmentLoading={assignment.loading}
+      assignmentReadError={
+        assignment.error === 'storage' || assignment.error === 'invalidPending'
+      }
+      onRetryAssignmentRead={assignment.reload}
+      onAssignProgram={() => {
+        if (assignment.pending) {
+          router.push({
+            pathname: '/workspace/library/template/[id]',
+            params: { id: assignment.pending.templateId, clientId },
+          });
+        } else {
+          router.push({
+            pathname: '/workspace/library',
+            params: { clientId, tab: 'templates' },
+          });
+        }
+      }}
       onInvite={() =>
         router.push({
           pathname: '/workspace/invite/[id]',
@@ -64,7 +105,11 @@ export default function WorkspaceClientDetailsRoute() {
   const auth = useAuth();
   const context = useOnboardingContext();
   const { t } = useTranslation();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tab, refresh } = useLocalSearchParams<{
+    id: string;
+    tab?: string;
+    refresh?: string;
+  }>();
   if (auth.loading || auth.failed) return <AuthLoadingScreen />;
   if (!auth.session) return <Redirect href="/auth/sign-in" />;
   if (context.loading) return <Screen title={t('common.loading')} />;
@@ -78,10 +123,12 @@ export default function WorkspaceClientDetailsRoute() {
   if (!workspace) return <Redirect href="/auth/onboarding" />;
   return (
     <ClientDetails
-      key={`${auth.session.user.id}:${workspace.id}:${id}`}
+      key={`${auth.session.user.id}:${workspace.id}:${id}:${refresh ?? ''}`}
       workspaceId={workspace.id}
       clientId={id}
+      userId={auth.session.user.id}
       timezone={workspace.timezone}
+      initialTab={tab === 'program' ? 'program' : 'sessions'}
     />
   );
 }

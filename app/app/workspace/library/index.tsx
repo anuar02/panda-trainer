@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { TrainerLibraryScreen } from '@/features/trainer-library/trainer-library-screen';
@@ -17,6 +17,10 @@ import { Sheet } from '@/ui/sheet';
 import { Text } from '@/ui/text';
 
 export default function WorkspaceLibraryRoute() {
+  const { clientId, tab } = useLocalSearchParams<{
+    clientId?: string;
+    tab?: string;
+  }>();
   const store = useWorkspaceLibrary();
   const launcher = useWorkspaceTemplateLauncher();
   const { t } = useTranslation();
@@ -72,6 +76,7 @@ export default function WorkspaceLibraryRoute() {
   return (
     <View style={{ flex: 1 }}>
       <TrainerLibraryScreen
+        initialTab={clientId && tab === 'templates' ? 'templates' : 'exercises'}
         header={
           <>
             <Button
@@ -97,7 +102,7 @@ export default function WorkspaceLibraryRoute() {
         onOpenTemplate={(id) =>
           router.push({
             pathname: '/workspace/library/template/[id]',
-            params: { id },
+            params: clientId ? { id, clientId } : { id },
           })
         }
         onArchiveExercise={busy ? undefined : setSelected}

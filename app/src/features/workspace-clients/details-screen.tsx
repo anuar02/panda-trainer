@@ -44,6 +44,12 @@ type Props = {
   onBack: () => void;
   onRetry: () => void;
   onInvite: () => void;
+  initialTab?: Tab;
+  assignmentPending?: boolean;
+  assignmentLoading?: boolean;
+  assignmentReadError?: boolean;
+  onAssignProgram?: () => void;
+  onRetryAssignmentRead?: () => void;
 };
 
 type Tab = keyof typeof workspaceClientDetailsRu.tabs;
@@ -86,10 +92,16 @@ export function WorkspaceClientDetailsScreen({
   onBack,
   onRetry,
   onInvite,
+  initialTab = 'sessions',
+  assignmentPending = false,
+  assignmentLoading = false,
+  assignmentReadError = false,
+  onAssignProgram,
+  onRetryAssignmentRead,
 }: Props) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
-  const [tab, setTab] = useState<Tab>('sessions');
+  const [tab, setTab] = useState<Tab>(initialTab);
   const secondary = { color: colors.secondary };
   const hair = scheme === 'dark' ? '#212227' : '#efefeb';
   const text = (key: StringKey) => t(`workspaceClientDetails.${key}`);
@@ -387,9 +399,59 @@ export function WorkspaceClientDetailsScreen({
                     );
                   })}
                 </Card>
+                {onAssignProgram ? (
+                  <Button
+                    variant="soft"
+                    compact
+                    label={
+                      assignmentLoading
+                        ? text('assignmentLoading')
+                        : assignmentPending
+                          ? text('assignmentContinue')
+                          : text('openLibrary')
+                    }
+                    disabled={assignmentLoading}
+                    onPress={onAssignProgram}
+                  />
+                ) : null}
               </View>
             ) : (
-              empty('dumbbell', text('noProgram'), text('noProgramHint'))
+              <Card style={s.empty}>
+                <Icon name="dumbbell" size={24} color={colors.secondary} />
+                <Text style={s.heading}>{text('noProgram')}</Text>
+                <Text style={[s.small, secondary, s.center]}>
+                  {text('noProgramHint')}
+                </Text>
+                {onAssignProgram ? (
+                  assignmentReadError ? (
+                    <View style={s.stack}>
+                      <Text accessibilityRole="alert">
+                        {text('assignmentReadError')}
+                      </Text>
+                      <Button
+                        variant="soft"
+                        compact
+                        label={text('assignmentRetryRead')}
+                        onPress={onRetryAssignmentRead}
+                      />
+                    </View>
+                  ) : (
+                    <Button
+                      variant="soft"
+                      compact
+                      label={
+                        assignmentLoading
+                          ? text('assignmentLoading')
+                          : assignmentPending
+                            ? text('assignmentContinue')
+                            : text('openLibrary')
+                      }
+                      disabled={assignmentLoading}
+                      onPress={onAssignProgram}
+                    />
+                  )
+                ) : null}
+              </Card>
             ))}
           {tab === 'progress' &&
             empty(

@@ -28,7 +28,8 @@ export const workspaceClientDetailsRu = {
   cancelled: 'Отменено',
   unknownStatus: 'Статус неизвестен',
   noProgram: 'Программы нет',
-  noProgramHint: 'Назначенная программа и упражнения появятся здесь.',
+  noProgramHint:
+    'Назначьте шаблон из библиотеки — программа применится к будущим занятиям.',
   currentProgram: 'Текущая программа',
   currentProgramName: 'Текущая программа: {{name}}',
   sessionTime: '{{date}} · {{start}}–{{end}}',
@@ -40,4 +41,9 @@ export const workspaceClientDetailsRu = {
   notesUnavailable: 'Заметки клиента пока недоступны.',
   unavailableTitle: 'Данные пока недоступны',
   noPhone: 'Телефон не указан',
+  openLibrary: 'Открыть библиотеку',
+  assignmentContinue: 'Продолжить назначение',
+  assignmentLoading: 'Проверяем назначение…',
+  assignmentReadError: 'Не удалось проверить незавершённое назначение.',
+  assignmentRetryRead: 'Повторить проверку',
 } as const;
