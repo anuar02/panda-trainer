@@ -80,6 +80,167 @@ export type Database = {
           },
         ];
       };
+      client_program_exercises: {
+        Row: {
+          bodyweight_snapshot: boolean;
+          client_program_id: string;
+          created_at: string;
+          created_by: string | null;
+          equipment_snapshot: string;
+          exercise_id: string;
+          exercise_name_snapshot: string;
+          id: string;
+          instructions_snapshot: string[];
+          measure_snapshot: string;
+          muscle_group_snapshot: string;
+          note: string | null;
+          planned_reps: string | null;
+          planned_seconds: string | null;
+          planned_sets: number;
+          planned_weight_g: number | null;
+          position: number;
+          rest_seconds: number;
+          revision: number;
+          source_key_snapshot: string | null;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          bodyweight_snapshot: boolean;
+          client_program_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          equipment_snapshot: string;
+          exercise_id: string;
+          exercise_name_snapshot: string;
+          id?: string;
+          instructions_snapshot: string[];
+          measure_snapshot: string;
+          muscle_group_snapshot: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets: number;
+          planned_weight_g?: number | null;
+          position: number;
+          rest_seconds?: number;
+          revision?: number;
+          source_key_snapshot?: string | null;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          bodyweight_snapshot?: boolean;
+          client_program_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          equipment_snapshot?: string;
+          exercise_id?: string;
+          exercise_name_snapshot?: string;
+          id?: string;
+          instructions_snapshot?: string[];
+          measure_snapshot?: string;
+          muscle_group_snapshot?: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets?: number;
+          planned_weight_g?: number | null;
+          position?: number;
+          rest_seconds?: number;
+          revision?: number;
+          source_key_snapshot?: string | null;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'client_program_exercises_workspace_id_client_program_id_fkey';
+            columns: ['workspace_id', 'client_program_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_programs';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'client_program_exercises_workspace_id_exercise_id_fkey';
+            columns: ['workspace_id', 'exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'client_program_exercises_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      client_programs: {
+        Row: {
+          base_template_id: string;
+          base_template_revision: number;
+          client_record_id: string;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          id: string;
+          name: string;
+          revision: number;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          base_template_id: string;
+          base_template_revision: number;
+          client_record_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          name: string;
+          revision?: number;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          base_template_id?: string;
+          base_template_revision?: number;
+          client_record_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          name?: string;
+          revision?: number;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'client_programs_workspace_id_base_template_id_fkey';
+            columns: ['workspace_id', 'base_template_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_templates';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'client_programs_workspace_id_client_record_id_fkey';
+            columns: ['workspace_id', 'client_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_records';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'client_programs_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       client_records: {
         Row: {
           archived_at: string | null;
@@ -527,6 +688,15 @@ export type Database = {
       archive_workout_template: {
         Args: {
           p_expected_revision: number;
+          p_request_id: string;
+          p_template_id: string;
+        };
+        Returns: Json;
+      };
+      assign_client_program: {
+        Args: {
+          p_client_record_id: string;
+          p_expected_template_revision: number;
           p_request_id: string;
           p_template_id: string;
         };

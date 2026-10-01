@@ -52,6 +52,20 @@ typecheck/lint/format. Существующий стек trainerApp не сбр�
 
 Новая миграция: `npm run db -- migration new <имя>`.
 
+01.10.2026, SOM-24: `20261001130000_client_programs.sql` создаёт личные копии
+программ и атомарную команду назначения. Clean reset/seed, db lint без warning
+и 185 pgTAP (37 программ) проходят. Типы совпадают со схемой, app check — 342
+теста / 46 suites, typecheck/lint/format. Проверены собственные/чужие клиенты, версии,
+порядок и диапазоны, архив источника, сохранность прежней копии и закрытые записи.
+Реальный конкурентный повтор создаёт одну полную копию:
+
+```sh
+python3 supabase/tests/program_concurrency.py --container supabase_db_trainerApp
+```
+
+Runner включён в CI. App transport, remote CI и решение владельца SOM-55
+остаются открытыми. [ADR 0029](../docs/app/decisions/0029-client-program-snapshots.md).
+
 01.10.2026, SOM-23: `20261001120000_template_commands.sql` закрывает прямые
 записи шаблонов/строк и вводит атомарные save/archive с expected_revision и
 приватным request receipt. Прошли clean reset/seed, db lint без warning,

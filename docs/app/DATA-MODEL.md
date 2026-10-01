@@ -4,6 +4,7 @@
 `20261001090000_identity_and_workspaces.sql`; три таблицы библиотеки — миграциями
 `20261001100000_exercise_library.sql` и `20261001101000_starter_catalog.sql`.
 Расписание — миграция `20261001110000_schedule_foundation.sql`.
+Личные копии программ — `20261001130000_client_programs.sql`.
 Остальные таблицы пока проект.
 Источник истины — `supabase/migrations/`. [Границы записи, типы и seed](decisions/0025-identity-rls-foundation.md).
 
@@ -58,7 +59,14 @@ created_by допускает null для системных операций б
 библиотеке тренера. planned_reps/planned_seconds хранят строку числа или диапазона;
 ровно одно поле заполнено и соответствует единице упражнения. Единица недоступна
 для прямого UPDATE, чтобы не нарушать сохранённые планы. У строк состава есть
-своя revision; изменение состава также повышает revision шаблона. client_programs и клиентский transport ещё не реализованы.
+своя revision; изменение состава также повышает revision шаблона.
+
+client_programs и client_program_exercises реализованы как неизменяемые копии
+шаблона: имя/описание, версия источника, планы и метаданные упражнений, включая
+инструкции. Клиент читает только свои копии. assign_client_program создаёт новый
+ID, сохраняет прежние копии и безопасно повторяет команду по request_id;
+прямая запись закрыта. [ADR 0029](decisions/0029-client-program-snapshots.md).
+Клиентский transport и решение владельца №5 остаются открытыми.
 
 С SOM-23 запись шаблонов/состава закрыта для прямых запросов, включая column
 grants. save_workout_template атомарно заменяет состав с проверкой revision;
@@ -135,6 +143,7 @@ schedule_proposals пока хранит контракт; RPC переноса/
 | Функция | Что гарантирует |
 | --- | --- |
 | `accept_invitation(token)` | Срок, одноразовость, привязка к существующей карточке |
+| `assign_client_program(client_record_id, template_id, expected_template_revision, request_id)` | Реализована: новая полная копия, проверка версии/связей, неизменные прежние копии и повтор без дубликатов |
 | `save_workout_template(template_id, expected_revision, name, description, exercises, request_id)` | Реализована: атомарный состав, проверка версии, повтор по приватному receipt |
 | `archive_workout_template(template_id, expected_revision, request_id)` | Реализована: архив с проверкой версии, сохранением состава и безопасным повтором |
 | `create_booking_set(client_record_ids, starts_at, ends_at, collision_ack, request_id)` | Реализована: только владелец, tenant-safe создание, предупреждение о пересечении, сериализация и повтор без дубликатов |
