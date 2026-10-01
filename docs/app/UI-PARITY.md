@@ -154,7 +154,7 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `t-inbox` Входящие | `/inbox` | 4 | нет |
 | `t-clients` Клиенты | `/workspace/clients`, демо `(trainer)/clients` | 2 | не принят; [отчёт](../../app/review/onboarding/README.md) |
 | `t-client` Карточка клиента | `/workspace/client/[id]`, демо `/client/[id]` | 2 | не принят |
-| `t-invite` Приглашение | `(trainer)/clients/[id]/invite` | 2 | нет |
+| `t-invite` Приглашение | `/workspace/invite/[id]` | 2 | не принят; [отчёт](../../app/review/invitations/README.md) |
 | `t-session` Журнал тренировки | `session/[id]` | 5 | не принят |
 | `t-library` Библиотека | `(trainer)/library` | 3 | нет |
 | `t-template` Шаблон | `/template/[id]` | 3 | нет |
@@ -167,7 +167,7 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `c-history` История | `(client)/history` | 7 | нет |
 | `c-progress` Прогресс | `(client)/progress` | 7 | нет |
 | `c-profile` Профиль клиента | `(client)/profile` | 7 | нет |
-| `c-first` Первый вход клиента | `(auth)/invite/[token]` | 7 | нет |
+| `c-first` Первый вход клиента | `/invite/[token]` | 7 | не принят; [отчёт](../../app/review/invitations/README.md) |
 
 Вкладки — как в прототипе (`prototype-fresh/js/ui.js`, `TABS`):
 тренер — Сегодня · Расписание · Клиенты · Библиотека · Профиль;

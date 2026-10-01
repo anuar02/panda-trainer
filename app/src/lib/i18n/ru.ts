@@ -17,9 +17,11 @@ import { workoutDemo } from '@/features/workout-demo/ru';
 import { onboardingRu } from '@/features/onboarding/strings';
 import { workspaceClientsRu } from '@/features/workspace-clients/strings';
 import { workspaceClientDetailsRu } from '@/features/workspace-clients/details-strings';
+import { invitationsRu } from '@/features/invitations/strings';
 
 export const ru = {
   ...onboardingRu,
+  invitations: invitationsRu,
   workspaceClients: workspaceClientsRu,
   workspaceClientDetails: workspaceClientDetailsRu,
   trainerInbox,
@@ -80,6 +82,7 @@ export const ru = {
     accountPending:
       'Подключение рабочего пространства готовится. Демо использует только вымышленные данные.',
     workspaceReady: 'Рабочее пространство: {{name}}',
+    connectedTrainer: 'Ваш тренер: {{name}}',
     openClients: 'Открыть клиентов',
     inviteNeeded: 'Откройте приглашение тренера',
     inviteNeededHint:

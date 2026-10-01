@@ -9,10 +9,12 @@ import { useAuth } from '@/features/auth/provider';
 import { authService } from '@/features/auth/service';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
 import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
+import { usePendingInvitation } from '@/features/invitations/use-pending-invitation';
 
 export default function AccountRoute() {
   const auth = useAuth();
   const context = useOnboardingContext();
+  const invitation = usePendingInvitation(auth.session?.user.id);
   const { t } = useTranslation();
   const pending = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -34,8 +36,28 @@ export default function AccountRoute() {
   };
   if (auth.loading || auth.failed) return <AuthLoadingScreen />;
   if (!auth.session) return <Redirect href="/auth/sign-in" />;
+  if (invitation.loading) return <Screen title={t('common.loading')} />;
+  if (invitation.failed)
+    return (
+      <Screen title={t('common.error')} subtitle={t('auth.sessionError')}>
+        <Button label={t('common.retry')} onPress={invitation.retry} />
+      </Screen>
+    );
+  if (invitation.token)
+    return (
+      <Redirect
+        href={{
+          pathname: '/invite/[token]',
+          params: { token: invitation.token },
+        }}
+      />
+    );
   if (context.loading) return <Screen title={t('common.loading')} />;
-  if (!context.failed && !context.context?.workspace)
+  if (
+    !context.failed &&
+    !context.context?.workspace &&
+    !context.context?.connections.length
+  )
     return <Redirect href="/auth/onboarding" />;
   return (
     <Screen title={t('auth.accountTitle')} subtitle={t('auth.accountSubtitle')}>
@@ -46,16 +68,30 @@ export default function AccountRoute() {
         ) : (
           <>
             <Text>{context.context?.profile?.display_name}</Text>
-            <Text className="text-secondary">
-              {t('auth.workspaceReady', {
-                name: context.context?.workspace?.name ?? '',
-              })}
-            </Text>
-            <Button
-              label={t('auth.openClients')}
-              disabled={busy}
-              onPress={() => router.push('/workspace/clients')}
-            />
+            {context.context?.workspace ? (
+              <>
+                <Text className="text-secondary">
+                  {t('auth.workspaceReady', {
+                    name: context.context?.workspace?.name ?? '',
+                  })}
+                </Text>
+                <Button
+                  label={t('auth.openClients')}
+                  disabled={busy}
+                  onPress={() => router.push('/workspace/clients')}
+                />
+              </>
+            ) : null}
+            {context.context?.connections.map((connection) => (
+              <Card key={connection.client_record_id}>
+                <Text>
+                  {t('auth.connectedTrainer', {
+                    name: connection.trainer_name,
+                  })}
+                </Text>
+                <Text className="text-secondary">{connection.client_name}</Text>
+              </Card>
+            ))}
           </>
         )}
         {failed ? (

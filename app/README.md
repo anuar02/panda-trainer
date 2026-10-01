@@ -54,7 +54,13 @@ LAN-адрес компьютера. Не коммитить `.env.local`.
 Код письма доступен в локальном Mailpit. Apple/Google требуют настройки provider
 credentials и redirect allowlist в Supabase; native callback —
 `panda-trainer://auth/callback`, web — `/auth/callback` на origin приложения.
-Production-домен приглашений пока не выбран. Контракт и проверенные сценарии:
+Production-домен приглашений пока не выбран. `EXPO_PUBLIC_INVITATION_BASE_URL`
+остаётся пустым; создание ссылки в UI недоступно без явно настроенного origin.
+Для локальной проверки можно задать HTTP localhost только в development.
+Маршруты `/workspace/invite/[id]` и `/invite/[token]` используют настоящие RPC;
+аккаунт клиента показывает свои связи с тренерами.
+[Отчёт приглашений](review/invitations/README.md).
+Контракт входа и проверенные сценарии:
 [ADR 0032](../docs/app/decisions/0032-auth-runtime-and-login.md),
 [auth review](review/auth/README.md).
 

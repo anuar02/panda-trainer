@@ -43,6 +43,7 @@ type Props = {
   error: boolean;
   onBack: () => void;
   onRetry: () => void;
+  onInvite: () => void;
 };
 
 type Tab = keyof typeof workspaceClientDetailsRu.tabs;
@@ -84,6 +85,7 @@ export function WorkspaceClientDetailsScreen({
   error,
   onBack,
   onRetry,
+  onInvite,
 }: Props) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
@@ -126,8 +128,7 @@ export function WorkspaceClientDetailsScreen({
           label={text('invite')}
           variant="ghost"
           compact
-          disabled
-          accessibilityHint={text('inviteUnavailable')}
+          onPress={onInvite}
         />
       )}
     </View>

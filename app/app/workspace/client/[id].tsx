@@ -50,6 +50,12 @@ function ClientDetails({
       error={current?.failed ?? false}
       onRetry={() => setAttempt((value) => value + 1)}
       onBack={() => router.replace('/workspace/clients')}
+      onInvite={() =>
+        router.push({
+          pathname: '/workspace/invite/[id]',
+          params: { id: clientId },
+        })
+      }
     />
   );
 }

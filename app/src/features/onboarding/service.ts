@@ -9,6 +9,7 @@ export type OnboardingContext = {
   userId: string;
   profile: Profile | null;
   workspace: Workspace | null;
+  connections: Database['public']['Functions']['list_my_client_connections']['Returns'];
 };
 
 const focusCodes: Record<string, string> = {
@@ -32,21 +33,26 @@ export const loadOnboardingContext = async (): Promise<OnboardingContext> => {
   if (error || !data.user) throw contextError();
 
   const userId = data.user.id;
-  const [profileResult, workspaceResult] = await Promise.all([
-    client.from('profiles').select('*').eq('user_id', userId).maybeSingle(),
-    client
-      .from('trainer_workspaces')
-      .select('*')
-      .eq('owner_user_id', userId)
-      .maybeSingle(),
-  ]);
+  const [profileResult, workspaceResult, connectionsResult] = await Promise.all(
+    [
+      client.from('profiles').select('*').eq('user_id', userId).maybeSingle(),
+      client
+        .from('trainer_workspaces')
+        .select('*')
+        .eq('owner_user_id', userId)
+        .maybeSingle(),
+      client.rpc('list_my_client_connections'),
+    ],
+  );
 
-  if (profileResult.error || workspaceResult.error) throw contextError();
+  if (profileResult.error || workspaceResult.error || connectionsResult.error)
+    throw contextError();
 
   return {
     userId,
     profile: profileResult.data,
     workspace: workspaceResult.data,
+    connections: connectionsResult.data,
   };
 };
 
