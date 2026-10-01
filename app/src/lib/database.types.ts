@@ -404,6 +404,7 @@ export type Database = {
           expires_at: string;
           id: string;
           revision: number;
+          revoked_at: string | null;
           token_hash: string;
           updated_at: string;
         };
@@ -416,6 +417,7 @@ export type Database = {
           expires_at: string;
           id?: string;
           revision?: number;
+          revoked_at?: string | null;
           token_hash: string;
           updated_at?: string;
         };
@@ -428,6 +430,7 @@ export type Database = {
           expires_at?: string;
           id?: string;
           revision?: number;
+          revoked_at?: string | null;
           token_hash?: string;
           updated_at?: string;
         };
@@ -1122,6 +1125,12 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_invitation: {
+        Args: {
+          p_token: string;
+        };
+        Returns: Json;
+      };
       archive_workout_template: {
         Args: {
           p_expected_revision: number;
@@ -1199,6 +1208,23 @@ export type Database = {
         };
         Returns: boolean;
       };
+      issue_client_invitation: {
+        Args: {
+          p_client_record_id: string;
+          p_request_id: string;
+          p_token: string;
+        };
+        Returns: Json;
+      };
+      list_my_client_connections: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          client_name: string;
+          client_record_id: string;
+          trainer_name: string;
+          workspace_id: string;
+        }[];
+      };
       my_client_record_ids: {
         Args: Record<PropertyKey, never>;
         Returns: string[];
@@ -1208,6 +1234,13 @@ export type Database = {
           input_name: string;
         };
         Returns: string;
+      };
+      revoke_client_invitation: {
+        Args: {
+          p_invitation_id: string;
+          p_request_id: string;
+        };
+        Returns: Json;
       };
       save_workout_template: {
         Args: {

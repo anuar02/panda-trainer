@@ -33,13 +33,13 @@
 | `profiles` | `user_id` → `auth.users`, `display_name`, `locale` | Один пользователь может быть и тренером, и клиентом |
 | `trainer_workspaces` | `owner_user_id`, `name`, `timezone`, `training_focus`, `working_days`, `day_start`, `day_end`, `usual_session_minutes` | Одно пространство на тренера в v1; рабочие предпочтения из welcome |
 | `client_records` | `workspace_id`, `user_id null`, `display_name`, `phone null`, `archived_at` | Карточка создаётся до регистрации клиента |
-| `invitations` | `client_record_id`, `token_hash`, `expires_at`, `accepted_by null`, `accepted_at null` | Токен — только хэш; принятие через RPC |
+| `invitations` | `client_record_id`, `token_hash`, `expires_at`, `accepted_by null`, `accepted_at null`, `revoked_at null` | Токен — только хэш; принятие через RPC |
 
 У всех четырёх таблиц есть revision и audit-поля. INSERT/UPDATE доступны только
 для безопасных полей через column grants; прямое изменение владельца, workspace,
 связи user_id и audit-полей закрыто. Клиент читает свою карточку, но не пишет её.
 Метаданные invitations читает только владелец без token_hash; создание и принятие
-через RPC ещё не реализованы (SOM-21). profiles читает/меняет только сам пользователь.
+реализованы через RPC SOM-21; прямые записи приглашений закрыты. profiles читает/меняет только сам пользователь.
 created_by допускает null для системных операций без JWT; Data API не может его
 подменить. Версия повышается триггером, проверка base_revision относится к будущим RPC.
 
@@ -165,7 +165,10 @@ schedule_proposals пока хранит контракт; RPC переноса 
 | --- | --- |
 | `create_client_record(client_name, client_phone, request_id)` | Реализована: непривязанная карточка владельца workspace, приватный receipt, повтор без дубликата и отказ при смене payload |
 | `complete_trainer_onboarding(display_name, workspace_name, selected_focus, selected_days, starts_at, ends_at, session_minutes, first_client_name, first_client_phone)` | Реализована: атомарная первая настройка, actor из auth.uid, повтор без дубликатов и сохранение прежних значений |
-| `accept_invitation(token)` | Срок, одноразовость, привязка к существующей карточке |
+| `issue_client_invitation(p_client_record_id, p_token, p_request_id)` | Реализована: только владелец, SHA-256, 7 дней, замена старых ссылок, безопасный повтор без продления срока |
+| `revoke_client_invitation(p_invitation_id, p_request_id)` | Реализована: отзыв неиспользованной ссылки владельцем и повтор по request_id |
+| `accept_invitation(p_token)` | Реализована: срок, отзыв, одноразовая привязка прежней карточки; тот же аккаунт может повторить, другой — нет |
+| `list_my_client_connections()` | Реализована: только собственные активные карточки и отображаемые имена связанных тренеров; без расширения прямого RLS |
 | `assign_client_program(client_record_id, template_id, expected_template_revision, request_id)` | Реализована: новая полная копия, проверка версии/связей, неизменные прежние копии и повтор без дубликатов |
 | `save_workout_template(template_id, expected_revision, name, description, exercises, request_id)` | Реализована: атомарный состав, проверка версии, повтор по приватному receipt |
 | `archive_workout_template(template_id, expected_revision, request_id)` | Реализована: архив с проверкой версии, сохранением состава и безопасным повтором |

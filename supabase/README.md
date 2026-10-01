@@ -1,5 +1,12 @@
 # Локальная база
 
+SOM-21: issue/revoke/accept приглашений, 7 дней и SHA-256; отдельный read RPC
+собственных связей с тренерами. Clean reset, 384 pgTAP / 12 файлов и db lint
+проходят. `invitation_concurrency.py` проверяет две конкурирующие попытки
+принятия и оба порядка гонки принятие/замена; все три сценария и cleanup проходят.
+[ADR 0034](../docs/app/decisions/0034-client-invitations.md).
+
+
 CLI закреплён в `app/package.json`; конфигурация создана `supabase init`.
 Облачный проект не требуется. PostgreSQL 17, только вымышленные данные.
 
