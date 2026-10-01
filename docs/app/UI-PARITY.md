@@ -152,8 +152,8 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `t-schedule` Расписание | `(trainer)/schedule` | 4 | нет |
 | `t-new` Новое занятие | `/new` | 4 | нет |
 | `t-inbox` Входящие | `/inbox` | 4 | нет |
-| `t-clients` Клиенты | `(trainer)/clients` | 2 | нет |
-| `t-client` Карточка клиента | `/client/[id]` | 2 | нет |
+| `t-clients` Клиенты | `/workspace/clients`, демо `(trainer)/clients` | 2 | не принят; [отчёт](../../app/review/onboarding/README.md) |
+| `t-client` Карточка клиента | `/workspace/client/[id]`, демо `/client/[id]` | 2 | не принят |
 | `t-invite` Приглашение | `(trainer)/clients/[id]/invite` | 2 | нет |
 | `t-session` Журнал тренировки | `session/[id]` | 5 | не принят |
 | `t-library` Библиотека | `(trainer)/library` | 3 | нет |
@@ -161,7 +161,7 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `t-template-editor` Конструктор | `/template-editor` | 3 | не принят; [отчёт](../../app/review/template-builder/README.md) |
 | `t-billing` Пакеты и оплаты | `(trainer)/clients/[id]/billing` | 6 | нет |
 | `t-profile` Профиль тренера | `(trainer)/profile` | 1–2 | нет |
-| `t-welcome` Первый вход | `(auth)/welcome` | 2 | нет |
+| `t-welcome` Первый вход | `/auth/onboarding` | 2 | не принят; [отчёт](../../app/review/onboarding/README.md) |
 | `c-home` Главная | `(client)/home` | 7 | нет |
 | `c-program` Программа | `(client)/program` | 7 | нет |
 | `c-history` История | `(client)/history` | 7 | нет |

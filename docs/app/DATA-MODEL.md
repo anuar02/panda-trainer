@@ -31,7 +31,7 @@
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
 | `profiles` | `user_id` → `auth.users`, `display_name`, `locale` | Один пользователь может быть и тренером, и клиентом |
-| `trainer_workspaces` | `owner_user_id`, `name`, `timezone` | Одно пространство на тренера в v1 |
+| `trainer_workspaces` | `owner_user_id`, `name`, `timezone`, `training_focus`, `working_days`, `day_start`, `day_end`, `usual_session_minutes` | Одно пространство на тренера в v1; рабочие предпочтения из welcome |
 | `client_records` | `workspace_id`, `user_id null`, `display_name`, `phone null`, `archived_at` | Карточка создаётся до регистрации клиента |
 | `invitations` | `client_record_id`, `token_hash`, `expires_at`, `accepted_by null`, `accepted_at null` | Токен — только хэш; принятие через RPC |
 
@@ -42,6 +42,10 @@
 через RPC ещё не реализованы (SOM-21). profiles читает/меняет только сам пользователь.
 created_by допускает null для системных операций без JWT; Data API не может его
 подменить. Версия повышается триггером, проверка base_revision относится к будущим RPC.
+
+`complete_trainer_onboarding` создаёт профиль/пространство/каталог/первого клиента
+одной транзакцией; повтор сохраняет прежние данные. Настройки рабочего времени
+не запрещают запись вне них. [ADR 0033](decisions/0033-atomic-trainer-onboarding.md).
 
 ### Библиотека и программы
 
@@ -159,6 +163,8 @@ schedule_proposals пока хранит контракт; RPC переноса 
 
 | Функция | Что гарантирует |
 | --- | --- |
+| `create_client_record(client_name, client_phone, request_id)` | Реализована: непривязанная карточка владельца workspace, приватный receipt, повтор без дубликата и отказ при смене payload |
+| `complete_trainer_onboarding(display_name, workspace_name, selected_focus, selected_days, starts_at, ends_at, session_minutes, first_client_name, first_client_phone)` | Реализована: атомарная первая настройка, actor из auth.uid, повтор без дубликатов и сохранение прежних значений |
 | `accept_invitation(token)` | Срок, одноразовость, привязка к существующей карточке |
 | `assign_client_program(client_record_id, template_id, expected_template_revision, request_id)` | Реализована: новая полная копия, проверка версии/связей, неизменные прежние копии и повтор без дубликатов |
 | `save_workout_template(template_id, expected_revision, name, description, exercises, request_id)` | Реализована: атомарный состав, проверка версии, повтор по приватному receipt |

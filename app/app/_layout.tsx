@@ -70,6 +70,7 @@ export default function RootLayout() {
     'inbox',
     'template',
     'template-editor',
+    'workspace',
   ].includes(segments[0] ?? '')
     ? 'trainer'
     : 'client';

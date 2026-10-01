@@ -14,8 +14,14 @@ import { trainerLibrary } from '@/features/trainer-library/ru';
 import { profiles } from '@/features/profiles/ru';
 import { workoutRu } from '@/features/workout/workout-copy';
 import { workoutDemo } from '@/features/workout-demo/ru';
+import { onboardingRu } from '@/features/onboarding/strings';
+import { workspaceClientsRu } from '@/features/workspace-clients/strings';
+import { workspaceClientDetailsRu } from '@/features/workspace-clients/details-strings';
 
 export const ru = {
+  ...onboardingRu,
+  workspaceClients: workspaceClientsRu,
+  workspaceClientDetails: workspaceClientDetailsRu,
   trainerInbox,
   sessionEditor: sessionEditorRu,
   clientDetails,
@@ -73,6 +79,12 @@ export const ru = {
     demoHint: 'Вымышленные данные. Выберите роль для просмотра.',
     accountPending:
       'Подключение рабочего пространства готовится. Демо использует только вымышленные данные.',
+    workspaceReady: 'Рабочее пространство: {{name}}',
+    openClients: 'Открыть клиентов',
+    inviteNeeded: 'Откройте приглашение тренера',
+    inviteNeededHint:
+      'Для подключения к своей карточке нужна ссылка от вашего тренера.',
+    backToSetup: 'Вернуться к настройке',
   },
   common: {
     appName: 'Тренировочный блокнот',

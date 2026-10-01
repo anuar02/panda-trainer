@@ -845,32 +845,47 @@ export type Database = {
         Row: {
           created_at: string;
           created_by: string | null;
+          day_end: string;
+          day_start: string;
           id: string;
           name: string;
           owner_user_id: string;
           revision: number;
           timezone: string;
+          training_focus: string[];
           updated_at: string;
+          usual_session_minutes: number;
+          working_days: number[];
         };
         Insert: {
           created_at?: string;
           created_by?: string | null;
+          day_end?: string;
+          day_start?: string;
           id?: string;
           name: string;
           owner_user_id: string;
           revision?: number;
           timezone?: string;
+          training_focus?: string[];
           updated_at?: string;
+          usual_session_minutes?: number;
+          working_days?: number[];
         };
         Update: {
           created_at?: string;
           created_by?: string | null;
+          day_end?: string;
+          day_start?: string;
           id?: string;
           name?: string;
           owner_user_id?: string;
           revision?: number;
           timezone?: string;
+          training_focus?: string[];
           updated_at?: string;
+          usual_session_minutes?: number;
+          working_days?: number[];
         };
         Relationships: [];
       };
@@ -1138,6 +1153,20 @@ export type Database = {
         };
         Returns: string;
       };
+      complete_trainer_onboarding: {
+        Args: {
+          display_name: string;
+          ends_at?: string;
+          first_client_name?: string;
+          first_client_phone?: string;
+          selected_days?: number[];
+          selected_focus?: string[];
+          session_minutes?: number;
+          starts_at?: string;
+          workspace_name: string;
+        };
+        Returns: Json;
+      };
       confirm_booking: {
         Args: {
           p_booking_id: string;
@@ -1153,6 +1182,14 @@ export type Database = {
           p_ends_at: string;
           p_request_id: string;
           p_starts_at: string;
+        };
+        Returns: Json;
+      };
+      create_client_record: {
+        Args: {
+          client_name: string;
+          client_phone: string;
+          request_id: string;
         };
         Returns: Json;
       };

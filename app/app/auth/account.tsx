@@ -8,9 +8,11 @@ import { Button } from '@/ui/button';
 import { useAuth } from '@/features/auth/provider';
 import { authService } from '@/features/auth/service';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
+import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
 
 export default function AccountRoute() {
   const auth = useAuth();
+  const context = useOnboardingContext();
   const { t } = useTranslation();
   const pending = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -32,11 +34,30 @@ export default function AccountRoute() {
   };
   if (auth.loading || auth.failed) return <AuthLoadingScreen />;
   if (!auth.session) return <Redirect href="/auth/sign-in" />;
+  if (context.loading) return <Screen title={t('common.loading')} />;
+  if (!context.failed && !context.context?.workspace)
+    return <Redirect href="/auth/onboarding" />;
   return (
     <Screen title={t('auth.accountTitle')} subtitle={t('auth.accountSubtitle')}>
       <Card>
         <Text>{auth.session.user.email}</Text>
-        <Text className="text-secondary">{t('auth.accountPending')}</Text>
+        {context.failed ? (
+          <Button label={t('common.retry')} onPress={context.retry} />
+        ) : (
+          <>
+            <Text>{context.context?.profile?.display_name}</Text>
+            <Text className="text-secondary">
+              {t('auth.workspaceReady', {
+                name: context.context?.workspace?.name ?? '',
+              })}
+            </Text>
+            <Button
+              label={t('auth.openClients')}
+              disabled={busy}
+              onPress={() => router.push('/workspace/clients')}
+            />
+          </>
+        )}
         {failed ? (
           <Text accessibilityRole="alert">{t('auth.actionError')}</Text>
         ) : null}

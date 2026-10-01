@@ -3,6 +3,12 @@
 CLI закреплён в `app/package.json`; конфигурация создана `supabase init`.
 Облачный проект не требуется. PostgreSQL 17, только вымышленные данные.
 
+SOM-20: `complete_trainer_onboarding` атомарно создаёт профиль, пространство с
+рабочими предпочтениями, каталог и необязательного первого клиента. Повторы
+сохраняют исходные значения. 333 pgTAP (49 onboarding + 26 создания клиентов) и `onboarding_concurrency.py` проходят
+на изолированном trainerApp-som18. `create_client_record` сохраняет приватный
+receipt и возвращает исходную карточку при повторе запроса. [ADR 0033](../docs/app/decisions/0033-atomic-trainer-onboarding.md).
+
 Email Auth использует шестизначный код из `templates/email-code.html`;
 локальные письма перехватывает Mailpit. После запуска полного локального стека
 из корня можно выполнить `python3 supabase/tests/auth_email_smoke.py --workdir .
