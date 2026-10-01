@@ -1124,11 +1124,27 @@ export type Database = {
         };
         Returns: Json;
       };
+      cancel_booking: {
+        Args: {
+          p_booking_id: string;
+          p_expected_revision: number;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
       canonicalize_library_name: {
         Args: {
           input_name: string;
         };
         Returns: string;
+      };
+      confirm_booking: {
+        Args: {
+          p_booking_id: string;
+          p_expected_revision: number;
+          p_request_id: string;
+        };
+        Returns: Json;
       };
       create_booking_set: {
         Args: {

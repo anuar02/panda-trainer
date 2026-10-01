@@ -52,6 +52,19 @@ typecheck/lint/format. Существующий стек trainerApp не сбр�
 
 Новая миграция: `npm run db -- migration new <имя>`.
 
+01.10.2026, SOM-27: `20261001150000_booking_status_commands.sql` добавляет
+confirm_booking/cancel_booking и приватные receipts по actor/workspace/request.
+Clean reset/seed, db lint без warning и 258 pgTAP (33 status commands) проходят.
+Типы совпадают со схемой; app check — 342 теста / 46 suites, typecheck/lint/format.
+Две SQL-сессии проверяют ожидание workspace lock, отказ устаревшей отмены и повтор:
+
+```sh
+python3 supabase/tests/booking_status_concurrency.py --container supabase_db_trainerApp
+```
+
+Runner добавлен в CI. Переносы, действие на всю группу, app transport и два телефона
+не проверены. [ADR 0031](../docs/app/decisions/0031-booking-status-commands.md).
+
 01.10.2026, SOM-28: миграция `20261001140000_workout_journal.sql` добавляет шесть
 таблиц журнала. Clean reset/seed, db lint без warning и 225 pgTAP (40 журнала)
 проходят. Fixtures включают незавершённый журнал с упражнениями, результатами

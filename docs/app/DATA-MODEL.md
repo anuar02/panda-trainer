@@ -87,7 +87,12 @@ archive_workout_template сохраняет строки. Приватные rec
 участниках — общую group_session. Коллизии требуют явного подтверждения тренера.
 Внутренние request_id/request_payload закрыты column grants.
 [Блокировки, повторы и границы](decisions/0027-server-schedule-foundation.md).
-schedule_proposals пока хранит контракт; RPC переноса/отмены относятся к SOM-27.
+schedule_proposals пока хранит контракт; RPC переноса относятся к SOM-27.
+В SOM-27 реализованы confirm_booking и cancel_booking для отдельной записи:
+подтверждает клиент, отменяет клиент или владелец. Проверяются revision и
+завершённый журнал; отмена не меняет остальных участников, pending proposals
+становятся withdrawn. Приватный receipt привязан к actor/workspace/request_id.
+[ADR 0031](decisions/0031-booking-status-commands.md). RPC переноса ещё открыты.
 
 ### Журнал тренировки
 
@@ -161,7 +166,8 @@ schedule_proposals пока хранит контракт; RPC переноса/
 | `create_booking_set(client_record_ids, starts_at, ends_at, collision_ack, request_id)` | Реализована: только владелец, tenant-safe создание, предупреждение о пересечении, сериализация и повтор без дубликатов |
 | `propose_time(booking_id, starts_at, ends_at, base_revision)` | Устаревшая ревизия → отказ с причиной |
 | `respond_to_proposal(proposal_id, accept)` | Атомарная смена времени и ревизии |
-| `cancel_booking(booking_id, reason)` | Отмена одного участника не трогает группу |
+| `confirm_booking(booking_id, expected_revision, request_id)` | Реализована: клиент подтверждает свою proposed-запись, проверка версии и безопасный повтор |
+| `cancel_booking(booking_id, expected_revision, request_id)` | Реализована: отмена клиентом/тренером сохраняет остальных участников, проверяет версию; без автоматического списания |
 | `apply_operations(ops jsonb)` | Каждая операция журнала применяется один раз; конфликты возвращаются, а не затираются |
 | `mark_attended(booking_id, purchase_id null, idempotency_key)` | Одно списание; блокировка пакета; без пакета — непривязанное посещение |
 | `undo_attendance(booking_id, reason)` | Возврат единицы ровно один раз, история сохраняется |

@@ -9,6 +9,11 @@
 
 ## Где остановились
 
+- 01.10.2026 — SOM-27: confirm/cancel отдельного booking, actor-scoped receipts,
+  revision и защита завершённого журнала. 258 pgTAP и реальные concurrent
+  confirm/cancel/retry проходят. Переносы/вся группа/штрафы и transport открыты.
+  [ADR 0031](decisions/0031-booking-status-commands.md).
+
 - 01.10.2026 — SOM-28: шесть таблиц журнала, tenant/client-safe связи, отдельные
   private_notes и owner-only receipts; клиент видит только свой finished журнал.
   Clean reset, db lint и 225 pgTAP (40 журнала) проходят. Добавленные упражнения

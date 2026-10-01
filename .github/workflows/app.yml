@@ -53,6 +53,7 @@ jobs:
       - run: python3 supabase/tests/schedule_concurrency.py --container supabase_db_trainerApp
       - run: python3 supabase/tests/template_concurrency.py --container supabase_db_trainerApp
       - run: python3 supabase/tests/program_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/booking_status_concurrency.py --container supabase_db_trainerApp
       - run: npm run db:types:check
         working-directory: app
       - if: always()
