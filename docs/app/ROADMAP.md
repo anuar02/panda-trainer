@@ -9,6 +9,11 @@
 
 ## Где остановились
 
+- 01.10.2026 — SOM-24 transport: RPC и pending assignment по аккаунту/workspace/
+  клиенту, безопасные повторы и защита неразрешённой команды. 12 focused tests,
+  TypeScript/lint/format проходят. UI назначения в работе; правило SOM-55
+  одобрено владельцем: новая копия, прежние без изменений.
+
 - 01.10.2026 — Android arm64 debug APK собран успешно. Native runtime smoke
   остановился до JS (packager HTTP 403); эмулятор остановлен из-за нагрузки RAM.
   Вход/deep links на телефоне остаются открытыми; iOS build требует Xcode 26.4+.
