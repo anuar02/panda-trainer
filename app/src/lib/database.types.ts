@@ -10,6 +10,76 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          client_record_id: string;
+          created_at: string;
+          created_by: string | null;
+          ends_at: string;
+          group_session_id: string | null;
+          id: string;
+          request_id: string | null;
+          request_payload: Json | null;
+          revision: number;
+          starts_at: string;
+          status: string;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          client_record_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          ends_at: string;
+          group_session_id?: string | null;
+          id?: string;
+          request_id?: string | null;
+          request_payload?: Json | null;
+          revision?: number;
+          starts_at: string;
+          status?: string;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          client_record_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          ends_at?: string;
+          group_session_id?: string | null;
+          id?: string;
+          request_id?: string | null;
+          request_payload?: Json | null;
+          revision?: number;
+          starts_at?: string;
+          status?: string;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bookings_workspace_id_client_record_id_fkey';
+            columns: ['workspace_id', 'client_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_records';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'bookings_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'bookings_workspace_id_group_session_id_fkey';
+            columns: ['workspace_id', 'group_session_id'];
+            isOneToOne: false;
+            referencedRelation: 'group_sessions';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+        ];
+      };
       client_records: {
         Row: {
           archived_at: string | null;
@@ -122,6 +192,47 @@ export type Database = {
           },
         ];
       };
+      group_sessions: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          ends_at: string;
+          id: string;
+          revision: number;
+          starts_at: string;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_at: string;
+          id?: string;
+          revision?: number;
+          starts_at: string;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          ends_at?: string;
+          id?: string;
+          revision?: number;
+          starts_at?: string;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'group_sessions_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       invitations: {
         Row: {
           accepted_at: string | null;
@@ -198,6 +309,59 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [];
+      };
+      schedule_proposals: {
+        Row: {
+          author_user_id: string;
+          base_revision: number;
+          booking_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          proposed_ends_at: string;
+          proposed_starts_at: string;
+          revision: number;
+          status: string;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          author_user_id?: string;
+          base_revision: number;
+          booking_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          proposed_ends_at: string;
+          proposed_starts_at: string;
+          revision?: number;
+          status?: string;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          author_user_id?: string;
+          base_revision?: number;
+          booking_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          proposed_ends_at?: string;
+          proposed_starts_at?: string;
+          revision?: number;
+          status?: string;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'schedule_proposals_workspace_id_booking_id_fkey';
+            columns: ['workspace_id', 'booking_id'];
+            isOneToOne: false;
+            referencedRelation: 'bookings';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+        ];
       };
       template_exercises: {
         Row: {
@@ -365,6 +529,16 @@ export type Database = {
           input_name: string;
         };
         Returns: string;
+      };
+      create_booking_set: {
+        Args: {
+          p_client_record_ids: string[];
+          p_collision_ack: boolean;
+          p_ends_at: string;
+          p_request_id: string;
+          p_starts_at: string;
+        };
+        Returns: Json;
       };
       is_workspace_owner: {
         Args: {

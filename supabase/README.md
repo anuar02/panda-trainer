@@ -51,6 +51,25 @@ typecheck/lint/format. Существующий стек trainerApp не сбр�
 Нет утверждения о remote CI, авторизованном телефоне или owner acceptance.
 
 Новая миграция: `npm run db -- migration new <имя>`.
+
+01.10.2026, SOM-25: `20261001110000_schedule_foundation.sql` добавляет расписание
+и `create_booking_set`. Проверены clean reset, lint без warning, 117 pgTAP
+(45 расписания), type drift и app check 342 теста / 46 suites. Два конкурентных
+сценария подтверждают реальное ожидание блокировки workspace: разные request IDs
+получают предупреждение после первой записи, одинаковый ID возвращает те же bookings.
+Тест создаёт и удаляет только собственные случайные вымышленные fixtures:
+
+```sh
+python3 supabase/tests/schedule_concurrency.py --container supabase_db_trainerApp
+```
+
+Для изолированного стека этой сессии имя контейнера — `supabase_db_trainerApp-som18`.
+Проверка добавлена в CI; удалённый запуск пока не выполнен. RLS скрывает чужих
+участников группы, column grants не дают читать внутренний receipt. Data API
+должен явно выбирать разрешённые столбцы, а не `select('*')` для bookings.
+Перенос/отмена, привязка программы, app transport и два телефона ещё не проверены.
+[ADR 0027](../docs/app/decisions/0027-server-schedule-foundation.md).
+
 На изолированной локальной базе применить её с нуля: `npm run db -- db reset --local`
 (удаляет локальные данные этого проекта; не использовать для сохранённых данных).
 Готовые миграции в main не изменять.

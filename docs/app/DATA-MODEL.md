@@ -3,6 +3,7 @@
 Статус 01.10.2026: четыре таблицы раздела «Люди и доступ» реализованы миграцией
 `20261001090000_identity_and_workspaces.sql`; три таблицы библиотеки — миграциями
 `20261001100000_exercise_library.sql` и `20261001101000_starter_catalog.sql`.
+Расписание — миграция `20261001110000_schedule_foundation.sql`.
 Остальные таблицы пока проект.
 Источник истины — `supabase/migrations/`. [Границы записи, типы и seed](decisions/0025-identity-rls-foundation.md).
 
@@ -63,9 +64,16 @@ created_by допускает null для системных операций б
 
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
-| `group_sessions` | `workspace_id`, `starts_at` | Общий старт мини-группы |
+| `group_sessions` | `workspace_id`, `starts_at`, `ends_at` | Общее время мини-группы при создании |
 | `bookings` | `workspace_id`, `client_record_id`, `group_session_id null`, `starts_at`, `ends_at`, `status` (`proposed`/`confirmed`/`cancelled_by_client`/`cancelled_by_trainer`), `revision` | Запись одного клиента |
 | `schedule_proposals` | `booking_id`, `author_user_id`, `proposed_starts_at`, `proposed_ends_at`, `base_revision`, `status` (`pending`/`accepted`/`declined`/`withdrawn`/`stale`) | Прежнее время действует до принятия |
+
+Три таблицы расписания включают RLS. Прямая запись закрыта; create_booking_set
+создаёт предложенные bookings для активных своих клиентов, при нескольких
+участниках — общую group_session. Коллизии требуют явного подтверждения тренера.
+Внутренние request_id/request_payload закрыты column grants.
+[Блокировки, повторы и границы](decisions/0027-server-schedule-foundation.md).
+schedule_proposals пока хранит контракт; RPC переноса/отмены относятся к SOM-27.
 
 ### Журнал тренировки
 
@@ -122,6 +130,7 @@ created_by допускает null для системных операций б
 | Функция | Что гарантирует |
 | --- | --- |
 | `accept_invitation(token)` | Срок, одноразовость, привязка к существующей карточке |
+| `create_booking_set(client_record_ids, starts_at, ends_at, collision_ack, request_id)` | Реализована: только владелец, tenant-safe создание, предупреждение о пересечении, сериализация и повтор без дубликатов |
 | `propose_time(booking_id, starts_at, ends_at, base_revision)` | Устаревшая ревизия → отказ с причиной |
 | `respond_to_proposal(proposal_id, accept)` | Атомарная смена времени и ревизии |
 | `cancel_booking(booking_id, reason)` | Отмена одного участника не трогает группу |
