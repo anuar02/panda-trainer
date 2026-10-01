@@ -9,7 +9,7 @@ import { Icon } from '@/ui/icons';
 import { Text } from '@/ui/text';
 import { useTheme } from '@/ui/theme';
 import { ExerciseDetailsSheet } from './exercise-details-sheet';
-import type { LibraryExercise } from './fixtures';
+import { media, type LibraryExercise, type LibraryMediaMap } from './fixtures';
 import { styles as s } from './styles';
 
 export function TemplateScreen({
@@ -20,14 +20,18 @@ export function TemplateScreen({
   templates: suppliedTemplates,
   onEdit,
   onCopy,
+  suppliedExercises,
+  suppliedMedia,
 }: {
   id?: string;
   templates?: Template[];
   onEdit?: () => void;
   onCopy?: () => void;
   onBack: () => void;
-  onUse: (id: string) => void;
+  onUse?: (id: string) => void;
   scenario?: DemoScenario;
+  suppliedExercises?: LibraryExercise[];
+  suppliedMedia?: LibraryMediaMap;
 }) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
@@ -36,7 +40,10 @@ export function TemplateScreen({
   )[] =
     suppliedTemplates ??
     t('trainerLibrary.templateData', { returnObjects: true });
-  const exercises = t('trainerLibrary.exerciseData', { returnObjects: true });
+  const exercises: LibraryExercise[] =
+    suppliedExercises ??
+    t('trainerLibrary.exerciseData', { returnObjects: true });
+  const exerciseMedia = suppliedMedia ?? media;
   const template = templates.find((entry) => entry.id === id);
   const [selected, setSelected] = useState<LibraryExercise | null>(null);
   const secondary = { color: colors.secondary };
@@ -180,7 +187,8 @@ export function TemplateScreen({
               style={d.useButton}
               label={t('trainerLibrary.use')}
               icon={<Icon name="calendarPlus" size={18} color="#ffffff" />}
-              onPress={() => onUse(template.id)}
+              disabled={!onUse}
+              onPress={() => onUse?.(template.id)}
             />
           </View>
         </>
@@ -197,6 +205,7 @@ export function TemplateScreen({
       <ExerciseDetailsSheet
         selected={selected}
         onClose={() => setSelected(null)}
+        suppliedMedia={exerciseMedia}
       />
     </SafeAreaView>
   );

@@ -10,6 +10,7 @@ import '../src/lib/i18n';
 import { TemplateProvider } from '../src/features/template-editor/provider';
 import { TemplateEditorScreen } from '../src/features/template-editor/screen';
 import { decodeTemplates } from '../src/domain/templates';
+import { trainerLibrary } from '../src/features/trainer-library/ru';
 jest.mock('../src/ui/sheet', () => ({
   Sheet: ({
     open,
@@ -157,4 +158,55 @@ test('discard requires confirmation and invalid empty plan stays in editor', asy
     );
   });
   expect(onLeave).toHaveBeenCalledTimes(1);
+});
+
+test('workspace exercise UUIDs retain source measurement defaults in the picker', async () => {
+  let raw: string | null = null;
+  const timedFixture = trainerLibrary.exerciseData.find(
+    (exercise) => exercise.id === 'e20',
+  )!;
+  const workspaceExercise = {
+    ...timedFixture,
+    id: '00000000-0000-4000-8000-000000000020',
+    sourceKey: 'e20',
+    measure: 'seconds' as const,
+  };
+  await render(
+    <TemplateProvider
+      storage={{
+        getItem: async () => raw,
+        setItem: async (_key, value) => {
+          raw = value;
+        },
+      }}
+    >
+      <TemplateEditorScreen
+        onLeave={() => {}}
+        onSaved={() => {}}
+        suppliedExercises={[workspaceExercise]}
+        suppliedMedia={{}}
+      />
+    </TemplateProvider>,
+  );
+  await waitFor(() =>
+    expect(screen.getByLabelText('Название шаблона')).toBeTruthy(),
+  );
+  await fireEvent.changeText(
+    screen.getByLabelText('Название шаблона'),
+    'План с секундомером',
+  );
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Добавить упражнения' }),
+  );
+  await fireEvent.press(
+    screen.getByRole('button', { name: timedFixture.name }),
+  );
+  await waitFor(() =>
+    expect(decodeTemplates(raw)?.draft?.exercises[0]).toMatchObject({
+      id: workspaceExercise.id,
+      name: timedFixture.name,
+      reps: '30',
+      unit: 'сек',
+    }),
+  );
 });

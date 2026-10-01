@@ -61,6 +61,13 @@ test.each(['normal', 'empty', 'loading', 'offline'] as const)(
   },
 );
 
+test('template use stays disabled when the real workspace route has no scheduling action', async () => {
+  await render(<TemplateScreen id="t4" onBack={() => {}} />);
+  expect(
+    screen.getByRole('button', { name: 'Создать занятие с этим планом' }),
+  ).toBeDisabled();
+});
+
 test.each(['missing', 'constructor', undefined])(
   'invalid template %s cannot create a session',
   async (id) => {

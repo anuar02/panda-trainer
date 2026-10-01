@@ -156,9 +156,9 @@ viewport 390 × 844. Скрипт теперь фиксирует только �
 | `t-client` Карточка клиента | `/workspace/client/[id]`, демо `/client/[id]` | 2 | не принят |
 | `t-invite` Приглашение | `/workspace/invite/[id]` | 2 | не принят; [отчёт](../../app/review/invitations/README.md) |
 | `t-session` Журнал тренировки | `session/[id]` | 5 | не принят |
-| `t-library` Библиотека | `(trainer)/library` | 3 | нет |
-| `t-template` Шаблон | `/template/[id]` | 3 | нет |
-| `t-template-editor` Конструктор | `/template-editor` | 3 | не принят; [отчёт](../../app/review/template-builder/README.md) |
+| `t-library` Библиотека | `/workspace/library`, демо `(trainer)/library` | 3 | не принят; [отчёт](../../app/review/workspace-library/README.md) |
+| `t-template` Шаблон | `/workspace/library/template/[id]`, демо `/template/[id]` | 3 | не принят |
+| `t-template-editor` Конструктор | `/workspace/library/editor`, демо `/template-editor` | 3 | не принят; [отчёт](../../app/review/template-builder/README.md) |
 | `t-billing` Пакеты и оплаты | `(trainer)/clients/[id]/billing` | 6 | нет |
 | `t-profile` Профиль тренера | `(trainer)/profile` | 1–2 | нет |
 | `t-welcome` Первый вход | `/auth/onboarding` | 2 | не принят; [отчёт](../../app/review/onboarding/README.md) |

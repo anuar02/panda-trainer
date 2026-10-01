@@ -1,21 +1,32 @@
 import { Image, Linking } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '@/ui/sheet';
+import { Button } from '@/ui/button';
 import { Text } from '@/ui/text';
 import { useTheme } from '@/ui/theme';
-import { media, type LibraryExercise } from './fixtures';
+import {
+  media as fixtureMedia,
+  type LibraryExercise,
+  type LibraryMediaMap,
+} from './fixtures';
 import { styles as s } from './styles';
 
 export function ExerciseDetailsSheet({
   selected,
   onClose,
+  suppliedMedia,
+  onArchiveExercise,
 }: {
   selected: LibraryExercise | null;
   onClose: () => void;
+  suppliedMedia?: LibraryMediaMap;
+  onArchiveExercise?: (exercise: LibraryExercise) => void;
 }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const secondary = { color: colors.secondary };
+  const exerciseMedia = suppliedMedia ?? fixtureMedia;
+  const guide = selected ? exerciseMedia[selected.id] : undefined;
   return (
     <Sheet
       open={Boolean(selected)}
@@ -27,9 +38,9 @@ export function ExerciseDetailsSheet({
           <Text style={secondary}>
             {t('trainerLibrary.groupEquipment', selected)}
           </Text>
-          {media[selected.id] ? (
+          {guide ? (
             <>
-              <Image source={media[selected.id]?.gif} style={s.guideImage} />
+              <Image source={guide.gif} style={s.guideImage} />
               <Text
                 style={[s.small, secondary]}
                 accessibilityRole="link"
@@ -48,6 +59,17 @@ export function ExerciseDetailsSheet({
             </>
           ) : (
             <Text style={secondary}>{t('trainerLibrary.noGuide')}</Text>
+          )}
+          {onArchiveExercise && selected.sourceKey !== undefined && (
+            <Button
+              label={t('workspaceLibrary.archive')}
+              variant="ghost"
+              onPress={() => {
+                const exercise = selected;
+                onClose();
+                onArchiveExercise(exercise);
+              }}
+            />
           )}
         </>
       )}

@@ -1,11 +1,21 @@
 import type { ImageSourcePropType } from 'react-native';
 import type { trainerLibrary } from './ru';
-export type LibraryExercise = (typeof trainerLibrary.exerciseData)[number];
+export type LibraryExercise = (typeof trainerLibrary.exerciseData)[number] & {
+  sourceKey?: string | null;
+  measure?: 'reps' | 'seconds';
+  archivedAt?: string | null;
+  revision?: number;
+  bodyweight?: boolean;
+};
 export type LibraryTemplate = (typeof trainerLibrary.templateData)[number];
-export const media: Record<
-  string,
-  { image: ImageSourcePropType; gif: ImageSourcePropType }
-> = {
+export type LibraryExerciseMedia = {
+  image: ImageSourcePropType;
+  gif: ImageSourcePropType;
+};
+export type LibraryMediaMap = Readonly<
+  Partial<Record<string, LibraryExerciseMedia>>
+>;
+export const media: Record<string, LibraryExerciseMedia> = {
   e0: {
     image: require('../../../assets/exercises/0043-qXTaZnJ.jpg'),
     gif: require('../../../assets/exercises/0043-qXTaZnJ.gif'),

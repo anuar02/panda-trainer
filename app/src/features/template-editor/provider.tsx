@@ -33,7 +33,7 @@ export const builtInTemplates: Template[] = trainerLibrary.templateData.map(
 );
 type Storage = Pick<typeof AsyncStorage, 'getItem' | 'setItem'>;
 type Status = 'loading' | 'saved' | 'saving' | 'error';
-type Value = {
+export type TemplateEditorStore = {
   templates: Template[];
   draft: TemplateDraft | null;
   ready: boolean;
@@ -46,7 +46,7 @@ type Value = {
   save: () => Promise<TemplateResult>;
   retry: () => void;
 };
-const Context = createContext<Value | null>(null);
+const Context = createContext<TemplateEditorStore | null>(null);
 const catalog = (state: TemplateState) => [
   ...builtInTemplates.map((t) => state.items.find((x) => x.id === t.id) ?? t),
   ...state.items.filter((t) => !builtInTemplates.some((x) => x.id === t.id)),
@@ -138,7 +138,7 @@ export function TemplateProvider({
     if (mounted.current) setBusy(false);
     return ok;
   };
-  const value: Value = {
+  const value: TemplateEditorStore = {
     templates: catalog(state),
     draft: state.draft,
     ready,

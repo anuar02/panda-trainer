@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -20,20 +20,35 @@ import { Text } from '@/ui/text';
 import { useTheme } from '@/ui/theme';
 import { useToast } from '@/ui/toast';
 import { trainerLibrary } from '@/features/trainer-library/ru';
-import { matches, media } from '@/features/trainer-library/fixtures';
+import {
+  matches,
+  media,
+  type LibraryExercise,
+  type LibraryMediaMap,
+} from '@/features/trainer-library/fixtures';
 import { styles as libraryStyles } from '@/features/trainer-library/styles';
 import type { TemplateError } from '@/domain/templates';
-import { useTemplates } from './provider';
+import { useOptionalTemplates, type TemplateEditorStore } from './provider';
 const PickerTextInput =
   Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
 export function TemplateEditorScreen({
   onLeave,
   onSaved,
+  store: suppliedStore,
+  suppliedExercises,
+  suppliedMedia,
+  header,
 }: {
   onLeave: () => void;
   onSaved: (id: string) => void;
+  store?: TemplateEditorStore;
+  suppliedExercises?: LibraryExercise[];
+  suppliedMedia?: LibraryMediaMap;
+  header?: ReactNode;
 }) {
-  const store = useTemplates();
+  const contextStore = useOptionalTemplates();
+  const store = suppliedStore ?? contextStore;
+  if (!store) throw new Error('TemplateProvider is required');
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const toast = useToast();
@@ -134,7 +149,10 @@ export function TemplateEditorScreen({
         nameInput.current?.focus();
     }
   };
-  const filtered = trainerLibrary.exerciseData.filter((e) =>
+  const exerciseCatalog: LibraryExercise[] =
+    suppliedExercises ?? trainerLibrary.exerciseData;
+  const exerciseMedia = suppliedMedia ?? media;
+  const filtered = exerciseCatalog.filter((e) =>
     matches(query, [e.name, e.group, ...e.aliases].join(' ')),
   );
   return (
@@ -143,6 +161,7 @@ export function TemplateEditorScreen({
       style={s.root}
       testID="template-editor"
     >
+      {header}
       <KeyboardAvoidingView
         style={s.root}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -519,18 +538,22 @@ export function TemplateEditorScreen({
                           id: e.id,
                           name: e.name,
                           sets: '3',
-                          reps: e.id === 'e20' ? '30' : '10',
+                          reps: (e.sourceKey ?? e.id) === 'e20' ? '30' : '10',
                           target: '',
                           rest: '90',
-                          unit: e.id === 'e20' ? 'сек' : 'повт',
+                          unit:
+                            e.measure === 'seconds' ||
+                            (!e.measure && (e.sourceKey ?? e.id) === 'e20')
+                              ? 'сек'
+                              : 'повт',
                         },
                       ],
                 });
               }}
             >
               <View style={[s.thumb, { backgroundColor: colors.sunken }]}>
-                {media[e.id] ? (
-                  <Image source={media[e.id]!.image} style={s.thumb} />
+                {exerciseMedia[e.id] ? (
+                  <Image source={exerciseMedia[e.id]!.image} style={s.thumb} />
                 ) : (
                   <Icon name="dumbbell" size={24} color={colors.secondary} />
                 )}

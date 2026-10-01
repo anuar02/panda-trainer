@@ -80,6 +80,11 @@ export default function AccountRoute() {
                   disabled={busy}
                   onPress={() => router.push('/workspace/clients')}
                 />
+                <Button
+                  label={t('workspaceLibrary.open')}
+                  disabled={busy}
+                  onPress={() => router.push('/workspace/library')}
+                />
               </>
             ) : null}
             {context.context?.connections.map((connection) => (

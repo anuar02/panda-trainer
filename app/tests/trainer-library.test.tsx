@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import '../src/lib/i18n';
 import { TrainerLibraryScreen } from '../src/features/trainer-library/trainer-library-screen';
+import { trainerLibrary } from '../src/features/trainer-library/ru';
 
 const onOpenTemplate = jest.fn();
 beforeEach(() => onOpenTemplate.mockClear());
@@ -89,4 +90,58 @@ test('muscle and equipment filters compose and technique details use the selecte
       '1. Встаньте, ноги на ширине плеч, держа в каждой руке по гантели.',
     ),
   ).toBeTruthy();
+});
+
+test('supplied exercises replace the demo list and unmatched search delegates custom creation', async () => {
+  const exercise = {
+    ...trainerLibrary.exerciseData[0]!,
+    id: '00000000-0000-4000-8000-000000000001',
+    name: 'Упражнение из базы',
+    sourceKey: null,
+  };
+  const onCreateExercise = jest.fn();
+  await render(
+    <TrainerLibraryScreen
+      onOpenTemplate={onOpenTemplate}
+      suppliedExercises={[exercise]}
+      templateExercises={[exercise]}
+      suppliedMedia={{}}
+      onCreateExercise={onCreateExercise}
+    />,
+  );
+  expect(screen.getByText('Упражнение из базы')).toBeTruthy();
+  expect(screen.queryByText('Жим лёжа')).toBeNull();
+  await fireEvent.changeText(
+    screen.getByLabelText('Поиск упражнений'),
+    'Новый тренажёр',
+  );
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Создать своё: «Новый тренажёр»' }),
+  );
+  expect(onCreateExercise).toHaveBeenCalledWith('Новый тренажёр');
+});
+
+test('details sheet closes before delegating archive confirmation for custom records', async () => {
+  const exercise = {
+    ...trainerLibrary.exerciseData[0]!,
+    id: '00000000-0000-4000-8000-000000000002',
+    name: 'Моё упражнение',
+    sourceKey: null,
+  };
+  const onArchiveExercise = jest.fn();
+  await render(
+    <TrainerLibraryScreen
+      onOpenTemplate={onOpenTemplate}
+      suppliedExercises={[exercise]}
+      templateExercises={[exercise]}
+      suppliedMedia={{}}
+      onArchiveExercise={onArchiveExercise}
+    />,
+  );
+  await fireEvent.press(screen.getByText('Моё упражнение'));
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Архивировать упражнение' }),
+  );
+  expect(onArchiveExercise).toHaveBeenCalledWith(exercise);
+  expect(screen.queryByText('Как выполнять')).toBeNull();
 });

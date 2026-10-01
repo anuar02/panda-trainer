@@ -18,10 +18,12 @@ import { onboardingRu } from '@/features/onboarding/strings';
 import { workspaceClientsRu } from '@/features/workspace-clients/strings';
 import { workspaceClientDetailsRu } from '@/features/workspace-clients/details-strings';
 import { invitationsRu } from '@/features/invitations/strings';
+import { workspaceLibraryRu } from '@/features/workspace-library/strings';
 
 export const ru = {
   ...onboardingRu,
   invitations: invitationsRu,
+  workspaceLibrary: workspaceLibraryRu,
   workspaceClients: workspaceClientsRu,
   workspaceClientDetails: workspaceClientDetailsRu,
   trainerInbox,
