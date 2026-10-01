@@ -57,6 +57,71 @@ export type Database = {
           },
         ];
       };
+      exercises: {
+        Row: {
+          aliases: string[];
+          archived_at: string | null;
+          bodyweight: boolean;
+          created_at: string;
+          created_by: string | null;
+          equipment: string;
+          id: string;
+          instructions: string[];
+          measure: string;
+          muscle_group: string;
+          name: string;
+          name_normalized: string | null;
+          revision: number;
+          source_key: string | null;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          aliases?: string[];
+          archived_at?: string | null;
+          bodyweight?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          equipment: string;
+          id?: string;
+          instructions?: string[];
+          measure: string;
+          muscle_group: string;
+          name: string;
+          name_normalized?: never;
+          revision?: number;
+          source_key?: string | null;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          aliases?: string[];
+          archived_at?: string | null;
+          bodyweight?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          equipment?: string;
+          id?: string;
+          instructions?: string[];
+          measure?: string;
+          muscle_group?: string;
+          name?: string;
+          name_normalized?: never;
+          revision?: number;
+          source_key?: string | null;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'exercises_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       invitations: {
         Row: {
           accepted_at: string | null;
@@ -134,6 +199,82 @@ export type Database = {
         };
         Relationships: [];
       };
+      template_exercises: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          exercise_id: string;
+          id: string;
+          note: string | null;
+          planned_reps: string | null;
+          planned_seconds: string | null;
+          planned_sets: number;
+          planned_weight_g: number | null;
+          position: number;
+          rest_seconds: number;
+          revision: number;
+          template_id: string;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          exercise_id: string;
+          id?: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets: number;
+          planned_weight_g?: number | null;
+          position: number;
+          rest_seconds?: number;
+          revision?: number;
+          template_id: string;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          exercise_id?: string;
+          id?: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets?: number;
+          planned_weight_g?: number | null;
+          position?: number;
+          rest_seconds?: number;
+          revision?: number;
+          template_id?: string;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'template_exercises_workspace_id_exercise_id_fkey';
+            columns: ['workspace_id', 'exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'template_exercises_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'template_exercises_workspace_id_template_id_fkey';
+            columns: ['workspace_id', 'template_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_templates';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+        ];
+      };
       trainer_workspaces: {
         Row: {
           created_at: string;
@@ -167,11 +308,64 @@ export type Database = {
         };
         Relationships: [];
       };
+      workout_templates: {
+        Row: {
+          archived_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          id: string;
+          name: string;
+          name_normalized: string | null;
+          revision: number;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          name: string;
+          name_normalized?: never;
+          revision?: number;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          archived_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          name?: string;
+          name_normalized?: never;
+          revision?: number;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workout_templates_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      canonicalize_library_name: {
+        Args: {
+          input_name: string;
+        };
+        Returns: string;
+      };
       is_workspace_owner: {
         Args: {
           target_workspace_id: string;
@@ -181,6 +375,41 @@ export type Database = {
       my_client_record_ids: {
         Args: Record<PropertyKey, never>;
         Returns: string[];
+      };
+      normalize_library_name: {
+        Args: {
+          input_name: string;
+        };
+        Returns: string;
+      };
+      search_exercises: {
+        Args: {
+          search_query: string;
+        };
+        Returns: {
+          aliases: string[];
+          archived_at: string | null;
+          bodyweight: boolean;
+          created_at: string;
+          created_by: string | null;
+          equipment: string;
+          id: string;
+          instructions: string[];
+          measure: string;
+          muscle_group: string;
+          name: string;
+          name_normalized: string | null;
+          revision: number;
+          source_key: string | null;
+          updated_at: string;
+          workspace_id: string;
+        }[];
+        SetofOptions: {
+          from: '*';
+          to: 'exercises';
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
       };
     };
     Enums: {

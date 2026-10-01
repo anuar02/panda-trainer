@@ -1,7 +1,9 @@
 # Модель данных (Supabase / Postgres)
 
 Статус 01.10.2026: четыре таблицы раздела «Люди и доступ» реализованы миграцией
-`20261001090000_identity_and_workspaces.sql`; остальные разделы пока проект.
+`20261001090000_identity_and_workspaces.sql`; три таблицы библиотеки — миграциями
+`20261001100000_exercise_library.sql` и `20261001101000_starter_catalog.sql`.
+Остальные таблицы пока проект.
 Источник истины — `supabase/migrations/`. [Границы записи, типы и seed](decisions/0025-identity-rls-foundation.md).
 
 Основа: `trainer-crm-agent-plan.md` §3–§4 и `prototype-fresh/SYNC-DESIGN.md`.
@@ -42,11 +44,20 @@ created_by допускает null для системных операций б
 
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
-| `exercises` | `workspace_id`, `name`, `name_normalized`, `muscle_group`, `measure` (`reps`/`seconds`), `bodyweight`, `archived_at` | Уникальность по `(workspace_id, name_normalized)` среди неархивных |
+| `exercises` | `workspace_id`, `name`, `name_normalized`, `muscle_group`, `equipment`, `source_key null`, `measure` (`reps`/`seconds`), `bodyweight`, `archived_at` | Уникальность по `(workspace_id, name_normalized)` среди неархивных |
 | `workout_templates` | `workspace_id`, `name`, `revision`, `archived_at` | Имя не идентификатор |
-| `template_exercises` | `template_id`, `exercise_id`, `position`, `planned_sets`, `planned_reps`, `planned_seconds`, `planned_weight_g`, `note` | |
+| `template_exercises` | `workspace_id`, `template_id`, `exercise_id`, `position`, `planned_sets`, `planned_reps`, `planned_seconds`, `planned_weight_g`, `rest_seconds`, `note` | |
 | `client_programs` | `client_record_id`, `base_template_id`, `base_template_revision`, `name`, `revision` | Личная копия шаблона |
 | `client_program_exercises` | как `template_exercises` + `client_program_id` | |
+
+Реализованы exercises, workout_templates и template_exercises. Каталог из 81
+упражнения копируется в новое пространство; источник и границы —
+[ADR 0026](decisions/0026-workspace-library.md). Шаблон хранит ссылки на упражнения
+того же workspace, включая архивные. Клиент не получает прямого доступа к
+библиотеке тренера. planned_reps/planned_seconds хранят строку числа или диапазона;
+ровно одно поле заполнено и соответствует единице упражнения. Единица недоступна
+для прямого UPDATE, чтобы не нарушать сохранённые планы. У строк состава есть
+своя revision; изменение состава также повышает revision шаблона. client_programs и клиентский transport ещё не реализованы.
 
 ### Расписание
 
