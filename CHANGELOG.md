@@ -11,6 +11,11 @@
 
 ### Добавлено
 
+- SOM-36: selected-connection progress из полной собственной finished history;
+  реальные рекорды и 28-дневные изменения, без метрик из неполной истории.
+  951 тест / 105 suites, web/iOS/Android export и 6 default capture pairs проходят.
+  Trainer/client browser: 23/29 checks; owner/native acceptance открыты. [ADR 0049](docs/app/decisions/0049-client-progress-from-finished-history.md).
+
 - SOM-36/24: реальный readonly client program из immutable booking plan и
   latest-copy fallback при отсутствии будущих bookings. Сохранены плановые ranges,
   null/zero weights и snapshot инструкции; demo guides/results/media не подставляются.

@@ -106,6 +106,16 @@ export default function AccountRoute() {
                 </Text>
                 <Text className="text-secondary">{connection.client_name}</Text>
                 <Button
+                  label={t('clientProgress.title')}
+                  disabled={busy}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/connection/[clientRecordId]/progress',
+                      params: { clientRecordId: connection.client_record_id },
+                    })
+                  }
+                />
+                <Button
                   label={t('clientProgram.title')}
                   disabled={busy}
                   onPress={() =>

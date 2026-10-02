@@ -168,7 +168,7 @@ const asUser = (id, statement) =>
   sql(
     `begin; set local role authenticated; set local request.jwt.claims='{"sub":"${id}","role":"authenticated"}'; ${statement}; commit;`,
   );
-function createFixture() {
+async function createFixture() {
   const workspace = sql(
     `select w.id from public.trainer_workspaces w join auth.users u on u.id=w.owner_user_id where u.email='${email}'`,
   );
@@ -176,13 +176,28 @@ function createFixture() {
     `select owner_user_id from public.trainer_workspaces where id='${workspace}'`,
   );
   const ids = names.map(() => randomUUID());
-  const clientUser = randomUUID();
+  const account = await fetch(`${config.API_URL}/auth/v1/admin/users`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${config.SERVICE_ROLE_KEY}`,
+      apikey: config.SERVICE_ROLE_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email: clientEmail, email_confirm: true }),
+  });
+  if (!account.ok)
+    throw new Error(
+      `Synthetic client account creation failed (${account.status})`,
+    );
+  const clientUser = (await account.json()).id;
+  if (typeof clientUser !== 'string' || !/^[0-9a-f-]{36}$/.test(clientUser))
+    throw new Error('Synthetic client account identity invalid');
   const template = randomUUID();
   const exercise = randomUUID();
   const date = sql(`select ((now() at time zone 'Asia/Almaty')::date+1)::text`);
   fixture = { workspace, owner, ids, clientUser, template, exercise, date };
   sql(
-    `begin; insert into auth.users(id,aud,role,email) values ('${clientUser}','authenticated','authenticated','${clientEmail}'); insert into public.client_records(id,workspace_id,display_name,user_id) values ('${ids[0]}','${workspace}','${names[0]}',null),('${ids[1]}','${workspace}','${names[1]}',null); insert into public.exercises(id,workspace_id,name,muscle_group,equipment,measure,bodyweight) values ('${exercise}','${workspace}','Движение проверки','Ноги','вес тела','reps',true); insert into public.workout_templates(id,workspace_id,name,description) values ('${template}','${workspace}','Неизменный план','Синтетическая программа'); insert into public.template_exercises(workspace_id,template_id,exercise_id,position,planned_sets,planned_reps,rest_seconds) values ('${workspace}','${template}','${exercise}',0,3,'10',60); commit;`,
+    `begin; insert into public.client_records(id,workspace_id,display_name,user_id) values ('${ids[0]}','${workspace}','${names[0]}',null),('${ids[1]}','${workspace}','${names[1]}',null); insert into public.exercises(id,workspace_id,name,muscle_group,equipment,measure,bodyweight) values ('${exercise}','${workspace}','Движение проверки','Ноги','вес тела','reps',true); insert into public.workout_templates(id,workspace_id,name,description) values ('${template}','${workspace}','Неизменный план','Синтетическая программа'); insert into public.template_exercises(workspace_id,template_id,exercise_id,position,planned_sets,planned_reps,rest_seconds) values ('${workspace}','${template}','${exercise}',0,3,'10',60); commit;`,
   );
   const revision = Number(
     sql(`select revision from public.workout_templates where id='${template}'`),
@@ -265,8 +280,12 @@ async function run() {
   const trainerContext = await browser.newContext({
     viewport: { width: 390, height: 844 },
   });
-  await signInAsTrainer(await trainerContext.newPage());
-  createFixture();
+  activePage = await trainerContext.newPage();
+  activePage.on('pageerror', (error) =>
+    pageErrors.push(String(error.message).slice(0, 240)),
+  );
+  await signInAsTrainer(activePage);
+  await createFixture();
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
   });
@@ -413,15 +432,33 @@ async function run() {
     'accepted-move-keeps-program',
   );
   stage = 'client-program';
-  await page.goto(`${origin}/connection/${fixture.ids[0]}/program`, { waitUntil: 'networkidle' });
+  await page.goto(`${origin}/connection/${fixture.ids[0]}/program`, {
+    waitUntil: 'networkidle',
+  });
   await waitForText(page, 'Движение проверки');
-  check((await page.locator('body').innerText()).includes('Неизменный план'), 'program-reads-own-booking-snapshot');
-  check(!(await page.locator('body').innerText()).includes('Текущий каталог переименован'), 'program-snapshot-survives-catalog-change');
+  check(
+    (await page.locator('body').innerText()).includes('Неизменный план'),
+    'program-reads-own-booking-snapshot',
+  );
+  check(
+    !(await page.locator('body').innerText()).includes(
+      'Текущий каталог переименован',
+    ),
+    'program-snapshot-survives-catalog-change',
+  );
   await clickButton(page, 'Движение проверки');
-  await waitForText(page, 'Подсказка тренера по этому упражнению пока не добавлена.');
-  check(!(await page.locator('body').innerText()).includes('Личный рекорд'), 'program-detail-does-not-invent-results');
-  await page.goto(`${origin}/connection/${fixture.ids[0]}`, { waitUntil: 'networkidle' });
-  await waitForText(page, 'Неизменный план');
+  await waitForText(
+    page,
+    'Подсказка тренера по этому упражнению пока не добавлена.',
+  );
+  check(
+    !(await page.locator('body').innerText()).includes('Личный рекорд'),
+    'program-detail-does-not-invent-results',
+  );
+  await page.goto(`${origin}/connection/${fixture.ids[0]}`, {
+    waitUntil: 'networkidle',
+  });
+  await waitForBodyText(page, 'Неизменный план');
   stage = 'client-cancel';
   await clickButton(page, 'Отменить запись');
   await waitForText(page, 'Отменить запись?');
@@ -503,6 +540,31 @@ async function run() {
   );
   await page.screenshot({
     path: '/tmp/screens/client-scheduling/history-detail.png',
+    fullPage: true,
+  });
+  stage = 'client-progress';
+  await page.goto(`${origin}/connection/${fixture.ids[0]}/progress`, {
+    waitUntil: 'networkidle',
+  });
+  await waitForText(page, 'Снимок истории');
+  await waitForBodyText(page, '20,5 кг × 8 повт');
+  const progressBody = await page.locator('body').innerText();
+  check(
+    progressBody.includes('20,5 кг × 8 повт'),
+    'progress-own-actual-best-set',
+  );
+  check(
+    !progressBody.includes('Чужое движение') &&
+      !progressBody.includes('Черновое движение'),
+    'progress-excludes-peer-and-draft',
+  );
+  check(
+    !progressBody.includes('Посещения за неделю') &&
+      !progressBody.includes('₸'),
+    'progress-does-not-invent-attendance-or-finances',
+  );
+  await page.screenshot({
+    path: '/tmp/screens/client-scheduling/progress.png',
     fullPage: true,
   });
   stage = 'account-switch';

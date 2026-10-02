@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -16,17 +17,36 @@ import { progressWeek } from './fixtures';
 import { styles as s } from './styles';
 import type { clientProgress } from './ru';
 
+export type ClientProgressResult = {
+  name: string;
+  unit: 'сек' | 'повт';
+  best: { kg: number; reps: number; date: string };
+  delta: number | null;
+  deltaUnit: 'кг' | 'сек' | 'повт';
+  baselineDate: string | null;
+  series: readonly { date: string; value: number }[];
+};
+export type ClientProgressData = {
+  trainerName: string;
+  results: readonly ClientProgressResult[];
+  loading?: boolean;
+  footer?: ReactNode;
+};
 export function ClientProgressScreen({
   scenario = 'normal',
+  data,
 }: {
   scenario?: DemoScenario;
+  data?: ClientProgressData;
 }) {
   const { t, i18n } = useTranslation();
-  const demo = useOptionalWorkoutDemo();
+  const demoContext = useOptionalWorkoutDemo();
+  const demo = data ? null : demoContext;
   const results =
-    scenario !== 'empty' && demo?.hydrated
+    data?.results ??
+    (scenario !== 'empty' && demo?.hydrated
       ? workoutClientProgress(demo.state, 'c1')
-      : [];
+      : []);
   const number = (value: number) =>
     new Intl.NumberFormat(i18n.language).format(value);
   const { colors, scheme } = useTheme();
@@ -47,14 +67,23 @@ export function ClientProgressScreen({
               end={scheme === 'light' ? '#141726' : '#18191d'}
               radius={16}
             />
-            <Text style={s.initials}>{tx('initials')}</Text>
+            <Text style={s.initials}>
+              {data
+                ? data.trainerName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0])
+                    .join('')
+                : tx('initials')}
+            </Text>
           </View>
           <View>
             <Text className="font-medium text-secondary" style={s.trainerText}>
               {tx('trainerLabel')}
             </Text>
             <Text className="font-bold" style={s.trainerText}>
-              {tx('trainer')}
+              {data?.trainerName ?? tx('trainer')}
             </Text>
           </View>
         </View>
@@ -70,7 +99,11 @@ export function ClientProgressScreen({
         </Pressable>
       </View>
       <ScrollView contentContainerStyle={s.body}>
-        {scenario === 'loading' || (demo && !demo.hydrated) ? (
+        {(
+          data
+            ? data.loading
+            : scenario === 'loading' || (demo && !demo.hydrated)
+        ) ? (
           <View
             style={s.page}
             accessible
@@ -116,7 +149,7 @@ export function ClientProgressScreen({
           </View>
         ) : (
           <>
-            {scenario === 'offline' && (
+            {!data && scenario === 'offline' && (
               <Text
                 accessibilityRole="alert"
                 style={[
@@ -244,37 +277,40 @@ export function ClientProgressScreen({
                 </View>
               )}
             </View>
-            <View style={s.visits}>
-              <Text accessibilityRole="header" style={s.sectionTitle}>
-                {tx('visitsTitle')}
-              </Text>
-              <Card flush style={s.visitsCard}>
-                <View style={s.week}>
-                  {progressWeek.map(({ weekday, day }) => (
-                    <View key={weekday} style={s.column}>
-                      <Text style={[s.weekday, secondary]}>
-                        {t(`clientProgress.weekdays.${weekday}`)}
-                      </Text>
-                      <View
-                        accessible
-                        accessibilityLabel={t('clientProgress.dayLabel', {
-                          weekday: t(`clientProgress.weekdays.${weekday}`),
-                          day,
-                        })}
-                        style={s.day}
-                      >
-                        <Text style={[s.dayText, secondary]}>{day}</Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-                <Text style={[s.footnote, secondary]}>
-                  {tx('visitsFootnote')}
+            {!data && (
+              <View style={s.visits}>
+                <Text accessibilityRole="header" style={s.sectionTitle}>
+                  {tx('visitsTitle')}
                 </Text>
-              </Card>
-            </View>
+                <Card flush style={s.visitsCard}>
+                  <View style={s.week}>
+                    {progressWeek.map(({ weekday, day }) => (
+                      <View key={weekday} style={s.column}>
+                        <Text style={[s.weekday, secondary]}>
+                          {t(`clientProgress.weekdays.${weekday}`)}
+                        </Text>
+                        <View
+                          accessible
+                          accessibilityLabel={t('clientProgress.dayLabel', {
+                            weekday: t(`clientProgress.weekdays.${weekday}`),
+                            day,
+                          })}
+                          style={s.day}
+                        >
+                          <Text style={[s.dayText, secondary]}>{day}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                  <Text style={[s.footnote, secondary]}>
+                    {tx('visitsFootnote')}
+                  </Text>
+                </Card>
+              </View>
+            )}
           </>
         )}
+        {data?.footer}
       </ScrollView>
     </SafeAreaView>
   );

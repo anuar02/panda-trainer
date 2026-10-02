@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-36: guarded client progress route читает все собственные
+  finished journals перед расчётом реальных рекордов и 28-дневных изменений.
+  Unknown/zero результаты различаются; partial history не отображает метрики.
+  951 тест / 105 suites, type/lint/format, all-platform export и 6 default capture
+  pairs проходят. Docker resumed; DB types совпадают. Trainer/browser flows проходят 23/29 checks после isolated Auth restart и
+  исправления synthetic client provisioning; owner/native acceptance открыты.
+  [ADR 0049](decisions/0049-client-progress-from-finished-history.md).
+
 - 02.10.2026 — SOM-36/24: selected-connection program route, first upcoming
   snapshot plan/on-site note и latest personal-copy fallback только без upcoming.
   Safe reader/hook, readonly snapshot detail и exact-card navigation. 915 тестов /
