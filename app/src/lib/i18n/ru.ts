@@ -1,3 +1,4 @@
+import { trainerBillingRu } from '@/features/trainer-billing/ru';
 import { templateEditor } from '@/features/template-editor/ru';
 import { trainerInbox } from '@/features/trainer-inbox/ru';
 import { sessionEditorRu } from '@/features/session-editor/ru';
@@ -22,6 +23,7 @@ import { workspaceLibraryRu } from '@/features/workspace-library/strings';
 import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
 
 export const ru = {
+  trainerBilling: trainerBillingRu,
   ...onboardingRu,
   invitations: invitationsRu,
   workspaceLibrary: workspaceLibraryRu,

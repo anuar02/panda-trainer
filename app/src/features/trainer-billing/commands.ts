@@ -1,0 +1,157 @@
+import * as service from './service';
+import type {
+  CreateClientPurchaseInput,
+  MarkAttendedInput,
+  BillingBookingCommand,
+  BindAttendancePurchaseInput,
+  UndoAttendanceInput,
+  ChargeLateCancellationInput,
+  BillingAttendanceResult,
+  BillingPurchaseResult,
+} from './types';
+import { TrainerBillingError } from './types';
+import { uuid, positiveInteger, minorMoney, date, record } from './validation';
+import {
+  savePendingTrainerBillingCommand,
+  clearPendingTrainerBillingCommand,
+} from './command-storage';
+
+type Command<A extends string, T> = { action: A } & Omit<T, 'expectedUserId'>;
+export type TrainerBillingCommand =
+  | Command<'createPurchase', CreateClientPurchaseInput>
+  | Command<'markAttended', MarkAttendedInput>
+  | Command<'markNoShow', BillingBookingCommand>
+  | Command<'bindPurchase', BindAttendancePurchaseInput>
+  | Command<'undoAttendance', UndoAttendanceInput>
+  | Command<'chargeLateCancellation', ChargeLateCancellationInput>;
+export type TrainerBillingCommandResult =
+  BillingAttendanceResult | BillingPurchaseResult;
+export function validTrainerBillingCommand(
+  value: unknown,
+): value is TrainerBillingCommand {
+  if (!record(value) || !uuid(value.requestId)) return false;
+  const keys = ['action', 'requestId'];
+  if (value.action === 'createPurchase') {
+    keys.push('clientRecordId', 'title', 'units', 'priceMinor');
+    if ('expiresOn' in value) keys.push('expiresOn');
+    if (
+      !uuid(value.clientRecordId) ||
+      typeof value.title !== 'string' ||
+      !value.title.trim() ||
+      value.title.trim().length > 200 ||
+      !positiveInteger(value.units) ||
+      !minorMoney(value.priceMinor) ||
+      (value.expiresOn != null && !date(value.expiresOn))
+    )
+      return false;
+  } else {
+    keys.push('expectedBookingRevision');
+    if (
+      !positiveInteger(value.expectedBookingRevision) ||
+      value.expectedBookingRevision >= 2147483647
+    )
+      return false;
+    if (value.action === 'bindPurchase' || value.action === 'undoAttendance') {
+      keys.push('attendanceId', 'expectedAttendanceRevision');
+      if (
+        !uuid(value.attendanceId) ||
+        !positiveInteger(value.expectedAttendanceRevision) ||
+        value.expectedAttendanceRevision >= 2147483647
+      )
+        return false;
+    } else if (
+      value.action === 'markAttended' ||
+      value.action === 'markNoShow' ||
+      value.action === 'chargeLateCancellation'
+    ) {
+      keys.push('bookingId');
+      if (!uuid(value.bookingId)) return false;
+    } else return false;
+    if (value.action === 'markAttended') {
+      keys.push('charge');
+      if (
+        typeof value.charge !== 'boolean' ||
+        (!value.charge && value.purchaseId != null)
+      )
+        return false;
+    }
+    if (
+      value.action === 'undoAttendance' ||
+      value.action === 'chargeLateCancellation'
+    ) {
+      keys.push('reason');
+      if (
+        typeof value.reason !== 'string' ||
+        !value.reason.trim() ||
+        value.reason.trim().length > 1000
+      )
+        return false;
+    }
+    if (
+      value.action === 'markAttended' ||
+      value.action === 'bindPurchase' ||
+      value.action === 'chargeLateCancellation'
+    ) {
+      if ('purchaseId' in value) keys.push('purchaseId');
+      if (value.purchaseId != null && !uuid(value.purchaseId)) return false;
+    }
+  }
+  return Object.keys(value).sort().join(',') === keys.sort().join(',');
+}
+export function snapshotTrainerBillingCommand(
+  command: TrainerBillingCommand,
+): TrainerBillingCommand {
+  return Object.fromEntries(
+    Object.entries(command)
+      .filter(([, value]) => value !== undefined)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, value]) => [key, uuid(value) ? value.toLowerCase() : value]),
+  ) as TrainerBillingCommand;
+}
+export async function submitTrainerBillingCommand(
+  userId: string,
+  workspaceId: string,
+  input: TrainerBillingCommand,
+): Promise<TrainerBillingCommandResult> {
+  if (!validTrainerBillingCommand(input))
+    throw new TrainerBillingError('invalidInput');
+  const command = snapshotTrainerBillingCommand(input);
+  await savePendingTrainerBillingCommand(userId, workspaceId, command);
+  const payload = { ...command, expectedUserId: userId };
+  let result: TrainerBillingCommandResult;
+  try {
+    result = await (payload.action === 'createPurchase'
+      ? service.createClientPurchase(payload)
+      : payload.action === 'markAttended'
+        ? service.markAttended(payload)
+        : payload.action === 'markNoShow'
+          ? service.markNoShow(payload)
+          : payload.action === 'bindPurchase'
+            ? service.bindAttendancePurchase(payload)
+            : payload.action === 'undoAttendance'
+              ? service.undoAttendance(payload)
+              : service.chargeLateCancellation(payload));
+  } catch (error: unknown) {
+    if (
+      error instanceof TrainerBillingError &&
+      (error.code === 'conflict' || error.code === 'invalidState')
+    )
+      await clearPendingTrainerBillingCommand(
+        userId,
+        workspaceId,
+        command.requestId,
+      );
+    throw error;
+  }
+  if (
+    'workspaceId' in result &&
+    result.workspaceId.toLowerCase() !== workspaceId.toLowerCase()
+  )
+    throw new TrainerBillingError('request');
+  await clearPendingTrainerBillingCommand(
+    userId,
+    workspaceId,
+    command.requestId,
+  );
+  return result;
+}

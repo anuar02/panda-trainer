@@ -20,6 +20,10 @@ import {
 } from './status-submission';
 import { WorkspaceBookingStatusError } from './status-operation';
 import { useWorkspaceSchedule } from './use-schedule';
+import { useTrainerBilling } from '../trainer-billing/use-billing';
+import { useTrainerBillingCommands } from '../trainer-billing/use-commands';
+import type { TrainerBillingCommand } from '../trainer-billing/commands';
+import { WorkspaceAttendanceControls } from './workspace-attendance-controls';
 import {
   WorkspaceProposalProvider,
   WorkspaceProposalRecovery,
@@ -55,7 +59,7 @@ function WorkspaceScheduleContent({
   initialDate,
   initialSelectedId,
 }: WorkspaceScheduleScreenProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const today = workspaceDateKey(new Date(), timezone);
   const [date, setDate] = useState(() => {
@@ -81,6 +85,25 @@ function WorkspaceScheduleContent({
   const mounted = useRef(false);
   const locked = useRef(false);
   const read = useWorkspaceSchedule(userId, workspaceId, date);
+  const billing = useTrainerBilling(userId, workspaceId);
+  const attendanceLocked = useRef(false);
+  const attendanceCommands = useTrainerBillingCommands({
+    userId,
+    workspaceId,
+    onChanged: () => {
+      read.retry();
+      billing.retry();
+    },
+  });
+  const sendAttendance = async (command: TrainerBillingCommand) => {
+    if (locked.current || attendanceLocked.current) return false;
+    attendanceLocked.current = true;
+    try {
+      return await attendanceCommands.submit(command);
+    } finally {
+      attendanceLocked.current = false;
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -109,7 +132,14 @@ function WorkspaceScheduleContent({
     command: PendingWorkspaceBookingStatus,
     resolving = false,
   ) => {
-    if (locked.current || !ready || storageFailed) return;
+    if (
+      locked.current ||
+      attendanceLocked.current ||
+      attendanceCommands.busy ||
+      !ready ||
+      storageFailed
+    )
+      return;
     locked.current = true;
     setBusy(true);
     setError(null);
@@ -154,8 +184,21 @@ function WorkspaceScheduleContent({
         (session) => session.id === selectedId,
       )
     : null;
+  const selectedDateLabel = selected
+    ? new Intl.DateTimeFormat(i18n.language, {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        timeZone: 'UTC',
+      }).format(new Date(`${selected.date}T12:00:00Z`))
+    : '';
   const blocked =
-    !ready || storageFailed || busy || pending !== null || read.loading;
+    !ready ||
+    storageFailed ||
+    busy ||
+    pending !== null ||
+    read.loading ||
+    attendanceCommands.blocked;
 
   return (
     <WorkspaceProposalProvider
@@ -163,11 +206,64 @@ function WorkspaceScheduleContent({
       workspaceId={workspaceId}
       onChanged={read.retry}
       externalBlocked={blocked}
-      externalBusy={busy}
+      externalBusy={busy || attendanceCommands.busy}
     >
       {(proposal) => (
         <View className="flex-1 bg-canvas">
           <WorkspaceProposalRecovery />
+          {attendanceCommands.pending ||
+          attendanceCommands.error ||
+          attendanceCommands.busy ? (
+            <Card>
+              <Text accessibilityRole="alert">
+                {t(
+                  `trainerBilling.${
+                    attendanceCommands.error === 'storage'
+                      ? 'storageError'
+                      : attendanceCommands.error === 'invalidPending'
+                        ? 'invalidPending'
+                        : attendanceCommands.error === 'conflict'
+                          ? 'conflict'
+                          : attendanceCommands.error === 'invalidState'
+                            ? 'invalidState'
+                            : attendanceCommands.error
+                              ? 'requestError'
+                              : attendanceCommands.busy
+                                ? 'busy'
+                                : 'pending'
+                  }`,
+                )}
+              </Text>
+              <Button
+                label={t(
+                  attendanceCommands.pending &&
+                    attendanceCommands.error !== 'storage' &&
+                    attendanceCommands.error !== 'invalidPending'
+                    ? 'trainerBilling.resume'
+                    : 'common.retry',
+                )}
+                loading={attendanceCommands.busy}
+                disabled={busy || proposal.busy}
+                onPress={() => {
+                  if (busy || proposal.busy || attendanceLocked.current) return;
+                  if (
+                    attendanceCommands.pending &&
+                    attendanceCommands.error !== 'storage' &&
+                    attendanceCommands.error !== 'invalidPending'
+                  ) {
+                    attendanceLocked.current = true;
+                    void attendanceCommands.resume().finally(() => {
+                      attendanceLocked.current = false;
+                    });
+                  } else {
+                    attendanceCommands.reload();
+                    billing.retry();
+                    read.retry();
+                  }
+                }}
+              />
+            </Card>
+          ) : null}
           {storageFailed || pending || error ? (
             <Card>
               <Text accessibilityRole="alert">
@@ -222,7 +318,12 @@ function WorkspaceScheduleContent({
                 freeWindows: schedule
                   ? workspaceScheduleWindows(schedule, date)
                   : [],
-                createDisabled: read.loading || !schedule,
+                createDisabled:
+                  blocked ||
+                  proposal.loading ||
+                  proposal.busy ||
+                  proposal.pending !== null ||
+                  !schedule,
                 onDateChange: (next) => {
                   setDate(next);
                   setSelectedId(null);
@@ -241,9 +342,51 @@ function WorkspaceScheduleContent({
             title={rows.find((row) => row.id === selectedId)?.title ?? ''}
             onClose={() => setSelectedId(null)}
           >
-            {selected?.bookings.map((booking) => (
+            {selected ? (
+              <Text className="text-secondary">
+                {t('trainerToday.sessionTime', {
+                  date:
+                    selectedDateLabel.charAt(0).toUpperCase() +
+                    selectedDateLabel.slice(1),
+                  time: `${rows.find((row) => row.id === selectedId)?.start ?? ''}–${rows.find((row) => row.id === selectedId)?.end ?? ''}`,
+                })}
+              </Text>
+            ) : null}
+            {billing.error ? (
+              <Card>
+                <Text accessibilityRole="alert">
+                  {t('trainerBilling.readError')}
+                </Text>
+                <Button label={t('common.retry')} onPress={billing.retry} />
+              </Card>
+            ) : billing.loading ? (
+              <Text>{t('common.loading')}</Text>
+            ) : null}
+            {selected?.bookings.map((booking, index) => (
               <View key={booking.id} className="gap-2">
-                <Text className="font-strong">{booking.client_name}</Text>
+                {billing.data ? (
+                  <WorkspaceAttendanceControls
+                    booking={booking}
+                    data={billing.data}
+                    workspaceId={workspaceId}
+                    timezone={timezone}
+                    disabled={
+                      blocked ||
+                      proposal.loading ||
+                      proposal.busy ||
+                      proposal.pending !== null ||
+                      proposal.error === 'storage' ||
+                      proposal.error === 'invalidPending'
+                    }
+                    busy={attendanceCommands.busy}
+                    showHeading={index === 0}
+                    showHelp={index === selected.bookings.length - 1}
+                    onCommand={sendAttendance}
+                    onRetry={billing.retry}
+                  />
+                ) : (
+                  <Text className="font-strong">{booking.client_name}</Text>
+                )}
                 <Text className="text-secondary">
                   {t(
                     booking.status === 'confirmed'

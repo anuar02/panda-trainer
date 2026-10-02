@@ -1,3 +1,6 @@
+import { useTrainerBilling } from '../src/features/trainer-billing/use-billing';
+import { useTrainerBillingCommands } from '../src/features/trainer-billing/use-commands';
+import type { TrainerBillingCommand } from '../src/features/trainer-billing/commands';
 import type { PropsWithChildren } from 'react';
 import {
   act,
@@ -20,6 +23,12 @@ import {
 import type { WorkspaceSchedule } from '../src/features/workspace-scheduling/service';
 import type { TrainerScheduleData } from '../src/features/trainer-schedule/trainer-schedule-screen';
 
+jest.mock('../src/features/trainer-billing/use-billing', () => ({
+  useTrainerBilling: jest.fn(),
+}));
+jest.mock('../src/features/trainer-billing/use-commands', () => ({
+  useTrainerBillingCommands: jest.fn(),
+}));
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
@@ -96,6 +105,28 @@ const load = jest.mocked(loadPendingWorkspaceBookingStatus);
 const submit = jest.mocked(submitWorkspaceBookingStatus);
 const read = jest.mocked(useWorkspaceSchedule);
 const retry = jest.fn();
+const billingRetry = jest.fn();
+const attendanceSubmit = jest.fn().mockResolvedValue(true);
+const attendanceResume = jest.fn().mockResolvedValue(true);
+const attendanceReload = jest.fn();
+const billingRead = jest.mocked(useTrainerBilling);
+const billingCommands = jest.mocked(useTrainerBillingCommands);
+const pendingAttendance: TrainerBillingCommand = {
+  action: 'markNoShow',
+  bookingId: 'booking-a',
+  expectedBookingRevision: 3,
+  requestId: 'saved-attendance',
+};
+const attendanceStore = () => ({
+  blocked: false,
+  pending: null,
+  loading: false,
+  busy: false,
+  error: null,
+  submit: attendanceSubmit,
+  resume: attendanceResume,
+  reload: attendanceReload,
+});
 const command: PendingWorkspaceBookingStatus = {
   action: 'cancel',
   bookingId: 'booking-a',
@@ -137,6 +168,17 @@ const open = async () => {
 };
 beforeEach(() => {
   load.mockReset().mockResolvedValue(null);
+  billingRetry.mockReset();
+  attendanceSubmit.mockReset().mockResolvedValue(true);
+  attendanceResume.mockReset().mockResolvedValue(true);
+  attendanceReload.mockReset();
+  billingRead.mockReturnValue({
+    data: { purchases: [], attendance: [], revisions: [], credits: [] },
+    error: null,
+    loading: false,
+    retry: billingRetry,
+  });
+  billingCommands.mockReturnValue(attendanceStore());
   submit.mockReset();
   retry.mockReset();
   mockPush.mockReset();
@@ -360,4 +402,59 @@ test('trainer pending resolution shares lock and refreshes verified terminal res
       name: 'Проверить результат и завершить запрос',
     }),
   ).toBeNull();
+});
+
+test('attendance commands target one participant and preserve the booking revision', async () => {
+  await mount();
+  await open();
+  await fireEvent.press(
+    screen.getAllByRole('button', { name: 'Не пришёл' })[1]!,
+  );
+  await waitFor(() =>
+    expect(attendanceSubmit).toHaveBeenCalledWith({
+      action: 'markNoShow',
+      bookingId: 'booking-b',
+      expectedBookingRevision: 3,
+      requestId: 'new-request',
+    }),
+  );
+  expect(submit).not.toHaveBeenCalled();
+});
+
+test('pending attendance blocks cancellation and creation while retry reuses its saved command', async () => {
+  billingCommands.mockReturnValue({
+    ...attendanceStore(),
+    blocked: true,
+    pending: pendingAttendance,
+  });
+  await mount();
+  await open();
+  expect(
+    screen.getByRole('button', { name: 'Отменить участие: Server a' }),
+  ).toBeDisabled();
+  expect(
+    screen.getByRole('button', { name: 'Create at window' }),
+  ).toBeDisabled();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Повторить сохранённую операцию' }),
+  );
+  expect(attendanceResume).toHaveBeenCalledTimes(1);
+  expect(attendanceSubmit).not.toHaveBeenCalled();
+});
+
+test('billing read failure does not display unmarked state or enable attendance', async () => {
+  billingRead.mockReturnValue({
+    data: null,
+    error: 'request',
+    loading: false,
+    retry: billingRetry,
+  });
+  await mount();
+  await open();
+  expect(screen.queryByRole('button', { name: 'Пришёл' })).toBeNull();
+  expect(screen.queryByText('Пока не отмечено')).toBeNull();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Попробовать снова' }),
+  );
+  expect(billingRetry).toHaveBeenCalledTimes(1);
 });

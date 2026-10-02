@@ -11,6 +11,15 @@
 
 ### Добавлено
 
+- SOM-33: реальные посещения в расписании, выбор подходящего пакета,
+  отметка без списания, поздняя привязка, исправление с возвратом и отдельная
+  penalty с причиной. Durable recovery повторяет сохранённую команду после
+  потери ответа/reload; остальные записи блокируются до разрешения результата.
+  1065 tests / 112 suites, all-platform export и 6 schedule capture pairs проходят;
+  реальные synthetic browser/DB проверки подтверждают отсутствие дубля списания.
+  Создание покупки, оплаты/долг и native/owner acceptance остаются открытыми.
+  [ADR 0056](docs/app/decisions/0056-attendance-controls-and-recovery.md).
+
 - SOM-33 app transport: typed safe billing reads и шесть attendance/purchase RPC;
   закреплённый account token, validated results и lossless bigint minor money.
   46 новых focused tests; app check1037 tests/108 suites проходит. Production

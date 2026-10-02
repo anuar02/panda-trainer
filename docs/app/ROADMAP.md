@@ -9,6 +9,18 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-33 real schedule attendance: controlled participant sheets,
+  scoped ledger projections, scheduled-date eligibility и durable exact-command
+  recovery после reload. Исправление возвращает кредит; неявка/отмена требуют
+  отдельного списания с причиной. 1065 tests / 112 suites, type/lint/format,
+  web/iOS/Android export и 6 default schedule capture pairs проходят.
+  Local browser: lost response/reload/exact replay без дубля, correction/restore,
+  отдельная no-show penalty и изоляция участника группы проверены.
+  Purchase creation UI, payment/debt и native/owner acceptance открыты.
+  Live Linear недоступен; удалённые статусы не изменены.
+  [ADR 0056](decisions/0056-attendance-controls-and-recovery.md),
+  [evidence](../../app/review/attendance/README.md).
+
 - 03.10.2026 — SOM-33 typed attendance/purchase transport: explicit safe reads,
   scoped Bearer на каждой странице/RPC, lossless minor money и validated receipt
   results. 46 focused tests и app check1037 tests/108 suites проходят; real local
@@ -618,6 +630,9 @@
 - [x] Посещение без пакета — «Не привязано к оплате», без отрицательного остатка;
   привязка позже.
 - [x] Исправление посещения возвращает единицу ровно один раз и пишет историю.
+- [x] Real schedule attendance UI и durable replay точной команды после потери ответа;
+  отдельные mark/bind/correct/penalty controls, safe projections и account scope.
+- [ ] Production создание покупки и данные пакетов в карточке клиента.
 - [ ] Ручная оплата: сумма в тиынах (`bigint`), валюта KZT, дата, автор, источник `manual`;
   частичная оплата, долг не блокирует расписание.
 - [ ] Экран клиента у тренера: остаток занятий, долг, история.

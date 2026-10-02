@@ -6,6 +6,17 @@
 
 ## Текущая волна
 
+03.10 — SOM-33 attendance UI/recovery: три свежих исполнителя без истории:
+attendance_controls — controlled sheets/i18n/tests; attendance_projection — pure
+ledger projections/tests и независимое ревью интеграции; attendance_recovery —
+commands/storage/hooks/tests. Root — schedule adapter/integration, cross-command
+locks, browser lost-response/DB evidence, parity/export, ADR/docs и коммит.
+1065 tests / 112 suites проходят; replay после reload не дублирует charge,
+correction возвращает credit, no-show penalty отдельная, второй участник не меняется.
+Следующий независимый scope — production purchase creation/client package data;
+payment RPC/debt ждут ответа о переплате, journal ждёт SOM-53. Native/owner
+acceptance и live Linear недоступны; SOM-33/SOM-34 не закрывать.
+
 03.10 — SOM-33 сохранён в 147a097; independent payment foundation — ff4b953.
 Attendance transport verified1037 tests/108 suites; проверенный пакет оформляет root.
 Следующий SOM-34: payment_scope —
