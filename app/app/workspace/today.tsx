@@ -1,17 +1,13 @@
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/provider';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
 import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
-import { WorkspaceScheduleScreen } from '@/features/workspace-scheduling/workspace-schedule-screen';
+import { WorkspaceTodayScreen } from '@/features/workspace-scheduling/workspace-today-screen';
 import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 
-export default function WorkspaceScheduleRoute() {
-  const { date, session } = useLocalSearchParams<{
-    date?: string;
-    session?: string;
-  }>();
+export default function WorkspaceTodayRoute() {
   const auth = useAuth();
   const context = useOnboardingContext();
   const { t } = useTranslation();
@@ -27,13 +23,12 @@ export default function WorkspaceScheduleRoute() {
   const workspace = context.context?.workspace;
   if (!workspace) return <Redirect href="/auth/account" />;
   return (
-    <WorkspaceScheduleScreen
+    <WorkspaceTodayScreen
       key={`${auth.session.user.id}:${workspace.id}`}
       userId={auth.session.user.id}
       workspaceId={workspace.id}
       timezone={workspace.timezone}
-      initialDate={date}
-      initialSelectedId={session}
+      trainerName={context.context?.profile?.display_name ?? workspace.name}
     />
   );
 }

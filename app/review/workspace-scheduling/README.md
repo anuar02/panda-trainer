@@ -1,8 +1,8 @@
-# SOM-26/27: real week calendar and status recovery
+# SOM-26/27/36: real scheduling controllers and recovery
 
 Verified 2026-10-02 with synthetic local data only.
 
-- `npm run check`: 660 tests / 75 suites, TypeScript, lint and formatting pass.
+- Previous creation checkpoint: 660 tests / 75 suites. Combined working-tree check (including the next history foundation): 855 tests / 94 suites, TypeScript, lint and formatting pass. Web/iOS/Android exports pass.
 - Fresh configured web export succeeds and includes `/workspace/schedule` and `/workspace/new`.
 - `verify.cjs`: 13 headless Chrome checks pass. The trainer opens the calendar
   from their account, sees chronological real bookings and participant names,
@@ -40,10 +40,23 @@ Verified 2026-10-02 with synthetic local data only.
   storage failures, explicit overlap acknowledgement with a new command and
   UTC conversion with DST ambiguity/gap rejection.
 
-- Calendar/creation capture: 12 reference states, 9 app captures, 3 missing
-  creation empty/loading/offline comparisons, no app browser errors. Report:
-  `/tmp/screens/workspace-scheduling/creation-parity/index.html`. These missing
-  states and visual differences remain acceptance work; captures do not approve screens.
+- Current default demo captures: 24 reference images and 24 app captures for
+  Today, calendar, creation and client home across dark/light and normal/empty/
+  loading/offline states. No missing comparisons or browser errors. Report:
+  `/tmp/screens/workspace-scheduling/connected-scheduling-parity/index.html`.
+  Creation reference states are byte-identical: its prototype route has no scenario
+  branch. Runner coverage now captures those invariant states instead of inventing
+  new creation screens. Captures do not establish visual parity or owner approval.
+- Trainer proposal browser extension reached the final decline stage, then failed
+  synthetic cleanup because proposal rows were omitted. Cleanup is fixed. A later
+  run timed out opening/submitting the nested reschedule sheet; readiness checks
+  were added, but the rerun could not start because Docker Desktop was manually
+  paused. This remains an unresolved runtime check; no successful extended-flow
+  browser count is claimed.
+- Today/controller tests cover real identity, midnight/focus refresh, UTC gaps and
+  overlaps, selected-session navigation and requests outside Today. Proposal tests
+  cover actor roles, durable recovery, mutual locks and explicit stores across the
+  bottom-sheet portal. Client controls/controller evidence: `../client-scheduling/README.md`.
 
 ## Reproduce
 
@@ -65,7 +78,7 @@ missing resources still produce failures.
 
 ## Open
 
-Today, rescheduling/proposal replies,
-terminal pending-command resolution, client status UI, group actions and billing
-remain open. Creation is enabled with immutable server snapshots. Native/accessibility, two-phone scenarios and owner visual
+Today, trainer/client proposal controls and client status UI are implemented but
+runtime/owner acceptance remains open. Terminal pending-command resolution, whole-group
+actions and billing remain open. Creation is enabled with immutable server snapshots. Native/accessibility, two-phone scenarios and owner visual
 acceptance remain open. SOM-26, SOM-27 and SOM-45 are not complete.

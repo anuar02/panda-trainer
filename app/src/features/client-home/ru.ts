@@ -1,4 +1,5 @@
 export const clientHome = {
+  namedGreeting: 'Привет, {{name}}',
   trainerLabel: 'Ваш тренер',
   trainer: 'Данияр',
   initials: 'ДС',

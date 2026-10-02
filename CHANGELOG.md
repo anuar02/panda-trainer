@@ -11,6 +11,15 @@
 
 ### Добавлено
 
+- SOM-26/27/36 app: реальные Сегодня, запросы/переносы тренера и отдельный
+  client connection route с собственными bookings, snapshot preview,
+  confirmation/cancellation и proposal replies. Общая блокировка команд и
+  recovery работают вне bottom-sheet portal. Default demo сохранён; реальные
+  billing/history/progress ещё не подключены. 855 тестов / 94 suites, web/iOS/Android export и 24 пары capture
+  проходят; runtime browser verification ожидает Docker.
+  [ADR 0044](docs/app/decisions/0044-controlled-today-and-proposal-ui.md),
+  [ADR 0046](docs/app/decisions/0046-client-booking-controls.md).
+
 - SOM-36 foundation: собственные bookings и неизменяемые планы клиента,
   безопасные RPC контекста/ролей предложений и обновление на focus. Auth token
   закреплён на каждом запросе; смена аккаунта/карточки скрывает старые данные.

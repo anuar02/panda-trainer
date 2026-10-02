@@ -20,6 +20,26 @@ import type { TrainerScheduleData } from '../src/features/trainer-schedule/train
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
+let mockProposalBusy = false;
+let mockProposalPending = false;
+jest.mock(
+  '../src/features/workspace-scheduling/workspace-proposal-controls',
+  () => ({
+    WorkspaceProposalProvider: ({
+      children,
+    }: {
+      children: (state: unknown) => import('react').ReactNode;
+    }) =>
+      children({
+        loading: false,
+        busy: mockProposalBusy,
+        pending: mockProposalPending ? {} : null,
+        error: null,
+      }),
+    WorkspaceProposalRecovery: () => null,
+    WorkspaceProposalControls: () => null,
+  }),
+);
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => 'new-request' }));
@@ -116,6 +136,8 @@ beforeEach(() => {
   submit.mockReset();
   retry.mockReset();
   mockPush.mockReset();
+  mockProposalBusy = false;
+  mockProposalPending = false;
   read.mockReturnValue({ schedule, loading: false, failed: false, retry });
 });
 
@@ -277,4 +299,28 @@ test('creates from the selected date and free window', async () => {
     pathname: '/workspace/new',
     params: { date: '2026-10-06', start: '12:30' },
   });
+});
+
+test('opens the real selected session from Today navigation', async () => {
+  const sessionId = `${schedule.bookings[0]!.group_session_id}:${new Date(schedule.bookings[0]!.starts_at).toISOString()}:${new Date(schedule.bookings[0]!.ends_at).toISOString()}`;
+  await render(
+    <WorkspaceScheduleScreen
+      userId="user-a"
+      workspaceId="workspace-a"
+      timezone="Asia/Almaty"
+      initialDate="2026-10-02"
+      initialSelectedId={sessionId}
+    />,
+  );
+  expect(screen.getByText('Server a')).toBeTruthy();
+});
+
+test('an unresolved proposal blocks a new cancellation for the same workspace', async () => {
+  mockProposalPending = true;
+  await mount();
+  await open();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Отменить участие: Server a' }),
+  );
+  expect(submit).not.toHaveBeenCalled();
 });

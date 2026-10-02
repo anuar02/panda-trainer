@@ -28,6 +28,7 @@ export type CreateSessionScreenProps = {
 };
 export type RescheduleSession = {
   id: string;
+  durationMinutes?: number;
   date: string;
   start: string;
   end: string;

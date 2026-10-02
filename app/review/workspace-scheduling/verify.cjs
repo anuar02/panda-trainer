@@ -1,4 +1,4 @@
-const { chromium } = require('../../../node_modules/@playwright/test');
+const { chromium, expect } = require('../../../node_modules/@playwright/test');
 const { randomUUID } = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 const { mkdirSync } = require('node:fs');
@@ -104,14 +104,21 @@ function createFixture() {
   const bookings = ids.map(() => randomUUID());
   const date = sql(`select (now() at time zone 'Asia/Almaty')::date`);
   sql(`begin; insert into public.client_records(id,workspace_id,display_name) values ${ids.map((id,i)=>`('${id}','${workspace}','${names[i]}')`).join(',')}; insert into public.group_sessions(id,workspace_id,starts_at,ends_at) values ('${group}','${workspace}','${date} 18:00:00+05','${date} 19:00:00+05'); insert into public.bookings(id,workspace_id,client_record_id,group_session_id,starts_at,ends_at,status) values ${bookings.map((id,i)=>`('${id}','${workspace}','${ids[i]}',${i<2?`'${group}'`:'null'},'${date} ${i<2?'18':'09'}:00:00+05','${date} ${i<2?'19':'10'}:00:00+05','confirmed')`).join(',')}; commit;`);
+  const clientUser = randomUUID();
+  sql(`begin; insert into auth.users(id,aud,role,email) values ('${clientUser}','authenticated','authenticated','ui-schedule-client-${clientUser}@example.test'); update public.client_records set user_id='${clientUser}' where id='${ids[0]}'; commit;`);
   const template = randomUUID();
   const exercise = randomUUID();
   sql(`begin; insert into public.exercises(id,workspace_id,name,muscle_group,equipment,measure,bodyweight) values ('${exercise}','${workspace}','Тестовое движение','Ноги','вес тела','reps',true); insert into public.workout_templates(id,workspace_id,name,description) values ('${template}','${workspace}','План занятия','Синтетическая программа'); insert into public.template_exercises(workspace_id,template_id,exercise_id,position,planned_sets,planned_reps,rest_seconds) values ('${workspace}','${template}','${exercise}',0,3,'10',60); commit;`);
-  fixture = {workspace, bookings, ids, template, exercise, templateRevision:Number(sql(`select revision from public.workout_templates where id='${template}'`))};
+  fixture = {workspace, bookings, ids, template, exercise, clientUser, templateRevision:Number(sql(`select revision from public.workout_templates where id='${template}'`))};
 }
 async function cleanup() {
   const owned = `select id from public.trainer_workspaces where owner_user_id in (select id from auth.users where email='${email}')`;
-  sql(`begin; delete from private.booking_status_command_receipts where workspace_id in (${owned}); delete from public.booking_program_exercises where workspace_id in (${owned}); delete from public.booking_programs where workspace_id in (${owned}); delete from public.bookings where workspace_id in (${owned}); delete from public.group_sessions where workspace_id in (${owned}); delete from public.client_records where workspace_id in (${owned}); delete from public.template_exercises where workspace_id in (${owned}); delete from public.workout_templates where workspace_id in (${owned}); delete from public.exercises where workspace_id in (${owned}); delete from public.trainer_workspaces where id in (${owned}); delete from public.profiles where user_id in (select id from auth.users where email='${email}'); delete from auth.users where email='${email}'; commit;`);
+  try {
+    sql(`begin; delete from private.booking_creation_receipts where workspace_id in (${owned}); delete from private.booking_reschedule_receipts where workspace_id in (${owned}); delete from private.booking_status_command_receipts where workspace_id in (${owned}); delete from public.booking_program_exercises where workspace_id in (${owned}); delete from public.booking_programs where workspace_id in (${owned}); delete from public.schedule_proposals where workspace_id in (${owned}); delete from public.bookings where workspace_id in (${owned}); delete from public.group_sessions where workspace_id in (${owned}); delete from public.client_records where workspace_id in (${owned}); delete from public.template_exercises where workspace_id in (${owned}); delete from public.workout_templates where workspace_id in (${owned}); delete from public.exercises where workspace_id in (${owned}); delete from public.trainer_workspaces where id in (${owned}); delete from public.profiles where user_id in (select id from auth.users where email='${email}'); delete from auth.users where email='${email}' or id=${fixture?.clientUser ? `'${fixture.clientUser}'` : 'null'}; commit;`);
+  } catch (error) {
+    const detail = error.stderr ? String(error.stderr).trim() : String(error.message);
+    throw new Error(`Synthetic database cleanup failed: ${detail.slice(0, 1000)}`);
+  }
   for(const id of messageIds) {
     const response=await fetch(`${mailpit}/messages`,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({IDs:[id]})});
     if(!response.ok) throw new Error('Synthetic mail cleanup failed');
@@ -122,15 +129,27 @@ async function run() {
   const context = await browser.newContext({viewport:{width:390,height:844}});
   const page = await context.newPage();
   activePage = page;
-  page.on('pageerror',error=>pageErrors.push(error.name));
+  page.on('pageerror',error=>pageErrors.push(error.name+': '+String(error.message).slice(0,240)));
   page.on('console', message => {
     if (message.type() !== 'error') return;
     const location = message.location().url;
     if (location === `${origin}/favicon.ico` && /404/.test(message.text())) return;
-    pageErrors.push('console-error');
+    pageErrors.push('console-error: '+message.text().slice(0,240));
   });
   await signInAsTrainer(page);
   createFixture();
+  stage='today-read';
+  await page.goto(`${origin}/auth/account`,{waitUntil:'networkidle'});
+  await clickButton(page,'Открыть Сегодня');
+  await page.waitForURL(/\/workspace\/today$/);
+  await waitForBodyText(page,'Тренер расписания');
+  const todayBody=await page.locator('body').innerText();
+  check(!/Дана|Мади|Арман|Данияр/.test(todayBody),'today-has-no-demo-identity');
+  const show=page.getByRole('button',{name:/Прошло.*заняти/}).filter({visible:true});
+  if(await show.count()) await show.first().click();
+  await waitForBodyText(page,names[2]);
+  await waitForBodyText(page,names[1]);
+  check(true,'today-real-past-and-upcoming-visible');
   stage='schedule-read';
   await page.goto(`${origin}/auth/account`,{waitUntil:'networkidle'});
   await clickButton(page,'Открыть расписание');
@@ -179,9 +198,64 @@ async function run() {
   await page.reload({waitUntil:'networkidle'});
   await waitForBodyText(page,names[1]);
   check(sql(`select count(*) from public.booking_programs where workspace_id='${fixture.workspace}' and name='План занятия'`)==='2','booking-retains-immutable-plan');
+  stage='trainer-propose-withdraw';
+  const alpha=created.find(item=>item.client===fixture.ids[0]);
+  const beta=created.find(item=>item.client===fixture.ids[1]);
+  const original=JSON.parse(sql(`select json_build_object('starts',starts_at,'ends',ends_at,'group',group_session_id) from public.bookings where id='${alpha.id}'`));
+  const moveDate=sql(`select ('${futureDate}'::date+1)::text`);
+  const clientRpc=(statement)=>JSON.parse(sql(`begin; set local role authenticated; set local request.jwt.claims='{"sub":"${fixture.clientUser}","role":"authenticated"}'; ${statement}; commit;`));
+  const openGroup=async()=>{await visible(page.getByText('Мини-группа',{exact:true})).first().click();};
+  const alphaControls=()=>visible(page.getByText(names[0],{exact:true})).last().locator('..');
+  await openGroup();
+  await alphaControls().getByRole('button',{name:'Перенос занятия',exact:true}).click();
+  const proposalDate = visible(page.getByLabel('Новая дата',{exact:true}));
+  const proposalStart = visible(page.getByLabel('Начало',{exact:true}));
+  const proposalSend = visible(page.getByRole('button',{name:'Отправить предложение',exact:true}));
+  await expect(proposalSend).toBeVisible({timeout:30000});
+  await expect(proposalSend).toBeEnabled({timeout:30000});
+  await expect(proposalDate).toBeEditable({timeout:30000});
+  await proposalDate.fill(moveDate);
+  await proposalStart.fill('16:00');
+  await expect(proposalDate).toHaveValue(moveDate);
+  await expect(proposalStart).toHaveValue('16:00');
+  await proposalSend.scrollIntoViewIfNeeded();
+  await expect(proposalSend).toBeEnabled({timeout:30000});
+  await proposalSend.click();
+  await waitForBodyText(page,'Отозвать запрос');
+  check(sql(`select starts_at='${original.starts}'::timestamptz from public.bookings where id='${alpha.id}'`)==='t','proposal-preserves-original-occupancy');
+  await clickButton(page,'Отозвать запрос');
+  await page.waitForFunction(()=>!document.body.innerText.includes('Отозвать запрос'));
+  check(sql(`select count(*) from public.schedule_proposals where booking_id='${alpha.id}' and status='withdrawn'`)==='1','trainer-withdraw-committed');
+  stage='trainer-counter-accept';
+  const proposed=clientRpc(`select public.propose_booking_reschedule('${alpha.id}',1,'${moveDate} 16:00:00+05','${randomUUID()}')`);
+  await page.reload({waitUntil:'networkidle'});
+  await openGroup();
+  await clickButton(page,'Другое время');
+  await page.getByLabel('Начало',{exact:true}).fill('17:00');
+  await clickButton(page,'Отправить предложение');
+  await waitForBodyText(page,'Отозвать запрос');
+  check(sql(`select revision from public.schedule_proposals where id='${proposed.proposal_id}'`)==='2','trainer-counter-committed');
+  clientRpc(`select public.counter_booking_reschedule('${proposed.proposal_id}',2,1,'${moveDate} 16:30:00+05','${randomUUID()}')`);
+  await page.reload({waitUntil:'networkidle'});
+  await openGroup();
+  await clickButton(page,'Принять');
+  await page.waitForFunction(()=>!document.body.innerText.includes('Принять'));
+  const moved=JSON.parse(sql(`select json_build_object('group',group_session_id,'revision',revision,'starts',starts_at,'duration',extract(epoch from(ends_at-starts_at))/60) from public.bookings where id='${alpha.id}'`));
+  check(moved.group===null&&moved.revision===2&&moved.duration===75,'accept-detaches-only-selected-participant');
+  check(sql(`select starts_at='${original.starts}'::timestamptz and group_session_id='${original.group}'::uuid from public.bookings where id='${beta.id}'`)==='t','group-peer-keeps-original-time');
+  check(sql(`select count(*) from public.booking_programs where booking_id='${alpha.id}' and name='План занятия'`)==='1','move-preserves-immutable-plan');
+  stage='trainer-decline';
+  const declineDate=sql(`select ('${moveDate}'::date+1)::text`);
+  const declined=clientRpc(`select public.propose_booking_reschedule('${alpha.id}',2,'${declineDate} 15:00:00+05','${randomUUID()}')`);
+  await page.goto(`${origin}/workspace/schedule?date=${moveDate}&session=${alpha.id}`,{waitUntil:'networkidle'});
+  await waitForBodyText(page,'Отклонить');
+  await clickButton(page,'Отклонить');
+  await page.waitForFunction(()=>!document.body.innerText.includes('Отклонить'));
+  check(sql(`select status from public.schedule_proposals where id='${declined.proposal_id}'`)==='declined','trainer-decline-committed');
+  check(sql(`select starts_at='${moved.starts}'::timestamptz and revision=2 from public.bookings where id='${alpha.id}'`)==='t','decline-preserves-current-booking');
   check(pageErrors.length===0,'no-browser-page-errors');
   mkdirSync('/tmp/screens/workspace-scheduling',{recursive:true});
   await page.screenshot({path:'/tmp/screens/workspace-scheduling/schedule-after-cancel.png',fullPage:true});
   await context.close();
 }
-run().then(async()=>{await cleanup();await browser?.close();process.stdout.write(`PASS: ${checks} workspace schedule checks completed\n`);}).catch(async(error)=>{process.stderr.write(`FAIL stage=${stage} name=${error.name} message=${String(error.message).slice(0,300)}\n`);try{mkdirSync('/tmp/screens/workspace-scheduling',{recursive:true});await activePage?.screenshot({path:'/tmp/screens/workspace-scheduling/failure.png',fullPage:true});process.stderr.write((await activePage?.locator('body').innerText()).slice(0,1800)+'\n');}catch{}try{await cleanup();}catch{process.stderr.write('Synthetic cleanup failed\n');}await browser?.close();process.exitCode=1;});
+run().then(async()=>{await cleanup();await browser?.close();process.stdout.write(`PASS: ${checks} workspace schedule checks completed\n`);}).catch(async(error)=>{process.stderr.write(`FAIL stage=${stage} name=${error.name} message=${String(error.message).slice(0,300)}\n`);process.stderr.write(JSON.stringify(pageErrors)+'\n');try{mkdirSync('/tmp/screens/workspace-scheduling',{recursive:true});await activePage?.screenshot({path:'/tmp/screens/workspace-scheduling/failure.png',fullPage:true});process.stderr.write((await activePage?.locator('body').innerText()).slice(0,1800)+'\n');}catch{}try{await cleanup();}catch{process.stderr.write('Synthetic cleanup failed\n');}await browser?.close();process.exitCode=1;});

@@ -1,5 +1,7 @@
 export const workspaceSchedulingRu = {
   open: 'Открыть расписание',
+  openToday: 'Открыть Сегодня',
+  openClientHome: 'Открыть занятия',
   pending: 'Изменение занятия ещё не завершено',
   resume: 'Повторить изменение',
   pendingReadError: 'Не удалось прочитать сохранённое изменение занятия.',
@@ -23,4 +25,22 @@ export const workspaceSchedulingRu = {
   createUnavailable: 'Клиент или программа больше недоступны.',
   createEmpty: 'Добавьте клиента перед созданием занятия.',
   overlapSession: 'Занятие',
+  proposalPending: 'Перенос занятия ещё не завершён',
+  proposalBusy: 'Сохраняем перенос занятия…',
+  proposalResume: 'Повторить перенос',
+  proposalStorage: 'Не удалось прочитать сохранённый перенос занятия.',
+  proposalInvalidPending: 'Сохранённый перенос занятия требует проверки.',
+  proposalError: 'Не удалось изменить перенос занятия. Повторите попытку.',
+  proposalConflict:
+    'Занятие или предложение изменилось. Сохранённый перенос требует проверки.',
+  proposalInvalidState: 'Это предложение больше нельзя изменить.',
+  proposalTime:
+    'Это время недоступно или неоднозначно в выбранном часовом поясе.',
+  proposalTarget: 'Выберите будущее время в пределах одного дня.',
+  proposalCounter: 'Другое время',
+  proposalClient: 'Предложение клиента',
+  proposalTrainer: 'Предложение тренера',
+  proposalAccept: 'Принять',
+  proposalDecline: 'Отклонить',
+  proposalWithdraw: 'Отозвать запрос',
 } as const;

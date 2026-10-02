@@ -86,6 +86,11 @@ export default function AccountRoute() {
                   onPress={() => router.push('/workspace/library')}
                 />
                 <Button
+                  label={t('workspaceScheduling.openToday')}
+                  disabled={busy}
+                  onPress={() => router.push('/workspace/today')}
+                />
+                <Button
                   label={t('workspaceScheduling.open')}
                   disabled={busy}
                   onPress={() => router.push('/workspace/schedule')}
@@ -100,6 +105,16 @@ export default function AccountRoute() {
                   })}
                 </Text>
                 <Text className="text-secondary">{connection.client_name}</Text>
+                <Button
+                  label={t('workspaceScheduling.openClientHome')}
+                  disabled={busy}
+                  onPress={() =>
+                    router.push({
+                      pathname: '/connection/[clientRecordId]',
+                      params: { clientRecordId: connection.client_record_id },
+                    })
+                  }
+                />
               </Card>
             ))}
           </>

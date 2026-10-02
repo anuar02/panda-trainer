@@ -9,6 +9,16 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-26/27/36 app: controlled Today и trainer proposal UI,
+  выбранная связь клиента с real bookings/snapshot previews и собственными
+  confirm/cancel/proposal actions. 855 тестов / 94 suites, web/iOS/Android export и 24 reference/app captures
+  без пропущенных states/browser errors проходят. Docker Desktop вручную
+  приостановлен: новые browser scenarios и type drift rerun ожидают unpause;
+  последний schema check — 494 pgTAP / 16 files. Client booking window — 41 UTC
+  days, billing/history/progress/native/owner acceptance открыты.
+  [ADR 0044](decisions/0044-controlled-today-and-proposal-ui.md),
+  [ADR 0046](decisions/0046-client-booking-controls.md).
+
 - 02.10.2026 — SOM-36 foundation: own-client context и pending proposal RPC,
   закреплённый transport, immutable booking plans, focus hook и UTC adapter.
   Clean reset и 494 pgTAP assertions / 16 files проходят; 39 focused app tests

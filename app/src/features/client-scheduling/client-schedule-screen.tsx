@@ -1,0 +1,171 @@
+import { useState } from 'react';
+import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { ClientHomeScreen } from '@/features/client-home/client-home-screen';
+import { useWorkspaceClock } from '@/features/workspace-scheduling/use-clock';
+import {
+  WorkspaceProposalProvider,
+  WorkspaceProposalRecovery,
+  type WorkspaceProposalStore,
+} from '@/features/workspace-scheduling/workspace-proposal-controls';
+import { Button } from '@/ui/button';
+import { Screen } from '@/ui/screen';
+import { Sheet } from '@/ui/sheet';
+import { Text } from '@/ui/text';
+import { clientScheduleHome } from './adapter';
+import {
+  ClientBookingControls,
+  ClientBookingStatusRecovery,
+} from './client-booking-controls';
+import type { ClientScheduleBooking } from './service';
+import { useClientSchedule } from './use-schedule';
+import { useClientBookingStatus } from './use-status';
+
+type Props = {
+  userId: string;
+  workspaceId: string;
+  clientRecordId: string;
+  clientName: string;
+  trainerName: string;
+};
+export function ClientScheduleScreen(props: Props) {
+  return (
+    <ClientScheduleContent
+      key={`${props.userId}:${props.workspaceId}:${props.clientRecordId}`}
+      {...props}
+    />
+  );
+}
+function ClientScheduleContent(props: Props) {
+  const { t } = useTranslation();
+  const now = useWorkspaceClock();
+  const utcDay = now.toISOString().slice(0, 10);
+  const midnight = Date.parse(`${utcDay}T00:00:00Z`);
+  const read = useClientSchedule({
+    userId: props.userId,
+    clientRecordId: props.clientRecordId,
+    startsAtUtc: new Date(midnight - 86400000).toISOString(),
+    endsAtUtc: new Date(midnight + 40 * 86400000).toISOString(),
+  });
+  const status = useClientBookingStatus({
+    userId: props.userId,
+    workspaceId: props.workspaceId,
+    onChanged: read.retry,
+  });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const home = read.schedule ? clientScheduleHome(read.schedule, now) : null;
+  const context = read.schedule?.context;
+  const scopeFailed = Boolean(
+    context && context.workspaceId !== props.workspaceId,
+  );
+  const blocked =
+    read.loading ||
+    read.failed ||
+    scopeFailed ||
+    status.loading ||
+    status.busy ||
+    status.pending !== null ||
+    status.error === 'storage' ||
+    status.error === 'invalidPending';
+  const selected =
+    home?.bookings.find((row) => row.id === selectedId)?.booking ??
+    home?.pendingProposals.find((proposal) => proposal.bookingId === selectedId)
+      ?.booking;
+  const controls = (
+    booking: ClientScheduleBooking,
+    proposal: WorkspaceProposalStore,
+    proposalOnly = false,
+  ) => (
+    <ClientBookingControls
+      key={booking.id}
+      userId={props.userId}
+      workspaceId={props.workspaceId}
+      clientRecordId={props.clientRecordId}
+      clientName={context?.clientName ?? props.clientName}
+      timezone={context?.timezone ?? 'UTC'}
+      booking={booking}
+      proposals={home?.pendingProposals ?? []}
+      proposalStore={proposal}
+      statusStore={status}
+      proposalOnly={proposalOnly}
+      blocked={read.loading || read.failed || scopeFailed}
+    />
+  );
+  return (
+    <WorkspaceProposalProvider
+      userId={props.userId}
+      workspaceId={props.workspaceId}
+      onChanged={read.retry}
+      externalBlocked={blocked}
+      externalBusy={status.busy}
+    >
+      {(proposal) => (
+        <View className="flex-1 bg-canvas">
+          <WorkspaceProposalRecovery />
+          <ClientBookingStatusRecovery
+            store={status}
+            externalBusy={proposal.busy}
+          />
+          {read.failed || scopeFailed ? (
+            <Screen title={t('common.error')}>
+              <Button label={t('common.retry')} onPress={read.retry} />
+            </Screen>
+          ) : (
+            <ClientHomeScreen
+              data={{
+                clientName: context?.clientName ?? props.clientName,
+                trainerName: context?.trainerName ?? props.trainerName,
+                timezone: context?.timezone ?? 'UTC',
+                loading: read.loading,
+                bookings: (home?.bookings ?? []).map((row) => ({
+                  ...row,
+                  programPreview: row.booking.program?.exercises.length
+                    ? t('clientHome.programPreview', {
+                        program: row.programName,
+                        exercises: row.booking.program.exercises
+                          .slice(0, 3)
+                          .map((line) => line.exercise_name_snapshot)
+                          .join(', '),
+                        more:
+                          row.booking.program.exercises.length > 3
+                            ? t('clientHome.moreExercises', {
+                                count: row.booking.program.exercises.length - 3,
+                              })
+                            : '',
+                      })
+                    : t('clientHome.onsite'),
+                })),
+                onSelectBooking: (row) => setSelectedId(row.id),
+                renderActions: (row) => {
+                  const booking = home?.bookings.find(
+                    (value) => value.id === row.id,
+                  )?.booking;
+                  return booking ? controls(booking, proposal) : null;
+                },
+                requests: home?.pendingProposals
+                  .filter((request) => request.bookingId !== home.next?.id)
+                  .map((request) => (
+                    <View key={request.id}>
+                      {controls(request.booking, proposal, true)}
+                    </View>
+                  )),
+              }}
+            />
+          )}
+          <Sheet
+            open={
+              Boolean(selected) && !read.loading && !read.failed && !scopeFailed
+            }
+            title={selected?.program?.name ?? t('clientHome.onsite')}
+            onClose={() => setSelectedId(null)}
+          >
+            {selected ? controls(selected, proposal) : null}
+            {selected?.program?.description ? (
+              <Text>{selected.program.description}</Text>
+            ) : null}
+          </Sheet>
+        </View>
+      )}
+    </WorkspaceProposalProvider>
+  );
+}

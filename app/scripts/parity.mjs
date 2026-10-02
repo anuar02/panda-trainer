@@ -52,6 +52,7 @@ const scenarioScreens = {
   't-profile': 'trainer-profile',
   'c-profile': 'client-profile',
 };
+const scenarioInvariantScreens = new Set(['t-new']);
 for (const screen of selected) {
   if (!(screen in routes))
     throw new Error(`Unknown reference screen: ${screen}`);
@@ -167,15 +168,23 @@ try {
           route,
           theme,
           scenario,
+          scenarioInvariant: scenarioInvariantScreens.has(screen),
           reference: target ? `reference/${target.file}` : null,
           app: null,
           status: !exists
             ? 'route-missing'
-            : scenario !== 'normal' && !scenarioScreens[screen]
+            : scenario !== 'normal' &&
+                !scenarioScreens[screen] &&
+                !scenarioInvariantScreens.has(screen)
               ? 'state-not-implemented'
               : 'captured-not-approved',
         };
-        if (exists && (scenario === 'normal' || scenarioScreens[screen])) {
+        if (
+          exists &&
+          (scenario === 'normal' ||
+            scenarioScreens[screen] ||
+            scenarioInvariantScreens.has(screen))
+        ) {
           const context = await browser.newContext({
             viewport: { width: 390, height: 844 },
             deviceScaleFactor: 2,

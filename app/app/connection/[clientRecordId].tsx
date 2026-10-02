@@ -3,15 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/provider';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
 import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
-import { WorkspaceScheduleScreen } from '@/features/workspace-scheduling/workspace-schedule-screen';
+import { ClientScheduleScreen } from '@/features/client-scheduling/client-schedule-screen';
 import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 
-export default function WorkspaceScheduleRoute() {
-  const { date, session } = useLocalSearchParams<{
-    date?: string;
-    session?: string;
-  }>();
+export default function ClientConnectionRoute() {
+  const { clientRecordId } = useLocalSearchParams<{ clientRecordId: string }>();
   const auth = useAuth();
   const context = useOnboardingContext();
   const { t } = useTranslation();
@@ -24,16 +21,17 @@ export default function WorkspaceScheduleRoute() {
         <Button label={t('common.retry')} onPress={context.retry} />
       </Screen>
     );
-  const workspace = context.context?.workspace;
-  if (!workspace) return <Redirect href="/auth/account" />;
+  const connection = context.context?.connections.find(
+    (value) => value.client_record_id === clientRecordId,
+  );
+  if (!connection) return <Redirect href="/auth/account" />;
   return (
-    <WorkspaceScheduleScreen
-      key={`${auth.session.user.id}:${workspace.id}`}
+    <ClientScheduleScreen
       userId={auth.session.user.id}
-      workspaceId={workspace.id}
-      timezone={workspace.timezone}
-      initialDate={date}
-      initialSelectedId={session}
+      workspaceId={connection.workspace_id}
+      clientRecordId={connection.client_record_id}
+      clientName={connection.client_name}
+      trainerName={connection.trainer_name}
     />
   );
 }
