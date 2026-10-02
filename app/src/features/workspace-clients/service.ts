@@ -82,7 +82,9 @@ export async function loadWorkspaceClientDetails(
   const [program, bookings] = await Promise.all([
     client
       .from('client_programs')
-      .select('*')
+      .select(
+        'id,workspace_id,client_record_id,base_template_id,base_template_revision,name,description,revision,created_at,updated_at',
+      )
       .eq('workspace_id', workspaceId)
       .eq('client_record_id', clientId)
       .order('created_at', { ascending: false })
@@ -103,7 +105,9 @@ export async function loadWorkspaceClientDetails(
   const items = program.data
     ? await client
         .from('client_program_exercises')
-        .select('*')
+        .select(
+          'id,workspace_id,client_program_id,exercise_id,exercise_name_snapshot,source_key_snapshot,measure_snapshot,bodyweight_snapshot,muscle_group_snapshot,equipment_snapshot,instructions_snapshot,position,planned_sets,planned_reps,planned_seconds,planned_weight_g,rest_seconds,note,revision,created_at,updated_at',
+        )
         .eq('workspace_id', workspaceId)
         .eq('client_program_id', program.data.id)
         .order('position')

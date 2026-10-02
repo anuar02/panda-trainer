@@ -4,7 +4,10 @@ import {
   loadPendingWorkspaceProposal,
   PendingWorkspaceProposalError,
 } from '../src/features/workspace-scheduling/proposal-pending';
-import { submitWorkspaceProposal } from '../src/features/workspace-scheduling/proposal-submission';
+import {
+  resolvePendingWorkspaceProposal,
+  submitWorkspaceProposal,
+} from '../src/features/workspace-scheduling/proposal-submission';
 import {
   WorkspaceProposalError,
   type WorkspaceProposalCommand,
@@ -21,6 +24,7 @@ jest.mock('../src/features/workspace-scheduling/proposal-pending', () => ({
 }));
 jest.mock('../src/features/workspace-scheduling/proposal-submission', () => ({
   submitWorkspaceProposal: jest.fn(),
+  resolvePendingWorkspaceProposal: jest.fn(),
 }));
 const load = jest.mocked(loadPendingWorkspaceProposal);
 const submit = jest.mocked(submitWorkspaceProposal);
@@ -156,4 +160,52 @@ test('account change and unmount ignore stale server completion', async () => {
   await hook.unmount();
   await act(async () => next.resolve(result));
   expect(onChanged).not.toHaveBeenCalled();
+});
+
+test('resolution double press locks and clears only verified terminal response', async () => {
+  load.mockResolvedValue(command);
+  const resolving = deferred<{ outcome: 'abandoned'; result: null }>();
+  const resolveRequest = jest.mocked(resolvePendingWorkspaceProposal);
+  resolveRequest.mockReset().mockReturnValueOnce(resolving.promise);
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  await act(async () => {
+    void hook.result.current.resolve();
+    expect(await hook.result.current.resolve()).toBeNull();
+    expect(await hook.result.current.submit(command)).toBeNull();
+  });
+  expect(resolveRequest).toHaveBeenCalledTimes(1);
+  load.mockResolvedValue(null);
+  await act(async () =>
+    resolving.resolve({ outcome: 'abandoned', result: null }),
+  );
+  expect(hook.result.current.pending).toBeNull();
+  expect(onChanged).toHaveBeenCalledTimes(1);
+});
+test('resolution failure retains exact pending and scope switch ignores old completion', async () => {
+  load.mockResolvedValue(command);
+  const resolveRequest = jest.mocked(resolvePendingWorkspaceProposal);
+  resolveRequest
+    .mockReset()
+    .mockRejectedValueOnce(new WorkspaceProposalError('request'));
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  await act(async () => {
+    await hook.result.current.resolve();
+  });
+  expect(hook.result.current.pending).toEqual(command);
+  expect(hook.result.current.error).toBe('request');
+  const resolving = deferred<{ outcome: 'abandoned'; result: null }>();
+  resolveRequest.mockReturnValueOnce(resolving.promise);
+  await act(async () => {
+    void hook.result.current.resolve();
+  });
+  load.mockResolvedValue(null);
+  await hook.rerender({ ...props, userId: 'user-b' });
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  await act(async () =>
+    resolving.resolve({ outcome: 'abandoned', result: null }),
+  );
+  expect(onChanged).not.toHaveBeenCalled();
+  expect(hook.result.current.pending).toBeNull();
 });

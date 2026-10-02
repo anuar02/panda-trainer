@@ -44,3 +44,42 @@ node app/review/client-scheduling/verify.cjs \
 Docker Desktop was manually paused during this package. Client browser verification,
 native/accessibility, two-phone flows and owner comparison remain open. No production
 data, remote Linear updates, push or release was performed.
+
+## Resumed runtime and progress checkpoint — 2026-10-02
+
+Docker resumed. Configured all-platform export and 951 tests / 105 suites pass,
+along with TypeScript, lint and formatting. Six default progress pairs have zero
+missing states or browser errors: `/tmp/screens/client-scheduling/progress-parity/index.html`.
+The controlled progress route uses complete finished history for actual records
+and 28-day deltas; incomplete history produces a retry, never partial metrics.
+
+`verify.cjs` now passes all 29 checks: participant isolation, confirmation,
+proposal lifecycle, cancellation, immutable program details, history predating
+account linkage, shared/private note isolation, progress and account switching.
+It provisions synthetic client Auth through local GoTrue admin API. No browser
+errors; scoped database/Auth/mail cleanup succeeded. Screenshots include
+`after-cancel.png`, `history-detail.png` and `progress.png` under
+`/tmp/screens/client-scheduling/`.
+
+These fresh checks supersede the earlier unrun runtime checkpoint. Native,
+accessibility, two-phone and owner acceptance remain open; balance/attendance
+integration and direct API audit-field hardening remain separate work.
+
+## Privacy-grant regression — 2026-10-02
+
+A fresh configured all-platform export and the migrated isolated stack pass all
+29 client checks under explicit safe-column grants. History, program, progress,
+participant isolation, proposal actions and account switching remain readable;
+no browser errors occurred and scoped fixtures were cleaned up. This confirms
+the runtime regression only; native and owner acceptance remain open.
+
+## Pending-request resolution runtime — 2026-10-02
+
+The final configured export passes all 34 client checks. Five new assertions
+verify explicit UI resolution of a stored stale cancellation and reschedule
+request: the server durably abandons each original request, pending storage is
+cleared and neither booking status nor proposal data changes. A stored already
+applied confirmation resolves through its original successful receipt with
+`replayed: true` and an unchanged booking revision. Fresh proposal and
+cancellation actions then complete normally. Cleanup removes the scoped private
+abandonment rows before deleting fixtures. No browser errors occurred.

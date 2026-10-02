@@ -147,12 +147,14 @@ beforeEach(() => {
     error: null,
     submit: jest.fn(),
     resume: jest.fn(),
+    resolve: jest.fn(),
     reload: jest.fn(),
   };
   mockProposal = {
     ...status,
     pending: null,
     resume: jest.fn().mockResolvedValue(null),
+    resolve: jest.fn().mockResolvedValue(null),
     submit: jest.fn(),
     userId: 'user',
     workspaceId: 'workspace',

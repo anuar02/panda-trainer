@@ -1,3 +1,4 @@
+import { resolveWorkspaceBookingStatusRequest } from './request-resolution';
 import { createWorkspaceBookingStatusOperation } from './status-operation';
 import {
   clearPendingWorkspaceBookingStatus,
@@ -30,4 +31,22 @@ export async function resumeWorkspaceBookingStatus(
   return command
     ? submitWorkspaceBookingStatus(userId, workspaceId, command)
     : null;
+}
+
+export async function resolvePendingWorkspaceBookingStatus(
+  userId: string,
+  workspaceId: string,
+) {
+  const command = await loadPendingWorkspaceBookingStatus(userId, workspaceId);
+  if (!command) return null;
+  const resolution = await resolveWorkspaceBookingStatusRequest(
+    { ...command, expectedUserId: userId },
+    workspaceId,
+  );
+  await clearPendingWorkspaceBookingStatus(
+    userId,
+    workspaceId,
+    command.requestId,
+  );
+  return resolution;
 }

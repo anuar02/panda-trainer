@@ -82,3 +82,20 @@ Today, trainer/client proposal controls and client status UI are implemented but
 runtime/owner acceptance remains open. Terminal pending-command resolution, whole-group
 actions and billing remain open. Creation is enabled with immutable server snapshots. Native/accessibility, two-phone scenarios and owner visual
 acceptance remain open. SOM-26, SOM-27 and SOM-45 are not complete.
+
+## Resumed runtime checkpoint — 2026-10-02
+
+After Docker resumed and isolated Auth restarted, the configured all-platform
+export passed all 23 trainer browser checks. Proposal/send/withdraw, counter,
+acceptance with only the selected participant detached, decline, immutable plans,
+real Today/calendar data and cancellation passed. No browser errors; scoped
+synthetic cleanup succeeded. This resolves the previous runtime sheet timeout
+checkpoint, but does not establish native/two-phone or owner acceptance.
+
+## Privacy-grant regression — 2026-10-02
+
+Fresh configured all-platform export and the migrated isolated stack pass all 23
+trainer checks under explicit safe-column grants. The runner reloads and reopens
+the group after proposal submission before withdrawal, so it acts on settled
+server data after the calendar detail refresh. No forced clicks are used. Browser
+errors and failed/pending requests are empty; scoped fixtures are cleaned up.

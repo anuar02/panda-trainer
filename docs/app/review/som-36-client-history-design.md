@@ -83,3 +83,11 @@ snapshot survives library change, own finished history predating identity linkag
 invitation, peer/cross-workspace responses rejected, stable paging and batch boundaries,
 nullable/zero values preserved, stale account/scope responses ignored. Existing RLS tests still
 need rerunning with the complete package once the isolated database is available.
+
+## Resumed runtime checkpoint — 2026-10-02
+
+The configured client browser runner passes 29 checks, including immutable program,
+finished history created before linking the synthetic account, real null/zero set
+values, shared/private-note isolation, progress and account switching. No browser
+errors and scoped cleanup succeeded. Local GoTrue admin provisioning supplies a
+valid synthetic Auth identity. Native/owner acceptance remains open.

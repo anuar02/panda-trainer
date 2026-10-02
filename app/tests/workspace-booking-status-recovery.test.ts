@@ -9,6 +9,7 @@ import {
   clearPendingWorkspaceBookingStatus,
   type PendingWorkspaceBookingStatus,
 } from '@/features/workspace-scheduling/status-pending';
+jest.mock('@/features/auth/client', () => ({ getSupabaseClient: jest.fn() }));
 
 jest.mock('@/features/workspace-scheduling/status-operation', () => ({
   createWorkspaceBookingStatusOperation: jest.fn(),

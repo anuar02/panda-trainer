@@ -1417,6 +1417,26 @@ export type Database = {
           workspace_id: string;
         }[];
       };
+      get_my_workspace_schedule_proposals: {
+        Args: {
+          p_limit?: number;
+          p_offset?: number;
+          p_workspace_id: string;
+        };
+        Returns: {
+          author_role: string;
+          base_revision: number;
+          booking_id: string;
+          created_at: string;
+          id: string;
+          proposed_ends_at: string;
+          proposed_starts_at: string;
+          revision: number;
+          status: string;
+          updated_at: string;
+          workspace_id: string;
+        }[];
+      };
       is_workspace_owner: {
         Args: {
           target_workspace_id: string;
@@ -1455,6 +1475,27 @@ export type Database = {
           p_booking_id: string;
           p_expected_booking_revision: number;
           p_proposed_starts_at: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
+      resolve_booking_reschedule_request: {
+        Args: {
+          p_booking_id: string;
+          p_command: string;
+          p_expected_booking_revision: number;
+          p_expected_proposal_revision: number;
+          p_proposal_id: string;
+          p_proposed_starts_at: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
+      resolve_booking_status_request: {
+        Args: {
+          p_booking_id: string;
+          p_command: string;
+          p_expected_revision: number;
           p_request_id: string;
         };
         Returns: Json;

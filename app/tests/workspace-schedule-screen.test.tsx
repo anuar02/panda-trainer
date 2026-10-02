@@ -13,7 +13,10 @@ import {
   loadPendingWorkspaceBookingStatus,
   type PendingWorkspaceBookingStatus,
 } from '../src/features/workspace-scheduling/status-pending';
-import { submitWorkspaceBookingStatus } from '../src/features/workspace-scheduling/status-submission';
+import {
+  resolvePendingWorkspaceBookingStatus,
+  submitWorkspaceBookingStatus,
+} from '../src/features/workspace-scheduling/status-submission';
 import type { WorkspaceSchedule } from '../src/features/workspace-scheduling/service';
 import type { TrainerScheduleData } from '../src/features/trainer-schedule/trainer-schedule-screen';
 
@@ -51,6 +54,7 @@ jest.mock('../src/features/workspace-scheduling/status-pending', () => ({
 }));
 jest.mock('../src/features/workspace-scheduling/status-submission', () => ({
   submitWorkspaceBookingStatus: jest.fn(),
+  resolvePendingWorkspaceBookingStatus: jest.fn(),
 }));
 jest.mock('../src/features/trainer-schedule/trainer-schedule-screen', () => ({
   TrainerScheduleScreen: ({ data }: { data: TrainerScheduleData }) => {
@@ -323,4 +327,37 @@ test('an unresolved proposal blocks a new cancellation for the same workspace', 
     screen.getByRole('button', { name: 'Отменить участие: Server a' }),
   );
   expect(submit).not.toHaveBeenCalled();
+});
+
+test('trainer pending resolution shares lock and refreshes verified terminal result', async () => {
+  const command: PendingWorkspaceBookingStatus = {
+    action: 'cancel',
+    bookingId: 'booking-a',
+    expectedRevision: 2,
+    requestId: 'old-request',
+  };
+  load.mockResolvedValue(command);
+  const resolveRequest = jest.mocked(resolvePendingWorkspaceBookingStatus);
+  let finish!: (value: { outcome: 'abandoned'; result: null }) => void;
+  resolveRequest.mockReturnValueOnce(
+    new Promise((yes) => {
+      finish = yes;
+    }),
+  );
+  await mount();
+  const button = await screen.findByRole('button', {
+    name: 'Проверить результат и завершить запрос',
+  });
+  await fireEvent.press(button);
+  await fireEvent.press(button);
+  expect(resolveRequest).toHaveBeenCalledTimes(1);
+  expect(submit).not.toHaveBeenCalled();
+  load.mockResolvedValue(null);
+  await act(async () => finish({ outcome: 'abandoned', result: null }));
+  expect(retry).toHaveBeenCalledTimes(1);
+  expect(
+    screen.queryByRole('button', {
+      name: 'Проверить результат и завершить запрос',
+    }),
+  ).toBeNull();
 });

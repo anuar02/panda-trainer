@@ -114,6 +114,18 @@ export function WorkspaceProposalRecovery() {
           onPress={store.reload}
         />
       ) : null}
+      {store.pending &&
+      store.error !== 'storage' &&
+      store.error !== 'invalidPending' ? (
+        <Button
+          label={t('workspaceScheduling.resolvePending')}
+          loading={store.busy}
+          disabled={store.externalBusy}
+          onPress={() => {
+            if (!store.externalBusy) void store.resolve();
+          }}
+        />
+      ) : null}
     </Card>
   );
 }
@@ -316,6 +328,7 @@ export function WorkspaceProposalControls({
         </View>
       ))}
       <RescheduleSheet
+        stackBehavior="push"
         open={editing !== null}
         session={session}
         counter={editing !== null && editing !== 'propose'}

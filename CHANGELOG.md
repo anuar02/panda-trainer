@@ -176,6 +176,23 @@
 
 ### Исправлено
 
+- SOM-27/36: сохранённые status/reschedule requests можно завершить через сервер:
+  исходный успешный результат восстанавливается, невыполненный запрос навсегда
+  блокируется перед очисткой локальной recovery-записи. Recovery доступен обеим
+  ролям; вложенные connected sheets сохраняют родительский booking context.
+  [ADR 0052](docs/app/decisions/0052-booking-request-resolution.md),
+  [ADR 0051](docs/app/decisions/0051-connected-action-sheet-stacking.md).
+  Проверки: 991 app tests / 107 suites, 610 database assertions / 18 files,
+  9 concurrency scenarios, trainer/client browser 23/34 checks; экспорт трёх
+  платформ. [Отчёт](docs/app/review/som-27-request-resolution.md).
+  SOM-35 invitation → signup/link → existing history проходит 43 browser checks
+  с safe API projections и отказом другому аккаунту.
+
+- SOM-36 API privacy: прямое чтение auth/device audit fields закрыто column grants
+  на личных программах и журнале; trainer proposals читаются через owner RPC с
+  author_role. 574 pgTAP assertions / 17 files и 962 app tests / 106 suites проходят.
+  [ADR 0050](docs/app/decisions/0050-client-visible-api-audit-privacy.md).
+
 - SOM-26: сохранённая операция создания может повториться после синхронной
   ошибки конфигурации/client lookup; rejected Promise больше не остаётся в кеше.
   Два regression tests проходят.

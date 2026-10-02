@@ -14,7 +14,10 @@ import {
   loadPendingWorkspaceBookingStatus,
   type PendingWorkspaceBookingStatus,
 } from './status-pending';
-import { submitWorkspaceBookingStatus } from './status-submission';
+import {
+  resolvePendingWorkspaceBookingStatus,
+  submitWorkspaceBookingStatus,
+} from './status-submission';
 import { WorkspaceBookingStatusError } from './status-operation';
 import { useWorkspaceSchedule } from './use-schedule';
 import {
@@ -102,13 +105,18 @@ function WorkspaceScheduleContent({
     };
   }, [attempt, userId, workspaceId]);
 
-  const submit = async (command: PendingWorkspaceBookingStatus) => {
+  const submit = async (
+    command: PendingWorkspaceBookingStatus,
+    resolving = false,
+  ) => {
     if (locked.current || !ready || storageFailed) return;
     locked.current = true;
     setBusy(true);
     setError(null);
     try {
-      await submitWorkspaceBookingStatus(userId, workspaceId, command);
+      if (resolving)
+        await resolvePendingWorkspaceBookingStatus(userId, workspaceId);
+      else await submitWorkspaceBookingStatus(userId, workspaceId, command);
       if (!mounted.current) return;
       setSelectedId(null);
       read.retry();
@@ -183,6 +191,16 @@ function WorkspaceScheduleContent({
                   disabled={proposal.busy}
                   onPress={() => {
                     if (!proposal.busy) void submit(pending);
+                  }}
+                />
+              ) : null}
+              {pending && !storageFailed ? (
+                <Button
+                  label={t('workspaceScheduling.resolvePending')}
+                  loading={busy}
+                  disabled={proposal.busy}
+                  onPress={() => {
+                    if (!proposal.busy) void submit(pending, true);
                   }}
                 />
               ) : null}

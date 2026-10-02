@@ -52,7 +52,7 @@ const uuid = (value: unknown): value is string =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     value,
   );
-function parse(
+export function parseWorkspaceProposalResult(
   value: unknown,
   command: WorkspaceProposalCommand,
 ): WorkspaceProposalResult {
@@ -172,7 +172,7 @@ export function createWorkspaceProposalOperation(
                     ? 'unavailable'
                     : 'request',
           );
-        return parse(data, command);
+        return parseWorkspaceProposalResult(data, command);
       })().catch((error: unknown) => {
         pending = null;
         if (error instanceof WorkspaceProposalError) throw error;

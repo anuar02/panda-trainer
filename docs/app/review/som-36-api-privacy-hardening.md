@@ -1,6 +1,6 @@
 # SOM-36: API privacy hardening design
 
-Status: technical proposal only, not implemented or database-verified. Docker was paused during this audit. Existing client transport projections redact fields, but direct authenticated API access still exposes some audit identities on rows allowed by RLS.
+Status: database, app and trainer/client runtime checks pass; native/owner acceptance open. The initial audit identified direct API exposure of audit identities despite safe transport projections. The new grants and coordinated callers remediate that exposure within the scope below.
 
 ## Evidence and actual consumers
 
@@ -43,3 +43,29 @@ Run a fresh migration reset, schema lint, dedicated pgTAP, existing database sui
 ## Boundary
 
 Identity/workspace/invitation tables have their own auth-link metadata and policies. They are not covered by this narrow journal/copy/proposal change. Archived client cards are still included by existing my_client_record_ids row policies; active context gating in new readers does not change direct-table archive behavior. Changing archived-link access needs its own decision and tests. No client access to template/catalog tables, no new personal-copy active flag, no billing/attendance inference, and no new journal write capability are introduced.
+
+## Implementation checkpoint — 2026-10-02
+
+`20261002130000_api_privacy_hardening.sql` replaces broad grants and adds the
+safe owner proposal RPC. Trainer personal-copy and proposal callers use explicit
+projections/roles; generated types include the RPC. Dedicated pgTAP covers column
+ACLs, denied wildcard/inference requests, owner/client/foreign/anonymous scopes,
+finished versus draft data, private notes, safe RPC paging and definer replay.
+SQL lint passes. The existing 494 database assertions pass after exact historical
+synthetic fixture cleanup. The full suite now passes 574 assertions / 17 files, including 80 new permission
+assertions. App check passes 962 tests / 106 suites after the connected-sheet fix, TypeScript, lint and formatting.
+Restricted-API client regression passes all 29 browser checks. Trainer runtime
+reproduced an existing nested switch/minimize dismissal; the focused stacking fix
+is recorded in ADR 0051 and its fresh runtime verification is still in progress.
+
+The isolated clean reset applied old migrations and seed but its CLI reported a
+storage health timeout. Storage became healthy on its own; migration up then
+successfully applied the new migration. The main project stack was untouched.
+[ADR 0050](../decisions/0050-client-visible-api-audit-privacy.md).
+
+Final continuation: restricted API trainer/client regressions pass 23/34 checks.
+Full app check passes 991 tests / 107 suites, TypeScript, lint and formatting;
+configured web/iOS/Android export passes. The expanded database suite passes
+610 assertions / 18 files, with nine request-resolution concurrency checks,
+clean schema lint and matching generated types. These results supersede the
+pending trainer verification above; native/owner acceptance remains open.

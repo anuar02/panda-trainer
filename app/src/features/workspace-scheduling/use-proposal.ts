@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { submitWorkspaceProposal } from './proposal-submission';
+import {
+  resolvePendingWorkspaceProposal,
+  submitWorkspaceProposal,
+} from './proposal-submission';
 import {
   WorkspaceProposalError,
   type WorkspaceProposalCommand,
@@ -128,6 +131,41 @@ export function useWorkspaceProposalCommands({
     () => (current?.pending ? submit(current.pending) : Promise.resolve(null)),
     [current, submit],
   );
+  const resolve = useCallback(async () => {
+    const token = control.current;
+    if (
+      !token?.active ||
+      token.key !== key ||
+      token.locked ||
+      !current?.pending ||
+      current.error === 'storage' ||
+      current.error === 'invalidPending'
+    )
+      return null;
+    token.locked = true;
+    setState({ ...current, busy: true, error: null });
+    let resolution = null;
+    let failure = null;
+    try {
+      resolution = await resolvePendingWorkspaceProposal(userId, workspaceId);
+    } catch (error: unknown) {
+      failure = errorCode(error);
+    }
+    try {
+      const pending = await loadPendingWorkspaceProposal(userId, workspaceId);
+      if (!token.active) return null;
+      setState({ key, pending, busy: false, error: failure });
+    } catch (error: unknown) {
+      if (!token.active) return null;
+      setState({ ...current, busy: false, error: pendingErrorCode(error) });
+      resolution = null;
+    } finally {
+      token.locked = false;
+    }
+    if (!token.active) return null;
+    if (resolution) onChanged();
+    return resolution;
+  }, [current, key, onChanged, userId, workspaceId]);
   const reload = useCallback(() => {
     if (!control.current?.locked) setAttempt((value) => value + 1);
   }, []);
@@ -139,5 +177,6 @@ export function useWorkspaceProposalCommands({
     reload,
     submit,
     resume,
+    resolve,
   };
 }

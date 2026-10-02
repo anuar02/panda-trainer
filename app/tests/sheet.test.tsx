@@ -14,6 +14,7 @@ const mockDismiss = jest.fn();
 let mockOnDismiss: () => void;
 let mockOnBlur: () => void;
 let mockFocused = true;
+let mockStackBehavior: string | undefined;
 const mockNavigation = {
   isFocused: () => mockFocused,
   addListener: jest.fn((event: string, listener: () => void) => {
@@ -45,16 +46,19 @@ jest.mock('@gorhom/bottom-sheet', () => {
       ref,
       onDismiss,
       accessible,
+      stackBehavior,
     }: PropsWithChildren<{
       ref: Ref<{ present: () => void; dismiss: () => void }>;
       onDismiss: () => void;
       accessible?: boolean;
+      stackBehavior?: string;
     }>) => {
       React.useImperativeHandle(ref, () => ({
         present: mockPresent,
         dismiss: mockDismiss,
       }));
       mockOnDismiss = onDismiss;
+      mockStackBehavior = stackBehavior;
       return (
         <View testID="sheet-content" accessible={accessible ?? true}>
           {children}
@@ -247,3 +251,16 @@ test.each([
     expect(screen.getByTestId('picker-done')).toBeTruthy();
   },
 );
+
+test('nested push preserves the library default for existing sheet callers', async () => {
+  const onClose = jest.fn();
+  const view = await render(<Sheet open title="Parent" onClose={onClose} />);
+  expect(mockStackBehavior).toBeUndefined();
+  await view.rerender(
+    <Sheet open title="Editor" onClose={onClose} stackBehavior="push" />,
+  );
+  expect(mockStackBehavior).toBe('push');
+  expect(onClose).not.toHaveBeenCalled();
+  await act(async () => mockOnDismiss());
+  expect(onClose).toHaveBeenCalledTimes(1);
+});

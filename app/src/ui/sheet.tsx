@@ -26,10 +26,12 @@ export function Sheet({
   onClose,
   children,
   fixedContent,
+  stackBehavior,
 }: PropsWithChildren<{
   open: boolean;
   title: string;
   onClose: () => void;
+  stackBehavior?: 'push' | 'switch' | 'replace';
   fixedContent?: { header: ReactNode; footer: ReactNode };
 }>) {
   const ref = useRef<BottomSheetModal>(null);
@@ -134,6 +136,7 @@ export function Sheet({
   return (
     <BottomSheetModal
       ref={ref}
+      stackBehavior={stackBehavior}
       onDismiss={handleDismiss}
       enablePanDownToClose
       enableDynamicSizing={!fixedContent}

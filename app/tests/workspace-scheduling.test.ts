@@ -192,8 +192,42 @@ const makeClient = (data: Partial<Record<TableName, Row[]>>) => {
     };
     return builder;
   });
-  getClient.mockReturnValue({ from } as unknown as SupabaseClient<Database>);
-  return { calls, errors };
+  const rpc = jest.fn(
+    (
+      name: string,
+      args: { p_workspace_id: string; p_offset: number; p_limit: number },
+    ): Promise<QueryResponse> => {
+      const rows = (
+        (data.schedule_proposals ??
+          []) as Database['public']['Tables']['schedule_proposals']['Row'][]
+      )
+        .filter(
+          (value) =>
+            value.workspace_id === args.p_workspace_id &&
+            value.status === 'pending',
+        )
+        .sort(
+          (a, b) =>
+            a.proposed_starts_at.localeCompare(b.proposed_starts_at) ||
+            a.id.localeCompare(b.id),
+        )
+        .slice(args.p_offset, args.p_offset + args.p_limit)
+        .map(({ author_user_id, created_by: _createdBy, ...value }) => ({
+          ...value,
+          author_role:
+            author_user_id === workspace().owner_user_id ? 'trainer' : 'client',
+        }));
+      return Promise.resolve({
+        data: rows,
+        error: errors.schedule_proposals ?? null,
+      });
+    },
+  );
+  getClient.mockReturnValue({
+    from,
+    rpc,
+  } as unknown as SupabaseClient<Database>);
+  return { calls, errors, rpc };
 };
 
 describe('workspace schedule service', () => {
@@ -377,7 +411,7 @@ describe('workspace schedule service', () => {
       starts_at: '2026-11-13T10:00:00.000Z',
       ends_at: '2026-11-13T11:00:00.000Z',
     });
-    const { calls } = makeClient({
+    const { calls, rpc } = makeClient({
       trainer_workspaces: [workspace()],
       bookings: [outsideBooking, trainerBooking],
       schedule_proposals: [
@@ -430,13 +464,62 @@ describe('workspace schedule service', () => {
     );
     expect(schedule.pendingProposals[0]?.booking).not.toHaveProperty('phone');
     expect(schedule.pendingProposals[0]?.booking).not.toHaveProperty('user_id');
-    expect(
-      calls.find((call) => call.table === 'schedule_proposals')?.state.filters,
-    ).toContainEqual({
-      field: 'workspace_id',
-      operator: 'eq',
-      value: workspaceId,
+    expect(calls.some((call) => call.table === 'schedule_proposals')).toBe(
+      false,
+    );
+    expect(rpc).toHaveBeenCalledWith('get_my_workspace_schedule_proposals', {
+      p_workspace_id: workspaceId,
+      p_offset: 0,
+      p_limit: 500,
     });
+  });
+
+  it('pages all-time proposal RPC in stable order', async () => {
+    const rows = Array.from({ length: 501 }, (_, index) =>
+      proposal({
+        id: `a1000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+      }),
+    );
+    const { rpc } = makeClient({
+      trainer_workspaces: [workspace()],
+      bookings: [booking({ id: secondBookingId })],
+      schedule_proposals: rows,
+      client_records: [clientRecord(clientId, 'Client')],
+    });
+    const result = await loadWorkspaceSchedule(
+      workspaceId,
+      intervalStart,
+      intervalEnd,
+    );
+    expect(result.pendingProposals).toHaveLength(501);
+    expect(rpc.mock.calls.map((call) => call[1])).toEqual([
+      { p_workspace_id: workspaceId, p_offset: 0, p_limit: 500 },
+      { p_workspace_id: workspaceId, p_offset: 500, p_limit: 500 },
+    ]);
+  });
+
+  it.each([
+    { author_user_id: workspace().owner_user_id },
+    { created_by: workspace().owner_user_id },
+    { author_role: 'unknown' },
+    { workspace_id: otherWorkspaceId },
+    { status: 'accepted' },
+    { revision: 0 },
+    { proposed_ends_at: 'not a timestamp' },
+  ])('rejects unsafe or invalid proposal RPC output %j', async (extra) => {
+    const { rpc } = makeClient({ trainer_workspaces: [workspace()] });
+    const {
+      author_user_id: _author,
+      created_by: _creator,
+      ...safe
+    } = proposal();
+    rpc.mockResolvedValueOnce({
+      data: [{ ...safe, author_role: 'client', ...extra }],
+      error: null,
+    });
+    await expect(
+      loadWorkspaceSchedule(workspaceId, intervalStart, intervalEnd),
+    ).rejects.toMatchObject({ code: 'request' });
   });
 
   it('rejects missing related records and database read failures', async () => {

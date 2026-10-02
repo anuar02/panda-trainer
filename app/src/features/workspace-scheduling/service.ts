@@ -21,7 +21,6 @@ type ProposalRead = Pick<
   | 'id'
   | 'workspace_id'
   | 'booking_id'
-  | 'author_user_id'
   | 'proposed_starts_at'
   | 'proposed_ends_at'
   | 'base_revision'
@@ -29,7 +28,7 @@ type ProposalRead = Pick<
   | 'revision'
   | 'created_at'
   | 'updated_at'
->;
+> & { author_role: 'trainer' | 'client' };
 
 export type WorkspaceScheduleAvailability = Pick<
   WorkspaceRow,
@@ -105,7 +104,47 @@ const maxRangeMilliseconds =
 const bookingColumns =
   'id,workspace_id,client_record_id,group_session_id,starts_at,ends_at,status,revision';
 const proposalColumns =
-  'id,workspace_id,booking_id,author_user_id,proposed_starts_at,proposed_ends_at,base_revision,status,revision,created_at,updated_at';
+  'id,workspace_id,booking_id,author_role,proposed_starts_at,proposed_ends_at,base_revision,status,revision,created_at,updated_at';
+
+const parseProposalRows = (
+  data: unknown,
+  workspaceId: string,
+): ProposalRead[] => {
+  if (!Array.isArray(data) || data.length > pageSize)
+    return throwRequestError();
+  return data.map((value: unknown) => {
+    if (typeof value !== 'object' || value === null || Array.isArray(value))
+      return throwRequestError();
+    const row = value as Record<string, unknown>;
+    const timestamp = (key: string) =>
+      typeof row[key] === 'string' && Number.isFinite(Date.parse(row[key]));
+    if (
+      Object.keys(row).sort().join(',') !==
+        proposalColumns.split(',').sort().join(',') ||
+      typeof row.id !== 'string' ||
+      !uuidPattern.test(row.id) ||
+      row.workspace_id !== workspaceId ||
+      typeof row.booking_id !== 'string' ||
+      !uuidPattern.test(row.booking_id) ||
+      (row.author_role !== 'trainer' && row.author_role !== 'client') ||
+      row.status !== 'pending' ||
+      typeof row.base_revision !== 'number' ||
+      !Number.isSafeInteger(row.base_revision) ||
+      row.base_revision < 1 ||
+      typeof row.revision !== 'number' ||
+      !Number.isSafeInteger(row.revision) ||
+      row.revision < 1 ||
+      !timestamp('proposed_starts_at') ||
+      !timestamp('proposed_ends_at') ||
+      !timestamp('created_at') ||
+      !timestamp('updated_at') ||
+      Date.parse(row.proposed_ends_at as string) <=
+        Date.parse(row.proposed_starts_at as string)
+    )
+      return throwRequestError();
+    return row as ProposalRead;
+  });
+};
 
 const normalizeUtc = (value: string): string | null => {
   const parsed = new Date(value);
@@ -181,7 +220,7 @@ export async function loadWorkspaceSchedule(
     client
       .from('trainer_workspaces')
       .select(
-        'id,owner_user_id,timezone,working_days,day_start,day_end,usual_session_minutes',
+        'id,timezone,working_days,day_start,day_end,usual_session_minutes',
       )
       .eq('id', workspaceId)
       .maybeSingle(),
@@ -196,20 +235,26 @@ export async function loadWorkspaceSchedule(
         .order('id')
         .range(from, to),
     ),
-    readPages<ProposalRead>((from, to) =>
-      client
-        .from('schedule_proposals')
-        .select(proposalColumns)
-        .eq('workspace_id', workspaceId)
-        .eq('status', 'pending')
-        .order('proposed_starts_at')
-        .order('id')
-        .range(from, to),
-    ),
+    readPages<ProposalRead>(async (from) => {
+      const { data, error } = await client.rpc(
+        'get_my_workspace_schedule_proposals',
+        {
+          p_workspace_id: workspaceId,
+          p_offset: from,
+          p_limit: pageSize,
+        },
+      );
+      return {
+        data: error ? null : parseProposalRows(data, workspaceId),
+        error,
+      };
+    }),
   ]);
   if (workspaceResult.error) throwRequestError();
   if (!workspaceResult.data) throw new WorkspaceSchedulingError('unavailable');
   const workspace = workspaceResult.data;
+  if (new Set(proposalRows.map((row) => row.id)).size !== proposalRows.length)
+    throwRequestError();
 
   const bookingIds = uniqueIds([
     ...bookingRows.map((booking) => booking.id),
@@ -302,10 +347,7 @@ export async function loadWorkspaceSchedule(
       revision: proposal.revision,
       created_at: proposal.created_at,
       updated_at: proposal.updated_at,
-      authorRole:
-        proposal.author_user_id === workspace.owner_user_id
-          ? 'trainer'
-          : 'client',
+      authorRole: proposal.author_role,
       booking: bookingViews.get(proposal.booking_id)!,
     })),
   };

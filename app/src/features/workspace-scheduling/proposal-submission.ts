@@ -1,3 +1,4 @@
+import { resolveWorkspaceProposalRequest } from './request-resolution';
 import {
   createWorkspaceProposalOperation,
   type WorkspaceProposalCommand,
@@ -25,4 +26,19 @@ export async function resumeWorkspaceProposal(
 ) {
   const command = await loadPendingWorkspaceProposal(userId, workspaceId);
   return command ? submitWorkspaceProposal(userId, workspaceId, command) : null;
+}
+
+export async function resolvePendingWorkspaceProposal(
+  userId: string,
+  workspaceId: string,
+) {
+  const command = await loadPendingWorkspaceProposal(userId, workspaceId);
+  if (!command) return null;
+  const resolution = await resolveWorkspaceProposalRequest(
+    command,
+    userId,
+    workspaceId,
+  );
+  await clearPendingWorkspaceProposal(userId, workspaceId, command.requestId);
+  return resolution;
 }

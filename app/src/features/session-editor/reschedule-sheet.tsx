@@ -93,6 +93,7 @@ export function RescheduleSheet(props: RescheduleSheetProps) {
   return (
     <Sheet
       open={props.open}
+      stackBehavior={props.stackBehavior}
       title={t(
         props.counter ? 'sessionEditor.counter' : 'sessionEditor.reschedule',
       )}

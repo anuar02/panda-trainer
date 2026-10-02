@@ -9,6 +9,25 @@
 
 ## Где остановились
 
+- 02.10.2026 — продолжение SOM-36/27: server request resolution возвращает
+  исходный receipt или фиксирует безопасное abandonment точного запроса;
+  recovery transport и действия обеих ролей подключены. Изолированная БД:
+  610 assertions / 18 files, lint и 9 concurrency scenarios проходят;
+  generated types совпадают. 991 app tests / 107 suites, type/lint/format,
+  web/iOS/Android export, trainer 23 и client 34 browser checks проходят.
+  Invitation-history runtime проходит 43 checks с сохранением прежних journals
+  через signup/link, изоляцией private/peer/draft и отказом другому claimant.
+  Live Linear недоступен в этой сессии; scope восстановлен по карте и checkpoint.
+  Native/owner acceptance, billing и production journal остаются открытыми.
+  [ADR 0052](decisions/0052-booking-request-resolution.md).
+
+- 02.10.2026 — SOM-36 privacy: broad table grants заменены явными safe columns;
+  auth/device audit fields недоступны прямому клиентскому API. Trainer copies
+  читаются без wildcard, pending proposals через owner RPC с author_role.
+  574 assertions / 17 files, SQL lint, 961 tests / 106 suites и type/lint/format
+  проходят. Runtime regression/export под новыми grants проверяются отдельно.
+  [ADR 0050](decisions/0050-client-visible-api-audit-privacy.md).
+
 - 02.10.2026 — SOM-36: guarded client progress route читает все собственные
   finished journals перед расчётом реальных рекордов и 28-дневных изменений.
   Unknown/zero результаты различаются; partial history не отображает метрики.

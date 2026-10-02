@@ -303,6 +303,7 @@ export function ClientBookingControls({
         </View>
       ))}
       <Sheet
+        stackBehavior="push"
         open={cancelOpen}
         title={t('clientHome.cancelTitle')}
         onClose={() => {
@@ -353,6 +354,7 @@ export function ClientBookingControls({
         />
       </Sheet>
       <RescheduleSheet
+        stackBehavior="push"
         open={editing !== null}
         session={session}
         counter={editing !== null && editing !== 'propose'}
@@ -418,6 +420,18 @@ export function ClientBookingStatusRecovery({
           label={t('common.retry')}
           disabled={store.busy}
           onPress={store.reload}
+        />
+      ) : null}
+      {store.pending &&
+      store.error !== 'storage' &&
+      store.error !== 'invalidPending' ? (
+        <Button
+          label={t('workspaceScheduling.resolvePending')}
+          loading={store.busy}
+          disabled={externalBusy}
+          onPress={() => {
+            if (!externalBusy) void store.resolve();
+          }}
         />
       ) : null}
     </Card>

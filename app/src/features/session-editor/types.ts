@@ -35,6 +35,7 @@ export type RescheduleSession = {
   clientName: string;
 };
 export type RescheduleSheetProps = {
+  stackBehavior?: 'push' | 'switch' | 'replace';
   open: boolean;
   session: RescheduleSession;
   counter?: boolean;

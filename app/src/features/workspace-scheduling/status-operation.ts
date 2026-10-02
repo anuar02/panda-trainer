@@ -91,29 +91,13 @@ export const createWorkspaceBookingStatusOperation = (
                       ? 'invalidState'
                       : 'request',
             );
-          if (
-            typeof data !== 'object' ||
-            data === null ||
-            Array.isArray(data) ||
-            !validUuid(data.booking_id) ||
-            data.booking_id.toLowerCase() !== args.p_booking_id ||
-            data.revision !== args.p_expected_revision + 1 ||
-            typeof data.replayed !== 'boolean' ||
-            (data.status !== 'confirmed' &&
-              data.status !== 'cancelled_by_client' &&
-              data.status !== 'cancelled_by_trainer') ||
-            (action === 'confirm'
-              ? data.status !== 'confirmed'
-              : data.status !== 'cancelled_by_client' &&
-                data.status !== 'cancelled_by_trainer')
-          )
-            throw new WorkspaceBookingStatusError('request');
-          return {
-            bookingId: data.booking_id,
-            revision: data.revision,
-            status: data.status,
-            replayed: data.replayed,
-          };
+          return parseWorkspaceBookingStatusResult(data, {
+            action,
+            expectedUserId,
+            bookingId: args.p_booking_id,
+            expectedRevision: args.p_expected_revision,
+            requestId: args.p_request_id,
+          });
         } catch (error) {
           if (error instanceof WorkspaceBookingStatusError) throw error;
           throw new WorkspaceBookingStatusError('request');
@@ -126,3 +110,32 @@ export const createWorkspaceBookingStatusOperation = (
     },
   };
 };
+
+export function parseWorkspaceBookingStatusResult(
+  value: unknown,
+  input: WorkspaceBookingStatusInput,
+): WorkspaceBookingStatusResult {
+  if (typeof value !== 'object' || value === null || Array.isArray(value))
+    throw new WorkspaceBookingStatusError('request');
+  const row = value as Record<string, unknown>;
+  if (
+    !validUuid(row.booking_id) ||
+    row.booking_id.toLowerCase() !== input.bookingId.toLowerCase() ||
+    row.revision !== input.expectedRevision + 1 ||
+    typeof row.replayed !== 'boolean' ||
+    (row.status !== 'confirmed' &&
+      row.status !== 'cancelled_by_client' &&
+      row.status !== 'cancelled_by_trainer') ||
+    (input.action === 'confirm'
+      ? row.status !== 'confirmed'
+      : row.status !== 'cancelled_by_client' &&
+        row.status !== 'cancelled_by_trainer')
+  )
+    throw new WorkspaceBookingStatusError('request');
+  return {
+    bookingId: row.booking_id,
+    revision: row.revision as number,
+    status: row.status,
+    replayed: row.replayed,
+  };
+}

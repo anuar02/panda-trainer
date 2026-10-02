@@ -17,8 +17,43 @@ import { workspaceClientDetailsRu } from './details-strings';
 export type WorkspaceClientDetailsData = {
   client: Database['public']['Tables']['client_records']['Row'];
   program:
-    | (Database['public']['Tables']['client_programs']['Row'] & {
-        items: Database['public']['Tables']['client_program_exercises']['Row'][];
+    | (Pick<
+        Database['public']['Tables']['client_programs']['Row'],
+        | 'id'
+        | 'workspace_id'
+        | 'client_record_id'
+        | 'base_template_id'
+        | 'base_template_revision'
+        | 'name'
+        | 'description'
+        | 'revision'
+        | 'created_at'
+        | 'updated_at'
+      > & {
+        items: Pick<
+          Database['public']['Tables']['client_program_exercises']['Row'],
+          | 'id'
+          | 'workspace_id'
+          | 'client_program_id'
+          | 'exercise_id'
+          | 'exercise_name_snapshot'
+          | 'source_key_snapshot'
+          | 'measure_snapshot'
+          | 'bodyweight_snapshot'
+          | 'muscle_group_snapshot'
+          | 'equipment_snapshot'
+          | 'instructions_snapshot'
+          | 'position'
+          | 'planned_sets'
+          | 'planned_reps'
+          | 'planned_seconds'
+          | 'planned_weight_g'
+          | 'rest_seconds'
+          | 'note'
+          | 'revision'
+          | 'created_at'
+          | 'updated_at'
+        >[];
       })
     | null;
   bookings: Pick<

@@ -1,7 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import type { PropsWithChildren } from 'react';
 import '../src/lib/i18n';
-import { ClientBookingControls } from '../src/features/client-scheduling/client-booking-controls';
+import {
+  ClientBookingControls,
+  ClientBookingStatusRecovery,
+} from '../src/features/client-scheduling/client-booking-controls';
 import type {
   ClientScheduleBooking,
   ClientScheduleProposal,
@@ -14,9 +17,16 @@ jest.mock('expo-crypto', () => ({
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
+const mockSheetModes: (string | undefined)[] = [];
 jest.mock('../src/ui/sheet', () => ({
-  Sheet: ({ open, children }: PropsWithChildren<{ open: boolean }>) =>
-    open ? children : null,
+  Sheet: ({
+    open,
+    children,
+    stackBehavior,
+  }: PropsWithChildren<{ open: boolean; stackBehavior?: string }>) => {
+    if (open) mockSheetModes.push(stackBehavior);
+    return open ? children : null;
+  },
 }));
 const booking: ClientScheduleBooking = {
   id: 'booking',
@@ -47,12 +57,14 @@ const status: ClientBookingStatusStore = {
   error: null,
   pending: null,
   submit: statusSubmit,
+  resolve: jest.fn().mockResolvedValue(null),
   resume: jest.fn(),
   reload: jest.fn(),
 };
 const store: WorkspaceProposalStore = {
   ...status,
   pending: null,
+  resolve: jest.fn().mockResolvedValue(null),
   resume: jest.fn().mockResolvedValue(null),
   userId: 'user',
   workspaceId: 'workspace',
@@ -84,6 +96,7 @@ const mount = (
     />,
   );
 beforeEach(() => {
+  mockSheetModes.length = 0;
   statusSubmit.mockClear();
   proposalSubmit.mockClear();
 });
@@ -148,6 +161,7 @@ test.each([
   async (action, label) => {
     await mount(action === 'propose' ? [] : [proposal]);
     await fireEvent.press(screen.getByRole('button', { name: label }));
+    expect(mockSheetModes.at(-1)).toBe('push');
     await fireEvent.changeText(
       screen.getByLabelText('Новая дата'),
       '2030-10-03',
@@ -194,6 +208,7 @@ test('cancel sends only own selected participant booking', async () => {
   await fireEvent.press(
     screen.getByRole('button', { name: 'Отменить запись' }),
   );
+  expect(mockSheetModes.at(-1)).toBe('push');
   expect(statusSubmit).not.toHaveBeenCalled();
   await fireEvent.press(
     screen.getAllByRole('button', { name: 'Отменить запись' })[1]!,
@@ -230,4 +245,36 @@ test('request-only cards show both authoritative time pairs without duplicated b
   expect(screen.queryByRole('button', { name: 'Подтвердить' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Отменить запись' })).toBeNull();
   expect(screen.getByRole('button', { name: 'Принять' })).toBeEnabled();
+});
+
+test('client recovery explicitly resolves pending request and blocks competing proposal action', async () => {
+  const resolve = jest
+    .fn()
+    .mockResolvedValue({ outcome: 'abandoned', result: null });
+  const recovery = {
+    ...status,
+    pending: {
+      action: 'confirm' as const,
+      bookingId: 'booking',
+      expectedRevision: 1,
+      requestId: 'request',
+    },
+    resolve,
+  };
+  const view = await render(
+    <ClientBookingStatusRecovery store={recovery} externalBusy />,
+  );
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'Проверить результат и завершить запрос',
+    }),
+  );
+  expect(resolve).not.toHaveBeenCalled();
+  await view.rerender(<ClientBookingStatusRecovery store={recovery} />);
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'Проверить результат и завершить запрос',
+    }),
+  );
+  expect(resolve).toHaveBeenCalledTimes(1);
 });

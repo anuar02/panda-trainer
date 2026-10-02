@@ -41,7 +41,7 @@ if (
 )
   throw new Error('Test services must use loopback');
 const mailpit = config.MAILPIT_URL.replace(/\/$/, '') + '/api/v1';
-const email = `ui-client-schedule-${randomUUID()}@example.test`;
+const email = `ui-invite-history-${randomUUID()}@example.test`;
 const messageIds = new Set();
 const pageErrors = [];
 let checks = 0;
@@ -163,7 +163,7 @@ function sql(sqlText) {
 
 const names = ['Клиент Проверка', 'Скрытый Участник'];
 let fixture;
-const clientEmail = `ui-client-own-${randomUUID()}@example.test`;
+const clientEmail = `ui-invite-history-client-${randomUUID()}@example.test`;
 const asUser = (id, statement) =>
   sql(
     `begin; set local role authenticated; set local request.jwt.claims='{"sub":"${id}","role":"authenticated"}'; ${statement}; commit;`,
@@ -176,22 +176,7 @@ async function createFixture() {
     `select owner_user_id from public.trainer_workspaces where id='${workspace}'`,
   );
   const ids = names.map(() => randomUUID());
-  const account = await fetch(`${config.API_URL}/auth/v1/admin/users`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${config.SERVICE_ROLE_KEY}`,
-      apikey: config.SERVICE_ROLE_KEY,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email: clientEmail, email_confirm: true }),
-  });
-  if (!account.ok)
-    throw new Error(
-      `Synthetic client account creation failed (${account.status})`,
-    );
-  const clientUser = (await account.json()).id;
-  if (typeof clientUser !== 'string' || !/^[0-9a-f-]{36}$/.test(clientUser))
-    throw new Error('Synthetic client account identity invalid');
+  const clientUser = null;
   const template = randomUUID();
   const exercise = randomUUID();
   const date = sql(`select ((now() at time zone 'Asia/Almaty')::date+1)::text`);
@@ -217,9 +202,6 @@ async function createFixture() {
   );
   createHistoryFixture();
   sql(
-    `update public.client_records set user_id='${clientUser}' where id='${ids[0]}'`,
-  );
-  sql(
     `update public.workout_templates set name='Изменённый источник',revision=revision+1 where id='${template}'`,
   );
 }
@@ -237,12 +219,13 @@ function createHistoryFixture() {
     `begin; ${histories.map((row) => `insert into public.bookings(id,workspace_id,client_record_id,starts_at,ends_at,status) values ('${row.booking}','${workspace}','${row.kind === 'peer' ? ids[1] : ids[0]}','${past} 18:00+05','${past} 19:00+05','confirmed'); insert into public.workout_instances(id,workspace_id,booking_id,client_record_id,started_at) values ('${row.journal}','${workspace}','${row.booking}','${row.kind === 'peer' ? ids[1] : ids[0]}','${past} 17:20+05'); insert into public.workout_exercises(id,workspace_id,workout_instance_id,exercise_id,exercise_name_snapshot,measure_snapshot,bodyweight_snapshot,muscle_group_snapshot,equipment_snapshot,instructions_snapshot,position,planned_sets,planned_reps,rest_seconds) values ('${row.line}','${workspace}','${row.journal}','${exercise}','${row.kind === 'own' ? 'Снимок истории' : row.kind === 'peer' ? 'Чужое движение' : 'Черновое движение'}','reps',false,'Ноги','Гантели',array['Сохранённая инструкция'],0,3,'8-10',60); insert into public.session_notes(id,workspace_id,workout_instance_id,text,author_user_id,device_id) values ('${randomUUID()}','${workspace}','${row.journal}','${row.kind === 'own' ? 'Открытая историческая заметка' : row.kind === 'peer' ? 'Чужая историческая заметка' : 'Черновая историческая заметка'}','${owner}','${device}');`).join(' ')} insert into public.set_results(id,workspace_id,workout_instance_id,workout_exercise_id,position,reps,weight_g,author_user_id,device_id) values ('${randomUUID()}','${workspace}','${histories[0].journal}','${histories[0].line}',0,8,20500,'${owner}','${device}'),('${randomUUID()}','${workspace}','${histories[0].journal}','${histories[0].line}',1,0,0,'${owner}','${device}'),('${randomUUID()}','${workspace}','${histories[0].journal}','${histories[0].line}',2,null,null,'${owner}','${device}'); insert into public.private_notes(id,workspace_id,workout_instance_id,text,author_user_id,device_id) values ('${randomUUID()}','${workspace}','${histories[0].journal}','Секретная историческая заметка','${owner}','${device}'); update public.workout_instances set finished_at='${past} 18:20+05' where id in ('${histories[0].journal}','${histories[2].journal}'); update public.exercises set name='Текущий каталог переименован' where id='${exercise}'; commit;`,
   );
   fixture.history = histories[0];
+  fixture.hiddenHistories = histories.slice(1);
 }
 async function cleanup() {
   const owned = `select id from public.trainer_workspaces where owner_user_id in (select id from auth.users where email='${email}')`;
   try {
     sql(
-      `begin; delete from private.booking_command_abandonments where workspace_id in (${owned}); delete from private.booking_creation_receipts where workspace_id in (${owned}); delete from private.booking_reschedule_receipts where workspace_id in (${owned}); delete from private.booking_status_command_receipts where workspace_id in (${owned}); delete from public.booking_program_exercises where workspace_id in (${owned}); delete from public.booking_programs where workspace_id in (${owned}); delete from public.schedule_proposals where workspace_id in (${owned}); delete from public.private_notes where workspace_id in (${owned}); delete from public.session_notes where workspace_id in (${owned}); delete from public.set_results where workspace_id in (${owned}); delete from public.workout_exercises where workspace_id in (${owned}); delete from public.workout_instances where workspace_id in (${owned}); delete from public.bookings where workspace_id in (${owned}); delete from public.group_sessions where workspace_id in (${owned}); delete from public.client_records where workspace_id in (${owned}); delete from public.template_exercises where workspace_id in (${owned}); delete from public.workout_templates where workspace_id in (${owned}); delete from public.exercises where workspace_id in (${owned}); delete from public.trainer_workspaces where id in (${owned}); delete from public.profiles where user_id in (select id from auth.users where email='${email}'); delete from auth.users where email='${email}' or id=${fixture?.clientUser ? `'${fixture.clientUser}'` : 'null'}; commit;`,
+      `begin; delete from private.client_invitation_receipts where workspace_id in (${owned}); delete from private.booking_creation_receipts where workspace_id in (${owned}); delete from private.booking_reschedule_receipts where workspace_id in (${owned}); delete from private.booking_status_command_receipts where workspace_id in (${owned}); delete from public.booking_program_exercises where workspace_id in (${owned}); delete from public.booking_programs where workspace_id in (${owned}); delete from public.schedule_proposals where workspace_id in (${owned}); delete from public.private_notes where workspace_id in (${owned}); delete from public.session_notes where workspace_id in (${owned}); delete from public.set_results where workspace_id in (${owned}); delete from public.workout_exercises where workspace_id in (${owned}); delete from public.workout_instances where workspace_id in (${owned}); delete from public.bookings where workspace_id in (${owned}); delete from public.group_sessions where workspace_id in (${owned}); delete from public.invitations where client_record_id in (select id from public.client_records where workspace_id in (${owned})); delete from public.client_records where workspace_id in (${owned}); delete from public.template_exercises where workspace_id in (${owned}); delete from public.workout_templates where workspace_id in (${owned}); delete from public.exercises where workspace_id in (${owned}); delete from public.trainer_workspaces where id in (${owned}); delete from public.profiles where user_id in (select id from auth.users where email='${email}'); delete from auth.users where email='${email}' or email='${clientEmail}'; commit;`,
     );
   } catch (error) {
     const detail = error.stderr
@@ -261,8 +244,33 @@ async function cleanup() {
     if (!response.ok) throw new Error('Synthetic mail cleanup failed');
   }
 }
+async function issueInvitation(page) {
+  stage = 'issue-real-invitation';
+  check(
+    sql(`select count(*) from auth.users where email='${clientEmail}'`) === '0',
+    'history-exists-before-client-registration',
+  );
+  fixture.historyBefore = sql(
+    `select json_build_object('journal',id,'booking',booking_id,'client',client_record_id,'revision',revision,'created',created_at)::text from public.workout_instances where id='${fixture.history.journal}'`,
+  );
+  await page.goto(`${origin}/workspace/invite/${fixture.ids[0]}`, {
+    waitUntil: 'networkidle',
+  });
+  await clickButton(page, 'Создать ссылку-приглашение');
+  await page.waitForFunction(
+    () => /\/invite\/[A-Za-z0-9_-]{43}/.test(document.body.innerText),
+    {},
+    { timeout: 30000 },
+  );
+  const match = (await page.locator('body').innerText()).match(
+    /\/invite\/([A-Za-z0-9_-]{43})(?:\b|$)/,
+  );
+  if (!match) throw new Error('Synthetic invitation was not rendered');
+  fixture.invitationLink = `${origin}/invite/${match[1]}`;
+}
 async function loginClient(page) {
-  await page.goto(`${origin}/auth/sign-in`, { waitUntil: 'networkidle' });
+  await page.goto(fixture.invitationLink, { waitUntil: 'networkidle' });
+  await clickButton(page, 'Войти и подключиться');
   await page.getByLabel('Электронная почта', { exact: true }).fill(clientEmail);
   await clickButton(page, 'Получить код');
   await waitForText(page, 'Введите код');
@@ -270,8 +278,37 @@ async function loginClient(page) {
     .getByLabel('Код из письма', { exact: true })
     .fill(await captureCode(clientEmail));
   await clickButton(page, 'Продолжить');
-  await page.waitForURL(/\/auth\/account$/, { timeout: 60000 });
-  await page.goto(`${origin}/auth/account`, { waitUntil: 'networkidle' });
+  await visible(
+    page.getByRole('button', { name: 'Подключиться', exact: true }),
+  ).waitFor({ state: 'visible', timeout: 60000 });
+  check(
+    !page.url().includes('/auth/onboarding'),
+    'invited-client-skips-trainer-onboarding',
+  );
+  await clickButton(page, 'Подключиться');
+  await waitForText(page, 'Вы подключены к Тренер расписания');
+  fixture.clientUser = sql(
+    `select id from auth.users where email='${clientEmail}'`,
+  );
+  check(
+    sql(
+      `select user_id='${fixture.clientUser}'::uuid from public.client_records where id='${fixture.ids[0]}'`,
+    ) === 't',
+    'actual-invitation-links-original-card',
+  );
+  check(
+    sql(
+      `select json_build_object('journal',id,'booking',booking_id,'client',client_record_id,'revision',revision,'created',created_at)::text from public.workout_instances where id='${fixture.history.journal}'`,
+    ) === fixture.historyBefore,
+    'acceptance-preserves-preexisting-journal-identity',
+  );
+  check(
+    sql(
+      `select wi.created_at<u.created_at from public.workout_instances wi cross join auth.users u where wi.id='${fixture.history.journal}' and u.id='${fixture.clientUser}'`,
+    ) === 't',
+    'finished-history-precedes-auth-registration',
+  );
+  await clickButton(page, 'Перейти в аккаунт');
   await clickButton(page, 'Открыть занятия');
   await page.waitForURL(new RegExp(`/connection/${fixture.ids[0]}$`));
 }
@@ -286,6 +323,7 @@ async function run() {
   );
   await signInAsTrainer(activePage);
   await createFixture();
+  await issueInvitation(activePage);
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
   });
@@ -294,6 +332,25 @@ async function run() {
   page.on('pageerror', (error) =>
     pageErrors.push(String(error.message).slice(0, 240)),
   );
+  const safeTables = new Set([
+    'workout_instances',
+    'workout_exercises',
+    'set_results',
+    'session_notes',
+    'booking_programs',
+    'booking_program_exercises',
+  ]);
+  const captures = [];
+  page.on('response', (response) => {
+    const table = new URL(response.url()).pathname.split('/').pop();
+    if (safeTables.has(table) && response.ok())
+      captures.push(
+        response
+          .json()
+          .then((rows) => ({ table, rows }))
+          .catch(() => null),
+      );
+  });
   stage = 'client-auth-open';
   await loginClient(page);
   await waitForBodyText(page, names[0]);
@@ -325,103 +382,6 @@ async function run() {
       'proposed',
     'confirm-own-booking-only',
   );
-  const resolveLabel = 'Проверить результат и завершить запрос';
-  const statusKey = `panda-trainer-pending-booking-status-v1:${fixture.clientUser}:${fixture.workspace}`;
-  const proposalKey = `panda-trainer-pending-reschedule-v1:${fixture.clientUser}:${fixture.workspace}`;
-  const injectPending = async (key, command) => {
-    await page.evaluate(
-      ({ key, command }) => localStorage.setItem(key, JSON.stringify(command)),
-      { key, command },
-    );
-    await reload();
-    await waitForText(page, resolveLabel);
-  };
-  const resolvePending = async (key, endpoint) => {
-    const response = page.waitForResponse((result) =>
-      result.url().endsWith(`/rest/v1/rpc/${endpoint}`),
-    );
-    await clickButton(page, resolveLabel);
-    const result = await (await response).json();
-    await expect
-      .poll(() => page.evaluate((key) => localStorage.getItem(key), key))
-      .toBe(null);
-    return result;
-  };
-  stage = 'client-resolve-stale-status';
-  const staleStatus = {
-    action: 'cancel',
-    bookingId: fixture.booking,
-    expectedRevision: 1,
-    requestId: randomUUID(),
-  };
-  await injectPending(statusKey, staleStatus);
-  const abandonedStatus = await resolvePending(
-    statusKey,
-    'resolve_booking_status_request',
-  );
-  check(
-    abandonedStatus.outcome === 'abandoned' &&
-      sql(
-        `select status from public.bookings where id='${fixture.booking}'`,
-      ) === 'confirmed',
-    'resolve-stale-status-without-cancel',
-  );
-  check(
-    sql(
-      `select count(*) from private.booking_command_abandonments where request_id='${staleStatus.requestId}'`,
-    ) === '1',
-    'stale-status-request-durably-abandoned',
-  );
-  stage = 'client-resolve-succeeded-status';
-  const confirmedRequest = sql(
-    `select request_id from private.booking_status_command_receipts where workspace_id='${fixture.workspace}' and actor_user_id='${fixture.clientUser}' and command='confirm'`,
-  );
-  const confirmedRevision = revision();
-  await injectPending(statusKey, {
-    action: 'confirm',
-    bookingId: fixture.booking,
-    expectedRevision: 1,
-    requestId: confirmedRequest,
-  });
-  const replayedStatus = await resolvePending(
-    statusKey,
-    'resolve_booking_status_request',
-  );
-  check(
-    replayedStatus.outcome === 'succeeded' &&
-      replayedStatus.result.replayed === true &&
-      revision() === confirmedRevision,
-    'resolve-applied-status-with-original-receipt',
-  );
-  stage = 'client-resolve-stale-proposal';
-  const staleProposal = {
-    action: 'propose',
-    bookingId: fixture.booking,
-    expectedBookingRevision: 1,
-    proposedStartsAtUtc: new Date(
-      `${fixture.date}T16:00:00+05:00`,
-    ).toISOString(),
-    requestId: randomUUID(),
-  };
-  await injectPending(proposalKey, staleProposal);
-  const abandonedProposal = await resolvePending(
-    proposalKey,
-    'resolve_booking_reschedule_request',
-  );
-  check(
-    abandonedProposal.outcome === 'abandoned' &&
-      sql(
-        `select count(*) from public.schedule_proposals where booking_id='${fixture.booking}'`,
-      ) === '0',
-    'resolve-stale-proposal-without-new-proposal',
-  );
-  check(
-    sql(
-      `select count(*) from private.booking_command_abandonments where request_id='${staleProposal.requestId}'`,
-    ) === '1',
-    'stale-proposal-request-durably-abandoned',
-  );
-  await reload();
   stage = 'client-propose-withdraw';
   const moveDate = sql(`select ('${fixture.date}'::date+1)::text`);
   const send = async (clock) => {
@@ -574,9 +534,9 @@ async function run() {
     !(await page.locator('body').innerText()).includes('Неизменный план'),
     'cancelled-booking-hidden-after-reload',
   );
-  mkdirSync('/tmp/screens/client-scheduling', { recursive: true });
+  mkdirSync('/tmp/screens/invitation-history', { recursive: true });
   await page.screenshot({
-    path: '/tmp/screens/client-scheduling/after-cancel.png',
+    path: '/tmp/screens/invitation-history/after-cancel.png',
     fullPage: true,
   });
   stage = 'client-history';
@@ -636,7 +596,7 @@ async function run() {
     'prelink-history-remains-on-same-card',
   );
   await page.screenshot({
-    path: '/tmp/screens/client-scheduling/history-detail.png',
+    path: '/tmp/screens/invitation-history/history-detail.png',
     fullPage: true,
   });
   stage = 'client-progress';
@@ -661,9 +621,92 @@ async function run() {
     'progress-does-not-invent-attendance-or-finances',
   );
   await page.screenshot({
-    path: '/tmp/screens/client-scheduling/progress.png',
+    path: '/tmp/screens/invitation-history/progress.png',
     fullPage: true,
   });
+  const captured = (await Promise.all(captures)).filter(
+    (entry) => entry !== null,
+  );
+  for (const table of [
+    'workout_instances',
+    'workout_exercises',
+    'set_results',
+    'session_notes',
+  ]) {
+    check(
+      captured.some(
+        (entry) =>
+          entry.table === table &&
+          Array.isArray(entry.rows) &&
+          entry.rows.length > 0,
+      ),
+      `positive-safe-api-${table}`,
+    );
+  }
+  const apiJson = JSON.stringify(captured);
+  check(
+    apiJson.includes(fixture.history.journal) &&
+      apiJson.includes('20500') &&
+      apiJson.includes('Открытая историческая заметка'),
+    'safe-api-own-history-values-present',
+  );
+  check(
+    !/"(?:created_by|author_user_id|device_id)":/.test(apiJson) &&
+      !apiJson.includes('Секретная историческая заметка') &&
+      fixture.hiddenHistories.every((row) => !apiJson.includes(row.journal)) &&
+      !apiJson.includes(names[1]),
+    'safe-api-excludes-audit-private-peer-draft',
+  );
+  stage = 'accepted-invitation-replay';
+  await page.goto(fixture.invitationLink, { waitUntil: 'networkidle' });
+  const replayResponse = page.waitForResponse((response) =>
+    response.url().endsWith('/rest/v1/rpc/accept_invitation'),
+  );
+  await clickButton(page, 'Подключиться');
+  const replay = await (await replayResponse).json();
+  await waitForText(page, 'Вы подключены к Тренер расписания');
+  check(
+    replay.replayed === true && replay.client_record_id === fixture.ids[0],
+    'same-client-invitation-replays-original-card',
+  );
+  check(
+    sql(
+      `select count(*) from public.workout_instances where id='${fixture.history.journal}'`,
+    ) === '1',
+    'invitation-replay-does-not-duplicate-history',
+  );
+  stage = 'accepted-invitation-other-claimant';
+  const other = await trainerContext.newPage();
+  activePage = other;
+  await other.goto(fixture.invitationLink, { waitUntil: 'networkidle' });
+  if (
+    (await other.locator('body').innerText()).includes('Войти и подключиться')
+  ) {
+    await clickButton(other, 'Войти и подключиться');
+    await other.getByLabel('Электронная почта', { exact: true }).fill(email);
+    await clickButton(other, 'Получить код');
+    await waitForText(other, 'Введите код');
+    await other
+      .getByLabel('Код из письма', { exact: true })
+      .fill(await captureCode(email));
+    await clickButton(other, 'Продолжить');
+  }
+  await other.waitForFunction(
+    () =>
+      document.body.innerText.includes('Подключиться') ||
+      document.body.innerText.includes('Приглашение недоступно'),
+  );
+  if ((await other.locator('body').innerText()).includes('Подключиться'))
+    await clickButton(other, 'Подключиться');
+  await waitForBodyText(other, 'Приглашение недоступно');
+  check(
+    sql(
+      `select user_id='${fixture.clientUser}'::uuid from public.client_records where id='${fixture.ids[0]}'`,
+    ) === 't',
+    'other-account-cannot-reassign-existing-history',
+  );
+  await other.close();
+  activePage = page;
   stage = 'account-switch';
   await page.goto(`${origin}/auth/account`, { waitUntil: 'networkidle' });
   await clickButton(page, 'Сменить аккаунт');
@@ -684,20 +727,26 @@ run()
   .then(async () => {
     await cleanup();
     await browser?.close();
-    process.stdout.write(`PASS: ${checks} client schedule checks completed\n`);
+    process.stdout.write(
+      `PASS: ${checks} invitation-linked history checks completed\n`,
+    );
   })
   .catch(async (error) => {
     process.stderr.write(
-      `FAIL stage=${stage} name=${error.name} message=${String(error.message).slice(0, 300)}\n`,
+      `FAIL stage=${stage} name=${error.name} message=${String(error.message)
+        .replace(/\/invite\/[A-Za-z0-9_-]{43}/g, '/invite/[redacted]')
+        .slice(0, 1800)}\n`,
     );
     try {
-      mkdirSync('/tmp/screens/client-scheduling', { recursive: true });
+      mkdirSync('/tmp/screens/invitation-history', { recursive: true });
       await activePage?.screenshot({
-        path: '/tmp/screens/client-scheduling/failure.png',
+        path: '/tmp/screens/invitation-history/failure.png',
         fullPage: true,
       });
       process.stderr.write(
-        (await activePage?.locator('body').innerText()).slice(0, 1800) + '\n',
+        (await activePage?.locator('body').innerText())
+          .replace(/\/invite\/[A-Za-z0-9_-]{43}/g, '/invite/[redacted]')
+          .slice(0, 1800) + '\n',
       );
     } catch {}
     try {

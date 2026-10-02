@@ -38,9 +38,16 @@ jest.mock('../src/features/workspace-scheduling/proposal-pending', () => ({
 jest.mock('../src/features/workspace-scheduling/proposal-submission', () => ({
   submitWorkspaceProposal: jest.fn(),
 }));
+const mockSheetModes: (string | undefined)[] = [];
 jest.mock('../src/ui/sheet', () => ({
-  Sheet: ({ open, children }: PropsWithChildren<{ open: boolean }>) =>
-    open ? children : null,
+  Sheet: ({
+    open,
+    children,
+    stackBehavior,
+  }: PropsWithChildren<{ open: boolean; stackBehavior?: string }>) => {
+    if (open) mockSheetModes.push(stackBehavior);
+    return open ? children : null;
+  },
 }));
 const bookingId = '20000000-0000-4000-8000-000000000001';
 const proposalId = '40000000-0000-4000-8000-000000000001';
@@ -116,6 +123,7 @@ beforeEach(() => {
   load.mockReset().mockResolvedValue(null);
   submit.mockReset().mockResolvedValue(result);
   changed.mockReset();
+  mockSheetModes.length = 0;
 });
 test('detached portal controls use the explicit store to dispatch a selected booking response', async () => {
   const dispatch = jest.fn().mockResolvedValue(result);
@@ -129,6 +137,7 @@ test('detached portal controls use the explicit store to dispatch a selected boo
     busy: false,
     error: null,
     reload: jest.fn(),
+    resolve: jest.fn().mockResolvedValue(null),
     resume: jest.fn().mockResolvedValue(null),
     submit: dispatch,
   };
@@ -248,6 +257,7 @@ test('invalid and ambiguous local time keep the editor open and do not submit', 
   await fireEvent.press(
     screen.getByRole('button', { name: 'Перенос занятия' }),
   );
+  expect(mockSheetModes.at(-1)).toBe('push');
   await fireEvent.changeText(screen.getByLabelText('Новая дата'), '2030-10-27');
   await fireEvent.changeText(screen.getByLabelText('Начало'), '01:30');
   await fireEvent.press(
@@ -289,6 +299,7 @@ test.each([
       expect(screen.getByRole('button', { name: label })).toBeEnabled(),
     );
     await fireEvent.press(screen.getByRole('button', { name: label }));
+    expect(mockSheetModes.at(-1)).toBe('push');
     await fireEvent.changeText(
       screen.getByLabelText('Новая дата'),
       '2030-10-03',
