@@ -122,14 +122,34 @@ schedule_proposals пока хранит контракт; RPC переноса 
 
 ### Деньги и посещения
 
+SOM-33 реализован миграцией `20261003090000_attendance_credit_ledger.sql`.
+
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
-| `purchases` | `client_record_id`, `title`, `units_total`, `price_minor`, `currency`, `expires_on null` | Условия зафиксированы на момент покупки |
-| `payment_entries` | `purchase_id`, `amount_minor`, `paid_on`, `source` (`manual`), `author_user_id`, `reverses_id null` | Исправление — новая запись-сторно |
-| `attendance` | `booking_id` (unique), `attended_at`, `marked_by`, `undone_at null` | Посещение отдельно от оплаты и списания |
-| `credit_entries` | `client_record_id`, `purchase_id null`, `booking_id null`, `kind` (`grant`/`consume`/`restore`/`charge_late_cancel`), `units`, `reason null`, `idempotency_key` (unique) | Остаток = сумма записей; `charge_late_cancel` требует причину |
+| `client_purchases` | `workspace_id`, `client_record_id`, `title`, `units`, `price_minor bigint`, `currency`, `expires_on null` | Неизменяемые условия, KZT; создание добавляет grant |
+| `attendance_records` | `booking_id`, `service_date`, `status` (`present`/`noshow`/`undone`), `revision`, `cycle` | Одна текущая запись на booking; дата снимка в timezone пространства |
+| `attendance_revisions` | `attendance_id`, `revision`, `cycle`, `status`, `service_date`, `reason null` | Неизменяемая история отметок и исправлений |
+| `credit_entries` | `purchase_id`, `attendance_id null`, `booking_id null`, `cycle null`, `kind`, `units`, `reason null`, `reverses_entry_id null` | Signed ledger: grant, consume −1, restore +1, charge_late_cancel −1 |
+| `private.billing_command_receipts` | `workspace_id`, `actor_user_id`, `request_id`, `command`, `payload`, `result` | Actor-scoped неизменяемые receipts; клиентского API нет |
 
-Представление `client_balances`: остаток единиц по пакетам и сумма долга по покупкам.
+Остаток пакета — сумма credit_entries, без изменяемого счётчика. Автовыбор:
+ближайший expires_on, затем created_at/id; бессрочные пакеты последними.
+Eligibility использует scheduled service_date включительно, независимо от времени
+отметки; последующая привязка и штраф за неявку используют сохранённую дату.
+Отметка без списания разрешена явно; отсутствие подходящего пакета при автовыборе
+оставляет посещение непривязанным, без минуса. Поздняя привязка списывает один раз.
+Исправление добавляет restore исходного consume или связанного штрафа за неявку.
+Новый цикл отметки не изменяется повтором receipt старого цикла.
+
+Неявка и отмена не списывают автоматически. Явный штраф требует публичную причину;
+сам по себе он не создаёт посещение. Для отменённого booking без attendance штраф
+однократный; отдельная отмена такого штрафа пока не реализована. Composite FK
+проверяют workspace/client/booking/purchase. RLS разрешает чтение владельцу и
+связанному клиенту только своей карточки; actor IDs закрыты column grants.
+Прямые записи запрещены, owner RPC сериализуются на workspace lock.
+
+`payment_entries`, ручная оплата/сторно, долг и представление `client_balances`
+остаются планом SOM-34; сейчас их нет в схеме. [ADR 0053](decisions/0053-attendance-credit-ledger.md).
 
 ### Уведомления и аудит
 
@@ -178,8 +198,12 @@ schedule_proposals пока хранит контракт; RPC переноса 
 | `confirm_booking(booking_id, expected_revision, request_id)` | Реализована: клиент подтверждает свою proposed-запись, проверка версии и безопасный повтор |
 | `cancel_booking(booking_id, expected_revision, request_id)` | Реализована: отмена клиентом/тренером сохраняет остальных участников, проверяет версию; без автоматического списания |
 | `apply_operations(ops jsonb)` | Каждая операция журнала применяется один раз; конфликты возвращаются, а не затираются |
-| `mark_attended(booking_id, purchase_id null, idempotency_key)` | Одно списание; блокировка пакета; без пакета — непривязанное посещение |
-| `undo_attendance(booking_id, reason)` | Возврат единицы ровно один раз, история сохраняется |
+| `create_client_purchase(client_record_id, title, units, price_minor, request_id, expires_on null)` | Реализована: фиксированные условия и grant атомарно, безопасный повтор |
+| `mark_attended(booking_id, expected_booking_revision, request_id, charge false, purchase_id null)` | Реализована: explicit debit, без двойного списания и отрицательного остатка |
+| `mark_no_show(booking_id, expected_booking_revision, request_id)` | Реализована: неявка без автоматического списания |
+| `bind_attendance_purchase(attendance_id, expected_attendance_revision, expected_booking_revision, request_id, purchase_id null)` | Реализована: позднее однократное списание по сохранённой дате |
+| `undo_attendance(attendance_id, expected_attendance_revision, expected_booking_revision, reason, request_id)` | Реализована: однократный restore и append-only история |
+| `charge_late_cancellation(booking_id, expected_booking_revision, reason, request_id, purchase_id null)` | Реализована: явный штраф за отмену/неявку, без посещения |
 | `add_payment(purchase_id, amount_minor, paid_on, idempotency_key)` | Сумма > 0, запись автора |
 
 ## Инварианты, покрытые тестами (`supabase/tests`)
@@ -187,8 +211,8 @@ schedule_proposals пока хранит контракт; RPC переноса 
 - [ ] Тренер A не читает и не меняет данные тренера B, даже зная ID.
 - [ ] Клиент не получает `private_notes` и чужие подходы, в том числе в своей группе.
 - [ ] Повторное `accept_invitation` другим аккаунтом отклоняется.
-- [ ] Двойной `mark_attended` списывает одну единицу; параллельные вызовы не уходят в минус.
-- [ ] `undo_attendance` возвращает единицу один раз.
+- [x] Двойной `mark_attended` списывает одну единицу; параллельные вызовы не уходят в минус.
+- [x] `undo_attendance` возвращает единицу один раз.
 - [ ] Повтор `apply_operations` с тем же `operation_id` не создаёт второй подход.
 - [ ] Устаревший перенос не перезаписывает более новое согласованное время.
 - [ ] Архивированное упражнение остаётся в прошлых журналах и шаблонах.

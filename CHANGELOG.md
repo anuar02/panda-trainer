@@ -11,6 +11,16 @@
 
 ### Добавлено
 
+- SOM-33: серверные покупки, посещения/неявки и неизменяемый ledger занятий;
+  атомарное списание, поздняя привязка и исправление с однократным возвратом.
+  Срок пакета проверяется по запланированной дате занятия включительно;
+  отмена/неявка списываются только отдельной командой с причиной.
+  660 pgTAP assertions / 19 files, шесть concurrency scenarios, db lint,
+  generated type drift и app check (991 tests / 107 suites) проходят.
+  Оплаты, app transport и приёмка экранов остаются открытыми.
+  [ADR 0053](docs/app/decisions/0053-attendance-credit-ledger.md),
+  [проверки](docs/app/review/som-33-attendance-credit-ledger.md).
+
 - SOM-36: selected-connection progress из полной собственной finished history;
   реальные рекорды и 28-дневные изменения, без метрик из неполной истории.
   951 тест / 105 suites, web/iOS/Android export и 6 default capture pairs проходят.

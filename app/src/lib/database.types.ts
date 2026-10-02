@@ -10,6 +10,103 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          booking_id: string;
+          client_record_id: string;
+          created_at: string;
+          cycle: number;
+          id: string;
+          revision: number;
+          service_date: string;
+          status: string;
+          updated_at: string;
+          workspace_id: string;
+        };
+        Insert: {
+          booking_id: string;
+          client_record_id: string;
+          created_at?: string;
+          cycle?: number;
+          id?: string;
+          revision?: number;
+          service_date: string;
+          status: string;
+          updated_at?: string;
+          workspace_id: string;
+        };
+        Update: {
+          booking_id?: string;
+          client_record_id?: string;
+          created_at?: string;
+          cycle?: number;
+          id?: string;
+          revision?: number;
+          service_date?: string;
+          status?: string;
+          updated_at?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'attendance_records_workspace_id_client_record_id_booking_i_fkey';
+            columns: ['workspace_id', 'client_record_id', 'booking_id'];
+            isOneToOne: false;
+            referencedRelation: 'bookings';
+            referencedColumns: ['workspace_id', 'client_record_id', 'id'];
+          },
+        ];
+      };
+      attendance_revisions: {
+        Row: {
+          attendance_id: string;
+          client_record_id: string;
+          created_at: string;
+          created_by: string;
+          cycle: number;
+          id: string;
+          reason: string | null;
+          revision: number;
+          service_date: string;
+          status: string;
+          workspace_id: string;
+        };
+        Insert: {
+          attendance_id: string;
+          client_record_id: string;
+          created_at?: string;
+          created_by: string;
+          cycle: number;
+          id?: string;
+          reason?: string | null;
+          revision: number;
+          service_date: string;
+          status: string;
+          workspace_id: string;
+        };
+        Update: {
+          attendance_id?: string;
+          client_record_id?: string;
+          created_at?: string;
+          created_by?: string;
+          cycle?: number;
+          id?: string;
+          reason?: string | null;
+          revision?: number;
+          service_date?: string;
+          status?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'attendance_revisions_workspace_id_client_record_id_attenda_fkey';
+            columns: ['workspace_id', 'client_record_id', 'attendance_id'];
+            isOneToOne: false;
+            referencedRelation: 'attendance_records';
+            referencedColumns: ['workspace_id', 'client_record_id', 'id'];
+          },
+        ];
+      };
       booking_program_exercises: {
         Row: {
           bodyweight_snapshot: boolean;
@@ -390,6 +487,53 @@ export type Database = {
           },
         ];
       };
+      client_purchases: {
+        Row: {
+          client_record_id: string;
+          created_at: string;
+          created_by: string;
+          currency: string;
+          expires_on: string | null;
+          id: string;
+          price_minor: number;
+          title: string;
+          units: number;
+          workspace_id: string;
+        };
+        Insert: {
+          client_record_id: string;
+          created_at?: string;
+          created_by: string;
+          currency?: string;
+          expires_on?: string | null;
+          id?: string;
+          price_minor: number;
+          title: string;
+          units: number;
+          workspace_id: string;
+        };
+        Update: {
+          client_record_id?: string;
+          created_at?: string;
+          created_by?: string;
+          currency?: string;
+          expires_on?: string | null;
+          id?: string;
+          price_minor?: number;
+          title?: string;
+          units?: number;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'client_purchases_workspace_id_client_record_id_fkey';
+            columns: ['workspace_id', 'client_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_records';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+        ];
+      };
       client_records: {
         Row: {
           archived_at: string | null;
@@ -434,6 +578,103 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'trainer_workspaces';
             referencedColumns: ['id'];
+          },
+        ];
+      };
+      credit_entries: {
+        Row: {
+          attendance_id: string | null;
+          booking_id: string | null;
+          client_record_id: string;
+          created_at: string;
+          created_by: string;
+          cycle: number | null;
+          id: string;
+          kind: string;
+          purchase_id: string;
+          reason: string | null;
+          reverses_entry_id: string | null;
+          units: number;
+          workspace_id: string;
+        };
+        Insert: {
+          attendance_id?: string | null;
+          booking_id?: string | null;
+          client_record_id: string;
+          created_at?: string;
+          created_by: string;
+          cycle?: number | null;
+          id?: string;
+          kind: string;
+          purchase_id: string;
+          reason?: string | null;
+          reverses_entry_id?: string | null;
+          units: number;
+          workspace_id: string;
+        };
+        Update: {
+          attendance_id?: string | null;
+          booking_id?: string | null;
+          client_record_id?: string;
+          created_at?: string;
+          created_by?: string;
+          cycle?: number | null;
+          id?: string;
+          kind?: string;
+          purchase_id?: string;
+          reason?: string | null;
+          reverses_entry_id?: string | null;
+          units?: number;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'credit_entries_workspace_id_client_record_id_booking_id_at_fkey';
+            columns: [
+              'workspace_id',
+              'client_record_id',
+              'booking_id',
+              'attendance_id',
+            ];
+            isOneToOne: false;
+            referencedRelation: 'attendance_records';
+            referencedColumns: [
+              'workspace_id',
+              'client_record_id',
+              'booking_id',
+              'id',
+            ];
+          },
+          {
+            foreignKeyName: 'credit_entries_workspace_id_client_record_id_booking_id_fkey';
+            columns: ['workspace_id', 'client_record_id', 'booking_id'];
+            isOneToOne: false;
+            referencedRelation: 'bookings';
+            referencedColumns: ['workspace_id', 'client_record_id', 'id'];
+          },
+          {
+            foreignKeyName: 'credit_entries_workspace_id_client_record_id_purchase_id_fkey';
+            columns: ['workspace_id', 'client_record_id', 'purchase_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_purchases';
+            referencedColumns: ['workspace_id', 'client_record_id', 'id'];
+          },
+          {
+            foreignKeyName: 'credit_entries_workspace_id_client_record_id_purchase_id_r_fkey';
+            columns: [
+              'workspace_id',
+              'client_record_id',
+              'purchase_id',
+              'reverses_entry_id',
+            ];
+            isOneToOne: false;
+            referencedRelation: 'credit_entries';
+            referencedColumns: [
+              'workspace_id',
+              'client_record_id',
+              'purchase_id',
+              'id',
+            ];
           },
         ];
       };
@@ -1306,6 +1547,16 @@ export type Database = {
         };
         Returns: Json;
       };
+      bind_attendance_purchase: {
+        Args: {
+          p_attendance_id: string;
+          p_expected_attendance_revision: number;
+          p_expected_booking_revision: number;
+          p_purchase_id?: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
       cancel_booking: {
         Args: {
           p_booking_id: string;
@@ -1319,6 +1570,16 @@ export type Database = {
           input_name: string;
         };
         Returns: string;
+      };
+      charge_late_cancellation: {
+        Args: {
+          p_booking_id: string;
+          p_expected_booking_revision: number;
+          p_purchase_id?: string;
+          p_reason: string;
+          p_request_id: string;
+        };
+        Returns: Json;
       };
       complete_trainer_onboarding: {
         Args: {
@@ -1371,6 +1632,17 @@ export type Database = {
           p_request_id: string;
           p_starts_at: string;
           p_template_id: string;
+        };
+        Returns: Json;
+      };
+      create_client_purchase: {
+        Args: {
+          p_client_record_id: string;
+          p_expires_on?: string;
+          p_price_minor: number;
+          p_request_id: string;
+          p_title: string;
+          p_units: number;
         };
         Returns: Json;
       };
@@ -1460,6 +1732,24 @@ export type Database = {
           workspace_id: string;
         }[];
       };
+      mark_attended: {
+        Args: {
+          p_booking_id: string;
+          p_charge?: boolean;
+          p_expected_booking_revision: number;
+          p_purchase_id?: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
+      mark_no_show: {
+        Args: {
+          p_booking_id: string;
+          p_expected_booking_revision: number;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
       my_client_record_ids: {
         Args: Record<PropertyKey, never>;
         Returns: string[];
@@ -1546,6 +1836,16 @@ export type Database = {
           isOneToOne: false;
           isSetofReturn: true;
         };
+      };
+      undo_attendance: {
+        Args: {
+          p_attendance_id: string;
+          p_expected_attendance_revision: number;
+          p_expected_booking_revision: number;
+          p_reason: string;
+          p_request_id: string;
+        };
+        Returns: Json;
       };
       withdraw_booking_reschedule: {
         Args: {

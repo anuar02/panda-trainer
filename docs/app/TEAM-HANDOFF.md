@@ -6,6 +6,13 @@
 
 ## Текущая волна
 
+03.10 — SOM-33: billing_schema владеет новой миграцией и pgTAP;
+billing_security — отдельным concurrent runner; billing_contract — read-only
+проверкой инвариантов. Root — решения владельца, ADR/документация, изолированная
+БД, generated types, CI и коммит проверенного пакета. Владелец подтвердил возврат
+списания при исправлении и expiry по запланированной дате занятия включительно.
+SOM-34 следует за ledger; production journal и native/owner acceptance открыты.
+
 01.10 — SOM-25 сохранён в a02dfcd. Свежий template_commands владел только
 миграцией/pgTAP SOM-23; root проверил column grants, поправил revision/rollback
 проверки, перенёс библиотечный тест на новую границу записи и добавил реальные

@@ -174,3 +174,19 @@ app/node_modules/.bin/supabase --workdir "$review_db_dir" db lint --local --fail
 app/node_modules/.bin/supabase --workdir "$review_db_dir" test db
 app/node_modules/.bin/supabase --workdir "$review_db_dir" stop
 ```
+
+03.10.2026, SOM-33: `20261003090000_attendance_credit_ledger.sql` добавляет
+client_purchases, attendance_records/revisions, credit_entries и private receipts.
+Шесть owner-only RPC покрывают покупку, посещение, неявку, позднюю привязку,
+исправление и явный штраф. RLS и safe-column grants скрывают actor IDs; прямые
+записи закрыты. Исправление возвращает кредит один раз, expiry по scheduled date
+включительно. Шесть concurrency scenarios проходят на финальной схеме:
+
+```sh
+python3 supabase/tests/attendance_credit_concurrency.py --container supabase_db_trainerApp
+```
+
+Runner включён в CI. Clean reset, полный pgTAP (660 assertions / 19 files), db lint без ошибок схемы,
+generated type drift и app check (991 tests / 107 suites) проходят. App transport, оплаты/долг SOM-34 и native/owner
+приёмка не входят в этот пакет. [ADR 0053](../docs/app/decisions/0053-attendance-credit-ledger.md),
+[evidence](../docs/app/review/som-33-attendance-credit-ledger.md).

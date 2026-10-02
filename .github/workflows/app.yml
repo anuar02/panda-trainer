@@ -56,6 +56,8 @@ jobs:
       - run: python3 supabase/tests/booking_status_concurrency.py --container supabase_db_trainerApp
       - run: python3 supabase/tests/booking_plan_concurrency.py --container supabase_db_trainerApp
       - run: python3 supabase/tests/booking_reschedule_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/booking_request_resolution_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/attendance_credit_concurrency.py --container supabase_db_trainerApp
       - run: python3 supabase/tests/onboarding_concurrency.py --container supabase_db_trainerApp
       - run: python3 supabase/tests/invitation_concurrency.py --container supabase_db_trainerApp
       - run: python3 supabase/tests/auth_email_smoke.py --workdir . --container supabase_db_trainerApp
