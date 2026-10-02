@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-33 typed attendance/purchase transport: explicit safe reads,
+  scoped Bearer на каждой странице/RPC, lossless minor money и validated receipt
+  results. 46 focused tests и app check1037 tests/108 suites проходят; real local
+  PostgREST bigint text cast проверен. Production attendance UI/recovery и owner/native
+  acceptance открыты. SOM-34 payment actions ждут ответа о переплате.
+  [ADR0055](decisions/0055-attendance-billing-transport.md),
+  [evidence](review/som-33-attendance-transport.md).
+
 - 03.10.2026 — SOM-34 independent foundation: `payment_entries` с immutable
   payment/reversal history, точным полным сторно и закрытым actor ID.
   Clean reset, lint и 686 pgTAP assertions / 20 files проходят; generated type drift
@@ -91,7 +99,7 @@
   ревизии, actor receipts, stale replacement и перенос одного участника группы
   без изменения остальных/снимка. Creation receipts сохраняют первоначальные IDs
   после detachment. Clean reset/lint, 469 pgTAP assertions / 15 files и 3 новых
-  concurrency scenarios проходят; transport/recovery — 44 focused tests.
+  concurrency scenarios проходят; transport/recovery — 46 focused tests.
   UI подключается следующим пакетом; native/две роли/owner acceptance открыты.
   [ADR 0043](decisions/0043-booking-reschedule-commands.md).
 

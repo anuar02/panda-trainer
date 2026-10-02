@@ -11,6 +11,12 @@
 
 ### Добавлено
 
+- SOM-33 app transport: typed safe billing reads и шесть attendance/purchase RPC;
+  закреплённый account token, validated results и lossless bigint minor money.
+  46 новых focused tests; app check1037 tests/108 suites проходит. Production
+  attendance sheets и native/owner acceptance остаются открытыми.
+  [ADR0055](docs/app/decisions/0055-attendance-billing-transport.md).
+
 - SOM-34 foundation: неизменяемая `payment_entries` с положительными оплатами
   и полным однократным сторно, bigint тиыны/KZT и safe-column RLS.
   Clean reset, db lint и 686 pgTAP assertions / 20 files проходят;
@@ -67,7 +73,7 @@
   receipts и сохранением программы; исходное время меняется только при принятии.
   Durable transport сохраняет точную команду; group detachment не ломает старые
   creation retries благодаря неизменяемым receipt IDs. 469 pgTAP assertions,
-  3 новые concurrency scenarios и 44 focused app tests проходят.
+  3 новые concurrency scenarios и 46 focused app tests проходят.
   [ADR 0043](docs/app/decisions/0043-booking-reschedule-commands.md).
 
 - SOM-26: реальное создание `/workspace/new` из дня/свободного окна, async wizard

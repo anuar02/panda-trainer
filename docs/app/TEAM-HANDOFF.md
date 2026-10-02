@@ -6,7 +6,9 @@
 
 ## Текущая волна
 
-03.10 — SOM-33 сохранён в 147a097. Следующий SOM-34: payment_scope —
+03.10 — SOM-33 сохранён в 147a097; independent payment foundation — ff4b953.
+Attendance transport verified1037 tests/108 suites; проверенный пакет оформляет root.
+Следующий SOM-34: payment_scope —
 новая migration/payment pgTAP без зависимости от решения о переплате;
 billing_security — attendance/purchase app transport и tests. Root — ревью,
 вопрос переплаты владельцу, isolated checks, ADR/types/docs и отдельные коммиты.

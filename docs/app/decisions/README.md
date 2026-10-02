@@ -59,3 +59,5 @@
 
 Новая запись: скопировать [TEMPLATE.md](TEMPLATE.md) в `NNNN-короткое-имя.md`,
 добавить строку в таблицу, упомянуть в `CHANGELOG.md`.
+
+| [0055](0055-attendance-billing-transport.md) | Typed attendance/purchase transport with lossless minor money | Accepted technically; UI integration open | 03.10.2026 |
