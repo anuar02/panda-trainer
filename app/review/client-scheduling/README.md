@@ -16,6 +16,13 @@ pass. Default home/history capture has 12 reference/app pairs, no missing states
 or browser errors: `/tmp/screens/client-scheduling/history-parity/index.html`.
 Capture is not owner approval of the connected screens.
 
+Program connection checkpoint: 915 tests / 100 suites and all-platform exports
+pass. The first upcoming snapshot with exercises is displayed, with the earlier
+on-site note when needed; latest personal-copy fallback is used only without
+upcoming bookings. Read-only detail uses snapshot targets and instructions without
+demo results or guides. Six default program pairs have no missing states/errors:
+`/tmp/screens/client-scheduling/program-parity/index.html`.
+
 Client reader/hook/adapter tests pass (39 focused tests); the isolated schema passed
 494 pgTAP assertions across 16 files before Docker was paused. Controls/controller
 tests cover actor permissions, exact retries, stale accounts, cancellation locking,

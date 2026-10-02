@@ -11,6 +11,12 @@
 
 ### Добавлено
 
+- SOM-36/24: реальный readonly client program из immutable booking plan и
+  latest-copy fallback при отсутствии будущих bookings. Сохранены плановые ranges,
+  null/zero weights и snapshot инструкции; demo guides/results/media не подставляются.
+  915 тестов / 100 suites, web/iOS/Android export и 6 default capture pairs проходят.
+  Runtime/owner acceptance открыты. [ADR 0048](docs/app/decisions/0048-client-program-snapshot-view.md).
+
 - SOM-36: собственная finished history с snapshot упражнениями, реальными
   подходами/общими заметками и safe pagination/retry. Default upcoming/history
   больше не обрезаются датой; старые годы доступны. Проверено 873 теста / 95 suites

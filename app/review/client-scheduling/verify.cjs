@@ -412,6 +412,16 @@ async function run() {
     ) === 'Неизменный план',
     'accepted-move-keeps-program',
   );
+  stage = 'client-program';
+  await page.goto(`${origin}/connection/${fixture.ids[0]}/program`, { waitUntil: 'networkidle' });
+  await waitForText(page, 'Движение проверки');
+  check((await page.locator('body').innerText()).includes('Неизменный план'), 'program-reads-own-booking-snapshot');
+  check(!(await page.locator('body').innerText()).includes('Текущий каталог переименован'), 'program-snapshot-survives-catalog-change');
+  await clickButton(page, 'Движение проверки');
+  await waitForText(page, 'Подсказка тренера по этому упражнению пока не добавлена.');
+  check(!(await page.locator('body').innerText()).includes('Личный рекорд'), 'program-detail-does-not-invent-results');
+  await page.goto(`${origin}/connection/${fixture.ids[0]}`, { waitUntil: 'networkidle' });
+  await waitForText(page, 'Неизменный план');
   stage = 'client-cancel';
   await clickButton(page, 'Отменить запись');
   await waitForText(page, 'Отменить запись?');

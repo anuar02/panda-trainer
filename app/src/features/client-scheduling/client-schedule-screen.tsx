@@ -134,6 +134,11 @@ function ClientScheduleContent(props: Props) {
                     : t('clientHome.onsite'),
                 })),
                 onSelectBooking: (row) => setSelectedId(row.id),
+                onProgramPreview: () =>
+                  router.push({
+                    pathname: '/connection/[clientRecordId]/program',
+                    params: { clientRecordId: props.clientRecordId },
+                  }),
                 onOpenHistory: () =>
                   router.push({
                     pathname: '/connection/[clientRecordId]/history',

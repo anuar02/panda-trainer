@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-36/24: selected-connection program route, first upcoming
+  snapshot plan/on-site note и latest personal-copy fallback только без upcoming.
+  Safe reader/hook, readonly snapshot detail и exact-card navigation. 915 тестов /
+  100 suites, web/iOS/Android export и 6 default capture pairs проходят. Docker
+  paused: program browser assertions подготовлены, не запускались. Native/owner
+  acceptance и global API privacy hardening открыты.
+  [ADR 0048](decisions/0048-client-program-snapshot-view.md).
+
 - 02.10.2026 — SOM-36: connection history читает собственные finished journals,
   snapshot упражнения, actual sets и shared notes; readonly detail и safe paging
   сохраняют успешные страницы при retry. Default upcoming/history охватывают все
