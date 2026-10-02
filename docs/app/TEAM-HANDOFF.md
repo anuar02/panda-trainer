@@ -6,6 +6,15 @@
 
 ## Текущая волна
 
+03.10 — SOM-33 purchase read: purchase_contract владел только panel/strings/UItests;
+purchase_projection_review — чистыми helpers/domain tests. Root — route/detail
+composition, i18n, route tests, browser/parity/export, docs и commit.
+1078 tests / 115 suites, all-platform export, 6 client capture pairs проходят.
+Prototype не содержит creation form: вопрос задан, зависимая форма ожидает ответа.
+Payment/debt и aggregate header не выдумывать; scope/retry/invalid ledger проверены.
+Следующий независимый пакет — attendance в real Today, затем оставшиеся roadmap
+задачи с подтверждёнными decisions; native/owner acceptance открыты.
+
 03.10 — SOM-33 attendance UI/recovery: три свежих исполнителя без истории:
 attendance_controls — controlled sheets/i18n/tests; attendance_projection — pure
 ledger projections/tests и независимое ревью интеграции; attendance_recovery —

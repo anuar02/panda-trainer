@@ -1,0 +1,17 @@
+export const trainerPurchasesRu = {
+  loading: 'Загрузка покупок…',
+  error: 'Не удалось загрузить покупки.',
+  retry: 'Повторить',
+  emptyTitle: 'Покупок нет',
+  emptyHint: 'Разовое занятие или пакет появятся здесь после покупки.',
+  price: 'Стоимость',
+  received: 'Получено',
+  units: 'Занятий',
+  usage: '{{units}} · использовано {{used}}',
+  expiry: 'Срок',
+  noExpiry: 'без срока',
+  payment: 'Записать оплату',
+  paymentHistory: 'История оплат',
+  paymentUnavailable: 'Данные об оплатах пока недоступны.',
+  unknown: '—',
+} as const;

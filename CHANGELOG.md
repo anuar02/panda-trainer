@@ -11,6 +11,14 @@
 
 ### Добавлено
 
+- SOM-33: реальные покупки во вкладке «Оплаты» клиента: точная стоимость,
+  использованные занятия из scoped ledger и срок, включая expired/depleted packages.
+  Ошибочная история показывает retry вместо ложного нуля; payment/debt остаются
+  неизвестными. 1078 tests / 115 suites, all-platform export и 6 default client
+  capture pairs проходят; synthetic browser подтверждает usage refresh.
+  Создание покупки и native/owner acceptance открыты.
+  [ADR 0057](docs/app/decisions/0057-client-purchase-read-projection.md).
+
 - SOM-33: реальные посещения в расписании, выбор подходящего пакета,
   отметка без списания, поздняя привязка, исправление с возвратом и отдельная
   penalty с причиной. Durable recovery повторяет сохранённую команду после

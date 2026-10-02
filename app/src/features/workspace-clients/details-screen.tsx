@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -85,6 +85,7 @@ type Props = {
   assignmentReadError?: boolean;
   onAssignProgram?: () => void;
   onRetryAssignmentRead?: () => void;
+  billingContent?: ReactNode;
 };
 
 type Tab = keyof typeof workspaceClientDetailsRu.tabs;
@@ -133,6 +134,7 @@ export function WorkspaceClientDetailsScreen({
   assignmentReadError = false,
   onAssignProgram,
   onRetryAssignmentRead,
+  billingContent,
 }: Props) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
@@ -495,11 +497,12 @@ export function WorkspaceClientDetailsScreen({
               text('progressUnavailable'),
             )}
           {tab === 'billing' &&
-            empty(
-              'wallet',
-              text('unavailableTitle'),
-              text('billingUnavailable'),
-            )}
+            (billingContent ??
+              empty(
+                'wallet',
+                text('unavailableTitle'),
+                text('billingUnavailable'),
+              ))}
           {tab === 'notes' &&
             empty('lock', text('unavailableTitle'), text('notesUnavailable'))}
         </View>

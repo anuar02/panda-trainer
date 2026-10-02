@@ -9,6 +9,17 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-33: карточка real client показывает scoped покупки,
+  стоимость без потери bigint precision, net used units и срок. Invalid ledger
+  не превращается в нулевой остаток; expiry/depleted packages сохраняются.
+  Payment badge/Получено/debt неизвестны, payment action disabled до SOM-34.
+  1078 tests / 115 suites, type/lint/format, all-platform export и 6 default
+  client capture pairs проходят. Synthetic browser проверяет real card и usage
+  refresh после server charge. Создание покупки ждёт решения о форме,
+  отсутствующей в прототипе; native/owner acceptance и live Linear открыты.
+  [ADR 0057](decisions/0057-client-purchase-read-projection.md),
+  [evidence](../../app/review/purchases/README.md).
+
 - 03.10.2026 — SOM-33 real schedule attendance: controlled participant sheets,
   scoped ledger projections, scheduled-date eligibility и durable exact-command
   recovery после reload. Исправление возвращает кредит; неявка/отмена требуют
@@ -632,7 +643,10 @@
 - [x] Исправление посещения возвращает единицу ровно один раз и пишет историю.
 - [x] Real schedule attendance UI и durable replay точной команды после потери ответа;
   отдельные mark/bind/correct/penalty controls, safe projections и account scope.
-- [ ] Production создание покупки и данные пакетов в карточке клиента.
+- [x] Scoped данные пакетов в карточке клиента: cost, net used units, expiry;
+  unknown payments/debt без подставленных нулей.
+- [ ] Production создание покупки: entry point/форма отсутствуют в прототипе,
+  ожидается решение владельца.
 - [ ] Ручная оплата: сумма в тиынах (`bigint`), валюта KZT, дата, автор, источник `manual`;
   частичная оплата, долг не блокирует расписание.
 - [ ] Экран клиента у тренера: остаток занятий, долг, история.

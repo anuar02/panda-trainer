@@ -37,7 +37,7 @@ export const workspaceClientDetailsRu = {
   seconds: 'сек',
   weight: '{{amount}} кг',
   progressUnavailable: 'История прогресса пока недоступна.',
-  billingUnavailable: 'Данные об оплатах и пакетах пока недоступны.',
+  billingUnavailable: 'Данные об оплатах пока недоступны.',
   notesUnavailable: 'Заметки клиента пока недоступны.',
   unavailableTitle: 'Данные пока недоступны',
   noPhone: 'Телефон не указан',

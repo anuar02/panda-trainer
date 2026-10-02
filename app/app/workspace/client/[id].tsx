@@ -17,6 +17,8 @@ import { loadWorkspaceClientDetails } from '@/features/workspace-clients/service
 import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 import { useClientProgramAssignment } from '@/features/workspace-programs/use-assignment';
+import { useTrainerBilling } from '@/features/trainer-billing/use-billing';
+import { PurchasesPanel } from '@/features/trainer-billing/purchases-panel';
 
 function ClientDetails({
   workspaceId,
@@ -32,6 +34,7 @@ function ClientDetails({
   initialTab: 'sessions' | 'program' | 'progress' | 'billing' | 'notes';
 }) {
   const [attempt, setAttempt] = useState(0);
+  const billing = useTrainerBilling(userId, workspaceId, clientId);
   const [loaded, setLoaded] = useState<{
     attempt: number;
     data: WorkspaceClientDetailsData | null;
@@ -72,6 +75,16 @@ function ClientDetails({
       onRetry={() => setAttempt((value) => value + 1)}
       onBack={() => router.replace('/workspace/clients')}
       initialTab={initialTab}
+      billingContent={
+        <PurchasesPanel
+          billing={billing.data}
+          workspaceId={workspaceId}
+          clientRecordId={clientId}
+          loading={billing.loading}
+          error={billing.error !== null}
+          onRetry={billing.retry}
+        />
+      }
       assignmentPending={assignment.pending !== null}
       assignmentLoading={assignment.loading}
       assignmentReadError={
@@ -128,7 +141,7 @@ export default function WorkspaceClientDetailsRoute() {
       clientId={id}
       userId={auth.session.user.id}
       timezone={workspace.timezone}
-      initialTab={tab === 'program' ? 'program' : 'sessions'}
+      initialTab={tab === 'program' || tab === 'billing' ? tab : 'sessions'}
     />
   );
 }
