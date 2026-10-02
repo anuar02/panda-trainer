@@ -2,11 +2,14 @@
 
 Verified 2026-10-02 with synthetic local data only.
 
-- `npm run check`: 595 tests / 71 suites, TypeScript, lint and formatting pass.
-- Fresh configured web export succeeds and includes `/workspace/schedule`.
-- `verify.cjs`: 9 headless Chrome checks pass. The trainer opens the calendar
+- `npm run check`: 660 tests / 75 suites, TypeScript, lint and formatting pass.
+- Fresh configured web export succeeds and includes `/workspace/schedule` and `/workspace/new`.
+- `verify.cjs`: 13 headless Chrome checks pass. The trainer opens the calendar
   from their account, sees chronological real bookings and participant names,
-  and cancels only one group participant. SQL confirms that participant is
+  and cancels only one group participant. The existing wizard creates a 75-minute
+  proposed group session for two real participants with a selected template.
+  SQL verifies one immutable program/exercise snapshot per booking, original
+  template revision and planned values; editing the source preserves both snapshots. SQL confirms that participant is
   cancelled by the trainer and the other remains confirmed. Reload preserves
   the result; week navigation removes/restores the correct bookings. No demo
   clients, demo journal navigation or unexpected browser errors were observed.
@@ -30,6 +33,18 @@ Verified 2026-10-02 with synthetic local data only.
   were cleaned up. Only the separate `trainerApp-som18` stack was used; the
   main stack was not reset.
 
+- Clean isolated reset, schema lint and generated type drift check pass.
+  All 418 pgTAP assertions across 13 files and three booking-plan concurrency
+  races pass. Named-column grants hide snapshot creator Auth IDs.
+- Creation component/hook tests cover async locking, saved multi-client recovery,
+  storage failures, explicit overlap acknowledgement with a new command and
+  UTC conversion with DST ambiguity/gap rejection.
+
+- Calendar/creation capture: 12 reference states, 9 app captures, 3 missing
+  creation empty/loading/offline comparisons, no app browser errors. Report:
+  `/tmp/screens/workspace-scheduling/creation-parity/index.html`. These missing
+  states and visual differences remain acceptance work; captures do not approve screens.
+
 ## Reproduce
 
 Start an isolated Supabase workdir with the current schema. Export web with its
@@ -50,8 +65,7 @@ missing resources still produce failures.
 
 ## Open
 
-Today, server program snapshots and full creation, rescheduling/proposal replies,
+Today, rescheduling/proposal replies,
 terminal pending-command resolution, client status UI, group actions and billing
-remain open. Real-calendar creation is disabled until a selected program can be
-preserved atomically. Native/accessibility, two-phone scenarios and owner visual
+remain open. Creation is enabled with immutable server snapshots. Native/accessibility, two-phone scenarios and owner visual
 acceptance remain open. SOM-26, SOM-27 and SOM-45 are not complete.

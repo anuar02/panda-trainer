@@ -14,12 +14,14 @@ export type CreateSessionScreenProps = {
   templates: readonly EditorTemplate[];
   dates: readonly string[];
   today: string;
+  initialDraft?: SessionDraft;
   initialDate?: string;
   initialStart?: string;
+  initialDuration?: number;
   initialClientId?: string;
   initialProgram?: string;
   getCollisions: (draft: SessionDraft) => readonly EditorCollision[];
-  onCreate: (draft: SessionDraft) => EditorResult;
+  onCreate: (draft: SessionDraft) => EditorResult | Promise<EditorResult>;
   onClose: () => void;
   disabled?: boolean;
   storageError?: string;

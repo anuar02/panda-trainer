@@ -2,6 +2,23 @@ import { getSupabaseClient } from '@/features/auth/client';
 import type { Database } from '@/lib/database.types';
 import { WorkspaceSchedulingError } from './service';
 
+export type WorkspaceBookingPlanSelection = {
+  templateId: string;
+  expectedTemplateRevision: number;
+};
+
+const validWorkspaceBookingPlanSelection = (
+  value: unknown,
+): value is WorkspaceBookingPlanSelection =>
+  record(value) &&
+  Object.keys(value).sort().join(',') ===
+    'expectedTemplateRevision,templateId' &&
+  validUuid(value.templateId) &&
+  Number.isInteger(value.expectedTemplateRevision) &&
+  typeof value.expectedTemplateRevision === 'number' &&
+  value.expectedTemplateRevision >= 1 &&
+  value.expectedTemplateRevision <= 2147483647;
+
 export type CreateWorkspaceBookingInput = {
   clientRecordIds: readonly string[];
   startsAtUtc: string;
@@ -9,6 +26,7 @@ export type CreateWorkspaceBookingInput = {
   collisionAcknowledged: boolean;
   requestId: string;
   expectedUserId: string;
+  plan?: WorkspaceBookingPlanSelection | null;
 };
 
 export type WorkspaceBookingOverlap = {
@@ -109,7 +127,8 @@ export const createWorkspaceBookingOperation = (
     !canonicalUtc(input.startsAtUtc) ||
     !canonicalUtc(input.endsAtUtc) ||
     Date.parse(input.endsAtUtc) <= Date.parse(input.startsAtUtc) ||
-    typeof input.collisionAcknowledged !== 'boolean'
+    typeof input.collisionAcknowledged !== 'boolean' ||
+    (input.plan != null && !validWorkspaceBookingPlanSelection(input.plan))
   )
     throw new WorkspaceSchedulingError('invalidInput');
   const expectedUserId = input.expectedUserId.toLowerCase();
@@ -122,6 +141,12 @@ export const createWorkspaceBookingOperation = (
     p_collision_ack: input.collisionAcknowledged,
     p_request_id: input.requestId,
   };
+  const plan = input.plan
+    ? {
+        templateId: input.plan.templateId.toLowerCase(),
+        expectedTemplateRevision: input.plan.expectedTemplateRevision,
+      }
+    : null;
   let pending: Promise<CreateWorkspaceBookingResult> | null = null;
   return {
     execute: (): Promise<CreateWorkspaceBookingResult> => {
@@ -137,16 +162,30 @@ export const createWorkspaceBookingOperation = (
           !token
         )
           throw new WorkspaceSchedulingError('unavailable');
-        const { data, error } = await client
-          .rpc('create_booking_set', args)
-          .setHeader('Authorization', `Bearer ${token}`);
+        const request = plan
+          ? client.rpc('create_booking_set_with_plan', {
+              ...args,
+              p_template_id: plan.templateId,
+              p_expected_template_revision: plan.expectedTemplateRevision,
+            })
+          : client.rpc('create_booking_set', args);
+        const { data, error } = await request.setHeader(
+          'Authorization',
+          `Bearer ${token}`,
+        );
         if (error)
           throw new WorkspaceSchedulingError(
             error.code === '22023'
               ? 'invalidInput'
-              : error.code === '42501'
+              : error.code === '42501' ||
+                  error.code === 'P0002' ||
+                  error.code === '23503'
                 ? 'unavailable'
-                : 'request',
+                : error.code === '40001'
+                  ? 'conflict'
+                  : error.code === '55000' || error.code === '23514'
+                    ? 'invalidState'
+                    : 'request',
           );
         return parseResult(data, args.p_client_record_ids.length);
       })()

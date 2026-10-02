@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
 import { useTranslation } from 'react-i18next';
 import { TrainerScheduleScreen } from '../trainer-schedule/trainer-schedule-screen';
 import { workspaceAgendaSessions } from './agenda';
-import { workspaceDateKey } from './clock';
+import { calendarWeekDateKeys, workspaceDateKey } from './clock';
 import {
   workspaceScheduleRows,
   workspaceScheduleWindows,
@@ -26,12 +27,13 @@ type WorkspaceScheduleScreenProps = {
   userId: string;
   workspaceId: string;
   timezone: string;
+  initialDate?: string;
 };
 
 export function WorkspaceScheduleScreen(props: WorkspaceScheduleScreenProps) {
   return (
     <WorkspaceScheduleContent
-      key={`${props.userId}:${props.workspaceId}:${props.timezone}`}
+      key={`${props.userId}:${props.workspaceId}:${props.timezone}:${props.initialDate ?? ''}`}
       {...props}
     />
   );
@@ -41,10 +43,20 @@ function WorkspaceScheduleContent({
   userId,
   workspaceId,
   timezone,
+  initialDate,
 }: WorkspaceScheduleScreenProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const today = workspaceDateKey(new Date(), timezone);
-  const [date, setDate] = useState(today);
+  const [date, setDate] = useState(() => {
+    if (!initialDate) return today;
+    try {
+      calendarWeekDateKeys(initialDate);
+      return initialDate;
+    } catch {
+      return today;
+    }
+  });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingWorkspaceBookingStatus | null>(
     null,
@@ -170,12 +182,16 @@ function WorkspaceScheduleContent({
             freeWindows: schedule
               ? workspaceScheduleWindows(schedule, date)
               : [],
-            createDisabled: true,
+            createDisabled: read.loading || !schedule,
             onDateChange: (next) => {
               setDate(next);
               setSelectedId(null);
             },
-            onCreate: () => undefined,
+            onCreate: (selectedDate, start) =>
+              router.push({
+                pathname: '/workspace/new',
+                params: { date: selectedDate, ...(start ? { start } : {}) },
+              }),
             onSelect: (session) => setSelectedId(session.id),
           }}
         />

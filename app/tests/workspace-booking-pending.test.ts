@@ -174,3 +174,52 @@ test('canonicalizes equivalent UUID case', async () => {
     pending(),
   );
 });
+
+test('retains selected template snapshot and blocks changed selection', async () => {
+  const plan = {
+    templateId: otherId.toUpperCase(),
+    expectedTemplateRevision: 4,
+  };
+  const save = savePendingWorkspaceBooking(userId, workspaceId, {
+    ...pending(),
+    plan,
+  });
+  plan.templateId = clientId;
+  plan.expectedTemplateRevision = 5;
+  await save;
+  expect(await loadPendingWorkspaceBooking(userId, workspaceId)).toEqual({
+    ...pending(),
+    plan: { templateId: otherId, expectedTemplateRevision: 4 },
+  });
+  await expect(
+    savePendingWorkspaceBooking(userId, workspaceId, pending()),
+  ).rejects.toMatchObject({ code: 'unresolved' });
+  await expect(
+    savePendingWorkspaceBooking(userId, workspaceId, { ...pending(), plan }),
+  ).rejects.toMatchObject({ code: 'unresolved' });
+});
+
+test('legacy saved commands accept equivalent null selection', async () => {
+  await savePendingWorkspaceBooking(userId, workspaceId, pending());
+  await savePendingWorkspaceBooking(userId, workspaceId, {
+    ...pending(),
+    plan: null,
+  });
+  expect(AsyncStorage.setItem).toHaveBeenCalledTimes(1);
+  expect(await loadPendingWorkspaceBooking(userId, workspaceId)).toEqual(
+    pending(),
+  );
+});
+
+test.each([
+  { templateId: otherId, expectedTemplateRevision: 0 },
+  { templateId: 'invalid', expectedTemplateRevision: 1 },
+  { templateId: otherId, expectedTemplateRevision: 1, extra: true },
+])('blocks corrupt persisted selected plan: %j', async (plan) => {
+  jest
+    .mocked(AsyncStorage.getItem)
+    .mockResolvedValueOnce(JSON.stringify({ ...pending(), plan }));
+  await expect(
+    loadPendingWorkspaceBooking(userId, workspaceId),
+  ).rejects.toMatchObject({ code: 'invalid' });
+});

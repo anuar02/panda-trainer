@@ -1,5 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { CreateWorkspaceBookingInput } from './create-operation';
+import type {
+  CreateWorkspaceBookingInput,
+  WorkspaceBookingPlanSelection,
+} from './create-operation';
 
 export type PendingWorkspaceBooking = Omit<
   CreateWorkspaceBookingInput,
@@ -18,6 +21,22 @@ const validUuid = (value: unknown): value is string =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
     value,
   );
+const validWorkspaceBookingPlanSelection = (
+  value: unknown,
+): value is WorkspaceBookingPlanSelection => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value))
+    return false;
+  const plan = value as Record<string, unknown>;
+  return (
+    Object.keys(plan).sort().join(',') ===
+      'expectedTemplateRevision,templateId' &&
+    validUuid(plan.templateId) &&
+    typeof plan.expectedTemplateRevision === 'number' &&
+    Number.isInteger(plan.expectedTemplateRevision) &&
+    plan.expectedTemplateRevision >= 1 &&
+    plan.expectedTemplateRevision <= 2147483647
+  );
+};
 const keyFor = (userId: string, workspaceId: string) => {
   if (!validUuid(userId) || !validUuid(workspaceId))
     throw new PendingWorkspaceBookingError('invalid');
@@ -32,8 +51,12 @@ const isPendingBooking = (value: unknown): value is PendingWorkspaceBooking => {
     return false;
   const record = value as Record<string, unknown>;
   return (
-    Object.keys(record).sort().join(',') ===
+    Object.keys(record)
+      .filter((key) => key !== 'plan')
+      .sort()
+      .join(',') ===
       'clientRecordIds,collisionAcknowledged,endsAtUtc,requestId,startsAtUtc' &&
+    (record.plan == null || validWorkspaceBookingPlanSelection(record.plan)) &&
     Array.isArray(record.clientRecordIds) &&
     record.clientRecordIds.length > 0 &&
     record.clientRecordIds.every(validUuid) &&
@@ -54,6 +77,14 @@ const snapshot = (value: PendingWorkspaceBooking): PendingWorkspaceBooking => ({
   endsAtUtc: value.endsAtUtc,
   collisionAcknowledged: value.collisionAcknowledged,
   requestId: value.requestId.toLowerCase(),
+  ...(value.plan
+    ? {
+        plan: {
+          templateId: value.plan.templateId.toLowerCase(),
+          expectedTemplateRevision: value.plan.expectedTemplateRevision,
+        },
+      }
+    : {}),
 });
 const decode = (raw: string): PendingWorkspaceBooking => {
   let value: unknown;

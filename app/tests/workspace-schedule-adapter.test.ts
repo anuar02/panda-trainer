@@ -168,3 +168,19 @@ test('trainer-authored proposal is not represented as a request for the trainer 
   );
   expect(rows[0]?.request).toBeUndefined();
 });
+
+test('shows only a shared immutable program name for grouped bookings', () => {
+  expect(
+    workspaceScheduleRows(
+      schedule([booking('a', { program_name: 'Снимок' })]),
+      'Group',
+    )[0]?.programName,
+  ).toBe('Снимок');
+  const grouped = [
+    booking('a', { group_session_id: 'group', program_name: 'Снимок' }),
+    booking('b', { group_session_id: 'group', program_name: 'Другая' }),
+  ];
+  expect(
+    workspaceScheduleRows(schedule(grouped), 'Group')[0]?.programName,
+  ).toBeUndefined();
+});

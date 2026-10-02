@@ -20,8 +20,15 @@ export function workspaceScheduleRows(
           item.authorRole === 'client' &&
           session.bookings.some((booking) => booking.id === item.booking_id),
       );
+      const programNames = session.bookings.map(
+        (booking) => booking.program_name,
+      );
+      const programName = programNames[0];
       return {
         id: session.id,
+        ...(programName && programNames.every((name) => name === programName)
+          ? { programName }
+          : {}),
         date: session.date,
         start: scheduleClock(session.startMinute),
         end: scheduleClock(session.endMinute),

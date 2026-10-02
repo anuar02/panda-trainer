@@ -51,7 +51,10 @@ export type WorkspaceScheduleBooking = Pick<
   | 'ends_at'
   | 'status'
   | 'revision'
-> & { client_name: ClientRecordRow['display_name'] };
+> & {
+  client_name: ClientRecordRow['display_name'];
+  program_name?: string | null;
+};
 
 export type WorkspaceScheduleProposal = Pick<
   ProposalRow,
@@ -74,7 +77,12 @@ export type WorkspaceSchedule = {
 };
 
 export type WorkspaceSchedulingErrorCode =
-  'configuration' | 'invalidInput' | 'unavailable' | 'request';
+  | 'configuration'
+  | 'invalidInput'
+  | 'unavailable'
+  | 'request'
+  | 'conflict'
+  | 'invalidState';
 
 export class WorkspaceSchedulingError extends Error {
   constructor(readonly code: WorkspaceSchedulingErrorCode) {
@@ -136,6 +144,7 @@ const readPages = async <T>(
 const toBooking = (
   row: BookingRead,
   names: ReadonlyMap<string, string>,
+  programs: ReadonlyMap<string, string>,
 ): WorkspaceScheduleBooking => ({
   id: row.id,
   workspace_id: row.workspace_id,
@@ -146,6 +155,7 @@ const toBooking = (
   status: row.status,
   revision: row.revision,
   client_name: names.get(row.client_record_id)!,
+  program_name: programs.get(row.id) ?? null,
 });
 
 const uniqueIds = (values: readonly string[]) => [...new Set(values)];
@@ -252,9 +262,23 @@ export async function loadWorkspaceSchedule(
   const names = new Map(clientRows.map((row) => [row.id, row.display_name]));
   if (clientIds.some((id) => !names.has(id)))
     throw new WorkspaceSchedulingError('unavailable');
+  const programs = new Map<string, string>();
+  for (let offset = 0; offset < bookingIds.length; offset += idBatchSize) {
+    const { data, error } = await client
+      .from('booking_programs')
+      .select('booking_id,name')
+      .eq('workspace_id', workspaceId)
+      .in('booking_id', bookingIds.slice(offset, offset + idBatchSize))
+      .order('booking_id');
+    if (error || data === null) throw new WorkspaceSchedulingError('request');
+    for (const program of data) programs.set(program.booking_id, program.name);
+  }
   const allBookings = [...knownBookings.values()];
   const bookingViews = new Map(
-    allBookings.map((booking) => [booking.id, toBooking(booking, names)]),
+    allBookings.map((booking) => [
+      booking.id,
+      toBooking(booking, names, programs),
+    ]),
   );
 
   return {

@@ -241,3 +241,65 @@ test('same operation retries after a synchronous client failure', async () => {
   await expect(operation.execute()).resolves.toMatchObject({ created: true });
   expect(rpc).toHaveBeenCalledTimes(1);
 });
+
+test('snapshots selected template and revision for exact retries', async () => {
+  const { rpc } = setup();
+  rpc.mockImplementationOnce(() => ({
+    setHeader: () => Promise.reject(new Error('lost response')),
+  }));
+  const plan = {
+    templateId: groupId.toUpperCase(),
+    expectedTemplateRevision: 4,
+  };
+  const operation = createWorkspaceBookingOperation({ ...input(), plan });
+  plan.templateId = bookingId;
+  plan.expectedTemplateRevision = 5;
+  await expect(operation.execute()).rejects.toMatchObject({ code: 'request' });
+  await operation.execute();
+  for (const call of rpc.mock.calls) {
+    expect(call).toEqual([
+      'create_booking_set_with_plan',
+      expect.objectContaining({
+        p_template_id: groupId,
+        p_expected_template_revision: 4,
+        p_request_id: requestId,
+      }),
+    ]);
+  }
+});
+
+test('explicit no-plan selection retains legacy RPC', async () => {
+  const { rpc } = setup();
+  await createWorkspaceBookingOperation({ ...input(), plan: null }).execute();
+  expect(rpc).toHaveBeenCalledWith('create_booking_set', expect.anything());
+});
+
+test.each([
+  { templateId: 'invalid', expectedTemplateRevision: 1 },
+  { templateId: groupId, expectedTemplateRevision: 0 },
+  { templateId: groupId, expectedTemplateRevision: 1.5 },
+  { templateId: groupId, expectedTemplateRevision: 2147483648 },
+  { templateId: groupId, expectedTemplateRevision: 1, discarded: true },
+])('rejects invalid plan without sending: %j', (plan) => {
+  expect(() => createWorkspaceBookingOperation({ ...input(), plan })).toThrow();
+  expect(getClient).not.toHaveBeenCalled();
+});
+
+test.each([
+  ['40001', 'conflict'],
+  ['55000', 'invalidState'],
+  ['P0002', 'unavailable'],
+  ['23503', 'unavailable'],
+  ['23514', 'invalidState'],
+])('maps template RPC error %s to %s', async (code, expected) => {
+  const { rpc } = setup();
+  rpc.mockImplementationOnce(() => ({
+    setHeader: () => Promise.resolve({ data: null, error: { code } }),
+  }));
+  await expect(
+    createWorkspaceBookingOperation({
+      ...input(),
+      plan: { templateId: groupId, expectedTemplateRevision: 1 },
+    }).execute(),
+  ).rejects.toMatchObject({ code: expected });
+});

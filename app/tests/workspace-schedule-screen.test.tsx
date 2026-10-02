@@ -20,6 +20,8 @@ import type { TrainerScheduleData } from '../src/features/trainer-schedule/train
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock('expo-crypto', () => ({ randomUUID: () => 'new-request' }));
 jest.mock('../src/features/workspace-scheduling/use-schedule', () => ({
   useWorkspaceSchedule: jest.fn(),
@@ -36,6 +38,14 @@ jest.mock('../src/features/trainer-schedule/trainer-schedule-screen', () => ({
       jest.requireActual<typeof import('react-native')>('react-native');
     return (
       <View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Create at window"
+          disabled={data.createDisabled}
+          onPress={() => data.onCreate(data.date, '12:30')}
+        >
+          <Text>Create</Text>
+        </Pressable>
         {data.sessions.map((row) => (
           <Pressable
             key={row.id}
@@ -105,6 +115,7 @@ beforeEach(() => {
   load.mockReset().mockResolvedValue(null);
   submit.mockReset();
   retry.mockReset();
+  mockPush.mockReset();
   read.mockReturnValue({ schedule, loading: false, failed: false, retry });
 });
 
@@ -248,4 +259,22 @@ test('switching account remounts the controller and rejects stale request comple
   await act(async () => resolve());
   expect(retry).not.toHaveBeenCalled();
   expect(screen.queryByRole('alert')).toBeNull();
+});
+
+test('creates from the selected date and free window', async () => {
+  await render(
+    <WorkspaceScheduleScreen
+      userId="user-a"
+      workspaceId="workspace-a"
+      timezone="Asia/Almaty"
+      initialDate="2026-10-06"
+    />,
+  );
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Create at window' }),
+  );
+  expect(mockPush).toHaveBeenCalledWith({
+    pathname: '/workspace/new',
+    params: { date: '2026-10-06', start: '12:30' },
+  });
 });

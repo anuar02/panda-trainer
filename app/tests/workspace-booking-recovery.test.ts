@@ -126,3 +126,22 @@ test('corrupt saved data blocks recovery', async () => {
   expect(execute).not.toHaveBeenCalled();
   expect(clear).not.toHaveBeenCalled();
 });
+
+test('restores selected template and exact revision after a lost response', async () => {
+  const selected = {
+    ...command,
+    plan: { templateId: workspaceId, expectedTemplateRevision: 3 },
+  };
+  load.mockResolvedValue(selected);
+  execute.mockRejectedValueOnce(new Error('response lost'));
+  await expect(
+    submitWorkspaceBooking(userId, workspaceId, selected),
+  ).rejects.toThrow('response lost');
+  expect(clear).not.toHaveBeenCalled();
+  execute.mockResolvedValueOnce({ ...result, replayed: true });
+  await resumeWorkspaceBooking(userId, workspaceId);
+  expect(createWorkspaceBookingOperation).toHaveBeenNthCalledWith(2, {
+    ...selected,
+    expectedUserId: userId,
+  });
+});

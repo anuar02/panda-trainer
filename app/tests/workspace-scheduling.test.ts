@@ -274,6 +274,41 @@ describe('workspace schedule service', () => {
     expect(schedule.pendingProposals).toEqual([]);
   });
 
+  it('reads immutable booking program names with workspace and booking bounds', async () => {
+    const snapshot: Database['public']['Tables']['booking_programs']['Row'] = {
+      id: 'b1000000-0000-4000-8000-000000000001',
+      workspace_id: workspaceId,
+      booking_id: bookingId,
+      base_template_id: 'c1000000-0000-4000-8000-000000000001',
+      base_template_revision: 1,
+      name: 'Сохранённая программа',
+      description: '',
+      created_at: intervalStart,
+      created_by: null,
+    };
+    const { calls } = makeClient({
+      trainer_workspaces: [workspace()],
+      bookings: [booking()],
+      client_records: [clientRecord(clientId, 'Мира')],
+      booking_programs: [
+        snapshot,
+        { ...snapshot, workspace_id: otherWorkspaceId, name: 'Чужая' },
+      ],
+    });
+    const result = await loadWorkspaceSchedule(
+      workspaceId,
+      intervalStart,
+      intervalEnd,
+    );
+    expect(result.bookings[0]?.program_name).toBe('Сохранённая программа');
+    expect(
+      calls.find((call) => call.table === 'booking_programs')?.state.filters,
+    ).toEqual([
+      { field: 'workspace_id', operator: 'eq', value: workspaceId },
+      { field: 'booking_id', operator: 'in', value: [bookingId] },
+    ]);
+  });
+
   it('pages interval bookings in stable order and batches client lookups', async () => {
     const rows = Array.from({ length: 501 }, (_, index) =>
       booking({

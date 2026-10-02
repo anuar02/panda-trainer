@@ -10,6 +10,155 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      booking_program_exercises: {
+        Row: {
+          bodyweight_snapshot: boolean;
+          booking_program_id: string;
+          created_at: string;
+          created_by: string | null;
+          equipment_snapshot: string;
+          exercise_id: string;
+          exercise_name_snapshot: string;
+          id: string;
+          instructions_snapshot: string[];
+          measure_snapshot: string;
+          muscle_group_snapshot: string;
+          note: string | null;
+          planned_reps: string | null;
+          planned_seconds: string | null;
+          planned_sets: number;
+          planned_weight_g: number | null;
+          position: number;
+          rest_seconds: number;
+          source_key_snapshot: string | null;
+          workspace_id: string;
+        };
+        Insert: {
+          bodyweight_snapshot: boolean;
+          booking_program_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          equipment_snapshot: string;
+          exercise_id: string;
+          exercise_name_snapshot: string;
+          id?: string;
+          instructions_snapshot: string[];
+          measure_snapshot: string;
+          muscle_group_snapshot: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets: number;
+          planned_weight_g?: number | null;
+          position: number;
+          rest_seconds?: number;
+          source_key_snapshot?: string | null;
+          workspace_id: string;
+        };
+        Update: {
+          bodyweight_snapshot?: boolean;
+          booking_program_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          equipment_snapshot?: string;
+          exercise_id?: string;
+          exercise_name_snapshot?: string;
+          id?: string;
+          instructions_snapshot?: string[];
+          measure_snapshot?: string;
+          muscle_group_snapshot?: string;
+          note?: string | null;
+          planned_reps?: string | null;
+          planned_seconds?: string | null;
+          planned_sets?: number;
+          planned_weight_g?: number | null;
+          position?: number;
+          rest_seconds?: number;
+          source_key_snapshot?: string | null;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'booking_program_exercises_workspace_id_booking_program_id_fkey';
+            columns: ['workspace_id', 'booking_program_id'];
+            isOneToOne: false;
+            referencedRelation: 'booking_programs';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'booking_program_exercises_workspace_id_exercise_id_fkey';
+            columns: ['workspace_id', 'exercise_id'];
+            isOneToOne: false;
+            referencedRelation: 'exercises';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'booking_program_exercises_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      booking_programs: {
+        Row: {
+          base_template_id: string;
+          base_template_revision: number;
+          booking_id: string;
+          created_at: string;
+          created_by: string | null;
+          description: string;
+          id: string;
+          name: string;
+          workspace_id: string;
+        };
+        Insert: {
+          base_template_id: string;
+          base_template_revision: number;
+          booking_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          name: string;
+          workspace_id: string;
+        };
+        Update: {
+          base_template_id?: string;
+          base_template_revision?: number;
+          booking_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string;
+          id?: string;
+          name?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'booking_programs_workspace_id_base_template_id_fkey';
+            columns: ['workspace_id', 'base_template_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_templates';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'booking_programs_workspace_id_booking_id_fkey';
+            columns: ['workspace_id', 'booking_id'];
+            isOneToOne: true;
+            referencedRelation: 'bookings';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'booking_programs_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       bookings: {
         Row: {
           client_record_id: string;
@@ -1191,6 +1340,18 @@ export type Database = {
           p_ends_at: string;
           p_request_id: string;
           p_starts_at: string;
+        };
+        Returns: Json;
+      };
+      create_booking_set_with_plan: {
+        Args: {
+          p_client_record_ids: string[];
+          p_collision_ack: boolean;
+          p_ends_at: string;
+          p_expected_template_revision: number;
+          p_request_id: string;
+          p_starts_at: string;
+          p_template_id: string;
         };
         Returns: Json;
       };

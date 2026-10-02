@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-26: создание реального занятия из недели и свободного окна,
+  сохранённый выбор программы/участников, async lock и recovery после потери
+  ответа; сервер атомарно сохраняет отдельный снимок на booking, legacy retry
+  совместим. 660 тестов / 75 suites, 418 pgTAP assertions / 13 files,
+  3 concurrency scenarios и 13 browser checks проходят. Today/переносы/native/
+  owner acceptance открыты; следующие пакеты продолжаются.
+  [ADR 0042](decisions/0042-booking-program-snapshots.md).
+
 - 02.10.2026 — SOM-26/27: реальная неделя доступна из аккаунта; контролируемый
   календарь, free windows, safe read hook и отмена отдельного участника с durable
   recovery. Today/создание/переносы и приёмка открыты; создание требует серверных
