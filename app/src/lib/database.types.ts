@@ -834,6 +834,82 @@ export type Database = {
           },
         ];
       };
+      payment_entries: {
+        Row: {
+          amount_minor: number;
+          client_record_id: string;
+          created_at: string;
+          created_by: string;
+          currency: string;
+          id: string;
+          kind: string;
+          method: string;
+          paid_on: string;
+          purchase_id: string;
+          reason: string | null;
+          reverses_entry_id: string | null;
+          source: string;
+          workspace_id: string;
+        };
+        Insert: {
+          amount_minor: number;
+          client_record_id: string;
+          created_at?: string;
+          created_by: string;
+          currency?: string;
+          id?: string;
+          kind: string;
+          method: string;
+          paid_on: string;
+          purchase_id: string;
+          reason?: string | null;
+          reverses_entry_id?: string | null;
+          source?: string;
+          workspace_id: string;
+        };
+        Update: {
+          amount_minor?: number;
+          client_record_id?: string;
+          created_at?: string;
+          created_by?: string;
+          currency?: string;
+          id?: string;
+          kind?: string;
+          method?: string;
+          paid_on?: string;
+          purchase_id?: string;
+          reason?: string | null;
+          reverses_entry_id?: string | null;
+          source?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'payment_entries_workspace_id_client_record_id_purchase_id__fkey';
+            columns: [
+              'workspace_id',
+              'client_record_id',
+              'purchase_id',
+              'reverses_entry_id',
+            ];
+            isOneToOne: false;
+            referencedRelation: 'payment_entries';
+            referencedColumns: [
+              'workspace_id',
+              'client_record_id',
+              'purchase_id',
+              'id',
+            ];
+          },
+          {
+            foreignKeyName: 'payment_entries_workspace_id_client_record_id_purchase_id_fkey';
+            columns: ['workspace_id', 'client_record_id', 'purchase_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_purchases';
+            referencedColumns: ['workspace_id', 'client_record_id', 'id'];
+          },
+        ];
+      };
       private_notes: {
         Row: {
           author_user_id: string;

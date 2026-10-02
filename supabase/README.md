@@ -190,3 +190,12 @@ Runner включён в CI. Clean reset, полный pgTAP (660 assertions / 1
 generated type drift и app check (991 tests / 107 suites) проходят. App transport, оплаты/долг SOM-34 и native/owner
 приёмка не входят в этот пакет. [ADR 0053](../docs/app/decisions/0053-attendance-credit-ledger.md),
 [evidence](../docs/app/review/som-33-attendance-credit-ledger.md).
+
+03.10.2026, SOM-34 independent foundation: `20261003100000_manual_payments.sql`
+создаёт payment_entries. Immutable positive payment/full negative reversal,
+composite tenant/purchase FK, exact-reversal trigger и unique reversal link;
+RLS/safe columns скрывают created_by и запрещают прямые записи.
+Clean reset, db lint и 686 pgTAP assertions / 20 files проходят. Generated type drift и strict app typecheck проходят. Payment RPC, debt и app actions ждут решения владельца
+о переплате. Payment concurrency ещё не проверяется: write RPC отсутствуют.
+[ADR 0054](../docs/app/decisions/0054-manual-payment-history.md),
+[evidence](../docs/app/review/som-34-manual-payment-foundation.md).

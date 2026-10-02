@@ -11,6 +11,14 @@
 
 ### Добавлено
 
+- SOM-34 foundation: неизменяемая `payment_entries` с положительными оплатами
+  и полным однократным сторно, bigint тиыны/KZT и safe-column RLS.
+  Clean reset, db lint и 686 pgTAP assertions / 20 files проходят;
+  generated type drift и strict app typecheck проходят. RPC оплат, долг и app actions ждут
+  решения владельца о переплате; SOM-34 не завершён.
+  [ADR 0054](docs/app/decisions/0054-manual-payment-history.md),
+  [evidence](docs/app/review/som-34-manual-payment-foundation.md).
+
 - SOM-33: серверные покупки, посещения/неявки и неизменяемый ledger занятий;
   атомарное списание, поздняя привязка и исправление с однократным возвратом.
   Срок пакета проверяется по запланированной дате занятия включительно;

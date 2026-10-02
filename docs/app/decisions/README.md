@@ -55,5 +55,7 @@
 
 | [0053](0053-attendance-credit-ledger.md) | Посещения и неизменяемый ledger занятий | Принято технически; app-интеграция открыта | 03.10.2026 |
 
+| [0054](0054-manual-payment-history.md) | Неизменяемая история ручных оплат | Schema foundation; payment RPC/debt открыты | 03.10.2026 |
+
 Новая запись: скопировать [TEMPLATE.md](TEMPLATE.md) в `NNNN-короткое-имя.md`,
 добавить строку в таблицу, упомянуть в `CHANGELOG.md`.

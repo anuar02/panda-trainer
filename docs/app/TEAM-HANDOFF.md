@@ -6,6 +6,13 @@
 
 ## Текущая волна
 
+03.10 — SOM-33 сохранён в 147a097. Следующий SOM-34: payment_scope —
+новая migration/payment pgTAP без зависимости от решения о переплате;
+billing_security — attendance/purchase app transport и tests. Root — ревью,
+вопрос переплаты владельцу, isolated checks, ADR/types/docs и отдельные коммиты.
+Новые worker threads недоступны из-за лимита; ограниченные billing-контексты
+продолжены с новым точным scope.
+
 03.10 — SOM-33: billing_schema владеет новой миграцией и pgTAP;
 billing_security — отдельным concurrent runner; billing_contract — read-only
 проверкой инвариантов. Root — решения владельца, ADR/документация, изолированная

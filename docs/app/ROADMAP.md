@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-34 independent foundation: `payment_entries` с immutable
+  payment/reversal history, точным полным сторно и закрытым actor ID.
+  Clean reset, lint и 686 pgTAP assertions / 20 files проходят; generated type drift
+  и strict app typecheck проходят. Payment RPC, debt и app actions остаются открытыми
+  до ответа владельца о переплате. Экраны не добавлены и не приняты.
+  [ADR 0054](decisions/0054-manual-payment-history.md),
+  [evidence](review/som-34-manual-payment-foundation.md).
+
 - 03.10.2026 — SOM-33: серверные покупки, посещения/неявки, ledger и шесть
   owner-only RPC реализованы. Исправление возвращает списанную единицу один раз;
   expiry использует scheduled date в timezone пространства, включая последний
@@ -595,7 +603,8 @@
 ## Этап 6. Посещения, пакеты и оплаты
 
 - [ ] Таблицы: `client_purchases`, `attendance_records`, `attendance_revisions` и
-  `credit_entries` реализованы в SOM-33; `payment_entries` остаётся SOM-34.
+  `credit_entries` реализованы в SOM-33; `payment_entries` — независимая
+  foundation SOM-34, payment commands/debt/app пока открыты.
 - [x] RPC `mark_attended`: атомарное списание из подходящего пакета (ближайший срок
   истечения, тренер может выбрать другой), повторный вызов не списывает второй раз.
 - [x] Посещение без пакета — «Не привязано к оплате», без отрицательного остатка;

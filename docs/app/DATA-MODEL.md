@@ -130,6 +130,7 @@ SOM-33 реализован миграцией `20261003090000_attendance_credit
 | `attendance_records` | `booking_id`, `service_date`, `status` (`present`/`noshow`/`undone`), `revision`, `cycle` | Одна текущая запись на booking; дата снимка в timezone пространства |
 | `attendance_revisions` | `attendance_id`, `revision`, `cycle`, `status`, `service_date`, `reason null` | Неизменяемая история отметок и исправлений |
 | `credit_entries` | `purchase_id`, `attendance_id null`, `booking_id null`, `cycle null`, `kind`, `units`, `reason null`, `reverses_entry_id null` | Signed ledger: grant, consume −1, restore +1, charge_late_cancel −1 |
+| `payment_entries` | `purchase_id`, `kind` (`payment`/`reversal`), `amount_minor bigint`, `paid_on`, `method`, `source`, `reason`, `reverses_entry_id` | SOM-34 foundation: positive payment и exact negative reversal; immutable |
 | `private.billing_command_receipts` | `workspace_id`, `actor_user_id`, `request_id`, `command`, `payload`, `result` | Actor-scoped неизменяемые receipts; клиентского API нет |
 
 Остаток пакета — сумма credit_entries, без изменяемого счётчика. Автовыбор:
@@ -148,8 +149,16 @@ Eligibility использует scheduled service_date включительно
 связанному клиенту только своей карточки; actor IDs закрыты column grants.
 Прямые записи запрещены, owner RPC сериализуются на workspace lock.
 
-`payment_entries`, ручная оплата/сторно, долг и представление `client_balances`
-остаются планом SOM-34; сейчас их нет в схеме. [ADR 0053](decisions/0053-attendance-credit-ledger.md).
+`payment_entries` реализована независимой foundation SOM-34. Положительная
+оплата принадлежит exact workspace/client/purchase; полное отрицательное сторно
+сохраняет сумму, валюту и способ исходной оплаты, требует публичную причину и
+возможно один раз. Способы: Kaspi, Перевод, Наличные; source=manual, currency=KZT.
+Actor ID закрыт; владелец/связанный клиент читают safe product columns, прямых
+записей нет. SQL trigger проверяет exact reversal и запрещает reversal of reversal.
+Payment RPC, долг и `client_balances` пока отсутствуют; правило переплаты ожидает
+ответа владельца. Денежные записи не меняют session credits и расписание.
+[ADR 0053](decisions/0053-attendance-credit-ledger.md),
+[ADR 0054](decisions/0054-manual-payment-history.md).
 
 ### Уведомления и аудит
 
