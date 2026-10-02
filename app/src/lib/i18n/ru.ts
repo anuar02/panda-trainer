@@ -19,11 +19,13 @@ import { workspaceClientsRu } from '@/features/workspace-clients/strings';
 import { workspaceClientDetailsRu } from '@/features/workspace-clients/details-strings';
 import { invitationsRu } from '@/features/invitations/strings';
 import { workspaceLibraryRu } from '@/features/workspace-library/strings';
+import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
 
 export const ru = {
   ...onboardingRu,
   invitations: invitationsRu,
   workspaceLibrary: workspaceLibraryRu,
+  workspaceScheduling: workspaceSchedulingRu,
   workspaceClients: workspaceClientsRu,
   workspaceClientDetails: workspaceClientDetailsRu,
   trainerInbox,

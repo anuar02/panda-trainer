@@ -126,38 +126,39 @@ export const createWorkspaceBookingOperation = (
   return {
     execute: (): Promise<CreateWorkspaceBookingResult> => {
       if (pending) return pending;
-      pending = (async () => {
-        try {
-          const client = getSupabaseClient();
-          if (!client) throw new WorkspaceSchedulingError('configuration');
-          const session = await client.auth.getSession();
-          const token = session.data.session?.access_token;
-          if (
-            session.error ||
-            session.data.session?.user.id.toLowerCase() !== expectedUserId ||
-            !token
-          )
-            throw new WorkspaceSchedulingError('unavailable');
-          const { data, error } = await client
-            .rpc('create_booking_set', args)
-            .setHeader('Authorization', `Bearer ${token}`);
-          if (error)
-            throw new WorkspaceSchedulingError(
-              error.code === '22023'
-                ? 'invalidInput'
-                : error.code === '42501'
-                  ? 'unavailable'
-                  : 'request',
-            );
-          const result = parseResult(data, args.p_client_record_ids.length);
+      pending = (async (): Promise<CreateWorkspaceBookingResult> => {
+        const client = getSupabaseClient();
+        if (!client) throw new WorkspaceSchedulingError('configuration');
+        const session = await client.auth.getSession();
+        const token = session.data.session?.access_token;
+        if (
+          session.error ||
+          session.data.session?.user.id.toLowerCase() !== expectedUserId ||
+          !token
+        )
+          throw new WorkspaceSchedulingError('unavailable');
+        const { data, error } = await client
+          .rpc('create_booking_set', args)
+          .setHeader('Authorization', `Bearer ${token}`);
+        if (error)
+          throw new WorkspaceSchedulingError(
+            error.code === '22023'
+              ? 'invalidInput'
+              : error.code === '42501'
+                ? 'unavailable'
+                : 'request',
+          );
+        return parseResult(data, args.p_client_record_ids.length);
+      })()
+        .then((result) => {
           if (!result.created) pending = null;
           return result;
-        } catch (error) {
+        })
+        .catch((error: unknown) => {
           pending = null;
           if (error instanceof WorkspaceSchedulingError) throw error;
           throw new WorkspaceSchedulingError('request');
-        }
-      })();
+        });
       return pending;
     },
   };

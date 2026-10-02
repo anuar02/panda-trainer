@@ -170,3 +170,75 @@ test('calendar arithmetic crosses year boundaries and overlapping bookings occup
   ).toEqual([['s1'], ['s2'], ['s3'], ['s4', 's5'], ['s6'], ['s7']]);
   expect(clusters[3]?.end).toBe(19 * 60 + 30);
 });
+
+test('server calendar uses supplied identity, availability and controller without demo navigation', async () => {
+  const onDateChange = jest.fn();
+  const onCreate = jest.fn();
+  const onSelect = jest.fn();
+  const session = {
+    id: 'server-booking',
+    date: '2026-10-02',
+    start: '09:00',
+    end: '10:00',
+    person: 'newClient' as const,
+    title: 'Server client',
+    status: 'proposed' as const,
+    pending: true,
+  };
+  const data = {
+    sessions: [session],
+    date: '2026-10-02',
+    today: '2026-10-03',
+    timezone: 'Europe/London',
+    freeWindows: [{ date: '2026-10-02', start: '10:00', end: '12:00' }],
+    onDateChange,
+    onCreate,
+    onSelect,
+  };
+  const view = await render(<TrainerScheduleScreen data={data} />);
+  expect(screen.getByText('Server client')).toBeTruthy();
+  expect(screen.getByText('Europe/London')).toBeTruthy();
+  expect(screen.queryByText('Подтверждено')).toBeNull();
+  await fireEvent.press(
+    screen.getByRole('button', {
+      name: 'Server client, 09:00–10:00. Открыть занятие',
+    }),
+  );
+  expect(onSelect).toHaveBeenCalledWith(session);
+  expect(
+    screen.queryByRole('button', { name: 'Начать тренировку' }),
+  ).toBeNull();
+  await fireEvent.press(screen.getByText('10:00–12:00'));
+  expect(onCreate).toHaveBeenCalledWith('2026-10-02', '10:00');
+  await fireEvent.press(screen.getByRole('button', { name: 'Сегодня' }));
+  expect(onDateChange).toHaveBeenCalledWith('2026-10-03');
+  expect(mockPush).not.toHaveBeenCalled();
+  await view.rerender(
+    <TrainerScheduleScreen data={{ ...data, createDisabled: true }} />,
+  );
+  expect(
+    screen.getByRole('button', { name: 'Добавить занятие на выбранный день' }),
+  ).toBeDisabled();
+  onCreate.mockClear();
+  await fireEvent.press(screen.getByText('10:00–12:00'));
+  expect(onCreate).not.toHaveBeenCalled();
+});
+
+test('real calendar date labels preserve the workspace date in a UTC plus fourteen timezone', async () => {
+  await render(
+    <TrainerScheduleScreen
+      data={{
+        sessions: [],
+        date: '2026-11-30',
+        today: '2026-11-30',
+        timezone: 'Pacific/Kiritimati',
+        onDateChange: jest.fn(),
+        onCreate: jest.fn(),
+        onSelect: jest.fn(),
+      }}
+    />,
+  );
+  expect(screen.getByText('Ноябрь 2026')).toBeTruthy();
+  expect(screen.getByText('Понедельник, 30 ноября')).toBeTruthy();
+  expect(screen.queryByText('Вторник, 1 декабря')).toBeNull();
+});

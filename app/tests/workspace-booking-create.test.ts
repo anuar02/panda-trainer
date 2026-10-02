@@ -216,3 +216,28 @@ test.each([
     createWorkspaceBookingOperation(input()).execute(),
   ).rejects.toMatchObject({ code: 'request' });
 });
+
+test('same operation retries after missing configuration becomes available', async () => {
+  getClient.mockReturnValueOnce(null);
+  const operation = createWorkspaceBookingOperation(input());
+  await expect(operation.execute()).rejects.toMatchObject({
+    code: 'configuration',
+  });
+  const { rpc } = setup();
+  await expect(operation.execute()).resolves.toMatchObject({ created: true });
+  expect(rpc).toHaveBeenCalledWith(
+    'create_booking_set',
+    expect.objectContaining({ p_request_id: requestId }),
+  );
+});
+
+test('same operation retries after a synchronous client failure', async () => {
+  getClient.mockImplementationOnce(() => {
+    throw new Error('client startup');
+  });
+  const operation = createWorkspaceBookingOperation(input());
+  await expect(operation.execute()).rejects.toMatchObject({ code: 'request' });
+  const { rpc } = setup();
+  await expect(operation.execute()).resolves.toMatchObject({ created: true });
+  expect(rpc).toHaveBeenCalledTimes(1);
+});

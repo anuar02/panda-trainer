@@ -24,3 +24,10 @@ receipt replay, malformed results, SQL failures and recovery after synchronous
 configuration failures. This package adds no schema changes. Durable storage
 across restart, rescheduling/proposals, whole-group actions, billing and UI
 integration remain open, as do two-phone and owner acceptance.
+
+## Continuation 2026-10-02
+
+Durable storage/submission and trainer participant cancellation are implemented
+in [ADR 0041](0041-server-week-calendar.md). Pending commands survive restart and
+are resumed explicitly; terminal error resolution, client confirmation UI and
+the remaining group/rescheduling/billing scope are still open.

@@ -1,0 +1,222 @@
+import { useEffect, useRef, useState } from 'react';
+import { View } from 'react-native';
+import { randomUUID } from 'expo-crypto';
+import { useTranslation } from 'react-i18next';
+import { TrainerScheduleScreen } from '../trainer-schedule/trainer-schedule-screen';
+import { workspaceAgendaSessions } from './agenda';
+import { workspaceDateKey } from './clock';
+import {
+  workspaceScheduleRows,
+  workspaceScheduleWindows,
+} from './screen-adapter';
+import {
+  loadPendingWorkspaceBookingStatus,
+  type PendingWorkspaceBookingStatus,
+} from './status-pending';
+import { submitWorkspaceBookingStatus } from './status-submission';
+import { WorkspaceBookingStatusError } from './status-operation';
+import { useWorkspaceSchedule } from './use-schedule';
+import { Button } from '@/ui/button';
+import { Card } from '@/ui/card';
+import { Screen } from '@/ui/screen';
+import { Sheet } from '@/ui/sheet';
+import { Text } from '@/ui/text';
+
+type WorkspaceScheduleScreenProps = {
+  userId: string;
+  workspaceId: string;
+  timezone: string;
+};
+
+export function WorkspaceScheduleScreen(props: WorkspaceScheduleScreenProps) {
+  return (
+    <WorkspaceScheduleContent
+      key={`${props.userId}:${props.workspaceId}:${props.timezone}`}
+      {...props}
+    />
+  );
+}
+
+function WorkspaceScheduleContent({
+  userId,
+  workspaceId,
+  timezone,
+}: WorkspaceScheduleScreenProps) {
+  const { t } = useTranslation();
+  const today = workspaceDateKey(new Date(), timezone);
+  const [date, setDate] = useState(today);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [pending, setPending] = useState<PendingWorkspaceBookingStatus | null>(
+    null,
+  );
+  const [ready, setReady] = useState(false);
+  const [storageFailed, setStorageFailed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const mounted = useRef(false);
+  const locked = useRef(false);
+  const read = useWorkspaceSchedule(userId, workspaceId, date);
+
+  useEffect(() => {
+    let active = true;
+    mounted.current = true;
+    void loadPendingWorkspaceBookingStatus(userId, workspaceId).then(
+      (command) => {
+        if (!active) return;
+        setPending(command);
+        setStorageFailed(false);
+        setError(null);
+        setReady(true);
+      },
+      () => {
+        if (!active) return;
+        setStorageFailed(true);
+        setReady(true);
+      },
+    );
+    return () => {
+      active = false;
+      mounted.current = false;
+    };
+  }, [attempt, userId, workspaceId]);
+
+  const submit = async (command: PendingWorkspaceBookingStatus) => {
+    if (locked.current || !ready || storageFailed) return;
+    locked.current = true;
+    setBusy(true);
+    setError(null);
+    try {
+      await submitWorkspaceBookingStatus(userId, workspaceId, command);
+      if (!mounted.current) return;
+      setSelectedId(null);
+      read.retry();
+    } catch (caught) {
+      if (mounted.current)
+        setError(
+          t(
+            caught instanceof WorkspaceBookingStatusError &&
+              (caught.code === 'conflict' || caught.code === 'invalidState')
+              ? `workspaceScheduling.${caught.code}`
+              : 'workspaceScheduling.requestError',
+          ),
+        );
+    } finally {
+      try {
+        const command = await loadPendingWorkspaceBookingStatus(
+          userId,
+          workspaceId,
+        );
+        if (mounted.current) setPending(command);
+      } catch {
+        if (mounted.current) setStorageFailed(true);
+      }
+      locked.current = false;
+      if (mounted.current) setBusy(false);
+    }
+  };
+
+  const schedule = read.schedule;
+  const rows = schedule
+    ? workspaceScheduleRows(schedule, t('trainerToday.miniGroup'))
+    : [];
+  const selected = schedule
+    ? workspaceAgendaSessions(schedule).find(
+        (session) => session.id === selectedId,
+      )
+    : null;
+  const blocked = !ready || storageFailed || busy || pending !== null;
+
+  return (
+    <View className="flex-1 bg-canvas">
+      {storageFailed || pending || error ? (
+        <Card>
+          <Text accessibilityRole="alert">
+            {storageFailed
+              ? t('workspaceScheduling.pendingReadError')
+              : (error ?? t('workspaceScheduling.pending'))}
+          </Text>
+          {storageFailed ? (
+            <Button
+              label={t('common.retry')}
+              disabled={busy}
+              onPress={() => {
+                setReady(false);
+                setAttempt((value) => value + 1);
+              }}
+            />
+          ) : pending ? (
+            <Button
+              label={t('workspaceScheduling.resume')}
+              loading={busy}
+              onPress={() => void submit(pending)}
+            />
+          ) : null}
+        </Card>
+      ) : null}
+      {read.failed ? (
+        <Screen title={t('common.error')}>
+          <Button label={t('common.retry')} onPress={read.retry} />
+        </Screen>
+      ) : (
+        <TrainerScheduleScreen
+          scenario={read.loading ? 'loading' : 'normal'}
+          data={{
+            sessions: rows,
+            date,
+            today,
+            timezone,
+            timezoneLabel: timezone,
+            freeWindows: schedule
+              ? workspaceScheduleWindows(schedule, date)
+              : [],
+            createDisabled: true,
+            onDateChange: (next) => {
+              setDate(next);
+              setSelectedId(null);
+            },
+            onCreate: () => undefined,
+            onSelect: (session) => setSelectedId(session.id),
+          }}
+        />
+      )}
+      <Sheet
+        open={Boolean(selected)}
+        title={rows.find((row) => row.id === selectedId)?.title ?? ''}
+        onClose={() => setSelectedId(null)}
+      >
+        {selected?.bookings.map((booking) => (
+          <View key={booking.id} className="gap-2">
+            <Text className="font-strong">{booking.client_name}</Text>
+            <Text className="text-secondary">
+              {t(
+                booking.status === 'confirmed'
+                  ? 'trainerSchedule.confirmed'
+                  : booking.status === 'proposed'
+                    ? 'schedulingDemo.pending'
+                    : 'workspaceScheduling.cancelled',
+              )}
+            </Text>
+            {booking.status === 'proposed' || booking.status === 'confirmed' ? (
+              <Button
+                label={t('workspaceScheduling.cancelParticipant', {
+                  name: booking.client_name,
+                })}
+                variant="ghost"
+                disabled={blocked}
+                onPress={() =>
+                  void submit({
+                    action: 'cancel',
+                    bookingId: booking.id,
+                    expectedRevision: booking.revision,
+                    requestId: randomUUID(),
+                  })
+                }
+              />
+            ) : null}
+          </View>
+        ))}
+      </Sheet>
+    </View>
+  );
+}

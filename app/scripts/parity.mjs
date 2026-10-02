@@ -80,6 +80,10 @@ async function serve(directory) {
       const pathname = decodeURIComponent(
         new URL(request.url, 'http://localhost').pathname,
       );
+      if (pathname === '/favicon.ico') {
+        response.writeHead(204).end();
+        return;
+      }
       let file = path.resolve(directory, `.${pathname}`);
       if (!file.startsWith(`${directory}${path.sep}`) && file !== directory) {
         response.writeHead(403).end();

@@ -85,6 +85,11 @@ export default function AccountRoute() {
                   disabled={busy}
                   onPress={() => router.push('/workspace/library')}
                 />
+                <Button
+                  label={t('workspaceScheduling.open')}
+                  disabled={busy}
+                  onPress={() => router.push('/workspace/schedule')}
+                />
               </>
             ) : null}
             {context.context?.connections.map((connection) => (

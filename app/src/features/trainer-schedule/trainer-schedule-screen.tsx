@@ -28,31 +28,56 @@ import { scheduleStyles as s } from './measurements';
 import { SessionDetailsSheet } from './session-details-sheet';
 import { useJournalLabels } from '@/features/workout-demo';
 
+export type TrainerScheduleData = {
+  sessions: readonly ScheduleSession[];
+  date: string;
+  today: string;
+  timezone: string;
+  timezoneLabel?: string;
+  freeWindows?: readonly { date: string; start: string; end: string }[];
+  createDisabled?: boolean;
+  onDateChange: (date: string) => void;
+  onCreate: (date: string, start?: string) => void;
+  onSelect: (session: ScheduleSession) => void;
+};
+
 export function TrainerScheduleScreen({
   scenario = 'normal',
   initialDate,
+  data,
 }: {
   scenario?: DemoScenario;
   initialDate?: string;
+  data?: TrainerScheduleData;
 }) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
-  const demo = useOptionalSchedulingDemo();
-  const [day, setDay] = useState(initialDate ?? scheduleToday);
-  const create = (start?: string) =>
+  const demoContext = useOptionalSchedulingDemo();
+  const demo = data ? null : demoContext;
+  const [demoDay, setDemoDay] = useState(initialDate ?? scheduleToday);
+  const day = data?.date ?? demoDay;
+  const today = data?.today ?? scheduleToday;
+  const setDay = data?.onDateChange ?? setDemoDay;
+  const create = (start?: string) => {
+    if (data) {
+      if (!data.createDisabled) data.onCreate(day, start);
+      return;
+    }
     router.push({
       pathname: '/new',
       params: { date: day, ...(start ? { start } : {}) },
     });
+  };
   const [selected, setSelected] = useState<ScheduleSession | null>(null);
   const journal = useJournalLabels();
   const loading = scenario === 'loading';
   const all =
-    scenario === 'empty'
+    data?.sessions ??
+    (scenario === 'empty'
       ? []
       : demo
         ? scheduleRows(demo.state)
-        : scheduleSessions;
+        : scheduleSessions);
   const sessions = all.filter((session) => session.date === day);
   const clusters = agendaClusters(sessions);
   const dates = weekDates(day);
@@ -70,7 +95,7 @@ export function TrainerScheduleScreen({
     new Intl.DateTimeFormat(i18n.language, {
       month: 'long',
       year: 'numeric',
-      timeZone: 'Asia/Almaty',
+      timeZone: data ? 'UTC' : 'Asia/Almaty',
     })
       .format(dateValue)
       .replace(' г.', ''),
@@ -80,7 +105,7 @@ export function TrainerScheduleScreen({
       weekday: 'long',
       day: 'numeric',
       month: 'long',
-      timeZone: 'Asia/Almaty',
+      timeZone: data ? 'UTC' : 'Asia/Almaty',
     }).format(dateValue),
   );
   const monthNames = t('trainerSchedule.monthsShort', { returnObjects: true });
@@ -100,8 +125,9 @@ export function TrainerScheduleScreen({
           });
 
   function entry(session: ScheduleSession, index: number) {
-    const name =
-      session.person === 'newClient' || session.person === 'aliya'
+    const name = data
+      ? (session.title ?? '')
+      : session.person === 'newClient' || session.person === 'aliya'
         ? (session.title ?? '')
         : t(`trainerSchedule.people.${session.person}`);
     const group = session.person === 'group';
@@ -112,7 +138,7 @@ export function TrainerScheduleScreen({
       >
         <Pressable
           accessibilityRole="button"
-          onPress={() => setSelected(session)}
+          onPress={() => (data ? data.onSelect(session) : setSelected(session))}
           accessibilityLabel={t('trainerSchedule.open', {
             name,
             start: session.start,
@@ -128,16 +154,18 @@ export function TrainerScheduleScreen({
             <Text style={s.name}>{name}</Text>
             <Text style={[s.detail, secondary]}>
               {group
-                ? session.participantIds
-                  ? session.participantIds
-                      .map(
-                        (id) =>
-                          t(`trainerClients.people.${id as 'c1'}.name`).split(
-                            ' ',
-                          )[0],
-                      )
-                      .join(', ')
-                  : t('trainerSchedule.groupNames')
+                ? session.participantNames
+                  ? session.participantNames.join(', ')
+                  : session.participantIds
+                    ? session.participantIds
+                        .map(
+                          (id) =>
+                            t(`trainerClients.people.${id as 'c1'}.name`).split(
+                              ' ',
+                            )[0],
+                        )
+                        .join(', ')
+                    : t('trainerSchedule.groupNames')
                 : session.program
                   ? t(`trainerSchedule.programs.${session.program}`)
                   : (session.programName ?? t('trainerSchedule.noProgram'))}
@@ -154,23 +182,25 @@ export function TrainerScheduleScreen({
                 {t('schedulingDemo.pending')}
               </Text>
             )}
-            {journal.status(session.id) && (
+            {!data && journal.status(session.id) && (
               <Text style={[s.detail, secondary]}>
                 {journal.status(session.id)}
               </Text>
             )}
-            {!session.request && !session.pending && (
-              <View style={[s.row, s.confirmed]}>
-                <Icon name="check" size={12} color={colors.success} />
-                <Text style={[s.detail, secondary]}>
-                  {t(
-                    group
-                      ? 'trainerSchedule.groupConfirmed'
-                      : 'trainerSchedule.confirmed',
-                  )}
-                </Text>
-              </View>
-            )}
+            {!session.request &&
+              !session.pending &&
+              (!data || session.status === 'confirmed') && (
+                <View style={[s.row, s.confirmed]}>
+                  <Icon name="check" size={12} color={colors.success} />
+                  <Text style={[s.detail, secondary]}>
+                    {t(
+                      group
+                        ? 'trainerSchedule.groupConfirmed'
+                        : 'trainerSchedule.confirmed',
+                    )}
+                  </Text>
+                </View>
+              )}
           </View>
           <View style={s.chevron}>
             <Icon name="chevR" size={16} color={colors.secondary} />
@@ -178,10 +208,12 @@ export function TrainerScheduleScreen({
         </Pressable>
         {session.request && (
           <Pressable
-            disabled={!demo}
-            onPress={() => setSelected(session)}
+            disabled={!demo && !data}
+            onPress={() =>
+              data ? data.onSelect(session) : setSelected(session)
+            }
             accessibilityRole="button"
-            accessibilityState={{ disabled: !demo }}
+            accessibilityState={{ disabled: !demo && !data }}
             style={[s.row, s.request, { backgroundColor: warningBackground }]}
           >
             <Icon name="swap" size={15} color={colors.warning} />
@@ -203,6 +235,33 @@ export function TrainerScheduleScreen({
     );
   }
 
+  const freeWindows =
+    data?.freeWindows?.filter((window) => window.date === day) ?? [];
+  const renderWindow = (window: { start: string; end: string }) => (
+    <Pressable
+      key={`${window.start}-${window.end}`}
+      disabled={data?.createDisabled}
+      accessibilityRole="button"
+      accessibilityState={{
+        disabled: data?.createDisabled ?? false,
+      }}
+      onPress={() => create(window.start)}
+      style={[s.row, s.gap, { borderColor: colors.border }]}
+    >
+      <View style={s.gapLabels}>
+        <Text
+          style={[s.small, secondary]}
+        >{`${window.start}–${window.end}`}</Text>
+        <Text style={[s.small, secondary]}>
+          {t('trainerSchedule.free', {
+            duration: duration(minutes(window.end) - minutes(window.start)),
+          })}
+        </Text>
+      </View>
+      <Icon name="plus" size={16} color={colors.secondary} />
+    </Pressable>
+  );
+
   return (
     <SafeAreaView
       edges={['top', 'left', 'right']}
@@ -214,6 +273,7 @@ export function TrainerScheduleScreen({
           {t('trainerSchedule.title')}
         </Text>
         <Pressable
+          disabled={data?.createDisabled}
           onPress={() => create()}
           accessibilityRole="button"
           accessibilityLabel={t('trainerSchedule.addDay')}
@@ -246,7 +306,7 @@ export function TrainerScheduleScreen({
             </Text>
             <Pressable
               accessibilityRole="button"
-              onPress={() => setDay(scheduleToday)}
+              onPress={() => setDay(today)}
               style={[s.today, { backgroundColor: colors.sunken }]}
             >
               <Text style={[s.small, s.strong]}>
@@ -284,7 +344,7 @@ export function TrainerScheduleScreen({
               const dateLabel = new Intl.DateTimeFormat(i18n.language, {
                 day: 'numeric',
                 month: 'long',
-                timeZone: 'Asia/Almaty',
+                timeZone: data ? 'UTC' : 'Asia/Almaty',
               }).format(new Date(`${date}T12:00:00Z`));
               return (
                 <Pressable
@@ -311,7 +371,7 @@ export function TrainerScheduleScreen({
                     style={[
                       s.dayNumber,
                       { color: selected ? selectedInk : colors.ink },
-                      date === scheduleToday && !selected && s.underline,
+                      date === today && !selected && s.underline,
                     ]}
                   >
                     {Number(date.slice(8))}
@@ -336,7 +396,9 @@ export function TrainerScheduleScreen({
               {t('trainerSchedule.countKey')}
             </Text>
             <Text style={[s.small, secondary]}>
-              {t('trainerSchedule.city')}
+              {data
+                ? (data.timezoneLabel ?? data.timezone)
+                : t('trainerSchedule.city')}
             </Text>
           </View>
         </Card>
@@ -455,6 +517,7 @@ export function TrainerScheduleScreen({
               </Text>
               <View style={s.emptyAction}>
                 <Button
+                  disabled={data?.createDisabled}
                   onPress={() => create()}
                   compact
                   label={t('trainerSchedule.add')}
@@ -471,7 +534,14 @@ export function TrainerScheduleScreen({
                 if (!first) return null;
                 return (
                   <Fragment key={first.id}>
-                    {previous && cluster.start > previous.end && (
+                    {freeWindows
+                      .filter(
+                        (window) =>
+                          minutes(window.end) <= cluster.start &&
+                          (!previous || minutes(window.start) >= previous.end),
+                      )
+                      .map(renderWindow)}
+                    {!data && previous && cluster.start > previous.end && (
                       <Pressable
                         onPress={() => create(formatTime(previous.end))}
                         accessibilityRole="button"
@@ -525,11 +595,19 @@ export function TrainerScheduleScreen({
                   </Fragment>
                 );
               })}
+              {freeWindows
+                .filter(
+                  (window) =>
+                    minutes(window.start) >=
+                    (clusters[clusters.length - 1]?.end ?? 0),
+                )
+                .map(renderWindow)}
             </Card>
           )}
+          {!loading && sessions.length === 0 && freeWindows.map(renderWindow)}
         </View>
       </ScrollView>
-      {demo ? (
+      {data ? null : demo ? (
         <SchedulingSessionSheet
           sessionId={selected?.id ?? null}
           onClose={() => setSelected(null)}

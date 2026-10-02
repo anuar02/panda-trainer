@@ -11,6 +11,15 @@
 
 ### Добавлено
 
+- SOM-26: авторизованная неделя `/workspace/schedule` читает реальные bookings,
+  имена участников, запросы клиента и рабочие свободные окна; refresh на focus,
+  защита от старых ответов и смены аккаунта. Создание ещё отключено до снимков
+  программы на сервере. [ADR 0041](docs/app/decisions/0041-server-week-calendar.md).
+- SOM-27: отмена отдельного участника из реального календаря и сохранённый
+  status command с восстановлением после рестарта/потери ответа.
+  Проверки: 595 тестов / 71 suites, 9 headless browser checks, web export и
+  6 пар календаря без browser errors. [Отчёт](app/review/workspace-scheduling/README.md).
+
 - SOM-24 verification: непрерывный create → assign для двух шаблонов проходит
   19 headless browser checks, включая повтор после потери ответа и сохранение
   обеих копий программы. [Отчёт](app/review/workspace-programs/README.md).
@@ -118,6 +127,10 @@
   [ADR 0025](docs/app/decisions/0025-identity-rls-foundation.md).
 
 ### Исправлено
+
+- SOM-26: сохранённая операция создания может повториться после синхронной
+  ошибки конфигурации/client lookup; rejected Promise больше не остаётся в кеше.
+  Два regression tests проходят.
 
 - SOM-50: при крупном тексте или коротком окне header picker прокручивается
   со списком, сохраняя Done видимой. Обычный layout эталона не меняется.

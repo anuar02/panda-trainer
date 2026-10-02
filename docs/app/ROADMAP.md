@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-26/27: реальная неделя доступна из аккаунта; контролируемый
+  календарь, free windows, safe read hook и отмена отдельного участника с durable
+  recovery. Today/создание/переносы и приёмка открыты; создание требует серверных
+  снимков выбранной программы. [ADR 0041](decisions/0041-server-week-calendar.md).
+  595 тестов / 71 suites, TypeScript/lint/format, web export, 9 browser checks
+  и 6 reference/app captures проходят; визуальное отличие check icon остаётся.
+  [Отчёт](../../app/review/workspace-scheduling/README.md).
+
 - 02.10.2026 — SOM-24: непрерывный create → assign проверен для двух шаблонов,
   19 browser checks и 31 focused tests / 3 suites проходят; fresh web export.
   Копии/снимки сохраняются, повтор после потери ответа безопасен. Native,
