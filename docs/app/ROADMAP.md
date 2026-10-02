@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-36: connection history читает собственные finished journals,
+  snapshot упражнения, actual sets и shared notes; readonly detail и safe paging
+  сохраняют успешные страницы при retry. Default upcoming/history охватывают все
+  даты: прежний 41-day лимит снят. 873 теста / 95 suites и web/iOS/Android export
+  проходят. Docker paused: runtime browser и свежий schema/types check ожидают
+  доступности. Billing/progress, audit-column grants и native/owner acceptance
+  открыты. [ADR 0047](decisions/0047-client-finished-history-and-unbounded-dates.md).
+
 - 02.10.2026 — SOM-26/27/36 app: controlled Today и trainer proposal UI,
   выбранная связь клиента с real bookings/snapshot previews и собственными
   confirm/cancel/proposal actions. 855 тестов / 94 suites, web/iOS/Android export и 24 reference/app captures

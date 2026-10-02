@@ -5,9 +5,16 @@
 The real connection route uses the prototype client home layout with actual own
 bookings, immutable program previews, proposal cards and explicit command recovery.
 Confirmation, cancellation and reschedule replies target only the selected client
-booking. Cancellation requires a confirmation sheet. Balance/history/progress
-are not yet connected. The upcoming booking window is 41 UTC days; pending
-proposals outside it remain visible. This is a partial SOM-36 integration.
+booking. Cancellation requires a confirmation sheet. Balance/progress remain
+open. Default upcoming includes all future own bookings without a date cutoff;
+finished history has safe all-time pagination. This is a partial SOM-36 integration.
+
+History reader/hook/controller tests cover finished-only requests, prior years,
+nullable/zero results, public notes, replacement provenance and stale scopes.
+Full check: 873 tests / 95 suites, TypeScript/lint/format; web/iOS/Android exports
+pass. Default home/history capture has 12 reference/app pairs, no missing states
+or browser errors: `/tmp/screens/client-scheduling/history-parity/index.html`.
+Capture is not owner approval of the connected screens.
 
 Client reader/hook/adapter tests pass (39 focused tests); the isolated schema passed
 494 pgTAP assertions across 16 files before Docker was paused. Controls/controller

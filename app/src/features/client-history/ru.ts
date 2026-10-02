@@ -1,4 +1,18 @@
 export const clientHistory = {
+  loadMore: 'Показать ещё',
+  emptyFinishedText:
+    'Здесь появятся результаты завершённых занятий и открытые заметки тренера.',
+  openJournal: '{{date}} · {{start}}',
+  actualSet: 'Подход {{position}}',
+  actualReps: '{{value}} повт.',
+  actualSeconds: '{{value}} сек',
+  actualWeight: '{{value}} кг',
+  repsMissing: 'Повторы не записаны',
+  secondsMissing: 'Время не записано',
+  weightMissing: 'Вес не записан',
+  noResults: 'Результаты не записаны',
+  skipped: 'Пропущено',
+  replaced: 'Заменено',
   title: 'История',
   trainerLabel: 'Ваш тренер',
   trainer: 'Данияр',

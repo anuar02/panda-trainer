@@ -182,7 +182,7 @@ function createFixture() {
   const date = sql(`select ((now() at time zone 'Asia/Almaty')::date+1)::text`);
   fixture = { workspace, owner, ids, clientUser, template, exercise, date };
   sql(
-    `begin; insert into auth.users(id,aud,role,email) values ('${clientUser}','authenticated','authenticated','${clientEmail}'); insert into public.client_records(id,workspace_id,display_name,user_id) values ('${ids[0]}','${workspace}','${names[0]}','${clientUser}'),('${ids[1]}','${workspace}','${names[1]}',null); insert into public.exercises(id,workspace_id,name,muscle_group,equipment,measure,bodyweight) values ('${exercise}','${workspace}','Движение проверки','Ноги','вес тела','reps',true); insert into public.workout_templates(id,workspace_id,name,description) values ('${template}','${workspace}','Неизменный план','Синтетическая программа'); insert into public.template_exercises(workspace_id,template_id,exercise_id,position,planned_sets,planned_reps,rest_seconds) values ('${workspace}','${template}','${exercise}',0,3,'10',60); commit;`,
+    `begin; insert into auth.users(id,aud,role,email) values ('${clientUser}','authenticated','authenticated','${clientEmail}'); insert into public.client_records(id,workspace_id,display_name,user_id) values ('${ids[0]}','${workspace}','${names[0]}',null),('${ids[1]}','${workspace}','${names[1]}',null); insert into public.exercises(id,workspace_id,name,muscle_group,equipment,measure,bodyweight) values ('${exercise}','${workspace}','Движение проверки','Ноги','вес тела','reps',true); insert into public.workout_templates(id,workspace_id,name,description) values ('${template}','${workspace}','Неизменный план','Синтетическая программа'); insert into public.template_exercises(workspace_id,template_id,exercise_id,position,planned_sets,planned_reps,rest_seconds) values ('${workspace}','${template}','${exercise}',0,3,'10',60); commit;`,
   );
   const revision = Number(
     sql(`select revision from public.workout_templates where id='${template}'`),
@@ -200,15 +200,34 @@ function createFixture() {
   fixture.original = sql(
     `select starts_at::text from public.bookings where id='${fixture.booking}'`,
   );
+  createHistoryFixture();
+  sql(
+    `update public.client_records set user_id='${clientUser}' where id='${ids[0]}'`,
+  );
   sql(
     `update public.workout_templates set name='Изменённый источник',revision=revision+1 where id='${template}'`,
   );
+}
+function createHistoryFixture() {
+  const { workspace, owner, ids, exercise } = fixture;
+  const past = sql(`select ((now() at time zone 'Asia/Almaty')::date-2)::text`);
+  const histories = ['own', 'draft', 'peer'].map((kind) => ({
+    kind,
+    booking: randomUUID(),
+    journal: randomUUID(),
+    line: randomUUID(),
+  }));
+  const device = randomUUID();
+  sql(
+    `begin; ${histories.map((row) => `insert into public.bookings(id,workspace_id,client_record_id,starts_at,ends_at,status) values ('${row.booking}','${workspace}','${row.kind === 'peer' ? ids[1] : ids[0]}','${past} 18:00+05','${past} 19:00+05','confirmed'); insert into public.workout_instances(id,workspace_id,booking_id,client_record_id,started_at) values ('${row.journal}','${workspace}','${row.booking}','${row.kind === 'peer' ? ids[1] : ids[0]}','${past} 17:20+05'); insert into public.workout_exercises(id,workspace_id,workout_instance_id,exercise_id,exercise_name_snapshot,measure_snapshot,bodyweight_snapshot,muscle_group_snapshot,equipment_snapshot,instructions_snapshot,position,planned_sets,planned_reps,rest_seconds) values ('${row.line}','${workspace}','${row.journal}','${exercise}','${row.kind === 'own' ? 'Снимок истории' : row.kind === 'peer' ? 'Чужое движение' : 'Черновое движение'}','reps',false,'Ноги','Гантели',array['Сохранённая инструкция'],0,3,'8-10',60); insert into public.session_notes(id,workspace_id,workout_instance_id,text,author_user_id,device_id) values ('${randomUUID()}','${workspace}','${row.journal}','${row.kind === 'own' ? 'Открытая историческая заметка' : row.kind === 'peer' ? 'Чужая историческая заметка' : 'Черновая историческая заметка'}','${owner}','${device}');`).join(' ')} insert into public.set_results(id,workspace_id,workout_instance_id,workout_exercise_id,position,reps,weight_g,author_user_id,device_id) values ('${randomUUID()}','${workspace}','${histories[0].journal}','${histories[0].line}',0,8,20500,'${owner}','${device}'),('${randomUUID()}','${workspace}','${histories[0].journal}','${histories[0].line}',1,0,0,'${owner}','${device}'),('${randomUUID()}','${workspace}','${histories[0].journal}','${histories[0].line}',2,null,null,'${owner}','${device}'); insert into public.private_notes(id,workspace_id,workout_instance_id,text,author_user_id,device_id) values ('${randomUUID()}','${workspace}','${histories[0].journal}','Секретная историческая заметка','${owner}','${device}'); update public.workout_instances set finished_at='${past} 18:20+05' where id in ('${histories[0].journal}','${histories[2].journal}'); update public.exercises set name='Текущий каталог переименован' where id='${exercise}'; commit;`,
+  );
+  fixture.history = histories[0];
 }
 async function cleanup() {
   const owned = `select id from public.trainer_workspaces where owner_user_id in (select id from auth.users where email='${email}')`;
   try {
     sql(
-      `begin; delete from private.booking_creation_receipts where workspace_id in (${owned}); delete from private.booking_reschedule_receipts where workspace_id in (${owned}); delete from private.booking_status_command_receipts where workspace_id in (${owned}); delete from public.booking_program_exercises where workspace_id in (${owned}); delete from public.booking_programs where workspace_id in (${owned}); delete from public.schedule_proposals where workspace_id in (${owned}); delete from public.bookings where workspace_id in (${owned}); delete from public.group_sessions where workspace_id in (${owned}); delete from public.client_records where workspace_id in (${owned}); delete from public.template_exercises where workspace_id in (${owned}); delete from public.workout_templates where workspace_id in (${owned}); delete from public.exercises where workspace_id in (${owned}); delete from public.trainer_workspaces where id in (${owned}); delete from public.profiles where user_id in (select id from auth.users where email='${email}'); delete from auth.users where email='${email}' or id=${fixture?.clientUser ? `'${fixture.clientUser}'` : 'null'}; commit;`,
+      `begin; delete from private.booking_creation_receipts where workspace_id in (${owned}); delete from private.booking_reschedule_receipts where workspace_id in (${owned}); delete from private.booking_status_command_receipts where workspace_id in (${owned}); delete from public.booking_program_exercises where workspace_id in (${owned}); delete from public.booking_programs where workspace_id in (${owned}); delete from public.schedule_proposals where workspace_id in (${owned}); delete from public.private_notes where workspace_id in (${owned}); delete from public.session_notes where workspace_id in (${owned}); delete from public.set_results where workspace_id in (${owned}); delete from public.workout_exercises where workspace_id in (${owned}); delete from public.workout_instances where workspace_id in (${owned}); delete from public.bookings where workspace_id in (${owned}); delete from public.group_sessions where workspace_id in (${owned}); delete from public.client_records where workspace_id in (${owned}); delete from public.template_exercises where workspace_id in (${owned}); delete from public.workout_templates where workspace_id in (${owned}); delete from public.exercises where workspace_id in (${owned}); delete from public.trainer_workspaces where id in (${owned}); delete from public.profiles where user_id in (select id from auth.users where email='${email}'); delete from auth.users where email='${email}' or id=${fixture?.clientUser ? `'${fixture.clientUser}'` : 'null'}; commit;`,
     );
   } catch (error) {
     const detail = error.stderr
@@ -405,16 +424,75 @@ async function run() {
     .poll(() =>
       sql(`select status from public.bookings where id='${fixture.booking}'`),
     )
-    .toBe('cancelled');
+    .toBe('cancelled_by_client');
   await page.reload({ waitUntil: 'networkidle' });
   check(
     !(await page.locator('body').innerText()).includes('Неизменный план'),
     'cancelled-booking-hidden-after-reload',
   );
-  check(pageErrors.length === 0, 'no-browser-errors');
   mkdirSync('/tmp/screens/client-scheduling', { recursive: true });
   await page.screenshot({
     path: '/tmp/screens/client-scheduling/after-cancel.png',
+    fullPage: true,
+  });
+  stage = 'client-history';
+  await clickButton(page, 'История занятий');
+  await page.waitForURL(new RegExp(`/connection/${fixture.ids[0]}/history$`));
+  await waitForBodyText(page, 'Открытая историческая заметка');
+  const historyBody = await page.locator('body').innerText();
+  check(
+    !historyBody.includes('Черновая историческая заметка'),
+    'draft-journal-hidden',
+  );
+  check(
+    !historyBody.includes('Чужая историческая заметка') &&
+      !historyBody.includes(names[1]),
+    'peer-journal-hidden',
+  );
+  check(
+    !historyBody.includes('Секретная историческая заметка'),
+    'private-note-hidden',
+  );
+  check(
+    !historyBody.includes('Списания и возвраты') && !historyBody.includes('₸'),
+    'no-invented-history-charges',
+  );
+  await visible(page.getByRole('button', { name: /17:20/ })).click();
+  await waitForBodyText(page, 'Снимок истории');
+  await waitForBodyText(page, '20,5 кг');
+  await waitForBodyText(page, '8 повт.');
+  await waitForBodyText(page, '0 повт.');
+  await waitForBodyText(page, '0 кг');
+  await waitForBodyText(page, 'Повторы не записаны');
+  await waitForBodyText(page, 'Вес не записан');
+  const detail = await page.locator('body').innerText();
+  check(
+    !detail.includes('Черновое движение') && !detail.includes('Чужое движение'),
+    'only-own-finished-exercises',
+  );
+  check(
+    !detail.includes('Текущий каталог переименован'),
+    'historical-exercise-snapshot-retained',
+  );
+  check(
+    detail.includes('8 повт.') && detail.includes('20,5 кг'),
+    'actual-historical-set-values',
+  );
+  check(
+    detail.includes('0 повт.') &&
+      detail.includes('0 кг') &&
+      detail.includes('Повторы не записаны') &&
+      detail.includes('Вес не записан'),
+    'null-and-zero-values-distinct',
+  );
+  check(
+    sql(
+      `select finished_at is not null and client_record_id='${fixture.ids[0]}'::uuid from public.workout_instances where id='${fixture.history.journal}'`,
+    ) === 't',
+    'prelink-history-remains-on-same-card',
+  );
+  await page.screenshot({
+    path: '/tmp/screens/client-scheduling/history-detail.png',
     fullPage: true,
   });
   stage = 'account-switch';
@@ -429,6 +507,7 @@ async function run() {
     !(await page.locator('body').innerText()).includes(names[0]),
     'signed-out-route-hides-client-data',
   );
+  check(pageErrors.length === 0, 'no-browser-errors');
   await context.close();
   await trainerContext.close();
 }

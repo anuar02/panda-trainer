@@ -157,3 +157,29 @@ test.each(['unavailable', 'invalidInput', 'configuration'] as const)(
     expect(hook.result.current.loading).toBe(false);
   },
 );
+
+test('no-window scope loads all upcoming and switching modes rejects stale range result', async () => {
+  const old = deferred();
+  const upcoming = deferred();
+  load.mockReturnValueOnce(old.promise).mockReturnValueOnce(upcoming.promise);
+  const hook = await renderHook(
+    (
+      scope: import('../src/features/client-scheduling/use-schedule').ClientScheduleScope,
+    ) => useClientSchedule(scope),
+    { initialProps: props },
+  );
+  await hook.rerender({
+    userId: props.userId,
+    clientRecordId: props.clientRecordId,
+  });
+  expect(load).toHaveBeenLastCalledWith({
+    expectedUserId: props.userId,
+    clientRecordId: props.clientRecordId,
+    startsAtUtc: undefined,
+    endsAtUtc: undefined,
+  });
+  await act(async () => old.resolve(schedule));
+  expect(hook.result.current.schedule).toBeNull();
+  await act(async () => upcoming.resolve(schedule));
+  expect(hook.result.current.schedule).toBe(schedule);
+});

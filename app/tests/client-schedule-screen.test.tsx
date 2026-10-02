@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import '../src/lib/i18n';
@@ -20,6 +21,10 @@ import {
   type ClientBookingStatusStore,
 } from '../src/features/client-scheduling/use-status';
 import type { ClientSchedule } from '../src/features/client-scheduling/service';
+jest.mock('expo-router', () => {
+  const taskRouter = { push: jest.fn() };
+  return { router: taskRouter, useRouter: () => taskRouter };
+});
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
@@ -183,12 +188,8 @@ test('real data maps immutable program preview and selecting own booking supplie
     }),
   );
   expect(screen.getByText('Saved description')).toBeTruthy();
-  expect(read).toHaveBeenCalledWith(
-    expect.objectContaining({
-      startsAtUtc: '2030-10-01T00:00:00.000Z',
-      endsAtUtc: '2030-11-11T00:00:00.000Z',
-    }),
-  );
+  expect(read.mock.calls[0]![0]).not.toHaveProperty('startsAtUtc');
+  expect(read.mock.calls[0]![0]).not.toHaveProperty('endsAtUtc');
 });
 test('loading supplies empty controlled home data and original profile names', async () => {
   read.mockReturnValue({
@@ -320,4 +321,13 @@ test('proposal outside upcoming slice renders request-only controls for its orig
       proposalOnly: true,
     }),
   );
+});
+
+test('history navigation pins the exact connected card', async () => {
+  await render(<ClientScheduleScreen {...props} />);
+  homeData().onOpenHistory?.();
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: '/connection/[clientRecordId]/history',
+    params: { clientRecordId: 'client' },
+  });
 });

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { ClientHomeScreen } from '@/features/client-home/client-home-screen';
@@ -38,14 +39,11 @@ export function ClientScheduleScreen(props: Props) {
 }
 function ClientScheduleContent(props: Props) {
   const { t } = useTranslation();
+  const router = useRouter();
   const now = useWorkspaceClock();
-  const utcDay = now.toISOString().slice(0, 10);
-  const midnight = Date.parse(`${utcDay}T00:00:00Z`);
   const read = useClientSchedule({
     userId: props.userId,
     clientRecordId: props.clientRecordId,
-    startsAtUtc: new Date(midnight - 86400000).toISOString(),
-    endsAtUtc: new Date(midnight + 40 * 86400000).toISOString(),
   });
   const status = useClientBookingStatus({
     userId: props.userId,
@@ -136,6 +134,11 @@ function ClientScheduleContent(props: Props) {
                     : t('clientHome.onsite'),
                 })),
                 onSelectBooking: (row) => setSelectedId(row.id),
+                onOpenHistory: () =>
+                  router.push({
+                    pathname: '/connection/[clientRecordId]/history',
+                    params: { clientRecordId: props.clientRecordId },
+                  }),
                 renderActions: (row) => {
                   const booking = home?.bookings.find(
                     (value) => value.id === row.id,

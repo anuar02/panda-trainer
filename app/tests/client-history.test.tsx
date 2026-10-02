@@ -1,9 +1,14 @@
+import type { PropsWithChildren } from 'react';
 import { render, screen } from '@testing-library/react-native';
 import '../src/lib/i18n';
 import { ClientHistoryScreen } from '../src/features/client-history/client-history-screen';
 import { createWorkoutState, workoutReducer } from '../src/domain/workout';
 import { useOptionalWorkoutDemo } from '../src/features/workout-demo';
 
+jest.mock('../src/ui/sheet', () => ({
+  Sheet: ({ open, children }: PropsWithChildren<{ open: boolean }>) =>
+    open ? children : null,
+}));
 jest.mock('../src/features/workout-demo', () => ({
   useOptionalWorkoutDemo: jest.fn(() => null),
 }));

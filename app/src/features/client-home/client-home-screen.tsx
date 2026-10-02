@@ -45,6 +45,7 @@ export type ClientHomeData = {
   requests?: ReactNode;
   onSelectBooking: (booking: ClientHomeBookingRow) => void;
   onProgramPreview?: (booking: ClientHomeBookingRow) => void;
+  onOpenHistory?: () => void;
   renderActions?: (booking: ClientHomeBookingRow) => ReactNode;
 };
 export function ClientHomeScreen({
@@ -919,6 +920,16 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
           </>
         )}
         {(data.loading || !next) && data.requests}
+        {data.onOpenHistory && !data.loading && (
+          <View style={s.history}>
+            <Button
+              label={tx('history')}
+              variant="soft"
+              icon={<Icon name="list" color={colors.ink} size={18} />}
+              onPress={data.onOpenHistory}
+            />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

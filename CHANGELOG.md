@@ -11,6 +11,13 @@
 
 ### Добавлено
 
+- SOM-36: собственная finished history с snapshot упражнениями, реальными
+  подходами/общими заметками и safe pagination/retry. Default upcoming/history
+  больше не обрезаются датой; старые годы доступны. Проверено 873 теста / 95 suites
+  и web/iOS/Android export. Browser flows ждут Docker; глобальные API grants,
+  billing/progress/native/owner acceptance открыты.
+  [ADR 0047](docs/app/decisions/0047-client-finished-history-and-unbounded-dates.md).
+
 - SOM-26/27/36 app: реальные Сегодня, запросы/переносы тренера и отдельный
   client connection route с собственными bookings, snapshot preview,
   confirmation/cancellation и proposal replies. Общая блокировка команд и

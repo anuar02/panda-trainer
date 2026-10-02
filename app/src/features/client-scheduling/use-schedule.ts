@@ -8,8 +8,8 @@ import {
 export type ClientScheduleScope = {
   userId: string;
   clientRecordId: string;
-  startsAtUtc: string;
-  endsAtUtc: string;
+  startsAtUtc?: string;
+  endsAtUtc?: string;
 };
 type Loaded = {
   key: string;
@@ -27,8 +27,8 @@ export function useClientSchedule({
   const key = JSON.stringify([
     userId,
     clientRecordId,
-    startsAtUtc,
-    endsAtUtc,
+    startsAtUtc ?? null,
+    endsAtUtc ?? null,
     attempt,
   ]);
   useFocusEffect(

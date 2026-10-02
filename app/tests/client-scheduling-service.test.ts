@@ -369,3 +369,62 @@ test('converts malformed null server rows to typed request failure', async () =>
     code: 'request',
   });
 });
+
+test('all-upcoming mode has no date horizon and retains far-future own bookings', async () => {
+  const future = {
+    ...booking(),
+    starts_at: '2030-10-06T10:00:00Z',
+    ends_at: '2030-10-06T11:00:00Z',
+  };
+  const { calls } = setup({ bookings: [future] });
+  const result = await loadClientSchedule({
+    clientRecordId: clientId,
+    expectedUserId: user,
+  });
+  expect(result.bookings[0]?.id).toBe(bookingId);
+  const call = calls.find((item) => item.table === 'bookings');
+  expect(call?.filters).toContainEqual(['status', ['proposed', 'confirmed']]);
+  expect(call?.filters).toContainEqual(['workspace_id', workspace]);
+  expect(call?.filters).toContainEqual(['client_record_id', clientId]);
+  expect(call?.filters.some(([key]) => key === 'starts_at')).toBe(false);
+  expect(call?.filters.find(([key]) => key === 'ends_at')?.[1]).toEqual(
+    expect.stringMatching(/T.*Z$/),
+  );
+  expect(call?.range).toEqual([0, 499]);
+  expect(call?.header).toEqual(['Authorization', 'Bearer pinned-token']);
+});
+test.each([{ startsAtUtc: input.startsAtUtc }, { endsAtUtc: input.endsAtUtc }])(
+  'rejects one supplied window bound %p',
+  async (bounds) => {
+    const { rpc } = setup();
+    await expect(
+      loadClientSchedule({
+        clientRecordId: clientId,
+        expectedUserId: user,
+        ...bounds,
+      }),
+    ).rejects.toMatchObject({ code: 'invalidInput' });
+    expect(rpc).not.toHaveBeenCalled();
+  },
+);
+test.each([
+  {
+    ...booking(),
+    ends_at: '2020-10-06T11:00:00Z',
+    starts_at: '2020-10-06T10:00:00Z',
+  },
+  {
+    ...booking(),
+    status: 'cancelled_by_client',
+    starts_at: '2030-10-06T10:00:00Z',
+    ends_at: '2030-10-06T11:00:00Z',
+  },
+])(
+  'all-upcoming mode rejects unexpected expired or inactive base rows',
+  async (row) => {
+    setup({ bookings: [row] });
+    await expect(
+      loadClientSchedule({ clientRecordId: clientId, expectedUserId: user }),
+    ).rejects.toMatchObject({ code: 'request' });
+  },
+);

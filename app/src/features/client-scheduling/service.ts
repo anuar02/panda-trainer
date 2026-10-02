@@ -142,18 +142,28 @@ async function readClientSchedule({
 }: {
   clientRecordId: string;
   expectedUserId: string;
-  startsAtUtc: string;
-  endsAtUtc: string;
+  startsAtUtc?: string;
+  endsAtUtc?: string;
 }): Promise<ClientSchedule> {
+  const hasWindow = startsAtUtc !== undefined || endsAtUtc !== undefined;
   if (
     !uuid(clientRecordId) ||
     !uuid(expectedUserId) ||
-    !utc(startsAtUtc) ||
-    !utc(endsAtUtc) ||
-    Date.parse(endsAtUtc) <= Date.parse(startsAtUtc) ||
-    Date.parse(endsAtUtc) - Date.parse(startsAtUtc) > 42 * 86400000
+    (hasWindow &&
+      (!utc(startsAtUtc) ||
+        !utc(endsAtUtc) ||
+        Date.parse(endsAtUtc) <= Date.parse(startsAtUtc) ||
+        Date.parse(endsAtUtc) - Date.parse(startsAtUtc) > 42 * 86400000))
   )
     throw new ClientSchedulingError('invalidInput');
+  const window =
+    hasWindow && startsAtUtc && endsAtUtc
+      ? {
+          start: new Date(startsAtUtc).toISOString(),
+          end: new Date(endsAtUtc).toISOString(),
+        }
+      : null;
+  const upcomingAfter = new Date().toISOString();
   const clientId = clientRecordId.toLowerCase();
   const userId = expectedUserId.toLowerCase();
   const client = getSupabaseClient();
@@ -179,19 +189,23 @@ async function readClientSchedule({
     );
   const context = contextFrom(contextResult.data, clientId);
   const [bookings, proposals] = await Promise.all([
-    pages((offset) =>
-      client
+    pages((offset) => {
+      let request = client
         .from('bookings')
         .select(bookingColumns)
         .eq('workspace_id', context.workspaceId)
-        .eq('client_record_id', clientId)
-        .lt('starts_at', new Date(endsAtUtc).toISOString())
-        .gt('ends_at', new Date(startsAtUtc).toISOString())
+        .eq('client_record_id', clientId);
+      request = window
+        ? request.lt('starts_at', window.end).gt('ends_at', window.start)
+        : request
+            .in('status', ['proposed', 'confirmed'])
+            .gt('ends_at', upcomingAfter);
+      return request
         .order('starts_at')
         .order('id')
         .range(offset, offset + 499)
-        .setHeader('Authorization', headers.Authorization),
-    ),
+        .setHeader('Authorization', headers.Authorization);
+    }),
     pages((offset) =>
       client
         .rpc('get_my_client_schedule_proposals', {
@@ -232,7 +246,15 @@ async function readClientSchedule({
       revision: row.revision,
     });
   };
-  bookings.forEach(checkBooking);
+  bookings.forEach((row) => {
+    checkBooking(row);
+    if (
+      !window &&
+      (!['proposed', 'confirmed'].includes(row.status) ||
+        Date.parse(row.ends_at) <= Date.parse(upcomingAfter))
+    )
+      return fail();
+  });
   for (const row of proposals) {
     if (
       !uuid(row.id) ||
