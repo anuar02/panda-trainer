@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-27: propose/counter/accept/decline/withdraw на сервере,
+  ревизии, actor receipts, stale replacement и перенос одного участника группы
+  без изменения остальных/снимка. Creation receipts сохраняют первоначальные IDs
+  после detachment. Clean reset/lint, 469 pgTAP assertions / 15 files и 3 новых
+  concurrency scenarios проходят; transport/recovery — 44 focused tests.
+  UI подключается следующим пакетом; native/две роли/owner acceptance открыты.
+  [ADR 0043](decisions/0043-booking-reschedule-commands.md).
+
 - 02.10.2026 — SOM-26: создание реального занятия из недели и свободного окна,
   сохранённый выбор программы/участников, async lock и recovery после потери
   ответа; сервер атомарно сохраняет отдельный снимок на booking, legacy retry

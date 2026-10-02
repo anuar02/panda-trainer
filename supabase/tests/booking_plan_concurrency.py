@@ -137,6 +137,7 @@ finally:
     query(f"""begin;
       delete from public.booking_program_exercises where workspace_id = '{workspace}';
       delete from public.booking_programs where workspace_id = '{workspace}';
+      delete from private.booking_creation_receipts where workspace_id = '{workspace}';
       delete from public.bookings where workspace_id = '{workspace}';
       delete from public.group_sessions where workspace_id = '{workspace}';
       delete from public.template_exercises where workspace_id = '{workspace}';

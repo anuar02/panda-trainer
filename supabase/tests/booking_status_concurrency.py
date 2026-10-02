@@ -98,6 +98,7 @@ finally:
             process.communicate()
     query(f"""begin;
       delete from private.booking_status_command_receipts where workspace_id = '{workspace}';
+      delete from private.booking_creation_receipts where workspace_id = '{workspace}';
       delete from public.bookings where workspace_id = '{workspace}';
       delete from public.client_records where workspace_id = '{workspace}';
       delete from public.exercises where workspace_id = '{workspace}';

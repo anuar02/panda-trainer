@@ -142,6 +142,8 @@ begin
   delete from private.client_invitation_receipts where workspace_id = any(owned_workspace_ids);
   delete from private.client_creation_receipts where workspace_id = any(owned_workspace_ids);
   delete from private.program_assignment_receipts where workspace_id = any(owned_workspace_ids);
+  delete from private.booking_creation_receipts where workspace_id = any(owned_workspace_ids);
+  delete from private.booking_reschedule_receipts where workspace_id = any(owned_workspace_ids);
   delete from private.booking_status_command_receipts where workspace_id = any(owned_workspace_ids);
   delete from private.template_command_receipts where workspace_id = any(owned_workspace_ids);
   delete from public.set_results where workspace_id = any(owned_workspace_ids);

@@ -109,6 +109,8 @@ begin
   where owner_user_id in (select id from auth.users where email in (${ownEmails}));
   delete from private.client_creation_receipts where workspace_id = any(owned_workspace_ids);
   delete from private.program_assignment_receipts where workspace_id = any(owned_workspace_ids);
+  delete from private.booking_creation_receipts where workspace_id = any(owned_workspace_ids);
+  delete from private.booking_reschedule_receipts where workspace_id = any(owned_workspace_ids);
   delete from private.booking_status_command_receipts where workspace_id = any(owned_workspace_ids);
   delete from private.template_command_receipts where workspace_id = any(owned_workspace_ids);
   delete from public.set_results where workspace_id = any(owned_workspace_ids);

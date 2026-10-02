@@ -11,6 +11,13 @@
 
 ### Добавлено
 
+- SOM-27: пять RPC переноса отдельного booking с revision checks, private actor
+  receipts и сохранением программы; исходное время меняется только при принятии.
+  Durable transport сохраняет точную команду; group detachment не ломает старые
+  creation retries благодаря неизменяемым receipt IDs. 469 pgTAP assertions,
+  3 новые concurrency scenarios и 44 focused app tests проходят.
+  [ADR 0043](docs/app/decisions/0043-booking-reschedule-commands.md).
+
 - SOM-26: реальное создание `/workspace/new` из дня/свободного окна, async wizard
   и восстановление точной команды. Выбранный шаблон атомарно копируется для каждого
   участника; личная программа не меняется. Имена программ календаря читаются из

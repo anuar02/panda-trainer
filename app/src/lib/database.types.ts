@@ -1274,6 +1274,15 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_booking_reschedule: {
+        Args: {
+          p_expected_booking_revision: number;
+          p_expected_proposal_revision: number;
+          p_proposal_id: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
       accept_invitation: {
         Args: {
           p_token: string;
@@ -1333,6 +1342,16 @@ export type Database = {
         };
         Returns: Json;
       };
+      counter_booking_reschedule: {
+        Args: {
+          p_expected_booking_revision: number;
+          p_expected_proposal_revision: number;
+          p_proposal_id: string;
+          p_proposed_starts_at: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
       create_booking_set: {
         Args: {
           p_client_record_ids: string[];
@@ -1360,6 +1379,15 @@ export type Database = {
           client_name: string;
           client_phone: string;
           request_id: string;
+        };
+        Returns: Json;
+      };
+      decline_booking_reschedule: {
+        Args: {
+          p_expected_booking_revision: number;
+          p_expected_proposal_revision: number;
+          p_proposal_id: string;
+          p_request_id: string;
         };
         Returns: Json;
       };
@@ -1395,6 +1423,15 @@ export type Database = {
           input_name: string;
         };
         Returns: string;
+      };
+      propose_booking_reschedule: {
+        Args: {
+          p_booking_id: string;
+          p_expected_booking_revision: number;
+          p_proposed_starts_at: string;
+          p_request_id: string;
+        };
+        Returns: Json;
       };
       revoke_client_invitation: {
         Args: {
@@ -1442,6 +1479,15 @@ export type Database = {
           isOneToOne: false;
           isSetofReturn: true;
         };
+      };
+      withdraw_booking_reschedule: {
+        Args: {
+          p_expected_booking_revision: number;
+          p_expected_proposal_revision: number;
+          p_proposal_id: string;
+          p_request_id: string;
+        };
+        Returns: Json;
       };
     };
     Enums: {
