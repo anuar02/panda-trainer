@@ -11,6 +11,14 @@
 
 ### Добавлено
 
+- SOM-26: серверная модель agenda, статусы участников и свободные окна по
+  рабочим часам; local-time conversion явно возвращает DST gap/fold.
+  [ADR 0039](docs/app/decisions/0039-schedule-calendar-adapters.md).
+- SOM-27: transport подтверждения/отмены отдельного booking с закреплённым
+  аккаунтом, проверкой revision и безопасным повтором; 35 focused tests.
+  Совместный check SOM-26/27: 542 теста / 66 suites, TypeScript/lint/format.
+  [ADR 0040](docs/app/decisions/0040-booking-status-transport.md).
+
 - SOM-26 recovery: `submitWorkspaceBooking` сохраняет команду до отправки,
   `resumeWorkspaceBooking` восстанавливает её после рестарта. Потеря ответа или
   ошибка очистки допускает повтор того же request ID; предупреждение не

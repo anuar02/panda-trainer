@@ -9,6 +9,13 @@
 
 ## Где остановились
 
+- 02.10.2026 — параллельные пакеты SOM-26/27: agenda/free windows, явные
+  результаты local-time conversion для DST, transport confirm/cancel отдельного
+  booking. UI, durable status recovery, переносы и приёмка остаются открытыми.
+  Проверки: 542 теста / 66 suites; TypeScript/lint/format проходят.
+  [ADR 0039](decisions/0039-schedule-calendar-adapters.md),
+  [ADR 0040](decisions/0040-booking-status-transport.md).
+
 - 02.10.2026 — SOM-26 lifecycle: save-before-send, восстановление после потери
   ответа/рестарта, безопасная очистка после результата. Семь новых тестов,
   общий check — 484/63, TypeScript/lint/format проходят. Транспорт готов к

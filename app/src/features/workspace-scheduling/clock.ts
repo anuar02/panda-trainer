@@ -82,3 +82,61 @@ export function paddedUtcWeekBounds(dateKey: string): {
     endsAtUtc: new Date(endsAt).toISOString(),
   };
 }
+
+export type WorkspaceLocalTimeResolution =
+  | { status: 'unique'; startsAtUtc: string }
+  | { status: 'ambiguous'; candidatesUtc: string[] }
+  | { status: 'nonexistent' };
+
+export function resolveWorkspaceLocalTime(
+  dateKey: string,
+  time: string,
+  timeZone: string,
+): WorkspaceLocalTimeResolution {
+  const date = parseDateKey(dateKey);
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time);
+  if (!match) throw new RangeError('Invalid local time');
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  const target = date.getTime() + (hour * 60 + minute) * minuteMilliseconds;
+  const formatter = new Intl.DateTimeFormat('en-US-u-ca-iso8601', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  });
+  const candidates = new Set<string>();
+  const searchMinutes = 26 * 60;
+  for (let offset = -searchMinutes; offset <= searchMinutes; offset++) {
+    const instant = target + offset * minuteMilliseconds;
+    const parts = formatter.formatToParts(new Date(instant));
+    if (
+      partValue(parts, 'year') === date.getUTCFullYear() &&
+      partValue(parts, 'month') === date.getUTCMonth() + 1 &&
+      partValue(parts, 'day') === date.getUTCDate() &&
+      partValue(parts, 'hour') === hour &&
+      partValue(parts, 'minute') === minute
+    ) {
+      const candidate = instant - partValue(parts, 'second') * 1000;
+      const candidateParts = formatter.formatToParts(new Date(candidate));
+      if (
+        partValue(candidateParts, 'year') === date.getUTCFullYear() &&
+        partValue(candidateParts, 'month') === date.getUTCMonth() + 1 &&
+        partValue(candidateParts, 'day') === date.getUTCDate() &&
+        partValue(candidateParts, 'hour') === hour &&
+        partValue(candidateParts, 'minute') === minute &&
+        partValue(candidateParts, 'second') === 0
+      )
+        candidates.add(new Date(candidate).toISOString());
+    }
+  }
+  const candidatesUtc = [...candidates].sort();
+  const first = candidatesUtc[0];
+  if (!first) return { status: 'nonexistent' };
+  if (candidatesUtc.length > 1) return { status: 'ambiguous', candidatesUtc };
+  return { status: 'unique', startsAtUtc: first };
+}
