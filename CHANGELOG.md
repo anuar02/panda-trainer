@@ -11,6 +11,13 @@
 
 ### Добавлено
 
+- SOM-36 foundation: собственные bookings и неизменяемые планы клиента,
+  безопасные RPC контекста/ролей предложений и обновление на focus. Auth token
+  закреплён на каждом запросе; смена аккаунта/карточки скрывает старые данные.
+  494 pgTAP assertions / 16 files, 20 reader tests, 12 hook tests и 7 adapter
+  tests проходят. Этот пакет не завершает клиентские billing/history/progress.
+  [ADR 0045](docs/app/decisions/0045-client-schedule-read-boundary.md).
+
 - SOM-27: пять RPC переноса отдельного booking с revision checks, private actor
   receipts и сохранением программы; исходное время меняется только при принятии.
   Durable transport сохраняет точную команду; group detachment не ломает старые

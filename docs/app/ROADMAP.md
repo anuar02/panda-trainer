@@ -9,6 +9,13 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-36 foundation: own-client context и pending proposal RPC,
+  закреплённый transport, immutable booking plans, focus hook и UTC adapter.
+  Clean reset и 494 pgTAP assertions / 16 files проходят; 39 focused app tests
+  покрывают чтение, stale scope и календарную проекцию. Реальный client route
+  подключается следующим пакетом; billing/history/progress/native/owner acceptance
+  остаются открытыми. [ADR 0045](decisions/0045-client-schedule-read-boundary.md).
+
 - 02.10.2026 — SOM-27: propose/counter/accept/decline/withdraw на сервере,
   ревизии, actor receipts, stale replacement и перенос одного участника группы
   без изменения остальных/снимка. Creation receipts сохраняют первоначальные IDs

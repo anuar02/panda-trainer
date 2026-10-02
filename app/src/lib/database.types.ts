@@ -1391,6 +1391,32 @@ export type Database = {
         };
         Returns: Json;
       };
+      get_my_client_schedule_context: {
+        Args: {
+          p_client_record_id: string;
+        };
+        Returns: Json;
+      };
+      get_my_client_schedule_proposals: {
+        Args: {
+          p_client_record_id: string;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          author_role: string;
+          base_revision: number;
+          booking_id: string;
+          created_at: string;
+          id: string;
+          proposed_ends_at: string;
+          proposed_starts_at: string;
+          revision: number;
+          status: string;
+          updated_at: string;
+          workspace_id: string;
+        }[];
+      };
       is_workspace_owner: {
         Args: {
           target_workspace_id: string;
