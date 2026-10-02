@@ -122,6 +122,7 @@ async function createTemplate(page, index, exercise) {
   stage = `create-template-${index + 1}`;
   await clickButton(page, 'Создать шаблон');
   await page.waitForURL(/\/workspace\/library\/editor(?:\?.*)?$/, { timeout: 30000 });
+  check(new URL(page.url()).searchParams.get('clientId') === clientId, `template-${index + 1}-editor-preserves-client-context`);
   await page.getByRole('textbox', { name: 'Название шаблона', exact: true }).fill(name);
   await clickButton(page, 'Добавить упражнения');
   await page.getByRole('textbox', { name: 'Поиск упражнений для шаблона', exact: true }).fill(exercise);
@@ -133,6 +134,8 @@ async function createTemplate(page, index, exercise) {
   await waitForBodyText(page, name, 60000);
   const templateId = new URL(page.url()).pathname.split('/').at(-1);
   check(Boolean(templateId), `template-${index + 1}-saved`);
+  check(new URL(page.url()).searchParams.get('clientId') === clientId, `template-${index + 1}-saved-detail-preserves-client-context`);
+  await waitForText(page, 'Назначить программу', 30000);
   templateIds[index] = templateId;
   return { name, exercise };
 }
@@ -146,12 +149,12 @@ async function cleanup() {
     if (!response.ok) throw new Error('Synthetic mail cleanup failed');
   }
 }
-const isAppError = (message) => message.type() === 'error' && !(message.location().url === `${origin}/favicon.ico` && message.text() === 'Failed to load resource: the server responded with a status of 404 (Not Found)');
+const isAppError = (message) => message.type() === 'error' && !(message.location().url === `${origin}/favicon.ico` && /^Failed to load resource: the server responded with a status of 404(?: \(.*\))?$/.test(message.text()));
 async function run() {
   browser = await chromium.launch({ headless: true, channel: 'chrome' });
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
-  page.on('pageerror', () => pageErrors.push('pageerror'));
+  page.on('pageerror', (error) => pageErrors.push(`pageerror:${error.name}`));
   page.on('response', (response) => {
     const url = new URL(response.url());
     if (/^\/rest\/v1\/(rpc\/create_client_record|client_records)$/.test(url.pathname)) {
@@ -179,7 +182,8 @@ async function run() {
       allowOneAbortedRpcConsoleError = false;
       return;
     }
-    pageErrors.push('console-error');
+    const errorPath = new URL(message.location().url || origin).pathname;
+    pageErrors.push(`console-error:${errorPath.replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/gi, '[uuid]')}:${/net::ERR_FAILED/.test(message.text()) ? 'ERR_FAILED' : /404/.test(message.text()) ? '404' : /Failed to fetch/.test(message.text()) ? 'fetch' : 'other'}`);
   });
   await signInAsTrainer(page);
   stage = 'open-client-sheet';
@@ -205,14 +209,6 @@ async function run() {
   await waitForText(page, 'Создать шаблон');
   const first = await createTemplate(page, 0, 'Приседания со штангой');
   stage = 'assign-first-template';
-  await page.goto(`${origin}/workspace/client/${clientId}?tab=program`, { waitUntil: 'networkidle', timeout: 90000 });
-  await waitForText(page, 'Открыть библиотеку', 60000);
-  await clickButton(page, 'Открыть библиотеку');
-  await page.waitForURL(/\/workspace\/library\?[^#]*clientId=[a-f0-9-]+/, { timeout: 30000 });
-  await visible(page.getByRole('button', { name: 'Шаблоны', exact: false })).click();
-  await page.getByRole('textbox', { name: 'Поиск шаблонов', exact: true }).fill(first.name);
-  await visible(page.getByRole('button', { name: new RegExp(first.name) })).first().click();
-  await page.waitForURL(/\/workspace\/library\/template\/[a-f0-9-]+/, { timeout: 30000 });
   let firstAssignRequests = 0;
   let firstRequestId = null;
   let firstRpcResult = null;
@@ -296,14 +292,6 @@ async function run() {
   await waitForText(page, 'Создать шаблон');
   const second = await createTemplate(page, 1, secondExercise);
   stage = 'assign-second-template';
-  await page.goto(`${origin}/workspace/client/${clientId}?tab=program`, { waitUntil: 'networkidle', timeout: 90000 });
-  await waitForText(page, 'Открыть библиотеку', 60000);
-  await clickButton(page, 'Открыть библиотеку');
-  await page.waitForURL(/\/workspace\/library\?[^#]*clientId=[a-f0-9-]+/, { timeout: 30000 });
-  await visible(page.getByRole('button', { name: 'Шаблоны', exact: false })).click();
-  await page.getByRole('textbox', { name: 'Поиск шаблонов', exact: true }).fill(second.name);
-  await visible(page.getByRole('button', { name: new RegExp(second.name) })).first().click();
-  await page.waitForURL(/\/workspace\/library\/template\/[a-f0-9-]+/, { timeout: 30000 });
   await clickButton(page, 'Назначить программу');
   await page.waitForURL(new RegExp(`/workspace/client/${clientId}\\?tab=program`), { timeout: 60000 });
   await waitForBodyText(page, second.name, 60000);
@@ -351,7 +339,7 @@ run()
         .replace(/[0-9a-f]{8}-[0-9a-f-]{27,}/gi, '[uuid]')
         .replace(/\s+/g, ' ')
         .slice(0, 500);
-      process.stderr.write(`SAFE_ROUTE_DIAGNOSTIC: ${JSON.stringify({ ...safe, networkEvents, diagnosticClientCount, failedCheck, failureName: caught?.name ?? 'Error', failureMessage })}\n`);
+      process.stderr.write(`SAFE_ROUTE_DIAGNOSTIC: ${JSON.stringify({ ...safe, pageErrors, networkEvents, diagnosticClientCount, failedCheck, failureName: caught?.name ?? 'Error', failureMessage })}\n`);
       mkdirSync('/tmp/screens/workspace-programs', { recursive: true });
       await page.screenshot({ path: '/tmp/screens/workspace-programs/failure-safe.png', fullPage: true }).catch(() => {});
     }

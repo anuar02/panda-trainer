@@ -9,6 +9,12 @@
 
 ## Где остановились
 
+- 02.10.2026 — SOM-24: непрерывный create → assign проверен для двух шаблонов,
+  19 browser checks и 31 focused tests / 3 suites проходят; fresh web export.
+  Копии/снимки сохраняются, повтор после потери ответа безопасен. Native,
+  редактирование личной копии и owner acceptance остаются открытыми.
+  [Отчёт](../../app/review/workspace-programs/README.md).
+
 - 02.10.2026 — параллельные пакеты SOM-26/27: agenda/free windows, явные
   результаты local-time conversion для DST, transport confirm/cancel отдельного
   booking. UI, durable status recovery, переносы и приёмка остаются открытыми.

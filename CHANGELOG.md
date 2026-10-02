@@ -11,6 +11,10 @@
 
 ### Добавлено
 
+- SOM-24 verification: непрерывный create → assign для двух шаблонов проходит
+  19 headless browser checks, включая повтор после потери ответа и сохранение
+  обеих копий программы. [Отчёт](app/review/workspace-programs/README.md).
+
 - SOM-26: серверная модель agenda, статусы участников и свободные окна по
   рабочим часам; local-time conversion явно возвращает DST gap/fold.
   [ADR 0039](docs/app/decisions/0039-schedule-calendar-adapters.md).
