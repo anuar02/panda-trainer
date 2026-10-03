@@ -1,5 +1,12 @@
 import { useReducer, type PropsWithChildren } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { Dimensions, StyleSheet } from 'react-native';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react-native';
 import '../src/lib/i18n';
 import {
   createWorkoutState,
@@ -254,3 +261,48 @@ test('failed restoration offers retry without opening a fresh editable journal',
   );
   expect(retry).toHaveBeenCalled();
 });
+
+test.each([1.34, 2])(
+  'journal remains editable at fontScale %s and scrolls its actions',
+  async (fontScale) => {
+    const originalWindow = Dimensions.get('window');
+    const originalScreen = Dimensions.get('screen');
+    await act(async () =>
+      Dimensions.set({
+        window: { ...originalWindow, width: 390, height: 844, fontScale },
+        screen: { ...originalScreen, width: 390, height: 844, fontScale },
+      }),
+    );
+    try {
+      await render(<Harness />);
+      const input = screen.getByTestId('workout-composer-kg');
+      expect(StyleSheet.flatten(input.props.style).minHeight).toBe(
+        48 * fontScale,
+      );
+      expect(StyleSheet.flatten(input.props.style).height).toBeUndefined();
+      expect(
+        screen.getByRole('button', { name: 'Завершить' }).parent,
+      ).toBeTruthy();
+      expect(
+        within(screen.getByTestId('workout-scroll')).getByRole('button', {
+          name: 'Завершить',
+        }),
+      ).toBeTruthy();
+      await fireEvent.changeText(input, '60');
+      await fireEvent.press(
+        screen.getByRole('button', { name: 'Записать подход 1' }),
+      );
+      expect(screen.getByLabelText('Записано 1 из 12 подходов')).toBeTruthy();
+      await fireEvent.press(
+        screen.getByRole('button', {
+          name: 'Изменить подход 1: Приседания со штангой',
+        }),
+      );
+      expect(screen.getByTestId('workout-editor-kg').props.value).toBe('60');
+    } finally {
+      await act(async () =>
+        Dimensions.set({ window: originalWindow, screen: originalScreen }),
+      );
+    }
+  },
+);

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useId, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, useWindowDimensions } from 'react-native';
 import Svg, {
   Circle,
   Defs,
@@ -29,6 +29,7 @@ export function WorkoutDock() {
   const { t } = useTranslation();
   const { scheme } = useTheme();
   const gradientId = useId().replace(/:/g, '');
+  const { fontScale } = useWindowDimensions();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [pressed, setPressed] = useState(false);
   const dark = scheme === 'dark';
@@ -250,9 +251,16 @@ export function WorkoutDock() {
         <Icon name="play" size={16} color={onDark} />
       </View>
       <View style={{ flex: 1, gap: 2 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: fontScale > 1.3 ? 'wrap' : 'nowrap',
+            alignItems: 'baseline',
+            gap: 8,
+          }}
+        >
           <Text
-            numberOfLines={1}
+            numberOfLines={fontScale > 1.3 ? undefined : 1}
             style={{
               flexShrink: 1,
               color: onDark,
@@ -278,7 +286,7 @@ export function WorkoutDock() {
           )}
         </View>
         <Text
-          numberOfLines={1}
+          numberOfLines={fontScale > 1.3 ? undefined : 1}
           style={{
             color: error
               ? '#ffb4a8'

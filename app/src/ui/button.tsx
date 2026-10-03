@@ -94,7 +94,7 @@ export function Button({
       )}
       {!loading && icon && <View className="relative z-[1]">{icon}</View>}
       <Text
-        style={labelStyle}
+        style={[{ flexShrink: 1 }, labelStyle]}
         className={`text-center font-bold tracking-[0.1px] ${compact ? 'text-[15px] leading-[21.75px]' : 'text-[16.5px] leading-[23.925px]'} ${primary && blocked && scheme === 'dark' ? 'text-secondary' : primary || variant === 'mint' ? 'text-white' : variant === 'ghost' ? 'text-secondary' : variant === 'danger' ? 'text-danger' : 'text-ink'}`}
       >
         {label}

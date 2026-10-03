@@ -6,7 +6,13 @@ import type {
   TrainerTodayAgendaItem,
 } from '@/features/workspace-scheduling/today-adapter';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { GradientBackground } from '@/ui/gradient-background';
@@ -22,7 +28,9 @@ import {
   type DemoSession,
   type TodayScenario,
 } from './demo';
-import { todayStyles as s } from './measurements';
+import { getTodayStyles } from './measurements';
+import { useCalmMode } from '@/ui/calm-mode';
+import { MotionView } from '@/ui/motion';
 import { StatusPill } from '@/ui/status-pill';
 import { useJournalLabels } from '@/features/workout-demo';
 import {
@@ -95,6 +103,8 @@ function Time({
   end: string;
   expanded?: boolean;
 }) {
+  const { fontScale, width } = useWindowDimensions();
+  const s = getTodayStyles(fontScale, width);
   const { t } = useTranslation();
   const { colors } = useTheme();
   return (
@@ -129,6 +139,9 @@ export function TrainerTodayScreen({
   scenario?: TodayScenario;
   data?: TrainerTodayData;
 }) {
+  const { fontScale, width } = useWindowDimensions();
+  const s = getTodayStyles(fontScale, width);
+  const calmMode = useCalmMode();
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const [pastOpen, setPastOpen] = useState(false);
@@ -816,15 +829,17 @@ export function TrainerTodayScreen({
                   },
                 ]}
               >
-                <View style={s.emptyArtBox}>
-                  <Mascot
-                    pose="sleep"
-                    size={170}
-                    style={s.emptyArt}
+                {!calmMode && (
+                  <View style={s.emptyArtBox}>
+                    <Mascot
+                      pose="sleep"
+                      size={170}
+                      style={s.emptyArt}
 
-                    accessible={false}
-                  />
-                </View>
+                      accessible={false}
+                    />
+                  </View>
+                )}
                 <Text style={s.emptyTitle}>{t('trainerToday.emptyTitle')}</Text>
                 <Text style={[s.emptyDescription, secondary]}>
                   {t('trainerToday.emptyDescription')}
@@ -840,7 +855,7 @@ export function TrainerTodayScreen({
               </View>
             ) : (
               <>
-                <View
+                <MotionView
                   style={s.buddy}
                   accessibilityLabel={t('trainerToday.summary')}
                 >
@@ -866,15 +881,17 @@ export function TrainerTodayScreen({
                       radius={60}
                     />
                   </View>
-                  <View style={s.face}>
-                    <Mascot
-                      pose="calm"
-                      size={58}
-                      style={s.faceImage}
+                  {!calmMode && (
+                    <View style={s.face}>
+                      <Mascot
+                        pose="calm"
+                        size={58}
+                        style={s.faceImage}
 
-                      accessible={false}
-                    />
-                  </View>
+                        accessible={false}
+                      />
+                    </View>
+                  )}
                   <View style={s.main}>
                     <Text style={s.buddyLine}>
                       {changed
@@ -948,7 +965,7 @@ export function TrainerTodayScreen({
                       </Pressable>
                     </View>
                   </View>
-                </View>
+                </MotionView>
                 <View style={s.section}>
                   <View style={s.sectionHead}>
                     <Text style={[s.small, s.strong]}>
