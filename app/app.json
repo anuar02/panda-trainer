@@ -23,7 +23,9 @@
       "expo-splash-screen",
       "expo-secure-store",
       "expo-web-browser",
-      "react-native-quick-crypto"
+      "react-native-quick-crypto",
+      "expo-image",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

@@ -356,7 +356,7 @@ export function ClientInvitationScreen({
               </View>
             ) : (
               <Mascot
-                pose={accepted ? 'clipboard' : 'wave'}
+                pose={accepted ? 'thumbs' : 'wave'}
                 size={216}
                 style={s.clientMascot}
               />
