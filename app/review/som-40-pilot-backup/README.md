@@ -31,7 +31,7 @@ live project/issue/relations не прочитаны. Scope взят из бри
   dump/encrypt/decrypt/restore, schema/functions/rows/representative constraints,
   grants/RLS (owner1/owner2/anonymous). Это не перенос managed Supabase Auth.
 - [Runbook](../../../docs/app/pilot/BACKUP-RESTORE.md) и
-  [ADR 0070](../../../docs/app/decisions/0070-encrypted-pilot-backup-and-disposable-restore.md)
+  [ADR 0071](../../../docs/app/decisions/0071-encrypted-pilot-backup-and-disposable-restore.md)
   описывают coverage, storage/retention evidence и gate включения.
 
 ## Команды и результаты
@@ -88,3 +88,11 @@ multipart cleanup, synthetic scratch gates и порядок mutations, два m
 Diff scope проверен перед commit; результаты относятся только к локальному
 tooling и regression check приложения. Никаких assertions о готовом
 облаке, production restore или принятом экране.
+
+## Coordinator review
+
+Свежая база PR #31 влита, обе документальные записи сохранены. Конфликт номера ADR исправлен: backup ADR 0071, config ADR 0070. Offline tooling tests повторно: 49/49 PASS. App lock/source/dependencies не менялись. Реальное PostgreSQL/age/storage восстановление и облачные gates не проверены координатором.
+
+Coordinator исправил upload: убран canned ACL private, несовместимый с BucketOwnerEnforced и documented least-privilege IAM. Проверка put-object без --acl добавлена в regression тест. Основание: [AWS Object Ownership](https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html).
+
+Свежий coordinator app check PASS: typecheck/lint/format, 1430 tests / 142 suites. git diff --check PASS. Shell syntax/AST повторно PASS; ShellCheck/actionlint координатор не повторял (worker evidence выше).

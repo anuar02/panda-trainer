@@ -355,6 +355,9 @@ class StorageTests(TemporaryCase):
             with mock.patch.object(backup, '_aws', side_effect=lambda storage, operation, *args: fail(storage, operation, *args) if operation != 'put-object' else {}) as aws:
                 self.assertEqual(backup.upload(configuration(), bundle)['uploaded_count'], 2)
                 self.assertEqual(aws.call_count, 4)
+                for call in aws.call_args_list:
+                    if call.args[1] == 'put-object':
+                        self.assertNotIn('--acl', call.args)
             retention.assert_called_once()
 
 

@@ -370,7 +370,7 @@ def upload(config, bundle_dir):
         for filename in ('database.dump.age', 'manifest.json'):
             key = storage['prefix'] + name + '/' + filename
             keys.append(key)
-            _aws(storage, 'put-object', '--bucket', storage['bucket'], '--key', key, '--body', str(bundle / filename), '--acl', 'private')
+            _aws(storage, 'put-object', '--bucket', storage['bucket'], '--key', key, '--body', str(bundle / filename))
             with tempfile.TemporaryDirectory(prefix='backup-private-') as temporary:
                 downloaded = Path(temporary) / filename
                 _aws(storage, 'get-object', '--bucket', storage['bucket'], '--key', key, str(downloaded))

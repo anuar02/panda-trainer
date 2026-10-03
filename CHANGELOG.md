@@ -14,7 +14,7 @@
 - [SOM-40 / draft PR #32](https://github.com/anuar02/panda-trainer/pull/32): tooling зашифрованного pilot dump, приватного storage/ротации и
   disposable restore harness; nightly выключен до environment/storage gate.
   [Отчёт](app/review/som-40-pilot-backup/README.md),
-  [ADR 0070](docs/app/decisions/0070-encrypted-pilot-backup-and-disposable-restore.md).
+  [ADR 0071](docs/app/decisions/0071-encrypted-pilot-backup-and-disposable-restore.md).
   Реальный EU storage/restore и готовность пилота не подтверждены.
 - [SOM-40 / draft PR #31](https://github.com/anuar02/panda-trainer/pull/31): public pilot preflight CLI с безопасной диагностикой и тестами,
   [Free Frankfurt environment handoff](docs/app/pilot/ENVIRONMENT.md) и ADR 0070.

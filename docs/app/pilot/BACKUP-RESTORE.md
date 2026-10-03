@@ -1,6 +1,6 @@
 # SOM-40: dump, шифрование, ротация и проверяемое восстановление
 
-Tooling по ADR 0064/0067/0070. Облако не настроено; cron выключен. Бесплатный
+Tooling по ADR 0064/0067/0071. Облако не настроено; cron выключен. Бесплатный
 EU bucket не выбран и не обещан. Production restore отсутствует в workflow.
 
 ## Контракт и локальные команды
@@ -69,7 +69,8 @@ Storage должен поддерживать эти AWS APIs; неподдер�
 IAM: GetBucketLocation, GetBucketVersioning, GetBucketAcl, GetBucketPublicAccessBlock,
 GetLifecycleConfiguration, ListBucket только выделенного prefix; GetObject,
 PutObject/DeleteObject/AbortMultipartUpload только этого prefix; ListBucketMultipartUploads
-с проверкой prefix (не прерывать другие загрузки). Без админских прав/создания bucket.
+с проверкой prefix (не прерывать другие загрузки). Без админских прав/создания bucket. PutObject не передаёт canned ACL: совместим с
+BucketOwnerEnforced, не требует PutObjectAcl; public-access block обязателен.
 AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY — только private env или GitHub Secrets.
 
 Владелец отдельно проверяет бесплатный тариф, EU Central для объектов/реплик/logs,
