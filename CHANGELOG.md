@@ -23,6 +23,7 @@
   Реальный EU storage/restore и готовность пилота не подтверждены.
 - [SOM-40 / draft PR #31](https://github.com/anuar02/panda-trainer/pull/31): public pilot preflight CLI с безопасной диагностикой и тестами,
   [Free Frankfurt environment handoff](docs/app/pilot/ENVIRONMENT.md) и ADR 0070.
+- SOM-40: [remote evidence](docs/app/pilot/EVIDENCE.md) пилотного проекта — Frankfurt, Free, чистый старт.
   Cloud deployment/region evidence, restore, telemetry и приёмка остаются открытыми.
 
 - [SOM-41 / draft PR #29](https://github.com/anuar02/panda-trainer/pull/29): owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
