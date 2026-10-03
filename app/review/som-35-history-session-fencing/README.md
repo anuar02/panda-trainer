@@ -53,3 +53,15 @@ Visual layout/text were unchanged; native/parity and screen acceptance require
 owner approval. SOM-35 as a whole is not declared accepted or closed.
 
 Decision: ../../../../docs/app/decisions/0076-client-history-session-fencing.md.
+
+
+## Coordinator integration — 2026-10-03
+
+Merged current base e6fbc63 (SOM-26 schedule read fencing); ROADMAP conflict
+resolved by retaining both checkpoints. History ADR renumbered 0076 to preserve
+schedule ADR 0075; references and decision index updated.
+
+Fresh `cd app && npm run check`: exit 0, typecheck/lint/format passed,
+155 suites / 1649 tests passed, zero snapshots (21.042 s).
+`git diff --check` passed. Independent read-only review found no substantive
+history defect; existing scope and runtime/native/owner limitations remain.
