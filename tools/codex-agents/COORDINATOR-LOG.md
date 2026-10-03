@@ -1,0 +1,13 @@
+# Журнал координатора
+
+## 2026-10-03 14:03:20 UTC
+
+- Влиты только agent/* → fix/som-50-template-picker: [PR #21](https://github.com/anuar02/panda-trainer/pull/21) (`ad8ec083`), [PR #22](https://github.com/anuar02/panda-trainer/pull/22) (`c7f9774b`). Squash, ветки сохранены. main не менялась.
+- #21: npm ci после изменения lock; полный npm run check зелёный, 1208 tests / 123 suites. Координатор исправил approved pose на thumbs и заменил ослабленные billing test assertions явными guards. Малые shared Button/test integration fixes отмечены в отчёте.
+- #22: свежая база влита в PR; конфликты CHANGELOG/ROADMAP сохранили обе записи, billing panel сохранила новую историю и i18n. Полный npm run check зелёный: 1213 tests / 124 suites; прежний worker blocker Button устранён базой. Отчёт/ADR обновлены.
+- Брифы som-38-mascot и som-34-billing-finish перенесены в tasks/done/. Закрытых без слияния PR нет; новых брифов нет. Приёмка экранов и Rive владельцем не заявлялась.
+- Журнал: обе задачи имеют OK; personal som-39-calm-ui-large-text-motion имеет START без OK/FAIL и остаётся активной. Незакрытые START coordinator не являются рабочими задачами. Два FAIL coordinator относятся к прежним запускам координатора, не к worker briefs; указанные logs отсутствуют в контейнере, причина не установлена, r2 для coordinator не создаётся.
+- Проверены DELIVERY-PLAN, ROADMAP, OPEN-QUESTIONS, PROJECT-MEMORY, базовый git log и live Linear project/backlog/зависимости. Linear только чтение. graft не установлен. Новая очередь не заполняется искусственными аудитами: подходящих независимых implementation задач не найдено.
+- Блокеры: SOM-29 ждёт решения SOM-53 (Backlog), SOM-30/31/32 ждут production outbox/journal; SOM-36 ждёт SOM-32 и решения SOM-56/58 (Backlog), SOM-37 ждёт SOM-36/32. SOM-40 ждёт SOM-51/52/53/59; SOM-41 — SOM-51/59. SOM-42 ждёт окружение, privacy и приёмки владельца. SOM-63 требует интервью/людей, SOM-64 — завершённого пилота.
+- SOM-55 функционально одобрена в PROJECT-MEMORY/ADR0029 несмотря на устаревший Backlog Linear. SOM-35 имеет прежние 43 runtime checks; новая повторная задача не нужна. SOM-19/21 требуют внешней конфигурации OAuth/SMTP/домена и native проверок; SOM-50 осталось проверять на устройствах и получать приёмку. Редактирование личной программы по итогам тренировки относится к заблокированной SOM-32.
+- Свободные очереди work/third пусты; personal содержит только выполняющийся бриф. Подходящей задачи для единственного не начатого брифа каждому аккаунту сейчас нет. STOP не создан: SOM-39 выполняется; повторно оценить очереди после её PR. Native, браузер и SQL в контейнере не проверялись.
