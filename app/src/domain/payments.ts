@@ -73,7 +73,8 @@ export function projectPurchasePayments(
   }
   const reversed = new Set<string>();
   for (const entry of entries.filter((row) => row.kind === 'reversal')) {
-    const key = entry.reversesEntryId!.toLowerCase();
+    if (!uuid(entry.reversesEntryId)) return invalid();
+    const key = entry.reversesEntryId.toLowerCase();
     const original = byId.get(key);
     if (
       !original ||

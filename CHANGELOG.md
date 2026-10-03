@@ -11,6 +11,18 @@
 
 ### Добавлено
 
+- SOM-33/SOM-34: завершены создание пакета и ручная частичная оплата до остатка
+  долга; история показывает сумму, дату, способ и «Записано», ошибки чтения дают
+  повтор. Строгие тесты проверяют существование кнопок/вызовов; exact replay
+  сохраняет UUID-подобные названия и причины без изменения регистра.
+  Coordinator integration: полный check зелёный, 1213 tests / 124 suites.
+  Историческая проверка рабочего: 1210 tests / 123 suites, lint и format проходят; полный check блокирует
+  существующая ошибка `ui/button.tsx:83`; SQL/browser
+  не проверены в контейнере, внешний вид требует одобрения владельца.
+  [ADR 0059](docs/app/decisions/0059-package-creation-and-capped-payments.md),
+  [отчёт](app/review/som-34-billing-finish/README.md),
+  [PR #22](https://github.com/anuar02/panda-trainer/pull/22).
+
 - [SOM-38 / PR #21](https://github.com/anuar02/panda-trainer/pull/21): утверждённые PNG-позы и лица через expo-image, `hidden`,
   Rive за выключенным флагом и PNG-празднование нового завершения тренировки.
   Native/визуальная приёмка и одобрение рига открыты.

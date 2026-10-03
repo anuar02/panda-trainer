@@ -146,7 +146,10 @@ export function snapshotTrainerBillingCommand(
     Object.entries(command)
       .filter(([, value]) => value !== undefined)
       .sort(([left], [right]) => left.localeCompare(right))
-      .map(([key, value]) => [key, uuid(value) ? value.toLowerCase() : value]),
+      .map(([key, value]) => [
+        key,
+        key.endsWith('Id') && uuid(value) ? value.toLowerCase() : value,
+      ]),
   ) as TrainerBillingCommand;
 }
 export async function submitTrainerBillingCommand(

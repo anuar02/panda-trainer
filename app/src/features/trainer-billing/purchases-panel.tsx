@@ -12,6 +12,7 @@ import { Icon } from '@/ui/icons';
 import { StatusPill } from '@/ui/status-pill';
 import { Text } from '@/ui/text';
 import { useTheme } from '@/ui/theme';
+import { parity } from '@/ui/parity-tokens';
 import type { TrainerBilling } from './types';
 import type { trainerPurchasesRu } from './purchases-ru';
 import { projectPurchasePayments } from '@/domain/payments';
@@ -45,7 +46,7 @@ export function PurchasesPanel({
   onPayment,
 }: PurchasesPanelProps) {
   const { t, i18n } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, scheme } = useTheme();
   const text = (key: keyof typeof trainerPurchasesRu) =>
     t(`trainerPurchases.${key}`);
   const projection = billing
@@ -69,14 +70,6 @@ export function PurchasesPanel({
   if (error || !projection?.valid)
     return (
       <Card>
-        {paymentsError || (paymentProjection && !paymentProjection.valid) ? (
-          <Button
-            label={text('retry')}
-            variant="soft"
-            compact
-            onPress={onRetry}
-          />
-        ) : null}
         <Text accessibilityRole="alert">{text('error')}</Text>
         <Button
           label={text('retry')}
@@ -86,6 +79,17 @@ export function PurchasesPanel({
         />
       </Card>
     );
+  const history =
+    paymentProjection?.valid && !paymentsLoading
+      ? paymentProjection.purchases
+          .flatMap((row) => row.payments)
+          .sort(
+            (a, b) =>
+              b.paidOn.localeCompare(a.paidOn) ||
+              b.createdAt.localeCompare(a.createdAt),
+          )
+      : null;
+  const hasHistory = Boolean(history?.length);
   const secondary = { color: colors.secondary };
   return (
     <View style={s.stack}>
@@ -105,7 +109,14 @@ export function PurchasesPanel({
                   <StatusPill
                     label={
                       payment
-                        ? text(payment.dueMinor === '0' ? 'paid' : 'debt')
+                        ? payment.dueMinor === '0'
+                          ? text('paid')
+                          : t('trainerPurchases.debt', {
+                              amount: formatPurchaseMoney(
+                                payment.dueMinor,
+                                i18n.language,
+                              ),
+                            })
                         : text('unknown')
                     }
                     tone={
@@ -171,9 +182,6 @@ export function PurchasesPanel({
                     !onPayment
                   }
                   onPress={() => onPayment?.(purchase.id)}
-                  accessibilityHint={t(
-                    'workspaceClientDetails.billingUnavailable',
-                  )}
                   style={{ marginTop: 12 }}
                 />
               </View>
@@ -192,32 +200,83 @@ export function PurchasesPanel({
       <Text style={[s.label, secondary, { marginTop: 8, marginHorizontal: 6 }]}>
         {text('paymentHistory')}
       </Text>
-      <Card>
-        {paymentProjection?.valid && !paymentsLoading ? (
-          paymentProjection.purchases.flatMap((row) => row.payments).length ? (
-            paymentProjection.purchases
-              .flatMap((row) => row.payments)
-              .sort(
-                (a, b) =>
-                  b.paidOn.localeCompare(a.paidOn) ||
-                  b.createdAt.localeCompare(a.createdAt),
-              )
-              .map((entry) => (
-                <View key={entry.id} style={s.kv}>
-                  <Text style={secondary}>
-                    {`${formatPurchaseExpiry(entry.paidOn, i18n.language)} · ${entry.method}`}
-                  </Text>
-                  <Text style={s.kvValue}>
+      <Card flush={hasHistory} style={hasHistory ? s.rows : undefined}>
+        {history ? (
+          history.length ? (
+            history.map((entry, index) => (
+              <View
+                key={entry.id}
+                style={[
+                  s.sessionRow,
+                  index > 0 && {
+                    borderTopWidth: 1,
+                    borderTopColor: colors.border,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    s.numberLead,
+                    {
+                      backgroundColor: parity[scheme].success.backgroundColor,
+                    },
+                  ]}
+                >
+                  <Icon
+                    name="wallet"
+                    size={18}
+                    color={parity[scheme].success.color}
+                  />
+                </View>
+                <View style={s.flex}>
+                  <Text
+                    style={[
+                      s.rowTitle,
+                      { fontFamily: 'Inter_600SemiBold', letterSpacing: 0.1 },
+                    ]}
+                  >
                     {formatPurchaseMoney(entry.amountMinor, i18n.language)}
                   </Text>
+                  <Text style={[s.small, s.bookingMeta, secondary]}>
+                    {t('trainerPurchases.paymentMeta', {
+                      date: new Intl.DateTimeFormat(i18n.language, {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        timeZone: 'UTC',
+                      })
+                        .format(new Date(`${entry.paidOn}T12:00:00Z`))
+                        .replace(/\./g, ''),
+                      method: entry.method,
+                      note: entry.reason
+                        ? t('trainerPurchases.paymentNote', {
+                            note: entry.reason,
+                          })
+                        : '',
+                    })}
+                  </Text>
                 </View>
-              ))
+                <StatusPill
+                  label={text('recorded')}
+                  tone="neutral"
+                  dot={false}
+                />
+              </View>
+            ))
           ) : (
             <Text style={[s.small, secondary]}>{text('noPayments')}</Text>
           )
         ) : (
           <Text style={[s.small, secondary]}>{text('paymentUnavailable')}</Text>
         )}
+        {paymentsError || (paymentProjection && !paymentProjection.valid) ? (
+          <Button
+            label={text('retry')}
+            variant="soft"
+            compact
+            onPress={onRetry}
+          />
+        ) : null}
       </Card>
     </View>
   );
