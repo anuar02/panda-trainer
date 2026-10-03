@@ -66,3 +66,5 @@
 | [0061](0061-journal-conflicts-and-client-visibility.md) | Конфликты журнала на двух устройствах, видимость черновика и ввод результатов | Принято владельцем | 03.10.2026 |
 
 | [0062](0062-sqlite-journal-outbox.md) | SQLite journal outbox и пакетный RPC | Реализовано; SQL/native проверки открыты | 03.10.2026 |
+
+| [0064](0064-workout-preload-and-scoped-recovery.md) | Предзагрузка снимка занятия и scoped восстановление | Реализовано; SQL/native/parity и owner acceptance открыты | 03.10.2026 |

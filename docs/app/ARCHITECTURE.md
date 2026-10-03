@@ -148,3 +148,16 @@ Standalone `domain/workout-sync` contracts and `features/workout-sync` SQLite, t
 runner and status component implement [ADR 0062](decisions/0062-sqlite-journal-outbox.md).
 Existing screens remain disconnected; SOM-30/31 adapters and native/SQL validation
 are described in the [report](../../app/review/som-29-sqlite-outbox/README.md).
+
+## SOM-30: предзагрузка и восстановление журнала
+
+`domain/workout-preload` задаёт typed assignment/current/history context и строгую
+валидацию. `features/workout-preload` читает owner-scoped server snapshots, атомарно
+сохраняет context + recovery в отдельной SQLite database и держит provider/dock над
+workspace Stack. При недоступном onboarding чтении account-scoped bootstrap находит
+собственный сохранённый recovery; role/entity ошибки серверной проверки не дают
+сетевой fallback. Только журнал остаётся доступным через cache; остальные workspace
+экраны сохраняют собственные online guards. Запись подходов/finish не подключены.
+SOM-29 outbox/runner используется без изменения receipts/conflicts и без purge.
+Контракты и ограничения SOM-31/32 — [ADR 0064](decisions/0064-workout-preload-and-scoped-recovery.md),
+[проверки](../../app/review/som-30-workout-preload-recovery/README.md).

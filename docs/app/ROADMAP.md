@@ -9,6 +9,18 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-30 на базе SOM-29-r2 `19c62af` (PR #26): [x] server read
+  назначенных booking snapshots/участников/прошлых подходов; [x] атомарный typed
+  SQLite cache и scoped recovery; [x] workspace read-only journal, общий dock и
+  entry Today/Schedule; [x] fencing logout/switch и stop/close SOM-29 runtime без purge.
+  [Отчёт](../../app/review/som-30-workout-preload-recovery/README.md),
+  [ADR 0064](decisions/0064-workout-preload-and-scoped-recovery.md).
+  Полный `cd app && npm run check`: 1382 tests / 140 suites, type/lint/format зелёные;
+  static export iOS/Android/web проходит (не runtime).
+  [ ] Real SQLite/reopen/crash, SQL/RLS/runtime/generated drift, native/parity и
+  owner approval. Ввод/conflict UI — SOM-31, finish/correction — SOM-32; общий
+  group offline→online→second-device критерий этапа 5 остаётся открытым.
+
 - 03.10.2026 — SOM-29 r2 после закрытого PR #24: исходный модуль перенесён
   на свежую базу с SOM-39/SOM-34; исправления конфликтов заметок и снимков
   структуры, усиленные SQLite/runner проверки. Существующие экраны не подключены.
@@ -679,6 +691,8 @@
   каждая запись подхода — операция с `operation_id`; RPC `apply_operations` применяет её
   ровно один раз.
 - [ ] Перед занятием: предзагрузка программы, прошлых подходов и участников на телефон.
+  SOM-30: [x] реализация server/cache и mock regressions; [ ] real SQL/SQLite/native
+  проверка и приёмка владельца (см. текущий checkpoint).
 - [ ] Экран журнала: один подход в фокусе, «Как в прошлый раз» одним нажатием, шторка
   ввода с крупными цифрами, отмена последней записи.
 - [ ] Черновик и подтверждённый подход — разные состояния; пустое значение ≠ 0.
@@ -689,6 +703,8 @@
   Серверная изоляция проверена; приложение ещё не подключено к этим таблицам.
 - [ ] «Свернуть»: полоса возврата к журналу во всех разделах тренера, восстановление после
   перезапуска приложения.
+  SOM-30: [x] workspace provider/dock и mock reload/fencing; [ ] native/crash/visual
+  проверка и приёмка владельца. Демо не смешивается с real workspace.
 - [ ] Индикатор «Сохранено на телефоне» / «Синхронизировано», ошибка отправки не теряет
   данные.
 - [ ] Завершение: сводка, частичное завершение, исправление завершённого журнала.

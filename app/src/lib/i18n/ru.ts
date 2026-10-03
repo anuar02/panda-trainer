@@ -25,7 +25,10 @@ import { invitationsRu } from '@/features/invitations/strings';
 import { workspaceLibraryRu } from '@/features/workspace-library/strings';
 import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
 
+import { workoutPreloadRu } from '@/features/workout-preload/strings';
+
 export const ru = {
+  workoutPreload: workoutPreloadRu,
   trainerBilling: trainerBillingRu,
   trainerPurchases: trainerPurchasesRu,
   trainerBillingPurchase: trainerBillingPurchaseRu,

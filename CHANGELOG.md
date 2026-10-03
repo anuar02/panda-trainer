@@ -11,6 +11,13 @@
 
 ### Добавлено
 
+- SOM-30: typed server preload назначенных снимков и прошлых подходов, atomic scoped
+  SQLite cache/recovery, read-only workspace journal и общий dock Today/Schedule/Stack;
+  account/session fencing и lifecycle существующего SOM-29 runner без purge pending.
+  Ввод/конфликты ждут SOM-31, завершение — SOM-32; SQL/native/parity и приёмка открыты.
+  [ADR 0064](docs/app/decisions/0064-workout-preload-and-scoped-recovery.md),
+  [отчёт](app/review/som-30-workout-preload-recovery/README.md).
+
 - [SOM-29 r2 / draft PR #26](https://github.com/anuar02/panda-trainer/pull/26): перенесён исходный outbox на свежую базу, исправлены приватность
   нерешённых заметок, восстановление выбранной видимости и stale выбор структуры;
   усилены проверки SQLite receipts и сессий runner. SQL/native проверки открыты.
