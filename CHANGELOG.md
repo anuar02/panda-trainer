@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-26: runtime validation и ограниченная пагинация чтения расписания,
+- [SOM-26 / draft PR #41](https://github.com/anuar02/panda-trainer/pull/41): runtime validation и ограниченная пагинация чтения расписания,
   фиксированная авторизация всех страниц и защита Today/week от старого snapshot
   после смены сессии, retry и unmount. Команды создания/мутаций сохранены.
   [Отчёт](app/review/som-26-schedule-read-fencing/README.md),
