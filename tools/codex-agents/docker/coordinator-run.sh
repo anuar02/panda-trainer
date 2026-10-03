@@ -17,8 +17,8 @@ git config --global user.email "codex-agent@users.noreply.github.com"
 
 mkdir -p work
 cd work
-git clone --depth 200 --branch "$BASE_BRANCH" "$repo_url" repo
-git clone --depth 20 --branch "$QUEUE_BRANCH" "$repo_url" queue
+git clone --reference-if-able /mirror --branch "$BASE_BRANCH" "$repo_url" repo
+git clone --reference-if-able /mirror --branch "$QUEUE_BRANCH" "$repo_url" queue
 (cd repo/app && npm ci --no-audit --no-fund)
 
 prompt="$(sed -e "s|{{BASE}}|$BASE_BRANCH|g" \

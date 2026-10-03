@@ -17,7 +17,7 @@ if git ls-remote --exit-code --heads "$repo_url" "$branch" >/dev/null 2>&1; then
   exit 0
 fi
 
-git clone --depth 50 --branch "$base" "$repo_url" repo
+git clone --reference-if-able /mirror --branch "$base" "$repo_url" repo
 cd repo
 git checkout -b "$branch"
 (cd app && npm ci --no-audit --no-fund)

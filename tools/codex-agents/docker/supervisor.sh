@@ -26,6 +26,7 @@ coordinator=${COORDINATOR:-third}
 subagent_accounts=${SUBAGENT_ACCOUNTS:-third}
 interval=${COORDINATOR_INTERVAL:-1200}
 poll=${POLL_SECONDS:-60}
+mirror=${MIRROR:-$HOME/.cache/panda-agent/mirror.git}
 worker_pattern=$(echo $workers | tr ' ' '|')
 
 mkdir -p "$logs"
@@ -33,6 +34,11 @@ touch "$summary"
 note() { echo "$(date '+%F %T') $*" >> "$logs/supervisor.txt"; }
 
 docker build -q -t panda-agent "$here" >/dev/null || exit 1
+if [ ! -d "$mirror" ]; then
+  git clone -q --mirror "$root" "$mirror" || exit 1
+  git -C "$mirror" remote set-url origin "$(git -C "$root" remote get-url origin)"
+  git -C "$mirror" config gc.auto 0
+fi
 
 container_running() { docker ps --format '{{.Names}}' | grep -qx "$1"; }
 
@@ -82,6 +88,7 @@ launch_worker() {
         -v "$task:/task/task.md:ro" \
         -v "$briefs/RULES.md:/task/RULES.md:ro" \
         -v panda-agent-npm:/home/node/.npm \
+        -v "$mirror:/mirror:ro" \
         --memory 5g $extra \
         panda-agent > "$logs/$name.log" 2>&1; then
       echo "OK    $(date '+%F %T') $acc $name" >> "$summary"
@@ -106,6 +113,7 @@ launch_coordinator() {
         -v "$briefs/COORDINATOR.md:/task/COORDINATOR.md:ro" \
         -v "$summary:/task/summary.txt:ro" \
         -v panda-agent-npm:/home/node/.npm \
+        -v "$mirror:/mirror:ro" \
         --memory 4g --cpus 2 \
         panda-agent > "$logs/coordinator-$stamp.log" 2>&1; then
       echo "OK    $(date '+%F %T') $coordinator coordinator" >> "$summary"
@@ -121,6 +129,7 @@ seen_finished=-1
 
 while true; do
   git -C "$root" pull -q --ff-only origin "$queue_branch" || note "queue pull failed"
+  git -C "$mirror" fetch -q --prune origin || note "mirror fetch failed"
   finished=$(finished_count)
   limit_reached=0
   [ "$(done_count)" -ge "$max_tasks" ] && limit_reached=1
