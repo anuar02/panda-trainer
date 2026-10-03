@@ -9,7 +9,7 @@ Production read path теперь отклоняет смену входа, по
 - **Сделано:** deterministic bounded pages (500 × 20) и child ID batches (200), explicit readLimit без truncation; search normalization и archived referenced rows сохранены.
 - **Сделано:** initial/refresh/reload scope/session/request fencing; retry/unmount/late success/error не публикуют старые server данные и не очищают новый draft. Durable pendingSave/draft и mutation retry UUID сохранены.
 - **Сделано:** meaningful synthetic tests >500 exercises/templates, 1200 lines, limits/duplicates/malformed/foreign/units/archived refs/null/zero/session switch/combined/verified refresh и deferred provider races. Existing editing/save/archive/create→assign regressions сохранены.
-- **Сделано:** CHANGELOG, минимальный ROADMAP checkpoint, ADR 0077 и текстовый review report; no comments/any, no new deps/PNG.
+- **Сделано:** CHANGELOG, минимальный ROADMAP checkpoint, ADR 0078 и текстовый review report; no comments/any, no new deps/PNG.
 - **Не проверено:** SQL/pgTAP/RLS/live API/real auth; browser/iOS/Android/native/parity и два устройства. Нет Docker/Supabase/browser/native; только synthetic fixtures, без реальных клиентов и платных сервисов.
 - **Требует одобрения владельца:** экраны/owner acceptance; SOM-22 целиком не закрывается этим PR.
 

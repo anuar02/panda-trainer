@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0077](docs/app/decisions/0077-validated-session-fenced-library-reads.md).
+- SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
 
 - [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
 

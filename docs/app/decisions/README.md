@@ -81,4 +81,4 @@
 
 | [0076](0076-client-history-session-fencing.md) | Session fence клиентской истории и пагинации | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
 
-| [0077](0077-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+| [0078](0078-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |

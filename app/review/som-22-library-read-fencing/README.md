@@ -31,7 +31,7 @@
 
 Service mutation bodies, draft encoding/storage policy, auth provider,
 workspace-programs/template-editor/UI, SQL/types/deps и прототип не менялись.
-Обоснование: [ADR 0077](../../../docs/app/decisions/0077-validated-session-fenced-library-reads.md).
+Обоснование: [ADR 0078](../../../docs/app/decisions/0078-validated-session-fenced-library-reads.md).
 Это auth fencing, не транзакционный snapshot данных нескольких таблиц.
 Существующий mutation lock сохраняется до завершения исходной операции.
 
@@ -90,3 +90,10 @@ gh pr create --base fix/som-50-template-picker --draft --fill \
   --title 'SOM-22: Validate and fence complete workspace library reads' \
   --body-file app/review/som-22-library-read-fencing/PR.md
 ```
+
+## Проверка координатора · 03.10.2026
+
+Свежая база SOM-34 (`9031157`) влита без конфликтов. `cd app && npm run check`
+PASS: 158 suites / 1740 tests, typecheck/lint/format зелёные. `git diff --check` PASS.
+ADR перенумерован 0078: 0077 занят financial reads. Независимое read-only review
+блокеров не обнаружило. SQL/native/live auth/паритет и приёмка не проверялись.
