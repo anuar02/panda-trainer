@@ -69,7 +69,7 @@ removeItem нельзя отменить, но он запускается то�
 исхода и актуальной проверки. Late completion не публикуется.
 
 Экран и SOM-24 целиком не приняты: требуется проверка владельца и перечисленные
-runtime проверки. Решение: [ADR 0077](../../../docs/app/decisions/0077-program-assignment-session-fencing.md).
+runtime проверки. Решение: [ADR 0080](../../../docs/app/decisions/0080-program-assignment-session-fencing.md).
 
 ## Публикация
 

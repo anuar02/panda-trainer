@@ -15,7 +15,15 @@
   [ ] live auth/SQL/RLS/concurrent receipts, real storage/reopen/crash,
   native/parity и одобрение владельца. SOM-24 целиком не закрыта.
   [Отчёт](../../app/review/som-24-assignment-session-fencing/README.md),
-  [ADR 0077](decisions/0077-program-assignment-session-fencing.md).
+  [ADR 0080](decisions/0080-program-assignment-session-fencing.md).
+
+- 03.10.2026 — SOM-20 reads: [x] owner/auth fencing, bounded deterministic pagination,
+  unknown-row validation и read lifecycle списка/карточки; [ ] SQL/RLS/live auth,
+  native/parity и одобрение владельца. Issue и экраны не приняты.
+  [Отчёт](../../app/review/som-20-trainer-client-read-fencing/README.md),
+  [ADR 0079](decisions/0079-trainer-client-read-fencing.md).
+
+- 03.10.2026 — SOM-22 read path: [x] runtime validation строк/связей, bounded pagination и session fence; [x] provider scope/request fencing с сохранением durable draft/pendingSave; полный check: 1698 tests / 156 suites, type/lint/format зелёные. [Отчёт](../../app/review/som-22-library-read-fencing/README.md), [ADR 0078](decisions/0078-validated-session-fenced-library-reads.md). [ ] SQL/RLS/live API/real auth, native/parity и приёмка владельца; SOM-22 целиком не закрыт.
 
 - 03.10.2026 — SOM-35: [x] session fence клиентской истории, auth reset страниц/detail, workspace read seam и synthetic regressions (check: 1582 tests / 152 suites); [ ] live API/RLS, native, два телефона и приёмка владельца. [Отчёт](../../app/review/som-35-history-session-fencing/README.md), [ADR 0076](decisions/0076-client-history-session-fencing.md).
 
@@ -27,6 +35,12 @@
   [ ] SQL/RLS/live API, native/parity, два устройства и одобрение владельца.
   Полный `cd app && npm run check`: 1636 tests / 154 suites, type/lint/format зелёные.
   SOM-26/SOM-45 остаются открытыми; creation/mutation commands не изменены.
+
+- 03.10.2026 — SOM-34 read fencing: [x] lifecycle/session identity guards,
+  hook epoch, bounded exact-count paging и scoped relation validation;
+  [ ] live auth/SQL/RLS/native/visual и одобрение владельца. UI/mutations не менялись.
+  [Отчёт](../../app/review/som-34-financial-read-session-fencing/README.md),
+  [ADR 0077](decisions/0077-financial-read-session-fencing.md).
 
 - 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
   fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.

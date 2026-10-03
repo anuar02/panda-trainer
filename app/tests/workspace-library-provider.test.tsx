@@ -1,3 +1,5 @@
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../src/features/auth/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { PropsWithChildren } from 'react';
@@ -10,6 +12,7 @@ import {
   saveWorkspaceTemplateOperation,
   type WorkspaceLibrary,
 } from '../src/features/workspace-library/service';
+import { WorkspaceLibrarySessionError } from '../src/features/workspace-library/read-session';
 import { decodeWorkspaceDraft } from '../src/features/workspace-library/draft';
 import type {
   WorkspaceLibraryExercise,
@@ -72,8 +75,29 @@ const getItem = jest.mocked(AsyncStorage.getItem);
 const setItem = jest.mocked(AsyncStorage.setItem);
 let data: WorkspaceLibrary;
 let storage: Map<string, string>;
-const mount = (userId = 'user-a') =>
-  renderHook(() => useWorkspaceLibrary(), {
+const sessionFor = (
+  userId: string,
+  sessionId = 'a1000000-0000-4000-8000-000000000001',
+) =>
+  ({
+    user: { id: userId },
+    access_token: `header.${btoa(
+      JSON.stringify({ sub: userId, session_id: sessionId }),
+    )
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')}.signature`,
+  }) as Session;
+let session: Session;
+const listeners = new Set<
+  (event: AuthChangeEvent, next: Session | null) => void
+>();
+const emit = (event: AuthChangeEvent, next: Session | null) => {
+  for (const listener of listeners) listener(event, next);
+};
+const mount = (userId = 'user-a') => {
+  session = sessionFor(userId);
+  return renderHook(() => useWorkspaceLibrary(), {
     wrapper: ({ children }: PropsWithChildren) => (
       <WorkspaceLibraryProvider
         userId={userId}
@@ -83,9 +107,27 @@ const mount = (userId = 'user-a') =>
       </WorkspaceLibraryProvider>
     ),
   });
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
+  listeners.clear();
+  session = sessionFor('user-a');
+  jest.mocked(getSupabaseClient).mockReturnValue({
+    auth: {
+      getSession: jest.fn(async () => ({ data: { session }, error: null })),
+      onAuthStateChange: jest.fn(
+        (listener: (event: AuthChangeEvent, next: Session | null) => void) => {
+          listeners.add(listener);
+          return {
+            data: {
+              subscription: { unsubscribe: () => listeners.delete(listener) },
+            },
+          };
+        },
+      ),
+    },
+  } as unknown as NonNullable<ReturnType<typeof getSupabaseClient>>);
   storage = new Map();
   data = { exercises: [exercise], templates: [template] };
   load.mockImplementation(async () => data);
@@ -262,4 +304,249 @@ test('unmount while the pending command is being persisted prevents its network 
   complete?.();
   expect(await saving).toEqual({ ok: false, error: 'storage' });
   expect(save).not.toHaveBeenCalled();
+});
+
+const deferred = <T,>() => {
+  let resolve!: (value: T) => void;
+  let reject!: (reason: unknown) => void;
+  const promise = new Promise<T>((done, fail) => {
+    resolve = done;
+    reject = fail;
+  });
+  return { promise, resolve, reject };
+};
+
+test('a late refresh cannot overwrite a newer catalog', async () => {
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  const old = deferred<WorkspaceLibrary>();
+  load.mockImplementationOnce(() => old.promise);
+  let first!: Promise<void>;
+  await act(() => {
+    first = hook.result.current.refresh();
+  });
+  const rejected = expect(first).rejects.toThrow();
+  data = { exercises: [], templates: [] };
+  await act(async () => {
+    await hook.result.current.refresh();
+    old.resolve({ exercises: [exercise], templates: [template] });
+    await rejected;
+  });
+  expect(hook.result.current.library).toEqual(data);
+});
+
+test('auth invalidation hides data and rejects a late reload without replacing the durable draft', async () => {
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => {
+    hook.result.current.editor.begin(template.id);
+  });
+  await waitFor(() => expect(hook.result.current.editor.status).toBe('saved'));
+  const stored = [...storage.values()][0];
+  const late = deferred<WorkspaceLibrary>();
+  load.mockImplementationOnce(() => late.promise);
+  let reload!: Promise<void>;
+  await act(() => {
+    reload = hook.result.current.reloadServerDraft();
+  });
+  const rejected = expect(reload).rejects.toThrow();
+  await act(() => emit('SIGNED_OUT', null));
+  expect(hook.result.current.library).toEqual({ exercises: [], templates: [] });
+  expect(hook.result.current.editor.draft).toBeNull();
+  expect(hook.result.current.editor.ready).toBe(false);
+  await act(async () => {
+    late.resolve({ exercises: [], templates: [{ ...template, revision: 9 }] });
+    await rejected;
+  });
+  expect([...storage.values()][0]).toBe(stored);
+  expect(hook.result.current.editor.draft).toBeNull();
+});
+
+test('retry supersedes an old initial read and ignores its late rejection', async () => {
+  const late = deferred<WorkspaceLibrary>();
+  load.mockImplementationOnce(() => late.promise);
+  const hook = await mount();
+  await waitFor(() => expect(load).toHaveBeenCalledTimes(1));
+  await act(() => hook.result.current.editor.retry());
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(async () => late.reject(new Error('old failure')));
+  expect(hook.result.current.editor.readError).toBe(false);
+  expect(hook.result.current.library.templates).toEqual([template]);
+});
+
+test('unmount rejects a pending refresh and removes its auth subscription', async () => {
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  const late = deferred<WorkspaceLibrary>();
+  load.mockImplementationOnce(() => late.promise);
+  const refreshing = hook.result.current.refresh();
+  const rejected = expect(refreshing).rejects.toThrow();
+  await hook.unmount();
+  late.resolve(data);
+  await rejected;
+  expect(listeners.size).toBe(0);
+});
+
+test('same-session token refresh retains data while a different session fails closed', async () => {
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => emit('TOKEN_REFRESHED', sessionFor('user-a')));
+  expect(hook.result.current.editor.ready).toBe(true);
+  await act(() =>
+    emit(
+      'TOKEN_REFRESHED',
+      sessionFor('user-a', 'b1000000-0000-4000-8000-000000000001'),
+    ),
+  );
+  expect(hook.result.current.editor.ready).toBe(false);
+  expect(hook.result.current.library.templates).toEqual([]);
+});
+
+test('auth change during save refresh retains pending save and its request ID for retry', async () => {
+  const execute = jest.fn(async () => ({
+    id: template.id,
+    revision: 3,
+    replayed: false,
+  }));
+  save.mockReturnValue({ execute });
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => {
+    hook.result.current.editor.begin(template.id);
+  });
+  await waitFor(() => expect(hook.result.current.editor.status).toBe('saved'));
+  const late = deferred<WorkspaceLibrary>();
+  load.mockImplementationOnce(() => late.promise);
+  let saving!: ReturnType<typeof hook.result.current.editor.save>;
+  await act(() => {
+    saving = hook.result.current.editor.save();
+  });
+  await waitFor(() => expect(load).toHaveBeenCalledTimes(2));
+  const pending = decodeWorkspaceDraft([...storage.values()][0]!).pendingSave;
+  expect(pending).toBeDefined();
+  await act(() => emit('SIGNED_OUT', null));
+  await act(async () => {
+    late.resolve(data);
+    await saving;
+  });
+  expect(decodeWorkspaceDraft([...storage.values()][0]!).pendingSave).toEqual(
+    pending,
+  );
+  await hook.unmount();
+  const restored = await mount();
+  await waitFor(() => expect(restored.result.current.editor.ready).toBe(true));
+  expect(save).toHaveBeenLastCalledWith(
+    pending?.template,
+    3,
+    'user-a',
+    pending?.requestId,
+  );
+});
+
+test('an old initial success cannot publish into a changed workspace', async () => {
+  let workspaceId = '61000000-0000-4000-8000-000000000001';
+  const old = deferred<WorkspaceLibrary>();
+  load.mockImplementationOnce(() => old.promise);
+  const hook = await renderHook(() => useWorkspaceLibrary(), {
+    wrapper: ({ children }: PropsWithChildren) => (
+      <WorkspaceLibraryProvider userId="user-a" workspaceId={workspaceId}>
+        {children}
+      </WorkspaceLibraryProvider>
+    ),
+  });
+  await waitFor(() => expect(load).toHaveBeenCalledTimes(1));
+  data = { exercises: [], templates: [] };
+  workspaceId = '61000000-0000-4000-8000-000000000002';
+  await hook.rerender({});
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(async () =>
+    old.resolve({ exercises: [exercise], templates: [template] }),
+  );
+  expect(hook.result.current.library).toEqual(data);
+});
+
+test('a save from an invalidated session cannot clear a restored pending command', async () => {
+  const late = deferred<{ id: string; revision: number; replayed: boolean }>();
+  save.mockReturnValue({ execute: jest.fn(() => late.promise) });
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => {
+    hook.result.current.editor.begin(template.id);
+  });
+  await waitFor(() => expect(hook.result.current.editor.status).toBe('saved'));
+  let saving!: ReturnType<typeof hook.result.current.editor.save>;
+  await act(() => {
+    saving = hook.result.current.editor.save();
+  });
+  await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+  const stored = [...storage.values()][0];
+  await act(() => emit('SIGNED_OUT', null));
+  session = sessionFor('user-a', 'b1000000-0000-4000-8000-000000000001');
+  await act(() => hook.result.current.editor.retry());
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(async () => {
+    late.resolve({ id: template.id, revision: 4, replayed: false });
+    expect(await saving).toEqual({ ok: false, error: 'storage' });
+  });
+  expect([...storage.values()][0]).toBe(stored);
+  expect(hook.result.current.editor.draft?.id).toBe(template.id);
+  expect(load).toHaveBeenCalledTimes(2);
+  expect(hook.result.current.editor.busy).toBe(false);
+});
+
+test('a verified read session failure hides a previously loaded catalog', async () => {
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  load.mockRejectedValueOnce(new WorkspaceLibrarySessionError());
+  await act(async () => {
+    await expect(hook.result.current.refresh()).rejects.toBeInstanceOf(
+      WorkspaceLibrarySessionError,
+    );
+  });
+  expect(hook.result.current.editor.ready).toBe(false);
+  expect(hook.result.current.editor.readError).toBe(true);
+  expect(hook.result.current.library.templates).toEqual([]);
+});
+
+test('retry hydration waits for pending command persistence before restoring its request ID', async () => {
+  save.mockReturnValue({
+    execute: jest.fn(async () => ({
+      id: template.id,
+      revision: 3,
+      replayed: true,
+    })),
+  });
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => {
+    hook.result.current.editor.begin(template.id);
+  });
+  await waitFor(() => expect(hook.result.current.editor.status).toBe('saved'));
+  const pendingWrite = deferred<void>();
+  setItem.mockImplementationOnce(async (key, raw) => {
+    await pendingWrite.promise;
+    storage.set(key, raw);
+  });
+  let saving!: ReturnType<typeof hook.result.current.editor.save>;
+  await act(() => {
+    saving = hook.result.current.editor.save();
+  });
+  await waitFor(() => expect(setItem).toHaveBeenCalledTimes(2));
+  await act(() => emit('SIGNED_OUT', null));
+  session = sessionFor('user-a', 'b1000000-0000-4000-8000-000000000001');
+  await act(() => hook.result.current.editor.retry());
+  expect(hook.result.current.editor.ready).toBe(false);
+  await act(async () => {
+    pendingWrite.resolve();
+    expect(await saving).toEqual({ ok: false, error: 'storage' });
+  });
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  const pending = decodeWorkspaceDraft([...storage.values()][0]!).pendingSave;
+  expect(pending).toBeDefined();
+  expect(save).toHaveBeenCalledWith(
+    pending?.template,
+    3,
+    'user-a',
+    pending?.requestId,
+  );
 });

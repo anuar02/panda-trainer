@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Redirect, router } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
 import { useTranslation } from 'react-i18next';
@@ -9,43 +9,37 @@ import { WorkspaceClientsScreen } from '@/features/workspace-clients/clients-scr
 import {
   createWorkspaceClient,
   loadWorkspaceClients,
-  type WorkspaceClient,
 } from '@/features/workspace-clients/service';
+import { useClientRead } from '@/features/workspace-clients/use-client-read';
 import { Button } from '@/ui/button';
 import { Screen } from '@/ui/screen';
 
 function ClientList({
   workspaceId,
   timezone,
+  userId,
+  token,
 }: {
   workspaceId: string;
   timezone: string;
+  userId: string;
+  token: string;
 }) {
   const { t, i18n } = useTranslation();
-  const [attempt, setAttempt] = useState(0);
-  const [loaded, setLoaded] = useState<{
-    attempt: number;
-    rows: WorkspaceClient[];
-    failed: boolean;
-  } | null>(null);
+  const load = useCallback(
+    (signal: AbortSignal) =>
+      loadWorkspaceClients(workspaceId, { userId, token, signal }),
+    [workspaceId, userId, token],
+  );
+  const read = useClientRead(
+    `${userId}:${token}:${workspaceId}`,
+    userId,
+    token,
+    load,
+  );
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
   const request = useRef<{ name: string; id: string } | null>(null);
-  useEffect(() => {
-    let active = true;
-    void loadWorkspaceClients(workspaceId).then(
-      (rows) => {
-        if (active) setLoaded({ attempt, rows, failed: false });
-      },
-      () => {
-        if (active) setLoaded({ attempt, rows: [], failed: true });
-      },
-    );
-    return () => {
-      active = false;
-    };
-  }, [attempt, workspaceId]);
-  const current = loaded?.attempt === attempt ? loaded : null;
   const onAdd = async (value: string) => {
     if (pending.current) throw new Error('Client creation is already pending');
     pending.current = true;
@@ -56,13 +50,13 @@ function ClientList({
     try {
       await createWorkspaceClient(name, request.current.id);
       request.current = null;
-      setAttempt((count) => count + 1);
+      read.retry();
     } finally {
       pending.current = false;
       setBusy(false);
     }
   };
-  const rows = (current?.rows ?? []).map((person) => {
+  const rows = (read.data ?? []).map((person) => {
     const start = person.nextStartsAt ? new Date(person.nextStartsAt) : null;
     const date = start
       ? new Intl.DateTimeFormat(i18n.language, {
@@ -95,10 +89,10 @@ function ClientList({
   return (
     <WorkspaceClientsScreen
       rows={rows}
-      loading={!current}
-      error={current?.failed ?? false}
+      loading={read.loading}
+      error={read.failed}
       busy={busy}
-      onRetry={() => setAttempt((count) => count + 1)}
+      onRetry={read.retry}
       onAdd={onAdd}
       onBack={() => router.replace('/auth/account')}
       onOpen={(id) =>
@@ -126,6 +120,8 @@ export default function WorkspaceClientsRoute() {
   return (
     <ClientList
       key={`${auth.session.user.id}:${workspace.id}`}
+      userId={auth.session.user.id}
+      token={auth.session.access_token}
       workspaceId={workspace.id}
       timezone={workspace.timezone}
     />

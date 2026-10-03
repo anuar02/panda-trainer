@@ -1,3 +1,4 @@
+import { financialToken } from './financial-read-fixtures';
 import { getSupabaseClient } from '../src/features/auth/client';
 import {
   createClientPurchase,
@@ -56,7 +57,19 @@ const eq = jest.fn();
 const order = jest.fn();
 const range = jest.fn();
 const select = jest.fn();
-const query = { select, eq, order, range, setHeader: readHeader };
+const query = {
+  select,
+  eq,
+  order,
+  range,
+  setHeader: (...args: unknown[]) =>
+    Promise.resolve(readHeader(...args)).then((response) => ({
+      ...response,
+      count:
+        response.count ??
+        (Array.isArray(response.data) ? response.data.length : null),
+    })),
+};
 const purchase = {
   id: purchaseId,
   workspace_id: workspace,
@@ -68,17 +81,38 @@ const purchase = {
   expires_on: null,
   created_at: '2026-10-03T00:00:00Z',
 };
+const grant = {
+  id: id(90),
+  workspace_id: workspace,
+  client_record_id: clientRecordId,
+  purchase_id: purchaseId,
+  attendance_id: null,
+  booking_id: null,
+  cycle: null,
+  kind: 'grant',
+  units: 12,
+  reason: null,
+  reverses_entry_id: null,
+  created_at: purchase.created_at,
+};
 const getClient = jest.mocked(getSupabaseClient);
 
 beforeEach(() => {
   jest.resetAllMocks();
   getClient.mockReturnValue({
-    auth: { getSession },
+    auth: {
+      getSession,
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
     rpc,
     from,
   } as unknown as NonNullable<ReturnType<typeof getSupabaseClient>>);
   getSession.mockResolvedValue({
-    data: { session: { user: { id: user }, access_token: 'bound-token' } },
+    data: {
+      session: { user: { id: user }, access_token: financialToken(user) },
+    },
     error: null,
   });
   rpc.mockReturnValue({ setHeader: rpcHeader });
@@ -144,7 +178,10 @@ it('sends exact maximum bigint price as a decimal string and validates purchase 
     p_request_id: requestId,
     p_expires_on: '2026-12-31',
   });
-  expect(rpcHeader).toHaveBeenCalledWith('Authorization', 'Bearer bound-token');
+  expect(rpcHeader).toHaveBeenCalledWith(
+    'Authorization',
+    `Bearer ${financialToken(user)}`,
+  );
 });
 
 it.each(['01', '-1', '1.2', '1e3', ' 1', '9223372036854775808', '', '000'])(
@@ -165,7 +202,11 @@ it.each(['01', '-1', '1.2', '1e3', ' 1', '9223372036854775808', '', '000'])(
 );
 
 it('maps lossless money reads using explicit safe columns and identity filters', async () => {
-  readHeader.mockResolvedValueOnce({ data: [purchase], error: null });
+  readHeader
+    .mockResolvedValueOnce({ data: [purchase], error: null })
+    .mockResolvedValueOnce({ data: [], error: null })
+    .mockResolvedValueOnce({ data: [], error: null })
+    .mockResolvedValueOnce({ data: [grant], error: null });
   const value = await loadTrainerBilling(scope);
   expect(value.purchases[0]?.priceMinor).toBe('9223372036854775807');
   expect(select.mock.calls[0][0]).toContain('price_minor::text');
@@ -179,7 +220,7 @@ it('maps lossless money reads using explicit safe columns and identity filters',
   expect(readHeader).toHaveBeenCalledTimes(4);
   expect(readHeader).toHaveBeenCalledWith(
     'Authorization',
-    'Bearer bound-token',
+    `Bearer ${financialToken(user)}`,
   );
 });
 
@@ -272,7 +313,9 @@ it('snapshots arguments before session lookup so caller mutation cannot alter an
   input.requestId = id(31);
   input.expectedUserId = id(32);
   resolve({
-    data: { session: { user: { id: user }, access_token: 'bound-token' } },
+    data: {
+      session: { user: { id: user }, access_token: financialToken(user) },
+    },
     error: null,
   });
   await pending;
@@ -434,7 +477,7 @@ it('maps all attendance history and credit fields without exposing audit columns
     updated_at: purchase.created_at,
   };
   readHeader
-    .mockResolvedValueOnce({ data: [], error: null })
+    .mockResolvedValueOnce({ data: [purchase], error: null })
     .mockResolvedValueOnce({ data: [row], error: null })
     .mockResolvedValueOnce({
       data: [
@@ -449,6 +492,7 @@ it('maps all attendance history and credit fields without exposing audit columns
     })
     .mockResolvedValueOnce({
       data: [
+        grant,
         {
           id: creditEntryId,
           workspace_id: workspace,
@@ -457,10 +501,10 @@ it('maps all attendance history and credit fields without exposing audit columns
           attendance_id: attendanceId,
           booking_id: bookingId,
           cycle: 2,
-          kind: 'restore',
-          units: 1,
+          kind: 'consume',
+          units: -1,
           reason: 'Correction',
-          reverses_entry_id: id(16),
+          reverses_entry_id: null,
           created_at: purchase.created_at,
         },
       ],
@@ -478,12 +522,12 @@ it('maps all attendance history and credit fields without exposing audit columns
     reason: 'Correction',
     serviceDate: '2026-10-03',
   });
-  expect(value.credits[0]).toMatchObject({
+  expect(value.credits[1]).toMatchObject({
     purchaseId,
     attendanceId,
     bookingId,
-    units: 1,
-    reversesEntryId: id(16),
+    units: -1,
+    reversesEntryId: null,
   });
 });
 it('reads beyond the server page limit with deterministic IDs and a bound token', async () => {
@@ -491,12 +535,23 @@ it('reads beyond the server page limit with deterministic IDs and a bound token'
     ...purchase,
     id: id(index + 1000),
   }));
-  readHeader.mockResolvedValueOnce({ data: page, error: null });
+  readHeader
+    .mockResolvedValueOnce({ data: page, error: null })
+    .mockResolvedValueOnce({ data: [], error: null })
+    .mockResolvedValueOnce({ data: [], error: null })
+    .mockResolvedValueOnce({
+      data: page.map((purchase, index) => ({
+        ...grant,
+        id: id(index + 2000),
+        purchase_id: purchase.id,
+      })),
+      error: null,
+    });
   const value = await loadTrainerBilling(scope);
   expect(value.purchases).toHaveLength(500);
-  expect(range).toHaveBeenCalledWith(500, 999);
+  expect(range).toHaveBeenCalledWith(0, 499);
   expect(order).toHaveBeenCalledWith('id');
-  expect(readHeader).toHaveBeenCalledTimes(5);
+  expect(readHeader).toHaveBeenCalledTimes(4);
 });
 it('preserves restore IDs even though undo does not report another debit', async () => {
   rpcHeader.mockResolvedValue({
