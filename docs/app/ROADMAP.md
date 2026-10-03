@@ -17,8 +17,9 @@
 
 - 03.10.2026 — SOM-41 read-only package: [x] owner-scoped export RPC,
   26 versioned collections и независимые typed domain/service; [x] app tests,
-  check 1355 tests / 133 suites. [ ] SQL/pgTAP runtime, generated type drift,
-  real API; UI и account deletion — будущие пакеты, SOM-41 не закрыт.
+  check после вливания SOM-30: 1430 tests / 142 suites. [ ] SQL/pgTAP runtime, generated type drift,
+  real API; CI блокируют исходный apply_operations lint и Expo versions.
+  UI и account deletion — будущие пакеты, SOM-41 не закрыт.
   [Отчёт](../../app/review/som-41-trainer-export/README.md),
   [ADR 0069](decisions/0069-owner-scoped-server-workspace-export.md).
 
