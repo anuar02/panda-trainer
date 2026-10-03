@@ -1,3 +1,6 @@
+import { financialPage } from './read-page';
+import { withReadAuth, financialRowLimit } from './read-auth';
+import { validateBillingRelations } from './read-validation';
 import { getSupabaseClient } from '@/features/auth/client';
 import type { Database } from '@/lib/database.types';
 import {
@@ -292,65 +295,81 @@ export function loadTrainerBilling(
     invalid();
   const scope = { ...input };
   return protectedRequest(async () => {
-    const { client, token } = await authenticate(scope.expectedUserId);
-    const read = async <T>(
-      table:
-        | 'client_purchases'
-        | 'attendance_records'
-        | 'attendance_revisions'
-        | 'credit_entries',
-      columns: string,
-      parse: (value: unknown, scope: BillingScope) => T,
-    ): Promise<T[]> => {
-      const rows: T[] = [];
-      const ids = new Set<string>();
-      for (let offset = 0; ; offset += 500) {
-        let request = client
-          .from(table)
-          .select(columns)
-          .eq('workspace_id', scope.workspaceId)
-          .order('id')
-          .range(offset, offset + 499);
-        if (scope.clientRecordId)
-          request = request.eq('client_record_id', scope.clientRecordId);
-        const { data, error } = await request.setHeader(
-          'Authorization',
-          `Bearer ${token}`,
-        );
-        if (error) throw new TrainerBillingError('request');
-        if (!Array.isArray(data)) throw new TrainerBillingError('request');
-        for (const value of data) {
-          const row = parse(value, scope);
-          const id = (row as { id: string }).id;
-          if (ids.has(id)) throw new TrainerBillingError('request');
-          ids.add(id);
-          rows.push(row);
-        }
-        if (data.length < 500) return rows;
-      }
-    };
-    const [purchases, attendance, revisions, credits] = await Promise.all([
-      read(
-        'client_purchases',
-        'id,workspace_id,client_record_id,title,units,price_minor::text,currency,expires_on,created_at',
-        parsePurchase,
-      ),
-      read(
-        'attendance_records',
-        'id,workspace_id,client_record_id,booking_id,status,revision,cycle,service_date,created_at,updated_at',
-        parseAttendance,
-      ),
-      read(
-        'attendance_revisions',
-        'id,workspace_id,client_record_id,attendance_id,revision,cycle,status,service_date,reason,created_at',
-        parseRevision,
-      ),
-      read(
-        'credit_entries',
-        'id,workspace_id,client_record_id,purchase_id,attendance_id,booking_id,cycle,kind,units,reason,reverses_entry_id,created_at',
-        parseCredit,
-      ),
-    ]);
-    return { purchases, attendance, revisions, credits };
+    return withReadAuth(
+      scope.expectedUserId,
+      (code) => {
+        throw new TrainerBillingError(code);
+      },
+      async (client, token, guard) => {
+        const read = async <T>(
+          table:
+            | 'client_purchases'
+            | 'attendance_records'
+            | 'attendance_revisions'
+            | 'credit_entries',
+          columns: string,
+          parse: (value: unknown, scope: BillingScope) => T,
+        ): Promise<T[]> => {
+          const rows: T[] = [];
+          const ids = new Set<string>();
+          let total: number | null = null;
+          for (let offset = 0; offset <= financialRowLimit; offset += 500) {
+            await guard();
+            let request = client
+              .from(table)
+              .select(columns, { count: 'exact' })
+              .eq('workspace_id', scope.workspaceId)
+              .order('id')
+              .range(offset, offset + 499);
+            if (scope.clientRecordId)
+              request = request.eq('client_record_id', scope.clientRecordId);
+            const { data, error, count } = await request.setHeader(
+              'Authorization',
+              `Bearer ${token}`,
+            );
+            if (error) throw new TrainerBillingError('request');
+            await guard();
+            const page = financialPage(data, count, offset, total, () => {
+              throw new TrainerBillingError('request');
+            });
+            total = page.count;
+            for (const value of page.rows) {
+              const row = parse(value, scope);
+              const id = (row as { id: string }).id.toLowerCase();
+              if (ids.has(id)) throw new TrainerBillingError('request');
+              ids.add(id);
+              rows.push(row);
+            }
+            if (page.done) return rows;
+          }
+          throw new TrainerBillingError('request');
+        };
+        const [purchases, attendance, revisions, credits] = await Promise.all([
+          read(
+            'client_purchases',
+            'id,workspace_id,client_record_id,title,units,price_minor::text,currency,expires_on,created_at',
+            parsePurchase,
+          ),
+          read(
+            'attendance_records',
+            'id,workspace_id,client_record_id,booking_id,status,revision,cycle,service_date,created_at,updated_at',
+            parseAttendance,
+          ),
+          read(
+            'attendance_revisions',
+            'id,workspace_id,client_record_id,attendance_id,revision,cycle,status,service_date,reason,created_at',
+            parseRevision,
+          ),
+          read(
+            'credit_entries',
+            'id,workspace_id,client_record_id,purchase_id,attendance_id,booking_id,cycle,kind,units,reason,reverses_entry_id,created_at',
+            parseCredit,
+          ),
+        ]);
+        const snapshot = { purchases, attendance, revisions, credits };
+        validateBillingRelations(snapshot);
+        return snapshot;
+      },
+    );
   });
 }

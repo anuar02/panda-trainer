@@ -1,3 +1,4 @@
+import { financialToken } from './financial-read-fixtures';
 import { getSupabaseClient } from '../src/features/auth/client';
 import {
   loadTrainerPayments,
@@ -35,24 +36,75 @@ const session = jest.fn(),
   eq = jest.fn(),
   order = jest.fn(),
   range = jest.fn();
-const query = { select, eq, order, range, setHeader: header };
+const query = {
+  select,
+  eq,
+  order,
+  range,
+  setHeader: (...args: unknown[]) =>
+    Promise.resolve(header(...args)).then((response) => ({
+      ...response,
+      count:
+        response.count ??
+        (Array.isArray(response.data) ? response.data.length : null),
+    })),
+};
+type PurchaseQuery = {
+  eq: jest.Mock<PurchaseQuery>;
+  order: jest.Mock<PurchaseQuery>;
+  range: jest.Mock<PurchaseQuery>;
+  setHeader: jest.Mock;
+};
+const purchaseQuery: PurchaseQuery = {
+  eq: jest.fn(() => purchaseQuery),
+  order: jest.fn(() => purchaseQuery),
+  range: jest.fn(() => purchaseQuery),
+  setHeader: jest.fn(async () => ({
+    data: [
+      {
+        id: row.purchase_id,
+        workspace_id: scope.workspaceId,
+        client_record_id: scope.clientRecordId,
+        title: 'Synthetic',
+        units: 1,
+        price_minor: '9223372036854775807',
+        currency: 'KZT',
+        expires_on: null,
+        created_at: row.created_at,
+      },
+    ],
+    error: null,
+    count: 1,
+  })),
+};
 beforeEach(() => {
-  jest.resetAllMocks();
+  jest.clearAllMocks();
+  session.mockReset();
+  header.mockReset();
   jest.mocked(getSupabaseClient).mockReturnValue({
-    auth: { getSession: session },
+    auth: {
+      getSession: session,
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
     from,
   } as unknown as NonNullable<ReturnType<typeof getSupabaseClient>>);
   session.mockResolvedValue({
     data: {
       session: {
         user: { id: scope.expectedUserId },
-        access_token: 'bound-token',
+        access_token: financialToken(scope.expectedUserId),
       },
     },
     error: null,
   });
-  for (const mock of [from, select, eq, order, range])
-    mock.mockReturnValue(query);
+  for (const mock of [select, eq, order, range]) mock.mockReturnValue(query);
+  from.mockImplementation((table) =>
+    table === 'client_purchases'
+      ? { ...query, select: jest.fn(() => purchaseQuery) }
+      : query,
+  );
   header.mockResolvedValue({ data: [row], error: null });
 });
 test('reads safe columns with scoped identity and exact bigint', async () => {
@@ -61,10 +113,14 @@ test('reads safe columns with scoped identity and exact bigint', async () => {
   );
   expect(select).toHaveBeenCalledWith(
     'id,workspace_id,client_record_id,purchase_id,kind,amount_minor::text,currency,paid_on,method,source,reason,reverses_entry_id,created_at',
+    { count: 'exact' },
   );
   expect(eq).toHaveBeenCalledWith('workspace_id', scope.workspaceId);
   expect(eq).toHaveBeenCalledWith('client_record_id', scope.clientRecordId);
-  expect(header).toHaveBeenCalledWith('Authorization', 'Bearer bound-token');
+  expect(header).toHaveBeenCalledWith(
+    'Authorization',
+    `Bearer ${financialToken(scope.expectedUserId)}`,
+  );
 });
 test('paginates scoped pages with bearer on each page', async () => {
   header
@@ -72,11 +128,17 @@ test('paginates scoped pages with bearer on each page', async () => {
       data: Array.from({ length: 500 }, (_, i) => ({
         ...row,
         id: id(i + 100),
+        amount_minor: '1',
       })),
       error: null,
+      count: 501,
     })
-    .mockResolvedValueOnce({ data: [], error: null });
-  expect((await loadTrainerPayments(scope)).entries).toHaveLength(500);
+    .mockResolvedValueOnce({
+      data: [{ ...row, id: id(600), amount_minor: '1' }],
+      error: null,
+      count: 501,
+    });
+  expect((await loadTrainerPayments(scope)).entries).toHaveLength(501);
   expect(range.mock.calls).toEqual([
     [0, 499],
     [500, 999],
@@ -92,10 +154,16 @@ test('rejects duplicate ids across pages', async () => {
       data: Array.from({ length: 500 }, (_, i) => ({
         ...row,
         id: id(i + 100),
+        amount_minor: '1',
       })),
       error: null,
+      count: 501,
     })
-    .mockResolvedValueOnce({ data: [{ ...row, id: id(100) }], error: null });
+    .mockResolvedValueOnce({
+      data: [{ ...row, id: id(100), amount_minor: '1' }],
+      error: null,
+      count: 501,
+    });
   await expect(loadTrainerPayments(scope)).rejects.toMatchObject({
     code: 'request',
   });
@@ -189,7 +257,7 @@ test('captures scope before asynchronous authentication', async () => {
     data: {
       session: {
         user: { id: scope.expectedUserId },
-        access_token: 'bound-token',
+        access_token: financialToken(scope.expectedUserId),
       },
     },
     error: null,
