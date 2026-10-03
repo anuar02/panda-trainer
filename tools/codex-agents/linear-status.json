@@ -1,8 +1,29 @@
 {
- "updated_at": "2026-10-03T21:04Z",
+ "updated_at": "2026-10-03T21:18Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-35",
+   "title": "Связать принятие приглашения с существующей историей",
+   "status": "In Review",
+   "milestone": "07",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-26",
+   "title": "Подключить Today, неделю и создание занятия к серверу",
+   "status": "In Review",
+   "milestone": "04",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-41",
+   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+   "status": "In Progress",
+   "milestone": "10",
+   "group": "agents"
+  },
   {
    "id": "SOM-34",
    "title": "Подключить ручные оплаты, долг и экран billing",
@@ -15,27 +36,6 @@
    "title": "Довести ввод подходов и мини-группы до production",
    "status": "In Progress",
    "milestone": "05",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-41",
-   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
-   "status": "In Progress",
-   "milestone": "10",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-35",
-   "title": "Связать принятие приглашения с существующей историей",
-   "status": "In Progress",
-   "milestone": "07",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-26",
-   "title": "Подключить Today, неделю и создание занятия к серверу",
-   "status": "In Progress",
-   "milestone": "04",
    "group": "agents"
   },
   {
@@ -127,14 +127,14 @@
    "title": "Реализовать одноразовые приглашения и deep links",
    "status": "In Progress",
    "milestone": "02",
-   "group": "owner"
+   "group": "agents"
   },
   {
    "id": "SOM-22",
    "title": "Подключить серверную библиотеку, поиск и архивирование",
    "status": "In Progress",
    "milestone": "03",
-   "group": "owner"
+   "group": "agents"
   },
   {
    "id": "SOM-20",
