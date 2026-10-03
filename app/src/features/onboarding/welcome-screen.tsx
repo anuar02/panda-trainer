@@ -632,7 +632,7 @@ export function WelcomeScreen({
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.doneIntro}>
-            <Mascot pose="clipboard" size={160} style={styles.doneMascot} />
+            <Mascot pose="thumbs" size={160} style={styles.doneMascot} />
             {title(textWithName('done.title', draft.name.trim()), true)}
             {description(text('done.text'), true)}
           </View>

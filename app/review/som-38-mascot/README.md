@@ -47,3 +47,11 @@ subpath; Metro использовал fallback file resolution, экспорт �
 
 Существующий маскот лица в кнопке голоса журнала не изменялся: этот пакет
 не добавляет маскота в повторяющуюся работу журнала.
+
+## Coordinator review — 2026-10-03
+
+Approved-state onboarding now uses the prototype thumbs pose. Small shared Button
+type correction and explicit existence guards in two billing tests unblock the
+base branch check; these are coordinator-approved integration fixes outside the
+mascot brief. The guards match the concurrent billing PR to preserve both changes.
+Native devices and owner acceptance remain unverified.

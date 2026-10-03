@@ -93,7 +93,12 @@ test('lost payment response retains exact amount and request for replay', async 
     paymentCommand,
   );
   await submitTrainerBillingCommand(user, workspace, paymentCommand);
-  expect(paymentRpc.mock.calls[0]?.[0]).toEqual(paymentRpc.mock.calls[1]?.[0]);
+  const initialCall = paymentRpc.mock.calls[0];
+  const replayCall = paymentRpc.mock.calls[1];
+  if (!initialCall || !replayCall) {
+    throw new Error('Expected initial payment and replay calls');
+  }
+  expect(initialCall[0]).toEqual(replayCall[0]);
   expect(await loadPendingTrainerBillingCommand(user, workspace)).toBeNull();
 });
 test('definitive overpayment removes pending command so a corrected amount can be submitted', async () => {
