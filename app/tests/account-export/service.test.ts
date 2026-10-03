@@ -151,3 +151,27 @@ test('captures session primitives before a transport mutates its session object'
     code: 'sessionChanged',
   });
 });
+
+test('optional signal reaches compatible PostgREST request', async () => {
+  const client = transport();
+  const abort = new AbortController();
+  const abortSignal = jest.fn(() =>
+    Promise.resolve({ data: snapshot, error: null, status: 200 }),
+  );
+  const request = Object.assign(
+    Promise.resolve({ data: snapshot, error: null, status: 200 }),
+    { abortSignal },
+  );
+  const scoped = { ...client, rpc: () => request };
+  await loadAccountExport(scoped, { ...input, signal: abort.signal });
+  expect(abortSignal).toHaveBeenCalledWith(abort.signal);
+});
+test('cancel before request prevents RPC', async () => {
+  const client = transport();
+  const abort = new AbortController();
+  abort.abort();
+  await expect(
+    loadAccountExport(client, { ...input, signal: abort.signal }),
+  ).rejects.toMatchObject({ code: 'sessionChanged' });
+  expect(client.rpc).not.toHaveBeenCalled();
+});
