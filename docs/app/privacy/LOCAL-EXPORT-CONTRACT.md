@@ -1,7 +1,7 @@
 # SOM-41 · Pure local export v1
 
-03.10.2026, r2 на базе `90b7f73`; исходный PR #39 закрыт без слияния.
-ADR [0077](../decisions/0077-pure-local-export-envelope.md). Изолированный
+03.10.2026, r2 на базе `9031157`; исходный PR #39 закрыт без слияния.
+ADR [0077](../decisions/0078-pure-local-export-envelope.md). Изолированный
 [serializer](../../../app/src/domain/account-local-export/index.ts),
 [типы](../../../app/src/domain/account-local-export/types.ts),
 [synthetic tests](../../../app/tests/account-local-export/serializer.test.ts).

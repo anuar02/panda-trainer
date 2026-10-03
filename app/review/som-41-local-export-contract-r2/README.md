@@ -1,10 +1,12 @@
 # SOM-41 · Local export contract r2
 
 03.10.2026. Branch `agent/som-41-local-export-contract-r2`, target
-`fix/som-50-template-picker`, base `90b7f73`. Closed PR #39 was not merged.
+`fix/som-50-template-picker`, final base `9031157`. Closed PR #39 was not merged.
 Transferred its package by cherry-picking `c8b6cad` as `32c11ee`, preserving fresh
 base CHANGELOG/ROADMAP checkpoints and adding current task entries separately.
-`git merge origin/fix/som-50-template-picker`: already up to date after fetch.
+`git merge origin/fix/som-50-template-picker`: initially up to date at 90b7f73;
+final fetch found 9031157 (financial reads), merged without conflicts. Its ADR 0077
+is retained; local export ADR moved to 0078. Fresh final check is recorded below.
 SOM-20 prior package is committed/published separately (PR #45 open); its code is
 not a dependency or part of this change. No unfinished third journal branch used.
 
@@ -27,8 +29,8 @@ not a dependency or part of this change. No unfinished third journal branch used
   grams/seconds/reps/null/zero, Unicode and rejected receipts; negative scope/session,
   UUID, duplicate, foreign child/parent/replaced_from_id/revision, missing resolve
   context, credentials, limits and missing-version tests.
-- Сделано: current contract/collector handoff and ADR 0077 (0075 schedule / 0076
-  history remain unchanged), minimal deletion-handoff link, CHANGELOG/ROADMAP.
+- Сделано: current contract/collector handoff and ADR 0078 (0075 schedule / 0076
+  history / 0077 financial reads remain unchanged), minimal deletion-handoff link, CHANGELOG/ROADMAP.
   Historical report is labelled superseded and is not fresh verification evidence.
 - Сделано: no SQL, existing account-export/deletion/workout-sync, SQLite, auth,
   runtime collector, features/UI, dependencies, policy/DATA-LIFECYCLE or scripts changes.
@@ -46,7 +48,9 @@ not a dependency or part of this change. No unfinished third journal branch used
 - `cd app && npx prettier --write src/domain/account-local-export tests/account-local-export`
   formats only the task code/tests.
 - `cd app && npm run check`: PASS, strict tsc, ESLint zero warnings, formatting,
-  **157 suites / 1689 tests**, zero snapshots, Jest 44.956 s, on base `90b7f73`.
+  First run: **157 suites / 1689 tests**, zero snapshots, Jest 44.956 s on 90b7f73.
+  After merging final base 9031157: **159 suites / 1731 tests PASS**, zero snapshots,
+  Jest 21.763 s; strict typecheck/lint/format also passed.
   Initial typecheck caught attempted mutation of readonly fixture row properties;
   fixtures now replace rows with exact typed copies. Final check passed.
 - Regression experiment: temporarily substituted only index.ts from

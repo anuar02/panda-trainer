@@ -1,4 +1,4 @@
-# 0077. Изолированный allowlisted local export envelope
+# 0078. Изолированный allowlisted local export envelope
 
 - Дата: 03.10.2026
 - Статус: технический контракт для review; runtime integration открыта
@@ -25,7 +25,8 @@ UX/retention/политика удаления этим решением не м
 ## Исправление r2 и актуальная база
 
 Исходный PR #39 закрыт без слияния; пакет перенесён из сохранённой ветки на
-`90b7f73` / fix/som-50-template-picker. 0075 занят schedule reads, 0076 — history.
+`9031157` / fix/som-50-template-picker. 0075 занят schedule reads, 0076 — history,
+0077 — financial reads; local export занимает 0078.
 Вместо универсального row.id == entityId выбраны relations по incoming kind:
 старое упражнение replacement, существующий set aggregate, skipped exercise fallback,
 note shared snapshot и workout row. Доступные child/parent/replacement/version
