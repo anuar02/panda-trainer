@@ -9,8 +9,20 @@
 
 ## Не выпущено
 
+### Исправлено
+
+- SOM-31 r2: provenance reconciliation возвращает серверный original после current
+  receipt, убирает отвергнутую replacement и отсутствующие подходы, сохраняет pending/
+  rejected/drafts и свежий snapshot для offline reopen.
+  [Отчёт r2](app/review/som-31-workout-entry-r2/README.md); SQL/native и приёмка открыты.
+
 ### Добавлено
 
+- [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
+  add/replace/conflict selection; owner RPC создаёт журнал из booking assignment snapshot.
+  [Отчёт](app/review/som-31-workout-entry/README.md),
+  [ADR 0075](docs/app/decisions/0075-booking-snapshot-journal-entry.md).
+  SQL/native/parity и одобрение владельца открыты; finish/correction — SOM-32.
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
   Native/visual и одобрение владельца открыты; deletion не подключён.

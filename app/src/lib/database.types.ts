@@ -1693,6 +1693,14 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      prepare_workout_journal: {
+        Args: {
+          p_booking_id: string;
+          p_workout_id: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
       accept_booking_reschedule: {
         Args: {
           p_expected_booking_revision: number;
