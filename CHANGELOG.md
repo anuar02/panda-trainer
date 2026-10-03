@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-40: public pilot preflight CLI с безопасной диагностикой и тестами,
+- [SOM-40 / draft PR #31](https://github.com/anuar02/panda-trainer/pull/31): public pilot preflight CLI с безопасной диагностикой и тестами,
   [Free Frankfurt environment handoff](docs/app/pilot/ENVIRONMENT.md) и ADR 0070.
   Cloud deployment/region evidence, restore, telemetry и приёмка остаются открытыми.
 
