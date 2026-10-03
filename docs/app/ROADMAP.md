@@ -9,6 +9,8 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-41 local contract: [x] изолированный typed serializer и synthetic tests; [контракт](privacy/LOCAL-EXPORT-CONTRACT.md). Collector, атомарный runtime snapshot, file proof и owner acceptance открыты; SOM-41 не закрыта.
+
 - 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
   fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.
   Удаление/local pending ack не подключены; SOM-41 и пилот не закрыты.

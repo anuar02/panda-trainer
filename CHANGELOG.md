@@ -11,6 +11,8 @@
 
 ### Добавлено
 
+- SOM-41: pure typed local export envelope, strict bounded UTF-8 serializer и synthetic round-trip tests; общий backup incomplete, collector/file proof/delete не подключены. [Контракт](docs/app/privacy/LOCAL-EXPORT-CONTRACT.md).
+
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
   Native/visual и одобрение владельца открыты; deletion не подключён.
