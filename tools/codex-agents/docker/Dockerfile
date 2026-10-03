@@ -12,7 +12,8 @@ RUN apt-get update \
 RUN npm install -g @openai/codex
 
 COPY agent-run.sh /usr/local/bin/agent-run
-RUN chmod +x /usr/local/bin/agent-run \
+COPY coordinator-run.sh /usr/local/bin/coordinator-run
+RUN chmod +x /usr/local/bin/agent-run /usr/local/bin/coordinator-run \
  && mkdir -p /home/node/.npm /home/node/.codex \
  && chown node:node /home/node/.npm /home/node/.codex
 

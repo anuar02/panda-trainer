@@ -12,9 +12,9 @@
 
 | Аккаунт | Задача | Почему её можно брать |
 | --- | --- | --- |
-| work | SOM-38 маскот и Rive | Нет блокеров; `.riv` и PNG уже в репозитории |
+| work | SOM-38 маскот и Rive, затем SOM-33/34 довести пакеты и оплаты | Нет блокеров; WIP оплат уже в `fix/som-50-template-picker` |
 | personal | SOM-39 спокойный интерфейс, крупный текст, движение | Нет блокеров; граница с SOM-38 — общий флаг |
-| third | SOM-33/34 довести пакеты и оплаты | WIP запушен в `fix/som-50-template-picker`; запуск с `BASE_BRANCH` этой ветки |
+| third | координатор (см. ниже) | Pro-аккаунт: проверяет и вливает PR, пополняет очереди |
 
 ## Почему остальное не в очереди
 
@@ -59,3 +59,26 @@ tools/codex-agents/docker/run-agents.sh work personal
 Ход работы: `tools/codex-agents/docker/logs/summary.txt` и `logs/<задача>.log`.
 Задача, чья ветка уже есть в origin, пропускается. Один аккаунт выполняет свои
 задачи по очереди, аккаунты — параллельно. Лимиты контейнера: 6 ГБ памяти, 2 CPU.
+
+## Автономный режим
+
+`supervisor.sh` работает на хосте без участия владельца:
+
+- каждую минуту подтягивает очередь (текущую ветку этого репозитория) и запускает
+  следующий бриф для каждого свободного рабочего аккаунта (`work`, `personal`);
+- после каждой завершённой задачи запускает координатора на аккаунте `third`
+  ([COORDINATOR.md](COORDINATOR.md)): он проверяет PR, вливает их в `BASE_BRANCH`
+  (никогда не в `main`), ставит следующие брифы и пушит их в ветку очереди;
+- останавливается, когда выполнено `MAX_TASKS` задач (по умолчанию 12; после этого
+  координатор ещё раз вливает оставшиеся PR) или координатор создал `STOP` —
+  подходящих задач больше нет.
+
+```bash
+export GH_TOKEN=github_pat_... BASE_BRANCH=fix/som-50-template-picker
+nohup tools/codex-agents/docker/supervisor.sh >/dev/null 2>&1 &
+```
+
+Журналы: `logs/supervisor.txt`, `logs/summary.txt`, `logs/coordinator-*.log`,
+`COORDINATOR-LOG.md`. Остановить: `pkill -f supervisor.sh`, затем
+`docker stop $(docker ps -q --filter name=agent-)`.
+Настройки: `MAX_TASKS`, `WORKERS`, `COORDINATOR`, `COORDINATOR_INTERVAL`, `POLL_SECONDS`.
