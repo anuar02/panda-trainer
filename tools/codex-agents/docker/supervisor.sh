@@ -124,13 +124,16 @@ launch_coordinator() {
 }
 
 note "supervisor started: base=$BASE_BRANCH queue=$queue_branch workers=$workers coordinator=$coordinator max=$max_tasks"
+echo $$ > "$logs/supervisor.pid"
 last_coordinator=0
 seen_finished=-1
+seen_base=""
 
 while true; do
   git -C "$root" pull -q --ff-only origin "$queue_branch" || note "queue pull failed"
   git -C "$mirror" fetch -q --prune origin || note "mirror fetch failed"
   finished=$(finished_count)
+  base_now=$(git -C "$mirror" rev-parse -q --verify "refs/heads/$BASE_BRANCH" 2>/dev/null)
   limit_reached=0
   [ "$(done_count)" -ge "$max_tasks" ] && limit_reached=1
   stopped=0
@@ -161,10 +164,12 @@ while true; do
         launch_coordinator 0
         last_coordinator=$now
         seen_finished=$finished
+        seen_base=$base_now
       elif [ $workers_running -eq 0 ]; then
         launch_coordinator 1
         last_coordinator=$now
         seen_finished=$finished
+        seen_base=$base_now
       fi
     elif [ $workers_running -eq 0 ] && [ $limit_reached -eq 1 ]; then
       note "stopping: limit of $max_tasks tasks reached"
@@ -173,9 +178,11 @@ while true; do
       note "stopping: $(head -1 "$briefs/STOP")"
       break
     elif [ $limit_reached -eq 0 ] && [ $stopped -eq 0 ] && [ $idle_without_task -eq 1 ] \
-        && [ $((now - last_coordinator)) -ge "$interval" ]; then
+        && [ "$base_now" != "$seen_base" ] && [ $((now - last_coordinator)) -ge "$interval" ]; then
+      note "base branch moved, re-planning"
       launch_coordinator 0
       last_coordinator=$now
+      seen_base=$base_now
     fi
   fi
   sleep "$poll"
