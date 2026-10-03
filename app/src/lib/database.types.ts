@@ -1693,14 +1693,6 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      prepare_workout_journal: {
-        Args: {
-          p_booking_id: string;
-          p_workout_id: string;
-          p_request_id: string;
-        };
-        Returns: Json;
-      };
       accept_booking_reschedule: {
         Args: {
           p_expected_booking_revision: number;
@@ -1958,6 +1950,14 @@ export type Database = {
           input_name: string;
         };
         Returns: string;
+      };
+      prepare_workout_journal: {
+        Args: {
+          p_booking_id: string;
+          p_request_id: string;
+          p_workout_id: string;
+        };
+        Returns: Json;
       };
       propose_booking_reschedule: {
         Args: {
