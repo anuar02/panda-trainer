@@ -9,6 +9,13 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-41 read-only package: [x] owner-scoped export RPC,
+  26 versioned collections и независимые typed domain/service; [x] app tests,
+  check 1355 tests / 133 suites. [ ] SQL/pgTAP runtime, generated type drift,
+  real API; UI и account deletion — будущие пакеты, SOM-41 не закрыт.
+  [Отчёт](../../app/review/som-41-trainer-export/README.md),
+  [ADR 0068](decisions/0068-owner-scoped-server-workspace-export.md).
+
 - 03.10.2026 — SOM-29 r2 после закрытого PR #24: исходный модуль перенесён
   на свежую базу с SOM-39/SOM-34; исправления конфликтов заметок и снимков
   структуры, усиленные SQLite/runner проверки. Существующие экраны не подключены.

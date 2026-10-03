@@ -1695,6 +1695,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      export_trainer_workspace: {
+        Args: { p_workspace_id: string };
+        Returns: Json;
+      };
       apply_operations: {
         Args: { p_workspace_id: string; p_operations: Json };
         Returns: Json;

@@ -11,6 +11,13 @@
 
 ### Добавлено
 
+- SOM-41: owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
+  архивы/приватные заметки/history/conflicts и точные bigint strings; отдельные
+  typed domain/service без UI. App check зелёный; SQL runtime не проверен.
+  [Отчёт](app/review/som-41-trainer-export/README.md),
+  [ADR 0068](docs/app/decisions/0068-owner-scoped-server-workspace-export.md).
+  UI, удаление аккаунта и весь SOM-41 остаются открытыми.
+
 - [SOM-29 r2 / draft PR #26](https://github.com/anuar02/panda-trainer/pull/26): перенесён исходный outbox на свежую базу, исправлены приватность
   нерешённых заметок, восстановление выбранной видимости и stale выбор структуры;
   усилены проверки SQLite receipts и сессий runner. SQL/native проверки открыты.
