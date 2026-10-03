@@ -11,6 +11,10 @@ import { useTrainerBilling } from '../src/features/trainer-billing/use-billing';
 import type { WorkspaceClientDetailsData } from '../src/features/workspace-clients/details-screen';
 import type { TrainerBilling } from '../src/features/trainer-billing/types';
 
+jest.mock('../src/features/auth/client', () => ({
+  getSupabaseClient: () => null,
+}));
+
 const workspaceId = '61000000-0000-4000-8000-000000000001';
 const clientId = '71000000-0000-4000-8000-000000000001';
 const userId = '81000000-0000-4000-8000-000000000001';
@@ -73,7 +77,10 @@ jest.mock('../src/features/auth/provider', () => ({
   useAuth: () => ({
     loading: false,
     failed: false,
-    session: { user: { id: '81000000-0000-4000-8000-000000000001' } },
+    session: {
+      user: { id: '81000000-0000-4000-8000-000000000001' },
+      access_token: 'synthetic-token',
+    },
   }),
 }));
 jest.mock('../src/features/onboarding/use-onboarding-context', () => ({

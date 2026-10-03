@@ -9,6 +9,12 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-20 reads: [x] owner/auth fencing, bounded deterministic pagination,
+  unknown-row validation и read lifecycle списка/карточки; [ ] SQL/RLS/live auth,
+  native/parity и одобрение владельца. Issue и экраны не приняты.
+  [Отчёт](../../app/review/som-20-trainer-client-read-fencing/README.md),
+  [ADR 0075](decisions/0075-trainer-client-read-fencing.md).
+
 - 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
   fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.
   Удаление/local pending ack не подключены; SOM-41 и пилот не закрыты.

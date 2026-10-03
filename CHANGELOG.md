@@ -11,6 +11,11 @@
 
 ### Добавлено
 
+- SOM-20: безопасное owner-scoped чтение списка/карточки клиентов, bounded pagination,
+  runtime validation и session/retry fencing. Создание занятия сохраняет совместимый wrapper.
+  [Проверки и ограничения](app/review/som-20-trainer-client-read-fencing/README.md);
+  live/native/parity и приёмка владельца открыты.
+
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
   Native/visual и одобрение владельца открыты; deletion не подключён.
