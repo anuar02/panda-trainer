@@ -96,6 +96,7 @@ export function createOutboxRunner(options: {
               result.status === 'conflict' ||
               result.status === 'correction_draft',
           );
+        if (!active()) return;
         const errors = response.results.filter(
           (result) => result.status === 'error',
         );

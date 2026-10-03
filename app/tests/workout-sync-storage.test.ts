@@ -155,4 +155,108 @@ describe('SQLite outbox with transactional memory fixture', () => {
     ).rejects.toThrow('Invalid');
     expect(await store.pending()).toHaveLength(1);
   });
+  test('commit failure rejects saves and acknowledgements without persisted success', async () => {
+    const fixture = new TransactionalFixture();
+    const store = await openOutboxStore(scope, fixture.connect());
+    await store.save(entry, operation('first'));
+    fixture.failCommit = true;
+    await expect(
+      store.save({ ...entry, value: 2 }, operation('second')),
+    ).rejects.toThrow('commit failure');
+    expect(await store.read('workout')).toBe(1);
+    await expect(
+      store.acknowledge([
+        {
+          operation_id: 'first',
+          entity_id: 'workout',
+          status: 'applied',
+          revision: 1,
+        },
+      ]),
+    ).rejects.toThrow('commit failure');
+    await store.close();
+    const reopened = await openOutboxStore(scope, fixture.connect());
+    expect(
+      (await reopened.pending()).map((item) => item.operation.operation_id),
+    ).toEqual(['first']);
+    expect((await reopened.pending())[0]?.result).toBeNull();
+  });
+  test('queued save snapshots identity before callers mutate the operation', async () => {
+    const fixture = new TransactionalFixture();
+    const store = await openOutboxStore(scope, fixture.connect());
+    const mutableOperation = operation();
+    const mutableEntry = { ...entry };
+    const saving = store.save(mutableEntry, mutableOperation);
+    mutableOperation.operation_id = 'changed';
+    mutableOperation.entity_id = 'changed';
+    mutableEntry.entityId = 'changed';
+    await saving;
+    expect(await store.read('workout')).toBe(1);
+    expect(await store.read('changed')).toBeNull();
+    expect((await store.pending())[0]?.operation).toEqual(operation());
+    await store.acknowledge([
+      {
+        operation_id: 'op',
+        entity_id: 'workout',
+        status: 'applied',
+        revision: 1,
+      },
+    ]);
+    expect(await store.pending()).toEqual([]);
+  });
+  test('exact duplicate receipts are idempotent and divergent batches roll back', async () => {
+    const fixture = new TransactionalFixture();
+    const store = await openOutboxStore(scope, fixture.connect());
+    for (const id of ['first', 'second'])
+      await store.save(entry, operation(id));
+    const receipt = {
+      operation_id: 'first',
+      entity_id: 'workout',
+      status: 'applied' as const,
+      revision: 1,
+    };
+    await store.acknowledge([receipt, { ...receipt }]);
+    await expect(
+      store.acknowledge([
+        { ...receipt, operation_id: 'second' },
+        { ...receipt, revision: 2 },
+      ]),
+    ).rejects.toThrow('different result');
+    expect(
+      (await store.pending()).map((item) => item.operation.operation_id),
+    ).toEqual(['second']);
+    await store.close();
+    const reopened = await openOutboxStore(scope, fixture.connect());
+    await reopened.acknowledge([{ ...receipt }]);
+    expect(
+      (await reopened.pending()).map((item) => item.operation.operation_id),
+    ).toEqual(['second']);
+  });
+  test('error receipts remain stable, pending and isolated after logout', async () => {
+    const fixture = new TransactionalFixture();
+    const store = await openOutboxStore(scope, fixture.connect());
+    await store.save(entry, operation());
+    const receipt = {
+      operation_id: 'op',
+      entity_id: 'workout',
+      status: 'error' as const,
+      revision: null,
+      error_code: 'invalid_payload',
+    };
+    await store.acknowledge([receipt]);
+    await store.close();
+    const other = await openOutboxStore(
+      { ...scope, accountId: 'other' },
+      fixture.connect(),
+    );
+    expect(await other.pending()).toEqual([]);
+    expect(await other.confirmedIssues()).toEqual([]);
+    await other.close();
+    const reopened = await openOutboxStore(scope, fixture.connect());
+    await reopened.acknowledge([{ ...receipt }]);
+    await expect(
+      reopened.acknowledge([{ ...receipt, status: 'applied', revision: 1 }]),
+    ).rejects.toThrow('different result');
+    expect((await reopened.pending())[0]?.result).toEqual(receipt);
+  });
 });

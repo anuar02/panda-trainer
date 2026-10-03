@@ -16,6 +16,7 @@ export class TransactionalFixture {
   entries = new Map<string, string>();
   rows: Row[] = [];
   failInsert = false;
+  failCommit = false;
   connect(): SQLiteDriver {
     let closed = false;
     const key = (parameters: SQLiteParameter[]) =>
@@ -93,6 +94,7 @@ export class TransactionalFixture {
         const rows = this.rows.map((row) => ({ ...row }));
         try {
           await task(executor);
+          if (this.failCommit) throw new Error('commit failure');
         } catch (error) {
           this.entries = entries;
           this.rows = rows;

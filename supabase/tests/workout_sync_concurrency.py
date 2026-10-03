@@ -45,10 +45,58 @@ commit;"""))
         assert responses[0]['results'][0]['status'] == 'applied', responses
         counts = sql(f"select (select count(*) from public.workout_instances where id='{workout}')::text || '|' || (select count(*) from public.sync_operations where operation_id='{operation}')::text;")
         assert counts == '1|1', counts
-        print('PASS: independent concurrent sessions return identical receipts; exactly one workout and receipt.')
+        def apply(envelope):
+            encoded = json.dumps([envelope], separators=(',', ':')).replace("'", "''")
+            return json.loads(sql(f"""begin;
+set local role authenticated;
+set local request.jwt.claim.sub='{owner}';
+select public.apply_operations('{workspace}','{encoded}'::jsonb);
+commit;"""))['results'][0]
+
+        def operation_for(kind, entity, revision, payload, source=device):
+            return dict(operation_id=str(uuid.uuid4()), kind=kind, entity_id=entity,
+                        base_revision=revision, device_id=source, payload=payload,
+                        created_at='2026-10-03T12:00:00Z')
+
+        exercise = sql(f"select id from public.exercises where workspace_id='{workspace}' and source_key='e0';")
+        workout_exercise, set_id, second_device = [str(uuid.uuid4()) for _ in range(3)]
+        assert apply(operation_for('add_exercise', workout_exercise, 0,
+                     dict(workout_instance_id=workout, exercise_id=exercise, position=0, planned_sets=3)))['status'] == 'applied'
+        payload = dict(workout_instance_id=workout, workout_exercise_id=workout_exercise,
+                       position=0, reps=8, seconds=None, weight_g=40000)
+        assert apply(operation_for('upsert_set', set_id, 0, payload))['status'] == 'applied'
+        conflict = apply(operation_for('upsert_set', set_id, 0, dict(payload, reps=12), second_device))
+        assert conflict['status'] == 'conflict', conflict
+        barrier = threading.Barrier(2)
+        choices = [operation_for('resolve_conflict', set_id, conflict['revision'],
+                   dict(conflict_id=conflict['conflict_id'], selected_version=choice,
+                        expected_revision=conflict['revision']), source)
+                   for choice, source in [('current', device), ('incoming', second_device)]]
+        def resolve(envelope):
+            barrier.wait(timeout=10)
+            return apply(envelope)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            resolutions = list(executor.map(resolve, choices))
+        assert sorted(result['status'] for result in resolutions) == ['applied', 'error'], resolutions
+        loser = next(result for result in resolutions if result['status'] == 'error')
+        assert loser['error_code'] == 'stale_conflict', resolutions
+        assert [apply(envelope) for envelope in choices] == resolutions, 'Resolution receipts must replay both winner and loser'
+        winner = next(index for index, result in enumerate(resolutions) if result['status'] == 'applied')
+        expected_reps = '8' if winner == 0 else '12'
+        assert sql(f"select reps::text || '|' || revision::text from public.set_results where id='{set_id}';") == expected_reps + '|2'
+        assert sql(f"select count(*) from public.workout_sync_conflicts where id='{conflict['conflict_id']}' and resolved_at is not null;") == '1'
+        print('PASS: independent concurrent sessions replay one receipt; two devices resolve once and reject the stale choice.')
+
     finally:
         sql(f"""begin;
 delete from public.sync_operations where workspace_id='{workspace}';
+delete from public.workout_sync_conflicts where workspace_id='{workspace}';
+delete from public.workout_correction_drafts where workspace_id='{workspace}';
+delete from public.set_results where workspace_id='{workspace}';
+delete from public.session_notes where workspace_id='{workspace}';
+delete from public.private_notes where workspace_id='{workspace}';
+update public.workout_exercises set replaced_from_id=null where workspace_id='{workspace}';
+delete from public.workout_exercises where workspace_id='{workspace}';
 delete from public.workout_instances where workspace_id='{workspace}';
 delete from public.bookings where workspace_id='{workspace}';
 delete from public.client_records where workspace_id='{workspace}';

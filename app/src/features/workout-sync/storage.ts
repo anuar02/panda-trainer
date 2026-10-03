@@ -103,12 +103,14 @@ export class SQLiteOutboxStore implements OutboxStore {
     validate(entry, operation);
     const operationJson = canonical(operation as unknown as JsonValue);
     const entryJson = canonical(entry.value);
+    const operationId = operation.operation_id;
+    const entityId = operation.entity_id;
     return this.serialize(() =>
       this.database.withExclusiveTransactionAsync(async (transaction) => {
         const parameters = [
           this.scope.accountId,
           this.scope.workspaceId,
-          operation.operation_id,
+          operationId,
         ];
         const existing = await transaction.getFirstAsync<StoredOperation>(
           'SELECT operation_json, sequence, result_json FROM workout_outbox WHERE account_id = ? AND workspace_id = ? AND operation_id = ?',
@@ -123,13 +125,13 @@ export class SQLiteOutboxStore implements OutboxStore {
           'INSERT INTO workout_local_entries (account_id, workspace_id, entity_id, value_json) VALUES (?, ?, ?, ?) ON CONFLICT(account_id, workspace_id, entity_id) DO UPDATE SET value_json = excluded.value_json',
           this.scope.accountId,
           this.scope.workspaceId,
-          entry.entityId,
+          entityId,
           entryJson,
         );
         await transaction.runAsync(
           'INSERT INTO workout_outbox (account_id, workspace_id, operation_id, entity_id, operation_json) VALUES (?, ?, ?, ?, ?)',
           ...parameters,
-          operation.entity_id,
+          entityId,
           operationJson,
         );
       }),
@@ -190,11 +192,16 @@ export class SQLiteOutboxStore implements OutboxStore {
               (typeof result.draft_id !== 'string' || !result.draft_id))
           )
             throw new Error('Invalid operation receipt');
-          if (
-            row.result_json !== null &&
-            (JSON.parse(row.result_json) as OperationResult).status !== 'error'
-          )
+          if (row.result_json !== null) {
+            if (
+              canonical(JSON.parse(row.result_json) as JsonValue) !==
+              canonical(result as unknown as JsonValue)
+            )
+              throw new Error(
+                'Operation receipt already has a different result',
+              );
             continue;
+          }
           await transaction.runAsync(
             'UPDATE workout_outbox SET result_json = ?, confirmed = ? WHERE account_id = ? AND workspace_id = ? AND operation_id = ?',
             JSON.stringify(result),

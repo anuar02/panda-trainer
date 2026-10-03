@@ -107,4 +107,94 @@ describe('workout RPC transport boundary', () => {
       ),
     ).rejects.toThrow();
   });
+  test('preserves the frozen resolve conflict envelope and payload exactly', async () => {
+    const item = {
+      ...operation('resolve-a'),
+      kind: 'resolve_conflict' as const,
+      payload: {
+        conflict_id: 'conflict-a',
+        selected_version: 'incoming',
+        expected_revision: 7,
+      },
+    };
+    let body: unknown;
+    const fetcher: typeof fetch = async (url, init) => {
+      body = JSON.parse(String(init?.body));
+      return fetchResponse(response([receipt(item)]))(url, init);
+    };
+    await createWorkoutSyncTransport({
+      ...config,
+      url: `${config.url}/`,
+      fetch: fetcher,
+    }).apply(session, [item], new AbortController().signal);
+    expect(body).toEqual({
+      p_workspace_id: session.workspaceId,
+      p_operations: [item],
+    });
+  });
+
+  test.each([
+    'missing token',
+    'missing session',
+    'empty batch',
+    'oversized batch',
+  ])('rejects %s before issuing a request', async (variant) => {
+    const fetcher = jest.fn(
+      fetchResponse(response([receipt(operation('op-a'))])),
+    );
+    const owner = {
+      ...session,
+      ...(variant === 'missing token' ? { accessToken: '' } : {}),
+      ...(variant === 'missing session' ? { sessionId: '' } : {}),
+    };
+    const items =
+      variant === 'empty batch'
+        ? []
+        : variant === 'oversized batch'
+          ? Array.from({ length: 101 }, (_, index) => operation(`op-${index}`))
+          : [operation('op-a')];
+    await expect(
+      createWorkoutSyncTransport({ ...config, fetch: fetcher }).apply(
+        owner,
+        items,
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow('invalid_request');
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    { ...response([receipt(operation('op-a'))]), unexpected: true },
+    response([
+      {
+        ...receipt(operation('op-a')),
+        unexpected: true,
+      } as unknown as ReturnType<typeof receipt>,
+    ]),
+    response([
+      { ...receipt(operation('op-a'), 'conflict'), conflict_id: undefined },
+    ]),
+    response([
+      {
+        ...receipt(operation('op-a'), 'correction_draft'),
+        draft_id: undefined,
+      },
+    ]),
+    response([
+      { ...receipt(operation('op-a'), 'error'), error_code: undefined },
+    ]),
+    response([
+      { ...receipt(operation('op-a')), revision: Number.MAX_SAFE_INTEGER + 1 },
+    ]),
+  ])(
+    'rejects unsupported envelope fields or incomplete terminal outcomes %#',
+    async (body) => {
+      await expect(
+        createWorkoutSyncTransport({
+          ...config,
+          fetch: fetchResponse(body),
+        }).apply(session, [operation('op-a')], new AbortController().signal),
+      ).rejects.toThrow('invalid_response');
+    },
+  );
 });
