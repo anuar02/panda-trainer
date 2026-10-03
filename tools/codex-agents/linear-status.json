@@ -1,8 +1,22 @@
 {
- "updated_at": "2026-10-03T20:00Z",
+ "updated_at": "2026-10-03T20:59Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-34",
+   "title": "Подключить ручные оплаты, долг и экран billing",
+   "status": "In Progress",
+   "milestone": "06",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-31",
+   "title": "Довести ввод подходов и мини-группы до production",
+   "status": "In Progress",
+   "milestone": "05",
+   "group": "agents"
+  },
   {
    "id": "SOM-41",
    "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
@@ -60,13 +74,6 @@
    "group": "owner"
   },
   {
-   "id": "SOM-31",
-   "title": "Довести ввод подходов и мини-группы до production",
-   "status": "In Progress",
-   "milestone": "05",
-   "group": "agents"
-  },
-  {
    "id": "SOM-30",
    "title": "Предзагружать тренировку и восстанавливать журнал",
    "status": "In Review",
@@ -78,13 +85,6 @@
    "title": "Реализовать SQLite outbox и идемпотентную синхронизацию",
    "status": "In Review",
    "milestone": "05",
-   "group": "owner"
-  },
-  {
-   "id": "SOM-34",
-   "title": "Подключить ручные оплаты, долг и экран billing",
-   "status": "In Review",
-   "milestone": "06",
    "group": "owner"
   },
   {
@@ -141,7 +141,7 @@
    "title": "Подключить onboarding тренера и управление клиентами",
    "status": "In Progress",
    "milestone": "02",
-   "group": "owner"
+   "group": "agents"
   },
   {
    "id": "SOM-19",
@@ -259,14 +259,14 @@
    "id": "SOM-63",
    "title": "Провести интервью тренеров/клиентов и тренировку с прототипом",
    "status": "Backlog",
-   "milestone": "Исследование",
+   "milestone": "Исследование продукта",
    "group": "people"
   },
   {
    "id": "SOM-54",
    "title": "Решение №4: Порог выигрыша времени и допустимых ошибок для голосового ввода",
    "status": "Backlog",
-   "milestone": "Решения",
+   "milestone": "Решения владельца",
    "group": "people"
   }
  ],
