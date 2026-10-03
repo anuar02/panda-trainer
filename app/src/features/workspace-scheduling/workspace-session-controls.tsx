@@ -1,3 +1,4 @@
+import { useOptionalWorkoutPreload } from '@/features/workout-preload/provider';
 import { useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -42,6 +43,7 @@ export function WorkspaceSessionControls({
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const mutations = useWorkspaceMutations();
+  const preload = useOptionalWorkoutPreload();
   const sheetEpoch = useRef(0);
   useEffect(() => {
     sheetEpoch.current += 1;
@@ -198,6 +200,27 @@ export function WorkspaceSessionControls({
               time: `${row?.start ?? ''}–${row?.end ?? ''}`,
             })}
           </Text>
+        ) : null}
+        {preload &&
+        selected?.bookings.some((booking) => booking.status === 'confirmed') ? (
+          <Button
+            label={t('workoutPreload.preload')}
+            disabled={
+              loading ||
+              preload.state.status === 'loading' ||
+              preload.state.status === 'hydrating' ||
+              preload.state.error === 'storage'
+            }
+            onPress={() => {
+              const booking = selected.bookings.find(
+                (value) => value.status === 'confirmed',
+              );
+              if (booking) {
+                onClose();
+                void preload.open(booking.id);
+              }
+            }}
+          />
         ) : null}
         {read.error ? (
           <Card>
