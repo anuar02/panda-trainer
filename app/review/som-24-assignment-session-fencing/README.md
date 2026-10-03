@@ -2,6 +2,8 @@
 
 Дата: 03.10.2026. База: `origin/fix/som-50-template-picker`, `90b7f73`.
 Ветка: `agent/som-24-assignment-session-fencing`. Только synthetic fixtures.
+Draft PR: [#46](https://github.com/anuar02/panda-trainer/pull/46).
+Implementation commit: `406b98f`.
 
 ## Проверка базы и scope
 
@@ -68,3 +70,14 @@ removeItem нельзя отменить, но он запускается то�
 
 Экран и SOM-24 целиком не приняты: требуется проверка владельца и перечисленные
 runtime проверки. Решение: [ADR 0077](../../../docs/app/decisions/0077-program-assignment-session-fencing.md).
+
+## Публикация
+
+`git push -u origin agent/som-24-assignment-session-fencing` — успешно.
+`gh pr create --base fix/som-50-template-picker --head agent/som-24-assignment-session-fencing --draft --fill --title "SOM-24: Assignment session fence and durable retry"`
+не завершился: текущий DNS address GitHub API не отвечал. Зависшие gh create/edit
+и read остановлены; authenticated REST lookup через TLS `api.github.com` с
+другим address подтвердил отсутствие PR. Затем REST POST создал draft #46
+с подготовленным criteria body; REST read-back подтверждает draft и указанную base.
+Credentials передавались через временный файл headers с правами 0600, удалённый
+в finally; в repo/logs они не выводились. Конфигурация DNS не изменена.
