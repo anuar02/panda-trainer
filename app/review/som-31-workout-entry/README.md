@@ -1,6 +1,7 @@
 # SOM-31 · Production ввод подходов и мини-группа
 
 База: fix/som-50-template-picker, 9d1802a. Ветка: agent/som-31-workout-entry.
+Implementation commit: ae052a6. [Draft PR #38](https://github.com/anuar02/panda-trainer/pull/38).
 Linear прочитан без изменений: проект trainerApp, SOM-31 In Progress, SOM-30 In Review
 (технический PR влит), зависимость SOM-32; поиск не нашёл отдельного дубликата
 production ввода. Критерии совпадают с заданием и DELIVERY-PLAN. graft executable и graft/ отсутствуют.

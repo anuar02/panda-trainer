@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-31: production ввод подходов, scoped SQLite drafts, durable undo и journal-only
+- [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
   add/replace/conflict selection; owner RPC создаёт журнал из booking assignment snapshot.
   [Отчёт](app/review/som-31-workout-entry/README.md),
   [ADR 0073](docs/app/decisions/0073-booking-snapshot-journal-entry.md).
