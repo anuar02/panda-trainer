@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-40: tooling зашифрованного pilot dump, приватного storage/ротации и
+- [SOM-40 / draft PR #32](https://github.com/anuar02/panda-trainer/pull/32): tooling зашифрованного pilot dump, приватного storage/ротации и
   disposable restore harness; nightly выключен до environment/storage gate.
   [Отчёт](app/review/som-40-pilot-backup/README.md),
   [ADR 0070](docs/app/decisions/0070-encrypted-pilot-backup-and-disposable-restore.md).
