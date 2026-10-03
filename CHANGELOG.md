@@ -14,6 +14,8 @@
 - Брифы для параллельных автономных Codex-агентов: [tools/codex-agents](tools/codex-agents/README.md)
   с общими правилами и очередями SOM-38 и SOM-39; остальные задачи ждут пуша локальной
   работы или решений владельца.
+- Запуск Codex-агентов в одноразовых Docker-контейнерах:
+  [tools/codex-agents/docker](tools/codex-agents/README.md#запуск-в-docker).
 
 - Полный backlog trainerApp в Linear: 13 milestones, 48 задач и 59 зависимостей;
   [обзор продукта](docs/app/PROJECT-BRIEF.md), [карта поставки](docs/app/DELIVERY-PLAN.md)

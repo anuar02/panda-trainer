@@ -27,3 +27,30 @@
 
 После пуша локальной работы следующие очереди: SOM-26 → SOM-27 (расписание),
 SOM-22 → SOM-23 (библиотека), SOM-33 → SOM-34 (пакеты и оплаты).
+
+## Запуск в Docker
+
+Каждая задача идёт в отдельном одноразовом контейнере: свежий клон репозитория,
+`codex exec`, затем push ветки `agent/<задача>` и draft PR. Файлы ноутбука
+контейнеру не видны; доступны только логин Codex своего аккаунта и GitHub-токен.
+
+Подготовка один раз:
+
+1. Docker Desktop (или Docker Engine).
+2. Вход в каждый аккаунт на хосте: `cx work login`, `cx personal login`, `cx third login`.
+   Если `config.toml` в `~/.codex-<аккаунт>` — симлинк, замените его копией:
+   внутри контейнера цель симлинка не видна.
+3. Fine-grained токен GitHub только для `anuar02/panda-trainer`:
+   Contents — Read and write, Pull requests — Read and write.
+
+Запуск всех очередей (`work`, `personal`, `third`) или выбранных:
+
+```bash
+export GH_TOKEN=github_pat_...
+tools/codex-agents/docker/run-agents.sh
+tools/codex-agents/docker/run-agents.sh work personal
+```
+
+Ход работы: `tools/codex-agents/docker/logs/summary.txt` и `logs/<задача>.log`.
+Задача, чья ветка уже есть в origin, пропускается. Один аккаунт выполняет свои
+задачи по очереди, аккаунты — параллельно. Лимиты контейнера: 6 ГБ памяти, 2 CPU.
