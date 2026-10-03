@@ -11,6 +11,12 @@
 
 ### Добавлено
 
+- SOM-29: самостоятельный SQLite journal/outbox, scoped runner/transport и
+  apply_operations с receipts, конфликтами и черновиками поздних правок.
+  SQL/native проверки и приёмка этапа 5 открыты; типы SQL дополнены вручную.
+  [ADR 0062](docs/app/decisions/0062-sqlite-journal-outbox.md),
+  [отчёт](app/review/som-29-sqlite-outbox/README.md).
+
 - SOM-33/SOM-34: завершены создание пакета и ручная частичная оплата до остатка
   долга; история показывает сумму, дату, способ и «Записано», ошибки чтения дают
   повтор. Строгие тесты проверяют существование кнопок/вызовов; exact replay
