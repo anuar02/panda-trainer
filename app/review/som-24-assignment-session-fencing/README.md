@@ -81,3 +81,19 @@ runtime проверки. Решение: [ADR 0080](../../../docs/app/decisions
 с подготовленным criteria body; REST read-back подтверждает draft и указанную base.
 Credentials передавались через временный файл headers с правами 0600, удалённый
 в finally; в repo/logs они не выводились. Конфигурация DNS не изменена.
+
+## Coordinator review · 03.10.2026
+
+Fresh base `4d308bc` merged; CHANGELOG/ROADMAP/ADR index conflicts resolved preserving
+both packages, assignment ADR renamed 0080. `cd app && npm run check` PASS:
+typecheck/lint/format, 163 suites /1826 tests; `git diff --check` PASS.
+
+Blocking defect: assignment-session.ts accepts TOKEN_REFRESHED for any token of the
+same user without validating JWT sub/session_id identity. Post-RPC/cached success
+can pass in a different session, allowing pending clear/callback in the wrong scope.
+Independent temporary synthetic Jest regression proved it: initial session_id 0002,
+same-user TOKEN_REFRESHED session_id 0003, fence.valid() remains true and token()
+returns second JWT. 1 suite/1 test PASS asserting the defective behavior, exit 0;
+temporary file removed, not committed. Existing opaque-token tests miss this case.
+
+PR requires r2; not merged. SQL/live auth/native/parity/owner acceptance not tested.
