@@ -1,0 +1,279 @@
+{
+ "updated_at": "2026-10-03T18:49Z",
+ "updated_by": "claude",
+ "done": 11,
+ "groups": {
+  "agents": "Агенты: техническая работа",
+  "owner": "Код влит — ждёт проверки владельца/устройств",
+  "acceptance": "Приёмка экранов владельцем",
+  "people": "Люди, решения, пилот"
+ },
+ "issues": [
+  {
+   "id": "SOM-41",
+   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+   "status": "In Progress",
+   "milestone": "10",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-31",
+   "title": "Довести ввод подходов и мини-группы до production",
+   "status": "In Progress",
+   "milestone": "05",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-26",
+   "title": "Подключить Today, неделю и создание занятия к серверу",
+   "status": "Backlog",
+   "milestone": "04",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-32",
+   "title": "Завершать и исправлять журнал с обновлением программы",
+   "status": "Backlog",
+   "milestone": "05",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-35",
+   "title": "Связать принятие приглашения с существующей историей",
+   "status": "Backlog",
+   "milestone": "07",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-36",
+   "title": "Подключить клиентские экраны и действия к серверным данным",
+   "status": "Backlog",
+   "milestone": "07",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-37",
+   "title": "Реализовать уведомления, непрочитанное и Realtime",
+   "status": "Backlog",
+   "milestone": "08",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-73",
+   "title": "Push-уведомления v1 (ADR 0065)",
+   "status": "Backlog",
+   "milestone": "08",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-18",
+   "title": "Создать базовую схему, RLS, типы и вымышленный seed",
+   "status": "In Review",
+   "milestone": "02",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-25",
+   "title": "Создать серверное расписание и правила пересечений",
+   "status": "In Review",
+   "milestone": "04",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-28",
+   "title": "Создать таблицы журнала и изоляцию заметок",
+   "status": "In Review",
+   "milestone": "05",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-29",
+   "title": "Реализовать SQLite outbox и идемпотентную синхронизацию",
+   "status": "In Review",
+   "milestone": "05",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-30",
+   "title": "Предзагружать тренировку и восстанавливать журнал",
+   "status": "In Review",
+   "milestone": "05",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-33",
+   "title": "Создать учёт пакетов и атомарное списание посещений",
+   "status": "In Review",
+   "milestone": "06",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-34",
+   "title": "Подключить ручные оплаты, долг и экран billing",
+   "status": "In Review",
+   "milestone": "06",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-38",
+   "title": "Интегрировать утверждённую панду и принять Rive",
+   "status": "In Review",
+   "milestone": "09",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-39",
+   "title": "Принять крупный текст, спокойный интерфейс и движение",
+   "status": "In Review",
+   "milestone": "09",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-40",
+   "title": "Подготовить согласованное окружение пилота и восстановление",
+   "status": "In Review",
+   "milestone": "10",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-19",
+   "title": "Подключить согласованный вход и жизненный цикл сессии",
+   "status": "In Progress",
+   "milestone": "02",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-20",
+   "title": "Подключить onboarding тренера и управление клиентами",
+   "status": "In Progress",
+   "milestone": "02",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-21",
+   "title": "Реализовать одноразовые приглашения и deep links",
+   "status": "In Progress",
+   "milestone": "02",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-22",
+   "title": "Подключить серверную библиотеку, поиск и архивирование",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-23",
+   "title": "Подключить редактор шаблонов к серверу",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-24",
+   "title": "Реализовать версионированные личные программы клиентов",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-27",
+   "title": "Реализовать переносы, отмены и проверку ревизий",
+   "status": "In Progress",
+   "milestone": "04",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-50",
+   "title": "Исправить native picker конструктора и провести полную приёмку полей",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-17",
+   "title": "Принять паритет каркаса и общей навигации",
+   "status": "Backlog",
+   "milestone": "01",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-43",
+   "title": "Принять экраны этапа 2: t-clients, t-client, t-invite, t-welcome",
+   "status": "Backlog",
+   "milestone": "02",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-44",
+   "title": "Принять экраны этапа 3: t-library, t-template, t-template-editor",
+   "status": "Backlog",
+   "milestone": "03",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-45",
+   "title": "Принять экраны этапа 4: t-today, t-schedule, t-new, t-inbox",
+   "status": "Backlog",
+   "milestone": "04",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-46",
+   "title": "Принять экраны этапа 5: t-session и dock журнала",
+   "status": "Backlog",
+   "milestone": "05",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-47",
+   "title": "Принять экраны этапа 6: t-billing и данные пакетов/оплат",
+   "status": "Backlog",
+   "milestone": "06",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-48",
+   "title": "Принять экраны этапа 7: клиентские экраны",
+   "status": "Backlog",
+   "milestone": "07",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-49",
+   "title": "Принять экраны этапа 8: лента и счётчики уведомлений",
+   "status": "Backlog",
+   "milestone": "08",
+   "group": "acceptance"
+  },
+  {
+   "id": "SOM-42",
+   "title": "Подготовить сборки и провести полевой пилот на iOS/Android",
+   "status": "Backlog",
+   "milestone": "10",
+   "group": "people"
+  },
+  {
+   "id": "SOM-54",
+   "title": "Решение №4: порог для голосового ввода",
+   "status": "Backlog",
+   "milestone": "Решения",
+   "group": "people"
+  },
+  {
+   "id": "SOM-63",
+   "title": "Провести интервью тренеров/клиентов и тренировку с прототипом",
+   "status": "Backlog",
+   "milestone": "Исследование",
+   "group": "people"
+  },
+  {
+   "id": "SOM-64",
+   "title": "После пилота: оценить голос, push, локализацию и платформы",
+   "status": "Backlog",
+   "milestone": "11",
+   "group": "people"
+  }
+ ]
+}

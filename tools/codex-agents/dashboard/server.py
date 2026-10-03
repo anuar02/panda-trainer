@@ -120,6 +120,14 @@ def merged_commits():
     return commits
 
 
+def linear():
+    path = AGENTS / "linear-status.json"
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return None
+
+
 def status():
     now = time.time()
     events = read_events()
@@ -200,7 +208,7 @@ def status():
     stop = AGENTS / "STOP"
     clog = AGENTS / "COORDINATOR-LOG.md"
     return {
-        "now": now, "base": BASE, "repo": REPO_URL, "max": MAX_TASKS, "done": done,
+        "now": now, "base": BASE, "repo": REPO_URL, "max": MAX_TASKS, "done": done, "linear": linear(),
         "supervisor": bool(run("pgrep", "-f", "supervisor-running.sh")),
         "stop": stop.read_text(errors="replace") if stop.exists() else None,
         "tasks": tasks, "coordinator": coord_runs[:8], "merged": merged,

@@ -67,6 +67,11 @@
     .hide-sm { display: none; }
     th, td { padding: 9px 8px; }
   }
+.lin-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; align-items: start; }
+  .lin-groups details summary { cursor: pointer; font-weight: 600; }
+  .lin-groups ul { margin: 8px 0 0; padding-left: 18px; }
+  .lin-groups li { margin: 3px 0; }
+  .lin-sub { opacity: .7; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -77,6 +82,9 @@
     <div class="progress" id="progress"></div>
   </header>
   <div id="stop"></div>
+
+  <h2>Roadmap (Linear)</h2>
+  <div class="lin-groups" id="linear"></div>
 
   <h2>Now</h2>
   <div class="lanes" id="lanes"></div>
@@ -123,9 +131,26 @@ function render() {
   document.getElementById("meta").innerHTML =
     `<span><span class="dot" style="background:${d.supervisor ? "var(--ok)" : "var(--fail)"}"></span>Supervisor <b>${d.supervisor ? "running" : "stopped"}</b></span>` +
     `<span>Base <b>${esc(d.base)}</b></span><span>Updated ${new Date(d.now * 1000).toLocaleTimeString()}</span>`;
-  const pct = Math.min(100, d.done / d.max * 100);
-  document.getElementById("progress").innerHTML =
-    (d.max >= 1000 ? `<div class="meta"><span><b>${d.done}</b> tasks finished · no limit</span></div>` : `<div class="meta"><span><b>${d.done}</b> of ${d.max} tasks finished</span></div><div class="bar"><i style="width:${pct}%"></i></div>`);
+  const L = d.linear;
+  const runs = d.max >= 1000 ? `${d.done} agent runs finished` : `${d.done} of ${d.max} agent runs`;
+  if (L) {
+    const openN = L.issues.length, total = openN + L.done;
+    const count = g => L.issues.filter(i => i.group === g).length;
+    document.getElementById("progress").innerHTML =
+      `<div class="meta"><span><b>${L.done}</b> of ${total} Linear issues done · <b>${openN}</b> open: ` +
+      `<b>${count("agents")}</b> for agents, <b>${count("owner") + count("acceptance")}</b> for owner review/acceptance, <b>${count("people")}</b> people/pilot</span>` +
+      `<span>${runs}</span><span>Linear snapshot ${esc(L.updated_at)}</span></div>` +
+      `<div class="bar"><i style="width:${Math.min(100, L.done / total * 100)}%"></i></div>`;
+    document.getElementById("linear").innerHTML = Object.entries(L.groups).map(([g, label]) => {
+      const items = L.issues.filter(i => i.group === g);
+      return `<div class="card"><details${g === "agents" ? " open" : ""}><summary>${esc(label)} · ${items.length}</summary><ul>` +
+        items.map(i => `<li><a href="https://linear.app/something-great/issue/${esc(i.id)}" target="_blank" rel="noopener">${esc(i.id)}</a> ${esc(i.title)} <span class="lin-sub">${esc(i.status)} · ${esc(i.milestone)}</span></li>`).join("") +
+        `</ul></details></div>`;
+    }).join("");
+  } else {
+    document.getElementById("progress").innerHTML = `<div class="meta"><span>${runs}</span><span>No Linear snapshot yet</span></div>`;
+    document.getElementById("linear").innerHTML = "";
+  }
   document.getElementById("stop").innerHTML = d.stop ? `<div class="banner"><b>Stopped by coordinator.</b>\n${esc(d.stop)}</div>` : "";
   document.getElementById("base").textContent = d.base;
 
