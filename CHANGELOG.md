@@ -22,6 +22,11 @@
   [отчёт](app/review/som-34-billing-finish/README.md),
   [PR #22](https://github.com/anuar02/panda-trainer/pull/22).
 
+- [SOM-38 / PR #21](https://github.com/anuar02/panda-trainer/pull/21): утверждённые PNG-позы и лица через expo-image, `hidden`,
+  Rive за выключенным флагом и PNG-празднование нового завершения тренировки.
+  Native/визуальная приёмка и одобрение рига открыты.
+  [ADR 0060](docs/app/decisions/0060-mascot-png-and-gated-rive.md).
+
 - Real Today attendance и общий workspace coordinator для billing, cancellation,
   proposals и creation: retained routes используют один lock/pending store;
   отдельные recovery-команды сохраняются после смены дня/маршрута. Старая

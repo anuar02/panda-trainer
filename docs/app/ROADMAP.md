@@ -21,6 +21,12 @@
   [ADR 0059](decisions/0059-package-creation-and-capped-payments.md),
   [отчёт](../../app/review/som-34-billing-finish/README.md).
 
+- 03.10.2026 — SOM-38: PNG через expo-image, все позы/лица, `hidden`;
+  Rive за `EXPO_PUBLIC_MASCOT_RIVE=true`, по умолчанию PNG. Добавлено краткое
+  PNG-празднование нового завершения. Check: 1208 tests / 123 suites,
+  type/lint/format и экспорт iOS/Android/web проходят. Native/parity и одобрение рига открыты.
+  [Отчёт](../../app/review/som-38-mascot/README.md), [ADR 0060](decisions/0060-mascot-png-and-gated-rive.md).
+
 - 03.10.2026 — SOM-33/26/27: общий scoped coordinator над workspace Stack
   держит billing/status/proposal/creation pending и synchronous lock. Real Today
   открывает локальную participant sheet; Schedule использует тот же control.
@@ -707,8 +713,8 @@
 
 Можно делать параллельно с этапами 3–8, если есть отдельный исполнитель.
 
-- [ ] PNG-позы и лица из `prototype-fresh/assets/mascot/` через `expo-image`.
-- [ ] Rive-риг: `rive-react-native`, файл из `design-exploration/red-panda-rive-2026-09-29/exports/`.
+- [x] PNG-позы и лица из `prototype-fresh/assets/mascot/` через `expo-image`.
+- [x] Rive-риг подключён за выключенным флагом (приёмка открыта): `rive-react-native`, файл из `design-exploration/red-panda-rive-2026-09-29/exports/`.
   До приёмки рига — PNG. Прозрачные WebM-ролики в нативном приложении не используем:
   на iOS альфа-канал VP9 не поддерживается ([ADR 0005](decisions/0005-mascot-motion.md)).
 - [ ] Места появления — как в `prototype-fresh`: приглашение, пустые состояния,

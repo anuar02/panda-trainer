@@ -1,3 +1,4 @@
+import { Mascot } from '@/ui/mascot';
 import { useState } from 'react';
 import type {
   TrainerTodayAgenda,
@@ -5,7 +6,7 @@ import type {
   TrainerTodayAgendaItem,
 } from '@/features/workspace-scheduling/today-adapter';
 import { router } from 'expo-router';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { GradientBackground } from '@/ui/gradient-background';
@@ -816,10 +817,11 @@ export function TrainerTodayScreen({
                 ]}
               >
                 <View style={s.emptyArtBox}>
-                  <Image
-                    source={require('../../../assets/mascot/sleep.png')}
+                  <Mascot
+                    pose="sleep"
+                    size={170}
                     style={s.emptyArt}
-                    resizeMode="contain"
+
                     accessible={false}
                   />
                 </View>
@@ -865,10 +867,11 @@ export function TrainerTodayScreen({
                     />
                   </View>
                   <View style={s.face}>
-                    <Image
-                      source={require('../../../assets/mascot/face-calm.png')}
+                    <Mascot
+                      pose="calm"
+                      size={58}
                       style={s.faceImage}
-                      resizeMode="contain"
+
                       accessible={false}
                     />
                   </View>
