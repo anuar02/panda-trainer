@@ -1,6 +1,10 @@
 import * as Crypto from 'expo-crypto';
 import { getSupabaseClient } from '@/features/auth/client';
 import type { Database } from '@/lib/database.types';
+import {
+  openAssignmentSession,
+  type AssignmentSession,
+} from './assignment-session';
 
 export type WorkspaceProgramAssignmentErrorCode =
   | 'configuration'
@@ -35,6 +39,7 @@ export type WorkspaceProgramAssignmentInput = {
   expectedTemplateRevision: number;
   expectedUserId: string;
   requestId?: string;
+  session?: AssignmentSession;
 };
 
 export type WorkspaceProgramAssignmentResult = {
@@ -45,6 +50,7 @@ export type WorkspaceProgramAssignmentResult = {
 
 export type WorkspaceProgramAssignmentOperation = {
   execute: () => Promise<WorkspaceProgramAssignmentResult>;
+  dispose?: () => void;
 };
 
 const uuidPattern =
@@ -92,6 +98,19 @@ export const createAssignClientProgramOperation = (
   )
     throw new WorkspaceProgramAssignmentError('invalidInput');
   const expectedUserId = input.expectedUserId;
+  const ownsSession = input.session === undefined;
+  const client = getSupabaseClient();
+  if (!client) throw new WorkspaceProgramAssignmentError('configuration');
+  let fence: AssignmentSession;
+  try {
+    fence = input.session ?? openAssignmentSession(expectedUserId);
+  } catch {
+    throw new WorkspaceProgramAssignmentError('unavailable');
+  }
+  const assertValid = () => {
+    if (!fence.valid())
+      throw new WorkspaceProgramAssignmentError('unavailable');
+  };
   const args = {
     p_client_record_id: input.clientRecordId,
     p_template_id: input.templateId,
@@ -100,28 +119,44 @@ export const createAssignClientProgramOperation = (
   } as Database['public']['Functions']['assign_client_program']['Args'];
   let result: Promise<WorkspaceProgramAssignmentResult> | null = null;
   return {
+    dispose: () => {
+      if (ownsSession) fence.dispose();
+    },
     execute: () => {
-      if (result) return result;
+      if (!fence.valid())
+        return Promise.reject(
+          new WorkspaceProgramAssignmentError('unavailable'),
+        );
+      if (result)
+        return result.then(async (value) => {
+          try {
+            await fence.token(expectedUserId);
+            assertValid();
+          } catch {
+            throw new WorkspaceProgramAssignmentError('unavailable');
+          }
+          return value;
+        });
       result = (async () => {
         try {
-          const client = getSupabaseClient();
-          if (!client)
-            throw new WorkspaceProgramAssignmentError('configuration');
-          const session = await client.auth.getSession();
-          const accessToken = session.data.session?.access_token;
-          if (
-            session.error ||
-            session.data.session?.user.id !== expectedUserId ||
-            !accessToken
-          )
-            throw new WorkspaceProgramAssignmentError('unavailable');
+          assertValid();
+          const accessToken = await fence.token(expectedUserId);
+          assertValid();
           const { data, error } = await client
             .rpc('assign_client_program', args)
             .setHeader('Authorization', `Bearer ${accessToken}`);
+          await fence.token(expectedUserId);
+          assertValid();
           if (error) throw rpcError(error.code);
           return parseResult(data);
         } catch (error) {
           result = null;
+          try {
+            await fence.token(expectedUserId);
+            assertValid();
+          } catch {
+            throw new WorkspaceProgramAssignmentError('unavailable');
+          }
           if (error instanceof WorkspaceProgramAssignmentError) throw error;
           throw new WorkspaceProgramAssignmentError('request');
         }

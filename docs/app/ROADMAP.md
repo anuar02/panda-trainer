@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-24: [x] session fence transport/hook, verified refresh,
+  [x] durable retry с исходным requestId и guarded conditional clear;
+  полный `cd app && npm run check` зелёный: 1673 tests / 157 suites, type/lint/format.
+  [ ] live auth/SQL/RLS/concurrent receipts, real storage/reopen/crash,
+  native/parity и одобрение владельца. SOM-24 целиком не закрыта.
+  [Отчёт](../../app/review/som-24-assignment-session-fencing/README.md),
+  [ADR 0077](decisions/0077-program-assignment-session-fencing.md).
+
 - 03.10.2026 — SOM-35: [x] session fence клиентской истории, auth reset страниц/detail, workspace read seam и synthetic regressions (check: 1582 tests / 152 suites); [ ] live API/RLS, native, два телефона и приёмка владельца. [Отчёт](../../app/review/som-35-history-session-fencing/README.md), [ADR 0076](decisions/0076-client-history-session-fencing.md).
 
 - 03.10.2026 — SOM-26 read gap: [x] runtime validation всех read rows/связей,

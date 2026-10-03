@@ -56,6 +56,9 @@ const client = (parts: object, sessionUserId = userId) =>
   ({
     ...parts,
     auth: {
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
       getSession: jest.fn().mockResolvedValue({
         data: {
           session: {
@@ -421,5 +424,103 @@ describe('pending client program assignment storage', () => {
         expectedTemplateRevision: 0,
       }),
     ).toThrow(expect.objectContaining({ code: 'invalid' }));
+  });
+  it('preserves a pending command if its session expires during conditional clear', async () => {
+    await savePendingClientProgramAssignment(userId, workspaceId, pending);
+    let active = true;
+    const originalGet = jest
+      .mocked(AsyncStorage.getItem)
+      .getMockImplementation();
+    jest.mocked(AsyncStorage.getItem).mockImplementationOnce(async (key) => {
+      const raw = await originalGet?.(key);
+      active = false;
+      return raw ?? null;
+    });
+    await expect(
+      clearPendingClientProgramAssignment(
+        userId,
+        workspaceId,
+        clientRecordId,
+        requestId,
+        () => active,
+      ),
+    ).resolves.toBe(false);
+    await expect(
+      loadPendingClientProgramAssignment(userId, workspaceId, clientRecordId),
+    ).resolves.toEqual(pending);
+    expect(AsyncStorage.removeItem).not.toHaveBeenCalled();
+  });
+
+  it('retains the exact command after a failed remove and permits the same retry', async () => {
+    await savePendingClientProgramAssignment(userId, workspaceId, pending);
+    jest
+      .mocked(AsyncStorage.removeItem)
+      .mockRejectedValueOnce(new Error('synthetic storage failure'));
+    await expect(
+      clearPendingClientProgramAssignment(
+        userId,
+        workspaceId,
+        clientRecordId,
+        requestId,
+      ),
+    ).rejects.toMatchObject({ code: 'storage' });
+    await expect(
+      loadPendingClientProgramAssignment(userId, workspaceId, clientRecordId),
+    ).resolves.toEqual(pending);
+    await expect(
+      savePendingClientProgramAssignment(userId, workspaceId, pending),
+    ).resolves.toBeUndefined();
+    await expect(
+      clearPendingClientProgramAssignment(
+        userId,
+        workspaceId,
+        clientRecordId,
+        requestId,
+      ),
+    ).resolves.toBe(true);
+  });
+
+  it('serializes a delayed clear before a newer save and protects that newer request', async () => {
+    await savePendingClientProgramAssignment(userId, workspaceId, pending);
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const originalGet = jest
+      .mocked(AsyncStorage.getItem)
+      .getMockImplementation();
+    jest.mocked(AsyncStorage.getItem).mockImplementationOnce(async (key) => {
+      await gate;
+      return (await originalGet?.(key)) ?? null;
+    });
+    const clearing = clearPendingClientProgramAssignment(
+      userId,
+      workspaceId,
+      clientRecordId,
+      requestId,
+    );
+    const newer = {
+      ...pending,
+      requestId: 'a1000000-0000-4000-8000-000000000002',
+    };
+    const saving = savePendingClientProgramAssignment(
+      userId,
+      workspaceId,
+      newer,
+    );
+    release();
+    await clearing;
+    await saving;
+    await expect(
+      clearPendingClientProgramAssignment(
+        userId,
+        workspaceId,
+        clientRecordId,
+        requestId,
+      ),
+    ).resolves.toBe(false);
+    await expect(
+      loadPendingClientProgramAssignment(userId, workspaceId, clientRecordId),
+    ).resolves.toEqual(newer);
   });
 });

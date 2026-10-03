@@ -162,6 +162,7 @@ export const clearPendingClientProgramAssignment = (
   workspaceId: string,
   clientRecordId: string,
   expectedRequestId: string,
+  isCurrent: () => boolean = () => true,
 ): Promise<boolean> => {
   const key = keyFor(userId, workspaceId, clientRecordId);
   if (!validUuid(expectedRequestId))
@@ -171,7 +172,7 @@ export const clearPendingClientProgramAssignment = (
       const raw = await AsyncStorage.getItem(key);
       if (raw === null) return false;
       const current = decodePendingAssignment(raw, clientRecordId);
-      if (current.requestId !== expectedRequestId) return false;
+      if (current.requestId !== expectedRequestId || !isCurrent()) return false;
       await AsyncStorage.removeItem(key);
       return true;
     } catch (error) {
