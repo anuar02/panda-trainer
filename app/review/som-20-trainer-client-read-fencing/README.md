@@ -72,3 +72,21 @@ Archived client IDs учитываются для связи, затем арх�
 `created_by` не загружается и возвращается `null` только для совместимого client DTO.
 Refresh может оставить исходный bearer истёкшим — тогда весь read даст error/retry.
 Завершение synthetic checks не закрывает SOM-20 и не означает принятие экранов.
+
+## Публикация
+
+- Код: `8e9ae643760b1e005eb71c7db92a176b6fdf1bf6`.
+- `git push -u origin agent/som-20-trainer-client-read-fencing` — успешно.
+  `git ls-remote origin refs/heads/agent/som-20-trainer-client-read-fencing`
+  подтвердил тот же SHA после push; рабочее дерево было чистым.
+- `timeout 20s gh api repos/anuar02/panda-trainer --jq .full_name` — exit 124,
+  ответа нет. HTTPS probe API также завершился timeout.
+- `timeout 45s gh pr create --base fix/som-50-template-picker --draft --fill --title "SOM-20: Fence and paginate trainer client reads" --body-file /tmp/som20-pr-body.md`
+  — exit 124, URL/подтверждение создания отсутствует.
+- После попытки `git ls-remote origin 'refs/pull/*/head'` не обнаружил PR head
+  с SHA этого пакета. Создание draft PR не подтверждено; GitHub API недоступен.
+- [Подготовленные base/title/body](PR-DRAFT.md) сохранены для повторной публикации
+  после восстановления API. Перед повтором проверить отсутствие draft-дубликата.
+
+Описание PR и этот текстовый checkpoint публикуются отдельным документационным
+коммитом поверх проверенного кода; повторная full suite для текста не требуется.
