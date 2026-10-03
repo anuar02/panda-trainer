@@ -80,3 +80,5 @@
 | [0075](0075-session-fenced-schedule-read.md) | Runtime validation и session fencing чтения расписания | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
 
 | [0076](0076-client-history-session-fencing.md) | Session fence клиентской истории и пагинации | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+
+| [0077](0077-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
