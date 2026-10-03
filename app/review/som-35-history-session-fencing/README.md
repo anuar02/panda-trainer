@@ -52,4 +52,4 @@ No real customer data, paid service, new dependency, image or migration was adde
 Visual layout/text were unchanged; native/parity and screen acceptance require
 owner approval. SOM-35 as a whole is not declared accepted or closed.
 
-Decision: ../../../../docs/app/decisions/0075-client-history-session-fencing.md.
+Decision: ../../../../docs/app/decisions/0076-client-history-session-fencing.md.

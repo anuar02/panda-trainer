@@ -9,9 +9,16 @@
 
 ## Не выпущено
 
-- [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0075](docs/app/decisions/0075-client-history-session-fencing.md).
+- [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
 
 ### Добавлено
+
+- [SOM-26 / draft PR #41](https://github.com/anuar02/panda-trainer/pull/41): runtime validation и ограниченная пагинация чтения расписания,
+  фиксированная авторизация всех страниц и защита Today/week от старого snapshot
+  после смены сессии, retry и unmount. Команды создания/мутаций сохранены.
+  [Отчёт](app/review/som-26-schedule-read-fencing/README.md),
+  [ADR 0075](docs/app/decisions/0075-session-fenced-schedule-read.md).
+  SQL/live API/native/parity и одобрение владельца открыты.
 
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.

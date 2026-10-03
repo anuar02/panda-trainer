@@ -76,3 +76,5 @@
 | [0069](0069-owner-scoped-server-workspace-export.md) | Owner-scoped серверный экспорт workspace | Реализовано; SQL/runtime и приёмка открыты | 03.10.2026 |
 
 | [0074](0074-session-fenced-export-file-delivery.md) | Session-fenced server export и явная доставка JSON | Реализовано; native/web/parity и owner acceptance открыты | 03.10.2026 |
+
+| [0075](0075-session-fenced-schedule-read.md) | Runtime validation и session fencing чтения расписания | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
