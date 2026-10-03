@@ -69,8 +69,26 @@ next_task() {
   return 1
 }
 
-done_count() { grep -cE "^OK +[^ ]+ [^ ]+ ($worker_pattern) " "$summary"; }
-finished_count() { grep -cE "^(OK|FAIL) +[^ ]+ [^ ]+ ($worker_pattern) " "$summary"; }
+done_count() { grep -E "^OK +[^ ]+ [^ ]+ ($worker_pattern) " "$summary" | grep -cvE " coordinator( |$)"; }
+finished_count() { grep -E "^(OK|FAIL) +[^ ]+ [^ ]+ ($worker_pattern) " "$summary" | grep -cvE " coordinator( |$)"; }
+
+reconcile() {
+  local kind stamp_d stamp_t acc name pid
+  grep -E "^START " "$summary" | while read -r kind stamp_d stamp_t acc name; do
+    [ "$name" = coordinator ] && continue
+    already_ran "$name" && continue
+    container_running "agent-$name" && continue
+    pgrep -f -- "--name agent-$name " >/dev/null && continue
+    pid=$(cat "$logs/$name.pid" 2>/dev/null)
+    [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && continue
+    if grep -qE "github.com/[^ ]+/pull/[0-9]+" "$logs/$name.log" 2>/dev/null; then
+      echo "OK    $(date '+%F %T') $acc $name" >> "$summary"
+    else
+      echo "FAIL  $(date '+%F %T') $acc $name (logs/$name.log, result recovered)" >> "$summary"
+    fi
+    note "recovered result of $name"
+  done
+}
 
 launch_worker() {
   local acc=$1 task=$2 name
@@ -96,6 +114,7 @@ launch_worker() {
       echo "FAIL  $(date '+%F %T') $acc $name (logs/$name.log)" >> "$summary"
     fi
   ) &
+  echo $! > "$logs/$name.pid"
 }
 
 launch_coordinator() {
@@ -125,13 +144,21 @@ launch_coordinator() {
 
 note "supervisor started: base=$BASE_BRANCH queue=$queue_branch workers=$workers coordinator=$coordinator max=$max_tasks"
 echo $$ > "$logs/supervisor.pid"
+reload=0
+trap 'reload=1' HUP
 last_coordinator=0
 seen_finished=-1
 seen_base=""
 
 while true; do
+  if [ $reload -eq 1 ]; then
+    note "reloading supervisor"
+    unset SUPERVISOR_HERE
+    exec "$here/supervisor.sh"
+  fi
   git -C "$root" pull -q --ff-only origin "$queue_branch" || note "queue pull failed"
   git -C "$mirror" fetch -q --prune origin || note "mirror fetch failed"
+  reconcile
   finished=$(finished_count)
   base_now=$(git -C "$mirror" rev-parse -q --verify "refs/heads/$BASE_BRANCH" 2>/dev/null)
   limit_reached=0
