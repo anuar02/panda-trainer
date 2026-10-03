@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-41: серверный экспорт в authenticated account settings, entry из профиля тренера,
+- [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
   Native/visual и одобрение владельца открыты; deletion не подключён.
   [Отчёт](app/review/som-41-export-ui/README.md),
