@@ -9,6 +9,11 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-40 backup package: [x] encrypted dump/allowlists, UTC cleanup,
+  disabled nightly и manual synthetic restore tooling; [ ] real restore, EU storage
+  evidence, environment/secrets, schedule gate и одобрение владельца.
+  [Отчёт](../../app/review/som-40-pilot-backup/README.md),
+  [runbook](pilot/BACKUP-RESTORE.md). SOM-40 и этап 10 остаются открытыми.
 - 03.10.2026 — SOM-40 config package: [x] локальный public preflight и CLI tests;
   [x] [environment handoff](pilot/ENVIRONMENT.md), ADR 0070.
   [ ] Cloud creation/deployment, отдельные DB/log/backup region evidence, restore,

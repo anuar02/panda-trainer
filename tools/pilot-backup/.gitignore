@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.dump
+*.age
+config.local.json
+backup-*/
