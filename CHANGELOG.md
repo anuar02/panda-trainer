@@ -16,10 +16,15 @@
   [Отчёт](app/review/som-40-pilot-backup/README.md),
   [ADR 0070](docs/app/decisions/0070-encrypted-pilot-backup-and-disposable-restore.md).
   Реальный EU storage/restore и готовность пилота не подтверждены.
+- [SOM-40 / draft PR #31](https://github.com/anuar02/panda-trainer/pull/31): public pilot preflight CLI с безопасной диагностикой и тестами,
+  [Free Frankfurt environment handoff](docs/app/pilot/ENVIRONMENT.md) и ADR 0070.
+  Cloud deployment/region evidence, restore, telemetry и приёмка остаются открытыми.
 
 - [SOM-41 / draft PR #29](https://github.com/anuar02/panda-trainer/pull/29): owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
   архивы/приватные заметки/history/conflicts и точные bigint strings; отдельные
   typed domain/service без UI. App check зелёный; SQL runtime не проверен.
+  CI evidence: migration applied, pgTAP пропущен из-за исходного outbox lint;
+  Expo compatibility check блокируют версии зависимостей базы.
   [Отчёт](app/review/som-41-trainer-export/README.md),
   [ADR 0069](docs/app/decisions/0069-owner-scoped-server-workspace-export.md).
   UI, удаление аккаунта и весь SOM-41 остаются открытыми.

@@ -14,11 +14,17 @@
   evidence, environment/secrets, schedule gate и одобрение владельца.
   [Отчёт](../../app/review/som-40-pilot-backup/README.md),
   [runbook](pilot/BACKUP-RESTORE.md). SOM-40 и этап 10 остаются открытыми.
+- 03.10.2026 — SOM-40 config package: [x] локальный public preflight и CLI tests;
+  [x] [environment handoff](pilot/ENVIRONMENT.md), ADR 0070.
+  [ ] Cloud creation/deployment, отдельные DB/log/backup region evidence, restore,
+  telemetry, native и owner approval. SOM-40 и пилот не завершены.
+  [Отчёт](../../app/review/som-40-pilot-config/README.md).
 
 - 03.10.2026 — SOM-41 read-only package: [x] owner-scoped export RPC,
   26 versioned collections и независимые typed domain/service; [x] app tests,
-  check 1355 tests / 133 suites. [ ] SQL/pgTAP runtime, generated type drift,
-  real API; UI и account deletion — будущие пакеты, SOM-41 не закрыт.
+  check после вливания SOM-30: 1430 tests / 142 suites. [ ] SQL/pgTAP runtime, generated type drift,
+  real API; CI блокируют исходный apply_operations lint и Expo versions.
+  UI и account deletion — будущие пакеты, SOM-41 не закрыт.
   [Отчёт](../../app/review/som-41-trainer-export/README.md),
   [ADR 0069](decisions/0069-owner-scoped-server-workspace-export.md).
 

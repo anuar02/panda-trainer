@@ -3,6 +3,10 @@
     "webstorm": {
       "url": "http://127.0.0.1:64542/stream",
       "type": "http"
+    },
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=vameovahvatonfyzztyi&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
     }
   }
 }
