@@ -6,6 +6,7 @@ set -euo pipefail
 
 repo_url="https://github.com/${REPO:-anuar02/panda-trainer}.git"
 branch="agent/$TASK_NAME"
+base="${BASE_BRANCH:-main}"
 
 gh auth setup-git
 git config --global user.name "codex-agent ($ACCOUNT)"
@@ -16,14 +17,14 @@ if git ls-remote --exit-code --heads "$repo_url" "$branch" >/dev/null 2>&1; then
   exit 0
 fi
 
-git clone --depth 50 "$repo_url" repo
+git clone --depth 50 --branch "$base" "$repo_url" repo
 cd repo
 git checkout -b "$branch"
 (cd app && npm ci --no-audit --no-fund)
 
 prompt="$(cat /task/task.md)
 
-$(sed "s|{{BRANCH}}|$branch|g" /task/RULES.md)"
+$(sed -e "s|{{BRANCH}}|$branch|g" -e "s|{{BASE}}|$base|g" /task/RULES.md)"
 
 status=0
 codex exec --dangerously-bypass-approvals-and-sandbox "$prompt" || status=$?
@@ -33,10 +34,10 @@ if [ -n "$(git status --porcelain)" ]; then
   git commit -m "WIP $TASK_NAME: auto-commit of uncommitted agent changes"
 fi
 
-if [ "$(git rev-list --count origin/main..HEAD)" -gt 0 ]; then
+if [ "$(git rev-list --count origin/$base..HEAD)" -gt 0 ]; then
   git push -u origin "$branch"
   gh pr view "$branch" >/dev/null 2>&1 \
-    || gh pr create --base main --head "$branch" --draft --fill
+    || gh pr create --base "$base" --head "$branch" --draft --fill
 fi
 
 exit "$status"

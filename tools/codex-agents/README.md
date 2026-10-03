@@ -2,7 +2,8 @@
 
 Каждая папка в `tasks/` — очередь одного аккаунта Codex (`work`, `personal`, `third`).
 Файл задачи — готовый промпт; к нему добавляется [RULES.md](RULES.md)
-(подставьте имя ветки вместо `{{BRANCH}}`, например `agent/som-38-mascot`).
+(подставьте имя ветки вместо `{{BRANCH}}`, например `agent/som-38-mascot`,
+и базовую ветку вместо `{{BASE}}`).
 
 Один агент = один git worktree = одна ветка = одна задача. Результат — PR в `main`
 в статусе «требует проверки»; приёмку экранов подтверждает только владелец.
@@ -50,6 +51,10 @@ export GH_TOKEN=github_pat_...
 tools/codex-agents/docker/run-agents.sh
 tools/codex-agents/docker/run-agents.sh work personal
 ```
+
+Агенты ветвятся от `main` и открывают PR в `main`. Другую базовую ветку задаёт
+`BASE_BRANCH`, например
+`BASE_BRANCH=fix/som-50-template-picker tools/codex-agents/docker/run-agents.sh work personal`.
 
 Ход работы: `tools/codex-agents/docker/logs/summary.txt` и `logs/<задача>.log`.
 Задача, чья ветка уже есть в origin, пропускается. Один аккаунт выполняет свои

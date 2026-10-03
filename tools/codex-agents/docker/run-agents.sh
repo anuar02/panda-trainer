@@ -17,7 +17,7 @@ run_queue() {
     name=$(basename "$task" .md)
     echo "START $(date '+%F %T') $acc $name" >> "$logs/summary.txt"
     if docker run --rm --name "agent-$name" \
-        -e GH_TOKEN -e TASK_NAME="$name" -e ACCOUNT="$acc" \
+        -e GH_TOKEN -e BASE_BRANCH="${BASE_BRANCH:-main}" -e TASK_NAME="$name" -e ACCOUNT="$acc" \
         -v "$HOME/.codex-$acc:/home/node/.codex" \
         -v "$task:/task/task.md:ro" \
         -v "$briefs/RULES.md:/task/RULES.md:ro" \
