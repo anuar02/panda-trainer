@@ -9,6 +9,12 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-40 config package: [x] локальный public preflight и CLI tests;
+  [x] [environment handoff](pilot/ENVIRONMENT.md), ADR 0070.
+  [ ] Cloud creation/deployment, отдельные DB/log/backup region evidence, restore,
+  telemetry, native и owner approval. SOM-40 и пилот не завершены.
+  [Отчёт](../../app/review/som-40-pilot-config/README.md).
+
 - 03.10.2026 — SOM-41 read-only package: [x] owner-scoped export RPC,
   26 versioned collections и независимые typed domain/service; [x] app tests,
   check 1355 tests / 133 suites. [ ] SQL/pgTAP runtime, generated type drift,
