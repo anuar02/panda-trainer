@@ -205,8 +205,7 @@ export function PurchasesPanel({
               .map((entry) => (
                 <View key={entry.id} style={s.kv}>
                   <Text style={secondary}>
-                    {formatPurchaseExpiry(entry.paidOn, i18n.language)} ·{' '}
-                    {entry.method}
+                    {`${formatPurchaseExpiry(entry.paidOn, i18n.language)} · ${entry.method}`}
                   </Text>
                   <Text style={s.kvValue}>
                     {formatPurchaseMoney(entry.amountMinor, i18n.language)}
