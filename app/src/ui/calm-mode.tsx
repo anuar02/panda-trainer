@@ -14,7 +14,7 @@ type Role = 'trainer' | 'client';
 export const calmModeStorageKey = (role: Role) => `panda-trainer.calm.${role}`;
 const CalmContext = createContext({
   calmMode: false,
-  ready: false,
+  ready: true,
   error: false,
   setCalmMode: (_value: boolean) => {},
 });
@@ -77,7 +77,10 @@ export function CalmModeProvider({
   );
   return <CalmContext.Provider value={value}>{children}</CalmContext.Provider>;
 }
-export const useCalmMode = () => useContext(CalmContext).calmMode;
+export const useCalmMode = () => {
+  const { calmMode, ready } = useContext(CalmContext);
+  return !ready || calmMode;
+};
 export const useCalmModePreference = () => useContext(CalmContext);
 export function useCelebrationsEnabled() {
   const { calmMode, ready } = useContext(CalmContext);

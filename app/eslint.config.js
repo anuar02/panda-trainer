@@ -27,7 +27,15 @@ module.exports = defineConfig([
   },
   {
     files: ['**/*.{ts,tsx}'],
-    rules: { '@typescript-eslint/no-explicit-any': 'error' },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+    },
+  },
+  {
+    files: ['src/ui/mascot/rive-mascot.tsx'],
+    rules: {
+      '@typescript-eslint/no-require-imports': ['warn', { allow: ['\\.riv$'] }],
+    },
   },
   {
     files: ['**/*.tsx'],

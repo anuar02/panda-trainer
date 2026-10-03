@@ -1,3 +1,4 @@
+import { MascotCelebration } from '@/ui/mascot/celebration';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -412,6 +413,7 @@ export function WorkoutScreen({
       style={s.root}
       testID={`workout-${scenario}`}
     >
+      <MascotCelebration finished={journal.finished} />
       <View style={s.topbar}>
         <Pressable
           accessibilityRole="button"

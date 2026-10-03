@@ -2,21 +2,21 @@
 
 03.10.2026. Реализация подготовлена для ревью; экраны не приняты владельцем.
 Эталон: `prototype-fresh/index.html` без параметров, 390 × 844, палитра «Чернила».
-[ADR 0060](../../../docs/app/decisions/0060-calm-mode-and-accessible-motion.md).
+[ADR 0063](../../../docs/app/decisions/0063-calm-mode-and-accessible-motion.md).
 
 ## Критерии
 
 | Критерий                      | Результат                                                                                                                            | Осталось                                                                                   |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | Calm mode в обоих профилях    | Сделано: switch, раздельное сохранение по роли, восстановление после reload, видимая ошибка хранения                                 | Одобрение владельца на устройствах                                                         |
-| API для SOM-38                | Сделано: `useCalmMode`, `useCalmModePreference`, `useCelebrationsEnabled`                                                            | SOM-38 должен подключить флаги к своему компоненту; маскот/ассеты не изменены              |
+| API для SOM-38                | Сделано: `useCalmMode`, `useCalmModePreference`, `useCelebrationsEnabled`                                                            | Координатор подключил флаги к уже влитому маскоту; ассеты не изменены              |
 | Системное уменьшение движения | Сделано: AccessibilityInfo read/event, защита от позднего чтения, ReduceMotion.System в withTiming и System/Always в Sheet           | iOS/Android и переключение во время нативного движения не проверены                        |
 | Крупный текст до 200%         | Сделано: adaptive layout Today/журнала, растущие поля, доступные через прокрутку действия, переносы в dock; render-тесты 134% и 200% | Нативная проверка clipping/перекрытий, клавиатура и одобрение владельца                    |
 | Функциональное движение       | Сделано: feedback записи 200 ms, смена упражнения/появление 600 ms, sheet 420 ms; curves из default spec                             | Нативная длительность/кривые не измерены; эффект записи требует одобрения (OPEN-QUESTIONS) |
 
 Calm mode скрывает существующие изображения Today и кнопки голоса журнала.
 Будущие празднования запрещены при calm и до гидратации настройки. Функциональные
-кнопки работают независимо от движения. Другие места будущего маскота — SOM-38.
+кнопки работают независимо от движения. Shared Mascot подключён координатором ко всем существующим местам.
 Новые празднования/компонент маскота, picker/конструктор, расписание и схема БД
 не реализовывались и не изменялись.
 
@@ -133,3 +133,16 @@ Draft PR создан и проверен: [#23](https://github.com/anuar02/pand
 
 [Описание PR с критериями и ограничениями](PR.md) сохранено в репозитории.
 Приёмка SOM-39 владельцем и нативные проверки остаются открытыми.
+
+## Coordinator integration · 03.10.2026
+
+Merged current base while preserving billing history/tests and Expo Image mascot.
+Connected shared Mascot and MascotCelebration to calm preferences; pending hydration
+suppresses decorative art, and system reduced motion forces the PNG poster instead
+of experimental Rive autoplay. Updated calm tests cover shared mascot suppression.
+Renumbered motion ADR to 0063 to preserve existing mascot ADR 0060.
+The historical captures precede this integration; fresh native/visual checks remain open.
+
+Coordinator checks: `cd app && npm ci && npm run check` passed: typecheck, lint,
+format, 126 suites / 1228 tests. Capture script uses the existing root Playwright
+resolution pattern, so app lint does not require a separately installed browser tool.

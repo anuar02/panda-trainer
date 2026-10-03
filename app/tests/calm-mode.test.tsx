@@ -8,6 +8,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text } from 'react-native';
 import '../src/lib/i18n';
+import { Mascot } from '../src/ui/mascot';
 import { ThemeProvider } from '../src/ui/theme';
 import { ProfilePreferences } from '../src/features/profiles/profile-screens';
 import {
@@ -25,6 +26,7 @@ function Harness({ role = 'trainer' }: { role?: 'trainer' | 'client' }) {
     <ThemeProvider role={role}>
       <ProfilePreferences />
       <Probe />
+      <Mascot pose="front" size={100} testID="calm-mascot" />
     </ThemeProvider>
   );
 }
@@ -44,6 +46,7 @@ test('profile toggles the shared mascot/celebration flag, persists it and restor
     screen.getByRole('switch', { name: 'Спокойный интерфейс' }),
   ).toBeChecked();
   expect(screen.getByTestId('consumer')).toHaveTextContent('true:false');
+  expect(screen.queryByTestId('calm-mascot')).toBeNull();
   await waitFor(() =>
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       calmModeStorageKey('trainer'),
@@ -87,12 +90,14 @@ test('late hydration does not overwrite a user choice and pending hydration supp
       : Promise.resolve(null),
   );
   await render(<Harness />);
-  expect(screen.getByTestId('consumer')).toHaveTextContent('false:false');
+  expect(screen.getByTestId('consumer')).toHaveTextContent('true:false');
+  expect(screen.queryByTestId('calm-mascot')).toBeNull();
   await fireEvent.press(
     screen.getByRole('switch', { name: 'Спокойный интерфейс' }),
   );
   await act(async () => resolve('false'));
   expect(screen.getByTestId('consumer')).toHaveTextContent('true:false');
+  expect(screen.queryByTestId('calm-mascot')).toBeNull();
 });
 test('failed storage write is visible and a later toggle retries persistence', async () => {
   jest.mocked(AsyncStorage.setItem).mockRejectedValueOnce(new Error('disk'));

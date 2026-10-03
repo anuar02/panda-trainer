@@ -1,3 +1,4 @@
+import { Mascot } from '@/ui/mascot';
 import { useState } from 'react';
 import type {
   TrainerTodayAgenda,
@@ -6,7 +7,6 @@ import type {
 } from '@/features/workspace-scheduling/today-adapter';
 import { router } from 'expo-router';
 import {
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -831,10 +831,11 @@ export function TrainerTodayScreen({
               >
                 {!calmMode && (
                   <View style={s.emptyArtBox}>
-                    <Image
-                      source={require('../../../assets/mascot/sleep.png')}
+                    <Mascot
+                      pose="sleep"
+                      size={170}
                       style={s.emptyArt}
-                      resizeMode="contain"
+
                       accessible={false}
                     />
                   </View>
@@ -882,10 +883,11 @@ export function TrainerTodayScreen({
                   </View>
                   {!calmMode && (
                     <View style={s.face}>
-                      <Image
-                        source={require('../../../assets/mascot/face-calm.png')}
+                      <Mascot
+                        pose="calm"
+                        size={58}
                         style={s.faceImage}
-                        resizeMode="contain"
+
                         accessible={false}
                       />
                     </View>

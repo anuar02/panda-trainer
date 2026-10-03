@@ -15,6 +15,9 @@ export const trainerPurchasesRu = {
   paymentUnavailable: 'Данные об оплатах пока недоступны.',
   unknown: '—',
   paid: 'Оплачено',
-  debt: 'Есть долг',
+  debt: 'К оплате {{amount}}',
   noPayments: 'Оплат пока нет.',
+  recorded: 'Записано',
+  paymentMeta: '{{date}} · {{method}}{{note}}',
+  paymentNote: ' · {{note}}',
 } as const;

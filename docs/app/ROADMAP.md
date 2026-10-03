@@ -14,8 +14,28 @@
   адаптивная вёрстка Today/журнала при fontScale 134–200%. 1220 tests / 124 suites,
   type/lint/format, all-platform export, 24 capture pairs и 8 web simulations
   проходят. Проверки и ограничения
-  — [отчёт](../../app/review/som-39/README.md), [ADR 0060](decisions/0060-calm-mode-and-accessible-motion.md).
-  Нативная проверка и одобрение владельца остаются открытыми; SOM-38 не изменён.
+  — [отчёт](../../app/review/som-39/README.md), [ADR 0063](decisions/0063-calm-mode-and-accessible-motion.md).
+  Координатор подключил shared mascot/celebration calm flags и reduced-motion PNG.
+  Свежий npm ci + check: 1228 tests / 126 suites, type/lint/format зелёные.
+  Нативная проверка и одобрение владельца остаются открытыми.
+- 03.10.2026 — SOM-33/SOM-34 продолжены с WIP `4704f31`: package creation,
+  capped positive/partial payments и payment read подключены; история приведена
+  к структуре прототипа, ошибка чтения предлагает retry. Исправлены undefined
+  guards в тестах и сохранение UUID-подобных title/reason при exact replay.
+  Coordinator integration: полный check зелёный, 1213 tests / 124 suites.
+  Историческая проверка рабочего: 1210 tests / 123 suites, lint/format проходят; полный check блокирует
+  существующий `src/ui/button.tsx:83` (`hovered`), файл
+  исключён границами задачи. SQL/browser не проверены в контейнере; владелец ранее
+  сообщил о 723 pgTAP checks и concurrency. Native/visual/owner acceptance и
+  отображение сторно остаются открытыми; Linear только прочитан.
+  [ADR 0059](decisions/0059-package-creation-and-capped-payments.md),
+  [отчёт](../../app/review/som-34-billing-finish/README.md).
+
+- 03.10.2026 — SOM-38: PNG через expo-image, все позы/лица, `hidden`;
+  Rive за `EXPO_PUBLIC_MASCOT_RIVE=true`, по умолчанию PNG. Добавлено краткое
+  PNG-празднование нового завершения. Check: 1208 tests / 123 suites,
+  type/lint/format и экспорт iOS/Android/web проходят. Native/parity и одобрение рига открыты.
+  [Отчёт](../../app/review/som-38-mascot/README.md), [ADR 0060](decisions/0060-mascot-png-and-gated-rive.md).
 
 - 03.10.2026 — SOM-33/26/27: общий scoped coordinator над workspace Stack
   держит billing/status/proposal/creation pending и synchronous lock. Real Today
@@ -653,9 +673,9 @@
 
 ## Этап 6. Посещения, пакеты и оплаты
 
-- [ ] Таблицы: `client_purchases`, `attendance_records`, `attendance_revisions` и
-  `credit_entries` реализованы в SOM-33; `payment_entries` — независимая
-  foundation SOM-34, payment commands/debt/app пока открыты.
+- [x] Таблицы: `client_purchases`, `attendance_records`, `attendance_revisions`,
+  `credit_entries` и immutable `payment_entries`; payment commands/debt/app
+  реализованы в SOM-33/SOM-34 (ADR 0059). Container SQL rerun не выполнен.
 - [x] RPC `mark_attended`: атомарное списание из подходящего пакета (ближайший срок
   истечения, тренер может выбрать другой), повторный вызов не списывает второй раз.
 - [x] Посещение без пакета — «Не привязано к оплате», без отрицательного остатка;
@@ -663,13 +683,16 @@
 - [x] Исправление посещения возвращает единицу ровно один раз и пишет историю.
 - [x] Real schedule attendance UI и durable replay точной команды после потери ответа;
   отдельные mark/bind/correct/penalty controls, safe projections и account scope.
-- [x] Scoped данные пакетов в карточке клиента: cost, net used units, expiry;
-  unknown payments/debt без подставленных нулей.
-- [ ] Production создание покупки: entry point/форма отсутствуют в прототипе,
-  ожидается решение владельца.
-- [ ] Ручная оплата: сумма в тиынах (`bigint`), валюта KZT, дата, автор, источник `manual`;
-  частичная оплата, долг не блокирует расписание.
-- [ ] Экран клиента у тренера: остаток занятий, долг, история.
+- [x] Scoped данные пакетов в карточке клиента: cost, net used units, expiry,
+  received/debt из payment ledger; при ошибке данные неизвестны, без ложных нулей.
+- [x] Production создание покупки: «Добавить пакет» во вкладке «Оплаты»,
+  одобренное функциональное отличие (ADR 0059); внешний вид требует приёмки.
+- [x] Ручная оплата: сумма в тиынах (`bigint`), валюта KZT, дата, автор, источник `manual`;
+  частичная положительная оплата не больше долга своего пакета; attendance/credits
+  не изменяются. Container check/SQL/browser и owner acceptance имеют ограничения
+  из отчёта SOM-34 billing finish.
+- [ ] Экран клиента у тренера: остаток занятий, долг и история реализованы;
+  visual/native/owner acceptance и отображение сторно остаются открытыми.
 - [x] pgTAP и concurrency: параллельные списания одного остатка, повтор запроса,
   исправление (660 assertions / 19 files и 6 concurrency scenarios проходят).
 
@@ -700,8 +723,8 @@
 
 Можно делать параллельно с этапами 3–8, если есть отдельный исполнитель.
 
-- [ ] PNG-позы и лица из `prototype-fresh/assets/mascot/` через `expo-image`.
-- [ ] Rive-риг: `rive-react-native`, файл из `design-exploration/red-panda-rive-2026-09-29/exports/`.
+- [x] PNG-позы и лица из `prototype-fresh/assets/mascot/` через `expo-image`.
+- [x] Rive-риг подключён за выключенным флагом (приёмка открыта): `rive-react-native`, файл из `design-exploration/red-panda-rive-2026-09-29/exports/`.
   До приёмки рига — PNG. Прозрачные WebM-ролики в нативном приложении не используем:
   на iOS альфа-канал VP9 не поддерживается ([ADR 0005](decisions/0005-mascot-motion.md)).
 - [ ] Места появления — как в `prototype-fresh`: приглашение, пустые состояния,

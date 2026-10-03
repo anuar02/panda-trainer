@@ -14,7 +14,23 @@
 - [SOM-39 / PR #23](https://github.com/anuar02/panda-trainer/pull/23): сохраняемый «Спокойный интерфейс» обеих ролей и hooks для SOM-38;
   системное уменьшение движения, Reanimated-шторки/обратная связь подхода и
   адаптация «Сегодня»/журнала к крупному шрифту до 200%. Нативная и визуальная
-  приёмка открыты ([отчёт](app/review/som-39/README.md), ADR 0060).
+  приёмка открыты ([отчёт](app/review/som-39/README.md), ADR 0063).
+- SOM-33/SOM-34: завершены создание пакета и ручная частичная оплата до остатка
+  долга; история показывает сумму, дату, способ и «Записано», ошибки чтения дают
+  повтор. Строгие тесты проверяют существование кнопок/вызовов; exact replay
+  сохраняет UUID-подобные названия и причины без изменения регистра.
+  Coordinator integration: полный check зелёный, 1213 tests / 124 suites.
+  Историческая проверка рабочего: 1210 tests / 123 suites, lint и format проходят; полный check блокирует
+  существующая ошибка `ui/button.tsx:83`; SQL/browser
+  не проверены в контейнере, внешний вид требует одобрения владельца.
+  [ADR 0059](docs/app/decisions/0059-package-creation-and-capped-payments.md),
+  [отчёт](app/review/som-34-billing-finish/README.md),
+  [PR #22](https://github.com/anuar02/panda-trainer/pull/22).
+
+- [SOM-38 / PR #21](https://github.com/anuar02/panda-trainer/pull/21): утверждённые PNG-позы и лица через expo-image, `hidden`,
+  Rive за выключенным флагом и PNG-празднование нового завершения тренировки.
+  Native/визуальная приёмка и одобрение рига открыты.
+  [ADR 0060](docs/app/decisions/0060-mascot-png-and-gated-rive.md).
 
 - Real Today attendance и общий workspace coordinator для billing, cancellation,
   proposals и creation: retained routes используют один lock/pending store;
@@ -269,6 +285,8 @@
 
 ### Документация
 
+- Решение владельца SOM-34: отменённая оплата показывается строкой «Отменена», тренер может отменить оплату с подтверждением ([ADR 0059](docs/app/decisions/0059-package-creation-and-capped-payments.md)).
+- Решения владельца SOM-53, SOM-56, SOM-58: политика конфликтов журнала и видимость для клиента ([ADR 0061](docs/app/decisions/0061-journal-conflicts-and-client-visibility.md)).
 - По решению владельца отменены обязательные записи в Linear после каждой
   задачи; проверки в репозитории и отдельные коммиты сохраняются.
   [ADR 0036](docs/app/decisions/0036-reduced-linear-updates.md).

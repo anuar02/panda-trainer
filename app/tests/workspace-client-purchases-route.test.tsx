@@ -205,9 +205,13 @@ test('creates an exact client package through the shared command controller', as
   await fireEvent.changeText(screen.getByLabelText('Название'), 'Новый пакет');
   await fireEvent.changeText(screen.getByLabelText('Количество занятий'), '8');
   await fireEvent.changeText(screen.getByLabelText('Стоимость, ₸'), '12000,50');
-  await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Добавить пакет' })[1]!,
-  );
+  const submitPackage = screen.getAllByRole('button', {
+    name: 'Добавить пакет',
+  })[1];
+  if (!submitPackage) {
+    throw new Error('Expected package submission button');
+  }
+  await fireEvent.press(submitPackage);
   expect(mockSubmit).toHaveBeenCalledWith({
     action: 'createPurchase',
     requestId: 'c1000000-0000-4000-8000-000000000001',
@@ -226,15 +230,23 @@ test('payment rejects over-debt input under the field and records a partial amou
     screen.getByRole('button', { name: 'Записать оплату' }),
   );
   await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '1250,51');
-  await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Записать оплату' })[1]!,
-  );
+  const submitOverpayment = screen.getAllByRole('button', {
+    name: 'Записать оплату',
+  })[1];
+  if (!submitOverpayment) {
+    throw new Error('Expected payment submission button');
+  }
+  await fireEvent.press(submitOverpayment);
   expect(mockSubmit).not.toHaveBeenCalled();
   expect(screen.getByText('Больше долга по пакету (1 250,50 ₸)')).toBeTruthy();
   await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '250,50');
-  await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Записать оплату' })[1]!,
-  );
+  const submitPartialPayment = screen.getAllByRole('button', {
+    name: 'Записать оплату',
+  })[1];
+  if (!submitPartialPayment) {
+    throw new Error('Expected payment submission button');
+  }
+  await fireEvent.press(submitPartialPayment);
   expect(mockSubmit).toHaveBeenCalledWith(
     expect.objectContaining({
       action: 'recordPayment',

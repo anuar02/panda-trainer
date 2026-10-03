@@ -1,6 +1,6 @@
 # ADR 0059: Package creation and payments capped at debt
 
-Date: 2026-10-03. Status: owner-approved product decisions; implementation pending.
+Date: 2026-10-03. Status: owner-approved product decisions; implementation delivered; worker check initially blocked by shared UI typecheck, coordinator integration validation recorded in the review; visual/native acceptance pending.
 
 ## Decisions
 
@@ -22,4 +22,38 @@ comparison still requires owner approval.
 Payments remain separate from the immutable session credit ledger. Creation uses
 the existing owner-only purchase command. Payment and full reversal commands
 must preserve exact package ownership, immutable history, scoped recovery and
-lossless minor-unit money. Implementation evidence will be recorded separately.
+lossless minor-unit money.
+
+## Implementation and validation
+
+Package creation, capped payment commands, exact string/BigInt money, scoped
+reads and durable command replay are implemented in the WIP base and completed
+by this follow-up. History rows follow the prototype amount/date/method/status
+structure; read failures offer retry. Command snapshots normalize identifiers
+without changing UUID-shaped titles or reasons.
+
+Container evidence: [billing finish review](../../../app/review/som-34-billing-finish/README.md).
+Full `npm run check` remains blocked by the existing excess `hovered` property in
+`app/src/ui/button.tsx:83`; shared UI is outside this task's authorized scope.
+SQL and browser scenarios were not run in the container. The owner reported
+723 pgTAP checks and concurrency scenarios passing before this continuation;
+that report is prior evidence, not a fresh container result.
+
+Visual/native comparison and owner approval remain open. Display of reversed
+payments/reversal receipts is not defined by the prototype; the current UI
+shows unreversed payments and preserves the immutable server ledger.
+
+Coordinator merged PR #21 into the billing branch: full `npm run check` now
+passes, 1213 tests / 124 suites plus typecheck, lint and formatting. The earlier
+worker failure is historical. Native/visual and SQL/browser limitations remain.
+
+## Owner decision 03.10.2026: reversed payments
+
+- A reversed payment stays in the client's payment history as one row: the
+  amount is struck through and the row shows the status «Отменена» with the
+  reversal date. No separate reversal row. Debt is calculated without it.
+- The trainer can reverse a mistaken payment from the app: a «Отменить оплату»
+  action on the payment row, with a confirmation step, using the existing
+  `reverse_client_payment` command. Debt is recalculated after the reversal.
+- This is a known difference from the prototype (it does not define reversals);
+  its appearance still requires owner acceptance.

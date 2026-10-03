@@ -5,6 +5,7 @@ import { Sheet } from '../../ui/sheet';
 import { Button } from '../../ui/button';
 import { Text } from '../../ui/text';
 import { useTheme } from '../../ui/theme';
+import { Icon } from '../../ui/icons';
 import { date, minorMoney } from '../trainer-billing/validation';
 import { formatPurchaseMoney } from '../../domain/purchases';
 import type { PaymentEntry } from './types';
@@ -229,13 +230,26 @@ function PaymentForm({
           {error || t('trainerPayments.submitError')}
         </Text>
       ) : null}
-      <Button
-        label={t('trainerPayments.save')}
-        variant="mint"
-        loading={busy || submitting}
-        disabled={disabled || !dueValid || !paidOnValid || dueMinor === '0'}
-        onPress={() => void submit()}
-      />
+      {!paidOnValid ? (
+        <Text accessibilityRole="alert" className="text-danger">
+          {t('trainerPayments.invalidDate')}
+        </Text>
+      ) : null}
+      <View style={{ gap: 10 }}>
+        <Button
+          label={t('trainerPayments.save')}
+          variant="mint"
+          icon={<Icon name="check" size={20} color={colors.canvas} />}
+          loading={busy || submitting}
+          disabled={disabled || !dueValid || !paidOnValid || dueMinor === '0'}
+          onPress={() => void submit()}
+        />
+        <Button
+          label={t('trainerPayments.cancel')}
+          variant="ghost"
+          onPress={onClose}
+        />
+      </View>
     </>
   );
 }

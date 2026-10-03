@@ -2,8 +2,10 @@ import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
 const root = fileURLToPath(new URL('../../../', import.meta.url));
+const require = createRequire(path.join(root, 'package.json'));
+const { chromium } = require('playwright');
 const output = path.join(root, 'app/review/som-39/large-text');
 await mkdir(output, { recursive: true });
 const server = createServer(async (request, response) => {

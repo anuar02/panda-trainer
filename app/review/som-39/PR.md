@@ -19,7 +19,7 @@ SOM-39: переключатель «Спокойный интерфейс» о�
 - Parity runner: **24 reference + 24 app captures**, 0 missing route/state comparisons, 0 runtime errors.
 - Headless simulation: **8 случаев 134%/200% × normal/calm**, запись/редактирование/шторка, 0 runtime errors/горизонтальных выходов текста; обе роли сохраняют calm после reload.
 
-[Отчёт, точные команды и ограничения](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/app/review/som-39/README.md), [пары снимков](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/app/review/som-39/parity/index.html), [large-text evidence](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/app/review/som-39/large-text/report.json), [ADR 0060](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/docs/app/decisions/0060-calm-mode-and-accessible-motion.md).
+[Отчёт, точные команды и ограничения](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/app/review/som-39/README.md), [пары снимков](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/app/review/som-39/parity/index.html), [large-text evidence](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/app/review/som-39/large-text/report.json), [ADR 0063](https://github.com/anuar02/panda-trainer/blob/28d1f6e187697ab744b52ebe24d024b666e4c390/docs/app/decisions/0063-calm-mode-and-accessible-motion.md).
 
 Web simulation подменяет Dimensions и масштабирует DOM-текст только для review; production bundle на диске не изменяется. Это не нативный системный fontScale. iOS/Android устройства, клавиатура, жесты и screen readers не проверены. Graft отсутствует; Linear прочитан, не изменялся.
 
@@ -35,5 +35,5 @@ Web simulation подменяет Dimensions и масштабирует DOM-т�
 ## Учёт изменений
 
 - [x] CHANGELOG, ROADMAP checkpoint и реализация SOM-39 отмечены
-- [x] ADR 0060 и OPEN-QUESTIONS для feedback записи
+- [x] ADR 0063 и OPEN-QUESTIONS для feedback записи
 - [x] Воспроизводимый отчёт и ограничения сохранены в репозитории
