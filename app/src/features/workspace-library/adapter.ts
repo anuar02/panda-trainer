@@ -34,19 +34,23 @@ export type WorkspaceWorkoutTemplate = Omit<Template, 'exercises'> & {
 
 export const toLibraryExercise = (
   row: WorkspaceExerciseRow,
-): WorkspaceLibraryExercise => ({
-  id: row.id,
-  name: row.name,
-  group: row.muscle_group,
-  equipment: row.equipment,
-  aliases: row.aliases,
-  instructions: row.instructions,
-  sourceKey: row.source_key,
-  archivedAt: row.archived_at,
-  revision: row.revision,
-  measure: row.measure === 'seconds' ? 'seconds' : 'reps',
-  bodyweight: row.bodyweight,
-});
+): WorkspaceLibraryExercise => {
+  if (row.measure !== 'reps' && row.measure !== 'seconds')
+    throw new Error('Library data is invalid');
+  return {
+    id: row.id,
+    name: row.name,
+    group: row.muscle_group,
+    equipment: row.equipment,
+    aliases: row.aliases,
+    instructions: row.instructions,
+    sourceKey: row.source_key,
+    archivedAt: row.archived_at,
+    revision: row.revision,
+    measure: row.measure,
+    bodyweight: row.bodyweight,
+  };
+};
 
 export const toWorkspaceTemplate = (
   row: WorkspaceTemplateRow,
@@ -60,6 +64,11 @@ export const toWorkspaceTemplate = (
       const exercise = exercises.get(line.exercise_id);
       if (!exercise) throw new Error('Template exercise unavailable');
       const timed = line.planned_seconds !== null;
+      if (
+        timed !== (exercise.measure === 'seconds') ||
+        (line.planned_reps !== null && line.planned_seconds !== null)
+      )
+        throw new Error('Library data is invalid');
       const reps = timed ? line.planned_seconds : line.planned_reps;
       if (reps === null) throw new Error('Template exercise unavailable');
       return {

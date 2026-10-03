@@ -88,8 +88,99 @@ const columns = {
     'id,workspace_id,workout_instance_id,text,revision,created_at,updated_at',
 } as const;
 type Table = keyof typeof columns;
+export type ClientHistorySession = {
+  valid(): boolean;
+  dispose(): void;
+};
+type SessionState = {
+  userId: string;
+  token: string | null;
+  active: boolean;
+  client: NonNullable<ReturnType<typeof getSupabaseClient>>;
+};
+const sessions = new WeakMap<ClientHistorySession, SessionState>();
+export function openClientHistorySession(
+  userId: string,
+  onInvalidated: () => void = () => {},
+): ClientHistorySession {
+  const client = getSupabaseClient();
+  if (!client) throw new ClientHistoryError('configuration');
+  const state: SessionState = {
+    userId: userId.toLowerCase(),
+    token: null,
+    active: true,
+    client,
+  };
+  let disposed = false;
+  const invalidate = () => {
+    if (!state.active) return;
+    state.active = false;
+    if (state.token !== null) onInvalidated();
+  };
+  const subscription = client.auth.onAuthStateChange((event, session) => {
+    if (disposed) return;
+    if (!state.active) {
+      if (
+        session?.access_token &&
+        session.user.id.toLowerCase() === state.userId
+      )
+        onInvalidated();
+      return;
+    }
+    if (
+      !session?.access_token ||
+      session.user.id.toLowerCase() !== state.userId
+    ) {
+      invalidate();
+      return;
+    }
+    if (
+      state.token !== null &&
+      session.access_token !== state.token &&
+      event !== 'TOKEN_REFRESHED'
+    ) {
+      invalidate();
+      return;
+    }
+    state.token = session.access_token;
+  }).data.subscription;
+  const fence: ClientHistorySession = {
+    valid: () => state.active,
+    dispose: () => {
+      disposed = true;
+      state.active = false;
+      subscription.unsubscribe();
+    },
+  };
+  sessions.set(fence, state);
+  return fence;
+}
+async function historyToken(
+  fence: ClientHistorySession,
+  userId: string,
+): Promise<string> {
+  const state = sessions.get(fence);
+  if (!state?.active || state.userId !== userId.toLowerCase())
+    throw new ClientHistoryError('unavailable');
+  const current = await state.client.auth.getSession();
+  const session = current.data.session;
+  if (
+    !state.active ||
+    current.error ||
+    !session?.access_token ||
+    session.user.id.toLowerCase() !== state.userId ||
+    (state.token !== null && session.access_token !== state.token)
+  ) {
+    state.active = false;
+    throw new ClientHistoryError('unavailable');
+  }
+  state.token = session.access_token;
+  return state.token;
+}
 export async function loadClientHistory(input: {
   expectedUserId: string;
+  session?: ClientHistorySession;
+  workspaceId?: string;
   clientRecordId: string;
   startsAtUtc?: string;
   endsAtUtc?: string;
@@ -103,6 +194,7 @@ export async function loadClientHistory(input: {
   if (
     !uuid(input.expectedUserId) ||
     !uuid(input.clientRecordId) ||
+    (input.workspaceId !== undefined && !uuid(input.workspaceId)) ||
     (bounded &&
       (!timestamp(startsAtUtc) ||
         !timestamp(endsAtUtc) ||
@@ -114,21 +206,15 @@ export async function loadClientHistory(input: {
     throw new ClientHistoryError('invalidInput');
   const client = getSupabaseClient();
   if (!client) throw new ClientHistoryError('configuration');
+  const fence = input.session ?? openClientHistorySession(input.expectedUserId);
   try {
-    const current = await client.auth.getSession();
-    const token = current.data.session?.access_token;
-    if (
-      current.error ||
-      !token ||
-      current.data.session?.user.id.toLowerCase() !==
-        input.expectedUserId.toLowerCase()
-    )
-      throw new ClientHistoryError('unavailable');
+    let token = await historyToken(fence, input.expectedUserId);
     const result = await client
       .rpc('get_my_client_schedule_context', {
         p_client_record_id: input.clientRecordId.toLowerCase(),
       })
       .setHeader('Authorization', `Bearer ${token}`);
+    token = await historyToken(fence, input.expectedUserId);
     const row: unknown = result.data;
     if (result.error) throw new ClientHistoryError('unavailable');
     if (
@@ -137,6 +223,8 @@ export async function loadClientHistory(input: {
         'client_name,client_record_id,timezone,trainer_name,workspace_id' ||
       row.client_record_id !== input.clientRecordId.toLowerCase() ||
       !uuid(row.workspace_id) ||
+      (input.workspaceId !== undefined &&
+        row.workspace_id !== input.workspaceId.toLowerCase()) ||
       !text(row.timezone) ||
       !text(row.client_name) ||
       !text(row.trainer_name)
@@ -175,6 +263,7 @@ export async function loadClientHistory(input: {
       .order('finished_at', { ascending: false })
       .order('id')
       .range(offset, offset + limit);
+    await historyToken(fence, input.expectedUserId);
     if (
       instances.error ||
       !Array.isArray(instances.data) ||
@@ -227,12 +316,15 @@ export async function loadClientHistory(input: {
       if (!selectedIds.length) return [];
       const rows: Record<string, unknown>[] = [];
       for (let start = 0; start < 10000; start += 500) {
+        const childToken = await historyToken(fence, input.expectedUserId);
         let request = query(table)
+          .setHeader('Authorization', `Bearer ${childToken}`)
           .in('workout_instance_id', selectedIds)
           .order('id')
           .range(start, start + 499);
         if (table === 'set_results') request = request.is('deleted_at', null);
         const response = await request;
+        await historyToken(fence, input.expectedUserId);
         if (
           response.error ||
           !Array.isArray(response.data) ||
@@ -382,16 +474,12 @@ export async function loadClientHistory(input: {
           a.id.localeCompare(b.id),
       );
     }
-    const finalSession = await client.auth.getSession();
-    if (
-      finalSession.error ||
-      finalSession.data.session?.user.id.toLowerCase() !==
-        input.expectedUserId.toLowerCase()
-    )
-      throw new ClientHistoryError('unavailable');
+    await historyToken(fence, input.expectedUserId);
     return { context, journals: selected, nextOffset };
   } catch (error: unknown) {
     if (error instanceof ClientHistoryError) throw error;
     throw new ClientHistoryError('request');
+  } finally {
+    if (!input.session) fence.dispose();
   }
 }

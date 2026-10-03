@@ -9,12 +9,23 @@
 
 ## Не выпущено
 
+- SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
+
+- [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
+
 ### Добавлено
 
 - SOM-20: безопасное owner-scoped чтение списка/карточки клиентов, bounded pagination,
   runtime validation и session/retry fencing. Создание занятия сохраняет совместимый wrapper.
   [Проверки и ограничения](app/review/som-20-trainer-client-read-fencing/README.md);
   live/native/parity и приёмка владельца открыты.
+
+- [SOM-26 / draft PR #41](https://github.com/anuar02/panda-trainer/pull/41): runtime validation и ограниченная пагинация чтения расписания,
+  фиксированная авторизация всех страниц и защита Today/week от старого snapshot
+  после смены сессии, retry и unmount. Команды создания/мутаций сохранены.
+  [Отчёт](app/review/som-26-schedule-read-fencing/README.md),
+  [ADR 0075](docs/app/decisions/0075-session-fenced-schedule-read.md).
+  SQL/live API/native/parity и одобрение владельца открыты.
 
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
@@ -309,6 +320,12 @@
   [ADR 0025](docs/app/decisions/0025-identity-rls-foundation.md).
 
 ### Исправлено
+
+- [SOM-34 / draft PR #43](https://github.com/anuar02/panda-trainer/pull/43): финансовые чтения изолированы по auth session_id; hooks сбрасывают данные
+  при повторном входе, bounded exact-count paging и scoped relations отклоняют
+  неполные snapshots. UI и mutations сохранены; live auth/native и приёмка открыты.
+  [Отчёт](app/review/som-34-financial-read-session-fencing/README.md),
+  [ADR 0077](docs/app/decisions/0077-financial-read-session-fencing.md).
 
 - SOM-29: синхронизация журнала больше не создаёт ложные конфликты. Миграция
   `20261003140000_workout_sync_revision_fixes`: серверная перестановка подходов не

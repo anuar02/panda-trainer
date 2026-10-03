@@ -18,7 +18,7 @@ Title: `SOM-20: Fence and paginate trainer client reads`
 - Сделано: list/details read lifecycle retry/unmount/scope/session; существующие add/invite/program/purchase callbacks сохранены. loadWorkspaceClients совместим с scheduling caller; создание занятия не менялось.
 - Сделано: synthetic >500 rows, exact bound/limit, duplicate/foreign/malformed, смена сессии между reads/pages, refresh pinned bearer, late success/error/retry/not-found.
 - Сделано: `cd app && npm run check` — typecheck/lint/format зелёные, 1628 tests / 154 suites. `git diff --check` зелёный.
-- Сделано: CHANGELOG, минимальный ROADMAP checkpoint, ADR 0075 и `app/review/som-20-trainer-client-read-fencing/README.md`.
+- Сделано: CHANGELOG, минимальный ROADMAP checkpoint, ADR 0079 и `app/review/som-20-trainer-client-read-fencing/README.md`.
 - Не проверено: SQL/pgTAP/RLS, live auth/server caps/network, native/browser/devices, visual parity. HTTP pagination не является repeatable-read DB snapshot; equal-count concurrent changes остаются ограничением.
 - Не проверено: live Linear issue/project/dependencies/duplicates — callable API отсутствует. Linear не изменялся. graft недоступен; использованы точные файлы из брифа.
 - Требует одобрения владельца: экраны и весь SOM-20; synthetic checks не означают приёмку.

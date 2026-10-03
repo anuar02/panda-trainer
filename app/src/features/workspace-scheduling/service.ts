@@ -1,35 +1,23 @@
 import { getSupabaseClient } from '@/features/auth/client';
 import type { Database } from '@/lib/database.types';
+import { createWorkspaceScheduleReadFence } from './read-session';
+import {
+  isAvailabilityRead,
+  isBookingRead,
+  isClientRead,
+  isProgramRead,
+  isProposalRead,
+  scheduleUuidPattern,
+  type BookingRead,
+  type ProposalRead,
+  type ClientRead,
+  type ProgramRead,
+} from './read-validation';
 
 type BookingRow = Database['public']['Tables']['bookings']['Row'];
 type ClientRecordRow = Database['public']['Tables']['client_records']['Row'];
 type ProposalRow = Database['public']['Tables']['schedule_proposals']['Row'];
 type WorkspaceRow = Database['public']['Tables']['trainer_workspaces']['Row'];
-type BookingRead = Pick<
-  BookingRow,
-  | 'id'
-  | 'workspace_id'
-  | 'client_record_id'
-  | 'group_session_id'
-  | 'starts_at'
-  | 'ends_at'
-  | 'status'
-  | 'revision'
->;
-type ProposalRead = Pick<
-  ProposalRow,
-  | 'id'
-  | 'workspace_id'
-  | 'booking_id'
-  | 'proposed_starts_at'
-  | 'proposed_ends_at'
-  | 'base_revision'
-  | 'status'
-  | 'revision'
-  | 'created_at'
-  | 'updated_at'
-> & { author_role: 'trainer' | 'client' };
-
 export type WorkspaceScheduleAvailability = Pick<
   WorkspaceRow,
   | 'id'
@@ -81,23 +69,26 @@ export type WorkspaceSchedulingErrorCode =
   | 'unavailable'
   | 'request'
   | 'conflict'
-  | 'invalidState';
+  | 'invalidState'
+  | 'readLimit';
 
 export class WorkspaceSchedulingError extends Error {
   constructor(readonly code: WorkspaceSchedulingErrorCode) {
     super(
       code === 'invalidInput'
         ? 'Schedule range is invalid'
-        : 'Schedule data could not be loaded',
+        : code === 'readLimit'
+          ? 'Schedule data exceeds the bounded read limit'
+          : 'Schedule data could not be loaded',
     );
     this.name = 'WorkspaceSchedulingError';
   }
 }
 
-const uuidPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const uuidPattern = scheduleUuidPattern;
 const pageSize = 500;
 const idBatchSize = 200;
+export const MAX_WORKSPACE_SCHEDULE_READ_PAGES = 20;
 export const MAX_WORKSPACE_SCHEDULE_RANGE_DAYS = 42;
 const maxRangeMilliseconds =
   MAX_WORKSPACE_SCHEDULE_RANGE_DAYS * 24 * 60 * 60 * 1000;
@@ -105,45 +96,10 @@ const bookingColumns =
   'id,workspace_id,client_record_id,group_session_id,starts_at,ends_at,status,revision';
 const proposalColumns =
   'id,workspace_id,booking_id,author_role,proposed_starts_at,proposed_ends_at,base_revision,status,revision,created_at,updated_at';
-
-const parseProposalRows = (
-  data: unknown,
-  workspaceId: string,
-): ProposalRead[] => {
-  if (!Array.isArray(data) || data.length > pageSize)
-    return throwRequestError();
-  return data.map((value: unknown) => {
-    if (typeof value !== 'object' || value === null || Array.isArray(value))
-      return throwRequestError();
-    const row = value as Record<string, unknown>;
-    const timestamp = (key: string) =>
-      typeof row[key] === 'string' && Number.isFinite(Date.parse(row[key]));
-    if (
-      Object.keys(row).sort().join(',') !==
-        proposalColumns.split(',').sort().join(',') ||
-      typeof row.id !== 'string' ||
-      !uuidPattern.test(row.id) ||
-      row.workspace_id !== workspaceId ||
-      typeof row.booking_id !== 'string' ||
-      !uuidPattern.test(row.booking_id) ||
-      (row.author_role !== 'trainer' && row.author_role !== 'client') ||
-      row.status !== 'pending' ||
-      typeof row.base_revision !== 'number' ||
-      !Number.isSafeInteger(row.base_revision) ||
-      row.base_revision < 1 ||
-      typeof row.revision !== 'number' ||
-      !Number.isSafeInteger(row.revision) ||
-      row.revision < 1 ||
-      !timestamp('proposed_starts_at') ||
-      !timestamp('proposed_ends_at') ||
-      !timestamp('created_at') ||
-      !timestamp('updated_at') ||
-      Date.parse(row.proposed_ends_at as string) <=
-        Date.parse(row.proposed_starts_at as string)
-    )
-      return throwRequestError();
-    return row as ProposalRead;
-  });
+export type WorkspaceScheduleReadOptions = {
+  expectedUserId?: string;
+  expectedSessionId?: string;
+  assertCurrent?: () => void | Promise<void>;
 };
 
 const normalizeUtc = (value: string): string | null => {
@@ -162,22 +118,45 @@ const throwRequestError = (): never => {
   throw new WorkspaceSchedulingError('request');
 };
 
+const parseReadRows = <T>(
+  data: unknown,
+  validate: (value: unknown) => value is T,
+  limit: number,
+): T[] => {
+  if (!Array.isArray(data) || data.length > limit) return throwRequestError();
+  return data.map((value: unknown) => {
+    if (!validate(value)) return throwRequestError();
+    return value;
+  });
+};
+
 const readPages = async <T>(
   createQuery: (
     offset: number,
     limit: number,
-  ) => PromiseLike<{
-    data: T[] | null;
-    error: { code: string } | null;
-  }>,
+  ) => PromiseLike<{ data: unknown; error: unknown }>,
+  validate: (value: unknown) => value is T,
+  assertCurrent: () => Promise<void>,
+  getId: (value: T) => string,
 ): Promise<T[]> => {
   const rows: T[] = [];
-  for (let offset = 0; ; offset += pageSize) {
+  const ids = new Set<string>();
+  for (let page = 0; page < MAX_WORKSPACE_SCHEDULE_READ_PAGES; page += 1) {
+    await assertCurrent();
+    const offset = page * pageSize;
     const { data, error } = await createQuery(offset, offset + pageSize - 1);
-    if (error || data === null) throw new WorkspaceSchedulingError('request');
-    rows.push(...data);
-    if (data.length < pageSize) return rows;
+    await assertCurrent();
+    if (error) return throwRequestError();
+    const values = parseReadRows(data, validate, pageSize);
+    for (const value of values) {
+      const id = getId(value);
+      if (ids.has(id)) return throwRequestError();
+      ids.add(id);
+      rows.push(value);
+    }
+    if (values.length < pageSize) return rows;
   }
+  throw new WorkspaceSchedulingError('readLimit');
 };
 
 const toBooking = (
@@ -203,6 +182,7 @@ export async function loadWorkspaceSchedule(
   workspaceId: string,
   startsAtUtc: string,
   endsAtUtc: string,
+  options?: WorkspaceScheduleReadOptions,
 ): Promise<WorkspaceSchedule> {
   const startsAt = normalizeUtc(startsAtUtc);
   const endsAt = normalizeUtc(endsAtUtc);
@@ -216,139 +196,242 @@ export async function loadWorkspaceSchedule(
     throw new WorkspaceSchedulingError('invalidInput');
 
   const client = requireClient();
-  const [workspaceResult, bookingRows, proposalRows] = await Promise.all([
-    client
-      .from('trainer_workspaces')
-      .select(
-        'id,timezone,working_days,day_start,day_end,usual_session_minutes',
-      )
-      .eq('id', workspaceId)
-      .maybeSingle(),
-    readPages<BookingRead>((from, to) =>
-      client
-        .from('bookings')
-        .select(bookingColumns)
-        .eq('workspace_id', workspaceId)
-        .lt('starts_at', endsAt)
-        .gt('ends_at', startsAt)
-        .order('starts_at')
-        .order('id')
-        .range(from, to),
-    ),
-    readPages<ProposalRead>(async (from) => {
-      const { data, error } = await client.rpc(
-        'get_my_workspace_schedule_proposals',
-        {
-          p_workspace_id: workspaceId,
-          p_offset: from,
-          p_limit: pageSize,
-        },
-      );
-      return {
-        data: error ? null : parseProposalRows(data, workspaceId),
-        error,
-      };
-    }),
-  ]);
-  if (workspaceResult.error) throwRequestError();
-  if (!workspaceResult.data) throw new WorkspaceSchedulingError('unavailable');
-  const workspace = workspaceResult.data;
-  if (new Set(proposalRows.map((row) => row.id)).size !== proposalRows.length)
-    throwRequestError();
-
-  const bookingIds = uniqueIds([
-    ...bookingRows.map((booking) => booking.id),
-    ...proposalRows.map((proposal) => proposal.booking_id),
-  ]);
-  const knownBookings = new Map(
-    bookingRows.map((booking) => [booking.id, booking]),
+  await options?.assertCurrent?.();
+  const fence = await createWorkspaceScheduleReadFence(
+    client.auth,
+    options?.expectedUserId
+      ? {
+          userId: options.expectedUserId,
+          workspaceId,
+          sessionId: options.expectedSessionId,
+        }
+      : undefined,
   );
-  const missingBookingIds = bookingIds.filter((id) => !knownBookings.has(id));
-  const supplementalBookings: BookingRead[] = [];
-  for (
-    let offset = 0;
-    offset < missingBookingIds.length;
-    offset += idBatchSize
-  ) {
-    const ids = missingBookingIds.slice(offset, offset + idBatchSize);
-    const { data, error } = await client
-      .from('bookings')
-      .select(bookingColumns)
-      .eq('workspace_id', workspaceId)
-      .in('id', ids)
-      .order('starts_at')
-      .order('id');
-    if (error || data === null) throw new WorkspaceSchedulingError('request');
-    supplementalBookings.push(...data);
-  }
-  for (const booking of supplementalBookings)
-    knownBookings.set(booking.id, booking);
-  if (bookingIds.some((id) => !knownBookings.has(id)))
-    throw new WorkspaceSchedulingError('unavailable');
-
-  const clientIds = uniqueIds(
-    [...knownBookings.values()].map((booking) => booking.client_record_id),
-  );
-  const clientRows: Pick<
-    ClientRecordRow,
-    'id' | 'workspace_id' | 'display_name'
-  >[] = [];
-  for (let offset = 0; offset < clientIds.length; offset += idBatchSize) {
-    const ids = clientIds.slice(offset, offset + idBatchSize);
-    const { data, error } = await client
-      .from('client_records')
-      .select('id,workspace_id,display_name')
-      .eq('workspace_id', workspaceId)
-      .in('id', ids)
-      .order('id');
-    if (error || data === null) throw new WorkspaceSchedulingError('request');
-    clientRows.push(...data);
-  }
-  const names = new Map(clientRows.map((row) => [row.id, row.display_name]));
-  if (clientIds.some((id) => !names.has(id)))
-    throw new WorkspaceSchedulingError('unavailable');
-  const programs = new Map<string, string>();
-  for (let offset = 0; offset < bookingIds.length; offset += idBatchSize) {
-    const { data, error } = await client
-      .from('booking_programs')
-      .select('booking_id,name')
-      .eq('workspace_id', workspaceId)
-      .in('booking_id', bookingIds.slice(offset, offset + idBatchSize))
-      .order('booking_id');
-    if (error || data === null) throw new WorkspaceSchedulingError('request');
-    for (const program of data) programs.set(program.booking_id, program.name);
-  }
-  const allBookings = [...knownBookings.values()];
-  const bookingViews = new Map(
-    allBookings.map((booking) => [
-      booking.id,
-      toBooking(booking, names, programs),
-    ]),
-  );
-
-  return {
-    availability: {
-      id: workspace.id,
-      timezone: workspace.timezone,
-      working_days: workspace.working_days,
-      day_start: workspace.day_start,
-      day_end: workspace.day_end,
-      usual_session_minutes: workspace.usual_session_minutes,
-    },
-    bookings: bookingRows.map((booking) => bookingViews.get(booking.id)!),
-    pendingProposals: proposalRows.map((proposal) => ({
-      id: proposal.id,
-      workspace_id: proposal.workspace_id,
-      booking_id: proposal.booking_id,
-      proposed_starts_at: proposal.proposed_starts_at,
-      proposed_ends_at: proposal.proposed_ends_at,
-      base_revision: proposal.base_revision,
-      status: proposal.status,
-      revision: proposal.revision,
-      created_at: proposal.created_at,
-      updated_at: proposal.updated_at,
-      authorRole: proposal.author_role,
-      booking: bookingViews.get(proposal.booking_id)!,
-    })),
+  const assertCurrent = async () => {
+    await options?.assertCurrent?.();
+    await fence.assertCurrent();
+    await options?.assertCurrent?.();
   };
+  const authorize = <T extends { setHeader(name: string, value: string): T }>(
+    query: T,
+  ): T => query.setHeader('Authorization', `Bearer ${fence.accessToken}`);
+  try {
+    await assertCurrent();
+    const workspaceResult = await authorize(
+      client
+        .from('trainer_workspaces')
+        .select(
+          'id,owner_user_id,timezone,working_days,day_start,day_end,usual_session_minutes',
+        )
+        .eq('id', workspaceId)
+        .maybeSingle(),
+    );
+    await assertCurrent();
+    if (workspaceResult.error) throwRequestError();
+    if (!workspaceResult.data)
+      throw new WorkspaceSchedulingError('unavailable');
+    if (!isAvailabilityRead(workspaceResult.data, workspaceId, fence.userId))
+      return throwRequestError();
+    const workspace = workspaceResult.data;
+    const bookingRows = await readPages<BookingRead>(
+      (from, to) =>
+        authorize(
+          client
+            .from('bookings')
+            .select(bookingColumns)
+            .eq('workspace_id', workspaceId)
+            .lt('starts_at', endsAt)
+            .gt('ends_at', startsAt)
+            .order('starts_at')
+            .order('id')
+            .range(from, to),
+        ),
+      (value): value is BookingRead =>
+        isBookingRead(value, workspaceId) &&
+        Date.parse(value.starts_at) < Date.parse(endsAt) &&
+        Date.parse(value.ends_at) > Date.parse(startsAt),
+      assertCurrent,
+      (value) => value.id,
+    );
+    const proposalRows = await readPages<ProposalRead>(
+      (from) =>
+        authorize(
+          client.rpc('get_my_workspace_schedule_proposals', {
+            p_workspace_id: workspaceId,
+            p_offset: from,
+            p_limit: pageSize,
+          }),
+        ),
+      (value): value is ProposalRead =>
+        isProposalRead(value, workspaceId) &&
+        Object.keys(value).sort().join(',') ===
+          proposalColumns.split(',').sort().join(','),
+      assertCurrent,
+      (value) => value.id,
+    );
+
+    const bookingIds = uniqueIds([
+      ...bookingRows.map((booking) => booking.id),
+      ...proposalRows.map((proposal) => proposal.booking_id),
+    ]);
+    const knownBookings = new Map(
+      bookingRows.map((booking) => [booking.id, booking]),
+    );
+    const missingBookingIds = bookingIds.filter((id) => !knownBookings.has(id));
+    const supplementalBookings: BookingRead[] = [];
+    const supplementalBookingIds = new Set<string>();
+    for (
+      let offset = 0;
+      offset < missingBookingIds.length;
+      offset += idBatchSize
+    ) {
+      const ids = missingBookingIds.slice(offset, offset + idBatchSize);
+      await assertCurrent();
+      const { data, error } = await authorize(
+        client
+          .from('bookings')
+          .select(bookingColumns)
+          .eq('workspace_id', workspaceId)
+          .in('id', ids)
+          .order('starts_at')
+          .order('id'),
+      );
+      await assertCurrent();
+      if (error) return throwRequestError();
+      const rows = parseReadRows(
+        data,
+        (value): value is BookingRead => isBookingRead(value, workspaceId),
+        ids.length,
+      );
+      for (const row of rows) {
+        if (
+          !ids.includes(row.id) ||
+          knownBookings.has(row.id) ||
+          supplementalBookingIds.has(row.id)
+        )
+          return throwRequestError();
+        supplementalBookingIds.add(row.id);
+        supplementalBookings.push(row);
+      }
+    }
+    for (const booking of supplementalBookings)
+      knownBookings.set(booking.id, booking);
+    if (bookingIds.some((id) => !knownBookings.has(id)))
+      throw new WorkspaceSchedulingError('unavailable');
+
+    for (const proposal of proposalRows) {
+      const booking = knownBookings.get(proposal.booking_id)!;
+      if (
+        proposal.base_revision > booking.revision ||
+        (booking.status !== 'proposed' && booking.status !== 'confirmed')
+      )
+        return throwRequestError();
+    }
+    if (
+      new Set(proposalRows.map((row) => row.booking_id)).size !==
+      proposalRows.length
+    )
+      return throwRequestError();
+
+    const clientIds = uniqueIds(
+      [...knownBookings.values()].map((booking) => booking.client_record_id),
+    );
+    const clientRows: ClientRead[] = [];
+    const loadedClientIds = new Set<string>();
+    for (let offset = 0; offset < clientIds.length; offset += idBatchSize) {
+      const ids = clientIds.slice(offset, offset + idBatchSize);
+      await assertCurrent();
+      const { data, error } = await authorize(
+        client
+          .from('client_records')
+          .select('id,workspace_id,display_name')
+          .eq('workspace_id', workspaceId)
+          .in('id', ids)
+          .order('id'),
+      );
+      await assertCurrent();
+      if (error) return throwRequestError();
+      const rows = parseReadRows(
+        data,
+        (value): value is ClientRead => isClientRead(value, workspaceId),
+        ids.length,
+      );
+      for (const row of rows) {
+        if (!ids.includes(row.id) || loadedClientIds.has(row.id))
+          return throwRequestError();
+        loadedClientIds.add(row.id);
+        clientRows.push(row);
+      }
+    }
+    const names = new Map(clientRows.map((row) => [row.id, row.display_name]));
+    if (clientIds.some((id) => !names.has(id)))
+      throw new WorkspaceSchedulingError('unavailable');
+    const programs = new Map<string, string>();
+    const programIds = new Set<string>();
+    for (let offset = 0; offset < bookingIds.length; offset += idBatchSize) {
+      const ids = bookingIds.slice(offset, offset + idBatchSize);
+      await assertCurrent();
+      const { data, error } = await authorize(
+        client
+          .from('booking_programs')
+          .select('id,booking_id,workspace_id,name')
+          .eq('workspace_id', workspaceId)
+          .in('booking_id', ids)
+          .order('booking_id'),
+      );
+      await assertCurrent();
+      if (error) return throwRequestError();
+      const rows = parseReadRows(
+        data,
+        (value): value is ProgramRead => isProgramRead(value, workspaceId),
+        ids.length,
+      );
+      for (const program of rows) {
+        if (
+          !ids.includes(program.booking_id) ||
+          programs.has(program.booking_id) ||
+          programIds.has(program.id)
+        )
+          return throwRequestError();
+        programIds.add(program.id);
+        programs.set(program.booking_id, program.name);
+      }
+    }
+    const allBookings = [...knownBookings.values()];
+    const bookingViews = new Map(
+      allBookings.map((booking) => [
+        booking.id,
+        toBooking(booking, names, programs),
+      ]),
+    );
+
+    await assertCurrent();
+    return {
+      availability: {
+        id: workspace.id,
+        timezone: workspace.timezone,
+        working_days: workspace.working_days,
+        day_start: workspace.day_start,
+        day_end: workspace.day_end,
+        usual_session_minutes: workspace.usual_session_minutes,
+      },
+      bookings: bookingRows.map((booking) => bookingViews.get(booking.id)!),
+      pendingProposals: proposalRows.map((proposal) => ({
+        id: proposal.id,
+        workspace_id: proposal.workspace_id,
+        booking_id: proposal.booking_id,
+        proposed_starts_at: proposal.proposed_starts_at,
+        proposed_ends_at: proposal.proposed_ends_at,
+        base_revision: proposal.base_revision,
+        status: proposal.status,
+        revision: proposal.revision,
+        created_at: proposal.created_at,
+        updated_at: proposal.updated_at,
+        authorRole: proposal.author_role,
+        booking: bookingViews.get(proposal.booking_id)!,
+      })),
+    };
+  } finally {
+    fence.dispose();
+  }
 }

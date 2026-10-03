@@ -128,7 +128,7 @@ export function parseBooking(
     return fail();
   return row as WorkspaceClientDetailsData['bookings'][number];
 }
-function range(value: unknown, digits: number) {
+function range(value: unknown, digits: number, max = 999) {
   if (
     typeof value !== 'string' ||
     !new RegExp(`^[0-9]{1,${digits}}([–-][0-9]{1,${digits}})?$`).test(value)
@@ -140,7 +140,8 @@ function range(value: unknown, digits: number) {
   return (
     first !== undefined &&
     first > 0 &&
-    (parts.length === 1 || (last !== undefined && last >= first))
+    first <= max &&
+    (parts.length === 1 || (last !== undefined && last >= first && last <= max))
   );
 }
 export function parseExercise(
@@ -172,7 +173,7 @@ export function parseExercise(
         range(row.planned_reps, 3) &&
         row.planned_seconds === null) ||
       (row.measure_snapshot === 'seconds' &&
-        range(row.planned_seconds, 4) &&
+        range(row.planned_seconds, 4, 3600) &&
         row.planned_reps === null)
     )
   )

@@ -30,7 +30,7 @@ Account-export и auth изучались только для read-fencing ко�
 | Архив и missing | Сделано: архив скрыт; archived/not-found details остаются `null`; архивные родительские ID допускают собственные связи списка |
 | Retry/unmount/scope/session lifecycle | Сделано: локальный controller/hook, late success/error подавляются, старое ready сразу очищается; auth subscription также очищает уже показанный результат |
 | Add/invite/program/purchase и создание занятия | Сохранены существующие callbacks/commands; scheduling caller не менялся, wrapper совместим; purchase regression проверена |
-| Документация подхода | [ADR 0075](../../../docs/app/decisions/0075-trainer-client-read-fencing.md), CHANGELOG и минимальный checkpoint ROADMAP |
+| Документация подхода | [ADR 0079](../../../docs/app/decisions/0079-trainer-client-read-fencing.md), CHANGELOG и минимальный checkpoint ROADMAP |
 | SQL/RLS/live auth/native/visual parity | Не проверено |
 | Приёмка экранов и всего SOM-20 | Требует одобрения владельца |
 

@@ -11,6 +11,9 @@ import {
   type TrainerBillingCommand,
 } from '../src/features/trainer-billing/commands';
 import type { TrainerBilling } from '../src/features/trainer-billing/types';
+jest.mock('../src/features/auth/client', () => ({
+  getSupabaseClient: () => null,
+}));
 jest.mock('expo-router', () => ({
   useFocusEffect: (effect: () => () => void) => {
     jest

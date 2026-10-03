@@ -133,6 +133,9 @@ test.each([
   ['client_program_exercises', { ...exercise, measure_snapshot: 'distance' }],
   ['client_program_exercises', { ...exercise, planned_reps: '3' }],
   ['client_program_exercises', { ...exercise, planned_seconds: '45–30' }],
+  ['client_program_exercises', { ...exercise, planned_seconds: '3601' }],
+  ['client_program_exercises', { ...exercise, planned_seconds: '1–3601' }],
+  ['client_program_exercises', { ...exercise, planned_seconds: '9999' }],
   ['client_program_exercises', { ...exercise, instructions_snapshot: [1] }],
 ])('rejects malformed/foreign runtime row in %s', async (table, row) => {
   setupRead({ [table]: [row] });
