@@ -11,6 +11,14 @@
 
 ### Добавлено
 
+- Real Today attendance и общий workspace coordinator для billing, cancellation,
+  proposals и creation: retained routes используют один lock/pending store;
+  отдельные recovery-команды сохраняются после смены дня/маршрута. Старая
+  pending команда не разрешает новую запись в другом домене.
+  1093 tests / 117 suites, all-platform export и 12 Today/Schedule capture pairs
+  проходят; synthetic cross-route replay не дублирует списание.
+  [ADR 0058](docs/app/decisions/0058-shared-workspace-mutation-coordinator.md).
+
 - SOM-33: реальные покупки во вкладке «Оплаты» клиента: точная стоимость,
   использованные занятия из scoped ledger и срок, включая expired/depleted packages.
   Ошибочная история показывает retry вместо ложного нуля; payment/debt остаются

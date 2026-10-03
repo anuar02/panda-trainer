@@ -17,6 +17,69 @@ jest.mock('react-native-safe-area-context', () => ({
   SafeAreaView:
     jest.requireActual<typeof import('react-native')>('react-native').View,
 }));
+let mockBillingPending:
+  | import('../src/features/trainer-billing/commands').TrainerBillingCommand
+  | null = null;
+const mockAttendanceResume = jest.fn();
+jest.mock('../src/features/trainer-billing/use-commands', () => ({
+  useTrainerBillingCommands: () => ({
+    blocked: false,
+    pending: mockBillingPending,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: mockAttendanceResume,
+  }),
+}));
+jest.mock('../src/features/workspace-scheduling/use-proposal', () => ({
+  useWorkspaceProposalCommands: () => ({
+    pending: null,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+    resolve: jest.fn(),
+  }),
+}));
+jest.mock('../src/features/workspace-scheduling/use-status-commands', () => ({
+  useWorkspaceStatusCommands: () => ({
+    blocked: false,
+    pending: null,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+    resolve: jest.fn(),
+  }),
+}));
+jest.mock('../src/features/workspace-scheduling/use-creation', () => ({
+  useWorkspaceBookingCreation: () => ({
+    pending: null,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+  }),
+}));
+jest.mock('../src/features/auth/client', () => ({
+  getSupabaseClient: jest.fn(),
+}));
+jest.mock('../src/features/trainer-billing/use-billing', () => ({
+  useTrainerBilling: () => ({
+    data: { purchases: [], credits: [], attendance: [], revisions: [] },
+    loading: false,
+    error: null,
+    retry: jest.fn(),
+  }),
+}));
 const mockPush = jest.fn();
 let mockNow = new Date('2026-10-02T07:00:00.000Z');
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
@@ -92,6 +155,8 @@ const mount = () =>
     />,
   );
 beforeEach(() => {
+  mockBillingPending = null;
+  mockAttendanceResume.mockReset().mockResolvedValue(true);
   mockPush.mockReset();
   mockNow = new Date('2026-10-02T07:00:00.000Z');
   read.mockReturnValue({
@@ -106,10 +171,9 @@ test('uses real trainer/session and opens the corresponding real detail', async 
   await fireEvent.press(
     screen.getByRole('button', { name: 'Реальный клиент' }),
   );
-  expect(mockPush).toHaveBeenCalledWith({
-    pathname: '/workspace/schedule',
-    params: { date: '2026-10-02', session: 'booking' },
-  });
+  expect(mockPush).not.toHaveBeenCalled();
+  expect(screen.getByText('Посещение и списание')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Пришёл' })).toBeTruthy();
   await fireEvent.press(screen.getByRole('button', { name: 'Create' }));
   expect(mockPush).toHaveBeenLastCalledWith({
     pathname: '/workspace/new',
@@ -136,4 +200,38 @@ test('loading carries real identity and an empty agenda without demo data', asyn
   expect(screen.queryByRole('button', { name: 'Реальный клиент' })).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Create' }));
   expect(mockPush).not.toHaveBeenCalled();
+});
+
+test('pending attendance stays recoverable after midnight removes its selected session', async () => {
+  const view = await mount();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Реальный клиент' }),
+  );
+  mockBillingPending = {
+    action: 'markNoShow',
+    bookingId: '20000000-0000-4000-8000-000000000001',
+    expectedBookingRevision: 1,
+    requestId: '30000000-0000-4000-8000-000000000001',
+  };
+  mockNow = new Date('2026-10-02T19:01:00.000Z');
+  read.mockReturnValue({
+    schedule: { ...data, bookings: [] },
+    loading: false,
+    failed: false,
+    retry,
+  });
+  await view.rerender(
+    <WorkspaceTodayScreen
+      userId="user"
+      workspaceId="workspace"
+      timezone="Asia/Almaty"
+      trainerName="Реальный тренер"
+    />,
+  );
+  expect(screen.queryByRole('button', { name: 'Пришёл' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Повторить сохранённую операцию' }),
+  );
+  expect(mockAttendanceResume).toHaveBeenCalledTimes(1);
 });

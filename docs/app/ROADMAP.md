@@ -9,6 +9,18 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-33/26/27: общий scoped coordinator над workspace Stack
+  держит billing/status/proposal/creation pending и synchronous lock. Real Today
+  открывает локальную participant sheet; Schedule использует тот же control.
+  Recovery остаётся доступным вне sheet после смены дня/маршрута.
+  1093 tests / 117 suites, type/lint/format, web/iOS/Android export и 12 default
+  Today/Schedule capture pairs проходят. Browser Today lost response → Schedule
+  exact replay; DB: один debit, balance1, peer без изменений.
+  Native/owner acceptance, creation form/payment policy и production journal
+  остаются открытыми. Live Linear не обновлялся.
+  [ADR 0058](decisions/0058-shared-workspace-mutation-coordinator.md),
+  [evidence](../../app/review/shared-mutations/README.md).
+
 - 03.10.2026 — SOM-33: карточка real client показывает scoped покупки,
   стоимость без потери bigint precision, net used units и срок. Invalid ledger
   не превращается в нулевой остаток; expiry/depleted packages сохраняются.

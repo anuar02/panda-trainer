@@ -75,8 +75,14 @@ export function useWorkspaceProposalState() {
   if (!store) throw new Error('Workspace proposal provider is missing');
   return store;
 }
-export function WorkspaceProposalRecovery() {
-  const store = useWorkspaceProposalState();
+export function WorkspaceProposalRecovery({
+  store: provided,
+}: {
+  store?: WorkspaceProposalStore;
+} = {}) {
+  const inherited = useContext(Context);
+  const store = provided ?? inherited;
+  if (!store) throw new Error('Workspace proposal provider is missing');
   const { t } = useTranslation();
   if (!store.pending && !store.error && !store.busy) return null;
   const key =

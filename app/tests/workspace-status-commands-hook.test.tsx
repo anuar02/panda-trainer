@@ -1,59 +1,53 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
-import { useWorkspaceProposalCommands } from '../src/features/workspace-scheduling/use-proposal';
+import { useWorkspaceStatusCommands } from '../src/features/workspace-scheduling/use-status-commands';
 import {
-  loadPendingWorkspaceProposal,
-  PendingWorkspaceProposalError,
-} from '../src/features/workspace-scheduling/proposal-pending';
+  loadPendingWorkspaceBookingStatus,
+  PendingWorkspaceBookingStatusError,
+  type PendingWorkspaceBookingStatus,
+} from '../src/features/workspace-scheduling/status-pending';
 import {
-  resolvePendingWorkspaceProposal,
-  submitWorkspaceProposal,
-} from '../src/features/workspace-scheduling/proposal-submission';
+  resolvePendingWorkspaceBookingStatus,
+  submitWorkspaceBookingStatus,
+} from '../src/features/workspace-scheduling/status-submission';
 import {
-  WorkspaceProposalError,
-  type WorkspaceProposalCommand,
-  type WorkspaceProposalResult,
-} from '../src/features/workspace-scheduling/proposal-operation';
+  WorkspaceBookingStatusError,
+  type WorkspaceBookingStatusResult,
+} from '../src/features/workspace-scheduling/status-operation';
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
-jest.mock('../src/features/workspace-scheduling/proposal-pending', () => ({
+jest.mock('../src/features/workspace-scheduling/status-pending', () => ({
   ...jest.requireActual<
-    typeof import('../src/features/workspace-scheduling/proposal-pending')
-  >('../src/features/workspace-scheduling/proposal-pending'),
-  loadPendingWorkspaceProposal: jest.fn(),
+    typeof import('../src/features/workspace-scheduling/status-pending')
+  >('../src/features/workspace-scheduling/status-pending'),
+  loadPendingWorkspaceBookingStatus: jest.fn(),
 }));
-jest.mock('../src/features/workspace-scheduling/proposal-submission', () => ({
-  submitWorkspaceProposal: jest.fn(),
-  resolvePendingWorkspaceProposal: jest.fn(),
+jest.mock('../src/features/workspace-scheduling/status-submission', () => ({
+  submitWorkspaceBookingStatus: jest.fn(),
+  resolvePendingWorkspaceBookingStatus: jest.fn(),
 }));
-const load = jest.mocked(loadPendingWorkspaceProposal);
-const submit = jest.mocked(submitWorkspaceProposal);
+const load = jest.mocked(loadPendingWorkspaceBookingStatus);
+const submit = jest.mocked(submitWorkspaceBookingStatus);
 const onChanged = jest.fn();
 const bookingId = '20000000-0000-4000-8000-000000000001';
 const requestId = '30000000-0000-4000-8000-000000000001';
-const command: WorkspaceProposalCommand = {
-  action: 'propose',
+const command: PendingWorkspaceBookingStatus = {
+  action: 'confirm',
   bookingId,
-  expectedBookingRevision: 3,
+  expectedRevision: 3,
   requestId,
-  proposedStartsAtUtc: '2030-10-02T06:00:00.000Z',
 };
-const result: WorkspaceProposalResult = {
-  proposalId: 'proposal',
-  proposalRevision: 1,
-  proposalStatus: 'pending',
+const result: WorkspaceBookingStatusResult = {
   bookingId,
-  bookingRevision: 3,
-  bookingStatus: 'confirmed',
-  startsAtUtc: '2030-10-02T05:00:00.000Z',
-  endsAtUtc: '2030-10-02T06:00:00.000Z',
+  revision: 4,
+  status: 'confirmed',
   replayed: false,
 };
 const props = { userId: 'user-a', workspaceId: 'workspace-a' };
 const mount = () =>
   renderHook(
     (scope: typeof props) =>
-      useWorkspaceProposalCommands({ ...scope, onChanged }),
+      useWorkspaceStatusCommands({ ...scope, onChanged }),
     { initialProps: props },
   );
 const deferred = <T,>() => {
@@ -69,19 +63,19 @@ beforeEach(() => {
   onChanged.mockReset();
 });
 test('hydration and synchronous lock prevent new or duplicate commands', async () => {
-  const hydrate = deferred<WorkspaceProposalCommand | null>();
+  const hydrate = deferred<PendingWorkspaceBookingStatus | null>();
   load.mockReturnValueOnce(hydrate.promise);
   const hook = await mount();
   await act(async () => {
-    expect(await hook.result.current.submit(command)).toBeNull();
+    expect(await hook.result.current.submit(command)).toBe(false);
   });
   expect(submit).not.toHaveBeenCalled();
   await act(async () => hydrate.resolve(null));
-  const request = deferred<WorkspaceProposalResult>();
+  const request = deferred<WorkspaceBookingStatusResult>();
   submit.mockReturnValueOnce(request.promise);
   await act(async () => {
     void hook.result.current.submit(command);
-    expect(await hook.result.current.submit(command)).toBeNull();
+    expect(await hook.result.current.submit(command)).toBe(false);
   });
   expect(submit).toHaveBeenCalledTimes(1);
   await act(async () => request.resolve(result));
@@ -89,7 +83,7 @@ test('hydration and synchronous lock prevent new or duplicate commands', async (
 });
 test('lost response resumes exact persisted command and refuses a replacement UUID', async () => {
   load.mockResolvedValue(command);
-  submit.mockRejectedValueOnce(new WorkspaceProposalError('request'));
+  submit.mockRejectedValueOnce(new WorkspaceBookingStatusError('request'));
   const hook = await mount();
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   await act(async () => {
@@ -98,7 +92,7 @@ test('lost response resumes exact persisted command and refuses a replacement UU
         ...command,
         requestId: '30000000-0000-4000-8000-000000000002',
       }),
-    ).toBeNull();
+    ).toBe(false);
   });
   expect(submit).not.toHaveBeenCalled();
   await act(async () => {
@@ -115,7 +109,7 @@ test('lost response resumes exact persisted command and refuses a replacement UU
 });
 test('cross-command server revision conflict keeps the pending proposal recoverable', async () => {
   load.mockResolvedValue(command);
-  submit.mockRejectedValueOnce(new WorkspaceProposalError('conflict'));
+  submit.mockRejectedValueOnce(new WorkspaceBookingStatusError('conflict'));
   const hook = await mount();
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   await act(async () => {
@@ -128,11 +122,11 @@ test('cross-command server revision conflict keeps the pending proposal recovera
 test.each(['invalid', 'storage'] as const)(
   'pending %s blocks mutation until readable retry',
   async (code) => {
-    load.mockRejectedValueOnce(new PendingWorkspaceProposalError(code));
+    load.mockRejectedValueOnce(new PendingWorkspaceBookingStatusError(code));
     const hook = await mount();
     await waitFor(() => expect(hook.result.current.loading).toBe(false));
     await act(async () => {
-      expect(await hook.result.current.submit(command)).toBeNull();
+      expect(await hook.result.current.submit(command)).toBe(false);
     });
     expect(submit).not.toHaveBeenCalled();
     await act(async () => hook.result.current.reload());
@@ -142,7 +136,7 @@ test.each(['invalid', 'storage'] as const)(
 test('account change and unmount ignore stale server completion', async () => {
   const hook = await mount();
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
-  const request = deferred<WorkspaceProposalResult>();
+  const request = deferred<WorkspaceBookingStatusResult>();
   submit.mockReturnValueOnce(request.promise);
   await act(async () => {
     void hook.result.current.submit(command);
@@ -152,7 +146,7 @@ test('account change and unmount ignore stale server completion', async () => {
   await act(async () => request.resolve(result));
   expect(onChanged).not.toHaveBeenCalled();
   expect(hook.result.current.pending).toBeNull();
-  const next = deferred<WorkspaceProposalResult>();
+  const next = deferred<WorkspaceBookingStatusResult>();
   submit.mockReturnValueOnce(next.promise);
   await act(async () => {
     void hook.result.current.submit(command);
@@ -165,14 +159,14 @@ test('account change and unmount ignore stale server completion', async () => {
 test('resolution double press locks and clears only verified terminal response', async () => {
   load.mockResolvedValue(command);
   const resolving = deferred<{ outcome: 'abandoned'; result: null }>();
-  const resolveRequest = jest.mocked(resolvePendingWorkspaceProposal);
+  const resolveRequest = jest.mocked(resolvePendingWorkspaceBookingStatus);
   resolveRequest.mockReset().mockReturnValueOnce(resolving.promise);
   const hook = await mount();
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   await act(async () => {
     void hook.result.current.resolve();
-    expect(await hook.result.current.resolve()).toBeNull();
-    expect(await hook.result.current.submit(command)).toBeNull();
+    expect(await hook.result.current.resolve()).toBe(false);
+    expect(await hook.result.current.submit(command)).toBe(false);
   });
   expect(resolveRequest).toHaveBeenCalledTimes(1);
   load.mockResolvedValue(null);
@@ -184,10 +178,10 @@ test('resolution double press locks and clears only verified terminal response',
 });
 test('resolution failure retains exact pending and scope switch ignores old completion', async () => {
   load.mockResolvedValue(command);
-  const resolveRequest = jest.mocked(resolvePendingWorkspaceProposal);
+  const resolveRequest = jest.mocked(resolvePendingWorkspaceBookingStatus);
   resolveRequest
     .mockReset()
-    .mockRejectedValueOnce(new WorkspaceProposalError('request'));
+    .mockRejectedValueOnce(new WorkspaceBookingStatusError('request'));
   const hook = await mount();
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   await act(async () => {

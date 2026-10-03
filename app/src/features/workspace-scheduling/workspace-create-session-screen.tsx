@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import { View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +26,10 @@ import { scheduleClock } from './screen-adapter';
 import { workspaceAgendaSessions } from './agenda';
 import type { PendingWorkspaceBooking } from './pending';
 import type { WorkspaceBookingOverlap } from './create-operation';
-import { useWorkspaceBookingCreation } from './use-creation';
+import {
+  WorkspaceMutationBoundary,
+  useWorkspaceMutations,
+} from './mutation-provider';
 import { useWorkspaceSchedule } from './use-schedule';
 import {
   buildWorkspaceBookingCommand,
@@ -73,10 +77,15 @@ const validDate = (value: string | undefined, today: string) => {
 };
 export function WorkspaceCreateSessionScreen(props: Props) {
   return (
-    <WorkspaceCreateSessionContent
-      key={`${props.userId}:${props.workspaceId}:${props.timezone}`}
-      {...props}
-    />
+    <WorkspaceMutationBoundary
+      userId={props.userId}
+      workspaceId={props.workspaceId}
+    >
+      <WorkspaceCreateSessionContent
+        key={`${props.userId}:${props.workspaceId}:${props.timezone}`}
+        {...props}
+      />
+    </WorkspaceMutationBoundary>
   );
 }
 function WorkspaceCreateSessionContent({
@@ -92,11 +101,17 @@ function WorkspaceCreateSessionContent({
   const today = workspaceDateKey(new Date(), timezone);
   const date = validDate(initialDate, today);
   const completionDate = useRef(date);
-  const creation = useWorkspaceBookingCreation({
-    userId,
-    workspaceId,
-    onCreated: () => onCreated(completionDate.current),
-  });
+  const mutations = useWorkspaceMutations();
+  const creation = mutations.creation;
+  const active = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      active.current = true;
+      return () => {
+        active.current = false;
+      };
+    }, []),
+  );
   const [restoredDraft, setRestoredDraft] = useState<
     SessionDraft | null | undefined
   >(undefined);
@@ -184,6 +199,8 @@ function WorkspaceCreateSessionContent({
                 timezone,
               );
               void creation.resume().then((result) => {
+                if (!active.current) return;
+                if (result?.created) onCreated(completionDate.current);
                 if (result && !result.created)
                   setWarning({
                     signature: signature(
@@ -209,6 +226,7 @@ function WorkspaceCreateSessionContent({
     creation.reload();
   };
   const blocked =
+    mutations.blocked ||
     creation.loading ||
     creation.busy ||
     creation.pending !== null ||
@@ -237,6 +255,7 @@ function WorkspaceCreateSessionContent({
         setWarning({ signature: signature(draft), overlaps: result.overlaps });
         return { ok: false, error: t('workspaceScheduling.createOverlap') };
       }
+      if (active.current) onCreated(completionDate.current);
       return { ok: true };
     } catch (error) {
       return {

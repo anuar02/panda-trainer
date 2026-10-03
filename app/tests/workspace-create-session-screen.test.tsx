@@ -1,10 +1,12 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
   waitFor,
 } from '@testing-library/react-native';
 import '../src/lib/i18n';
+import { WorkspaceMutationProvider } from '../src/features/workspace-scheduling/mutation-provider';
 import { WorkspaceCreateSessionScreen } from '../src/features/workspace-scheduling/workspace-create-session-screen';
 import {
   loadPendingWorkspaceBooking,
@@ -12,9 +14,54 @@ import {
 } from '../src/features/workspace-scheduling/pending';
 import { submitWorkspaceBooking } from '../src/features/workspace-scheduling/creation';
 import type { CreateWorkspaceBookingResult } from '../src/features/workspace-scheduling/create-operation';
+jest.mock('../src/features/trainer-billing/use-commands', () => ({
+  useTrainerBillingCommands: () => ({
+    blocked: false,
+    pending: null,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+  }),
+}));
+jest.mock('../src/features/workspace-scheduling/use-proposal', () => ({
+  useWorkspaceProposalCommands: () => ({
+    pending: null,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+    resolve: jest.fn(),
+  }),
+}));
+jest.mock('../src/features/workspace-scheduling/use-status-commands', () => ({
+  useWorkspaceStatusCommands: () => ({
+    blocked: false,
+    pending: null,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+    resolve: jest.fn(),
+  }),
+}));
 const mockClients = jest.fn();
 const mockTemplates = jest.fn();
 const mockRetry = jest.fn();
+let mockFocused = true;
+jest.mock('expo-router', () => ({
+  useFocusEffect: (callback: () => void | (() => void)) => {
+    jest.requireActual<typeof import('react')>('react').useEffect(() => {
+      if (mockFocused) return callback();
+    }, [callback, mockFocused]);
+  },
+}));
 let mockUuid = 0;
 jest.mock('expo-crypto', () => ({
   randomUUID: () =>
@@ -89,6 +136,7 @@ const mount = () =>
 const press = (name: string) =>
   fireEvent.press(screen.getByRole('button', { name }));
 beforeEach(() => {
+  mockFocused = true;
   mockUuid = 0;
   onCreated.mockReset();
   load.mockReset().mockResolvedValue(null);
@@ -254,5 +302,43 @@ test('noncreation on saved recovery preserves the full restored draft for explic
     screen.getByRole('button', { name: 'Назначить программу позже' }),
   ).toHaveProp('accessibilityState', { selected: true, disabled: false });
   expect(screen.getByRole('checkbox')).toBeTruthy();
+  expect(onCreated).not.toHaveBeenCalled();
+});
+
+test('blurring the retained creator while shared provider survives suppresses late navigation', async () => {
+  let resolve!: (value: CreateWorkspaceBookingResult) => void;
+  const request = new Promise<CreateWorkspaceBookingResult>((done) => {
+    resolve = done;
+  });
+  submit.mockReturnValueOnce(request);
+  const tree = (open: boolean) => (
+    <WorkspaceMutationProvider userId="user" workspaceId="workspace">
+      {open ? (
+        <WorkspaceCreateSessionScreen
+          userId="user"
+          workspaceId="workspace"
+          timezone="Asia/Almaty"
+          initialDate="2030-10-02"
+          initialStart="12:15"
+          onClose={jest.fn()}
+          onCreated={onCreated}
+        />
+      ) : null}
+    </WorkspaceMutationProvider>
+  );
+  const view = await render(tree(true));
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
+  );
+  await press('Real Anna');
+  await press('Продолжить');
+  await press('Продолжить');
+  await press('Назначить программу позже');
+  const saving = press('Создать занятие');
+  await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+  mockFocused = false;
+  await view.rerender(tree(true));
+  await act(async () => resolve(created));
+  await saving;
   expect(onCreated).not.toHaveBeenCalled();
 });

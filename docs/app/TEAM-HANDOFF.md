@@ -6,6 +6,15 @@
 
 ## Текущая волна
 
+03.10 — shared mutation/Today: today_attendance_scope исследовал retained-route
+риск и написал coordinator/status hook/tests; purchase_contract начал shared
+session controls. Оба worker runs остановлены лимитом сервиса; root закончил
+сохранённые файлы, интегрировал Today/Schedule/Create/layout, исправил refs/effects,
+late navigation и tests, выполнил финальные проверки/docs/commit.
+1093 tests / 117 suites, all-platform export, 12 capture pairs и synthetic
+Today→Schedule exact recovery проходят. Native/owner acceptance, creation form,
+overpayment и SOM-53 journal decision остаются открытыми; goal продолжается.
+
 03.10 — SOM-33 purchase read: purchase_contract владел только panel/strings/UItests;
 purchase_projection_review — чистыми helpers/domain tests. Root — route/detail
 composition, i18n, route tests, browser/parity/export, docs и commit.

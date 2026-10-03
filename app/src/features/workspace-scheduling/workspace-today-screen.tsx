@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,11 @@ import {
 } from './today-adapter';
 import { useWorkspaceClock } from './use-clock';
 import { useWorkspaceSchedule } from './use-schedule';
+import {
+  WorkspaceMutationBoundary,
+  useWorkspaceMutations,
+} from './mutation-provider';
+import { WorkspaceSessionControls } from './workspace-session-controls';
 
 type Props = {
   userId: string;
@@ -25,10 +30,15 @@ type Props = {
 };
 export function WorkspaceTodayScreen(props: Props) {
   return (
-    <WorkspaceTodayContent
-      key={`${props.userId}:${props.workspaceId}:${props.timezone}`}
-      {...props}
-    />
+    <WorkspaceMutationBoundary
+      userId={props.userId}
+      workspaceId={props.workspaceId}
+    >
+      <WorkspaceTodayContent
+        key={`${props.userId}:${props.workspaceId}:${props.timezone}`}
+        {...props}
+      />
+    </WorkspaceMutationBoundary>
   );
 }
 function WorkspaceTodayContent({
@@ -39,9 +49,19 @@ function WorkspaceTodayContent({
 }: Props) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
+  const mutations = useWorkspaceMutations();
   const now = useWorkspaceClock();
   const date = workspaceDateKey(now, timezone);
   const read = useWorkspaceSchedule(userId, workspaceId, date);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const retryRead = read.retry;
+  const lastGeneration = useRef(mutations.generation);
+  useEffect(() => {
+    if (lastGeneration.current !== mutations.generation) {
+      lastGeneration.current = mutations.generation;
+      retryRead();
+    }
+  }, [mutations.generation, retryRead]);
   const [requestsOpen, setRequestsOpen] = useState(false);
   const [overlap, setOverlap] = useState<Extract<
     TrainerTodayAgendaItem,
@@ -65,11 +85,10 @@ function WorkspaceTodayContent({
         },
         endTime: null,
       };
-  const select = (row: TrainerTodaySessionRow) =>
-    router.push({
-      pathname: '/workspace/schedule',
-      params: { date, session: row.id },
-    });
+  const select = (row: TrainerTodaySessionRow) => {
+    setOverlap(null);
+    setSelectedId(row.id);
+  };
   const dateLabel = new Intl.DateTimeFormat(i18n.language, {
     weekday: 'long',
     day: 'numeric',
@@ -78,32 +97,44 @@ function WorkspaceTodayContent({
   }).format(new Date(`${date}T12:00:00Z`));
   const targetLabel = (value: string) =>
     `${workspaceDateKey(new Date(value), timezone)} · ${scheduleClock(workspaceMinuteOfDay(new Date(value), timezone))}`;
-  if (read.failed)
-    return (
-      <Screen title={t('common.error')}>
-        <Button label={t('common.retry')} onPress={read.retry} />
-      </Screen>
-    );
   return (
     <View className="flex-1 bg-canvas">
-      <TrainerTodayScreen
-        scenario={read.loading ? 'loading' : 'normal'}
-        data={{
-          trainerName,
-          timezone,
-          dateLabel,
-          clockLabel: agenda.clock,
-          agenda,
-          onSelectSession: select,
-          onCreate: (selectedDate, start) =>
-            router.push({
-              pathname: '/workspace/new',
-              params: { date: selectedDate, ...(start ? { start } : {}) },
-            }),
-          onOpenRequests: () => setRequestsOpen(true),
-          onOpenOverlap: setOverlap,
-          createDisabled: read.loading,
-        }}
+      {read.failed ? (
+        <Screen title={t('common.error')}>
+          <Button label={t('common.retry')} onPress={read.retry} />
+        </Screen>
+      ) : (
+        <TrainerTodayScreen
+          scenario={read.loading ? 'loading' : 'normal'}
+          data={{
+            trainerName,
+            timezone,
+            dateLabel,
+            clockLabel: agenda.clock,
+            agenda,
+            onSelectSession: select,
+            onCreate: (selectedDate, start) => {
+              if (mutations.blocked) return;
+              router.push({
+                pathname: '/workspace/new',
+                params: { date: selectedDate, ...(start ? { start } : {}) },
+              });
+            },
+            onOpenRequests: () => setRequestsOpen(true),
+            onOpenOverlap: setOverlap,
+            createDisabled: read.loading || mutations.blocked,
+          }}
+        />
+      )}
+      <WorkspaceSessionControls
+        userId={userId}
+        workspaceId={workspaceId}
+        timezone={timezone}
+        schedule={read.schedule}
+        selectedId={selectedId}
+        onClose={() => setSelectedId(null)}
+        onRetry={read.retry}
+        loading={read.loading}
       />
       <Sheet
         open={requestsOpen}

@@ -52,13 +52,41 @@ jest.mock(
     WorkspaceProposalControls: () => null,
   }),
 );
+jest.mock('../src/features/workspace-scheduling/use-creation', () => ({
+  useWorkspaceBookingCreation: () => ({
+    pending: null,
+    loading: false,
+    busy: false,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+  }),
+}));
+jest.mock('../src/features/workspace-scheduling/use-proposal', () => ({
+  useWorkspaceProposalCommands: () => ({
+    pending: mockProposalPending ? {} : null,
+    loading: false,
+    busy: mockProposalBusy,
+    error: null,
+    reload: jest.fn(),
+    submit: jest.fn(),
+    resume: jest.fn(),
+    resolve: jest.fn(),
+  }),
+}));
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
-jest.mock('expo-crypto', () => ({ randomUUID: () => 'new-request' }));
+jest.mock('expo-crypto', () => ({
+  randomUUID: () => '30000000-0000-4000-8000-000000000002',
+}));
 jest.mock('../src/features/workspace-scheduling/use-schedule', () => ({
   useWorkspaceSchedule: jest.fn(),
 }));
 jest.mock('../src/features/workspace-scheduling/status-pending', () => ({
+  ...jest.requireActual<
+    typeof import('../src/features/workspace-scheduling/status-pending')
+  >('../src/features/workspace-scheduling/status-pending'),
   loadPendingWorkspaceBookingStatus: jest.fn(),
 }));
 jest.mock('../src/features/workspace-scheduling/status-submission', () => ({
@@ -113,7 +141,7 @@ const billingRead = jest.mocked(useTrainerBilling);
 const billingCommands = jest.mocked(useTrainerBillingCommands);
 const pendingAttendance: TrainerBillingCommand = {
   action: 'markNoShow',
-  bookingId: 'booking-a',
+  bookingId: '20000000-0000-4000-8000-000000000001',
   expectedBookingRevision: 3,
   requestId: 'saved-attendance',
 };
@@ -129,9 +157,9 @@ const attendanceStore = () => ({
 });
 const command: PendingWorkspaceBookingStatus = {
   action: 'cancel',
-  bookingId: 'booking-a',
+  bookingId: '20000000-0000-4000-8000-000000000001',
   expectedRevision: 3,
-  requestId: 'saved-request',
+  requestId: '30000000-0000-4000-8000-000000000001',
 };
 const schedule: WorkspaceSchedule = {
   availability: {
@@ -143,7 +171,10 @@ const schedule: WorkspaceSchedule = {
     usual_session_minutes: 60,
   },
   bookings: ['a', 'b'].map((id) => ({
-    id: `booking-${id}`,
+    id:
+      id === 'a'
+        ? '20000000-0000-4000-8000-000000000001'
+        : '20000000-0000-4000-8000-000000000002',
     workspace_id: 'workspace-a',
     client_record_id: `client-${id}`,
     group_session_id: 'group-a',
@@ -179,7 +210,12 @@ beforeEach(() => {
     retry: billingRetry,
   });
   billingCommands.mockReturnValue(attendanceStore());
-  submit.mockReset();
+  submit.mockReset().mockImplementation(async (_user, _workspace, value) => ({
+    bookingId: value.bookingId,
+    revision: value.expectedRevision + 1,
+    status: 'cancelled_by_trainer',
+    replayed: false,
+  }));
   retry.mockReset();
   mockPush.mockReset();
   mockProposalBusy = false;
@@ -202,12 +238,13 @@ test('real group cancellation sends only the selected participant revision', asy
   await waitFor(() =>
     expect(submit).toHaveBeenCalledWith('user-a', 'workspace-a', {
       action: 'cancel',
-      bookingId: 'booking-b',
+      bookingId: '20000000-0000-4000-8000-000000000002',
       expectedRevision: 3,
-      requestId: 'new-request',
+      requestId: '30000000-0000-4000-8000-000000000002',
     }),
   );
   await waitFor(() => expect(retry).toHaveBeenCalledTimes(1));
+  expect(screen.queryByText('Server b')).toBeNull();
 });
 
 test('lost response offers the identical durable command and blocks new cancellation', async () => {
@@ -268,7 +305,7 @@ test('unmounted account ignores an old successful request and does not refresh i
     new Promise((yes) => {
       resolve = () =>
         yes({
-          bookingId: 'booking-a',
+          bookingId: '20000000-0000-4000-8000-000000000001',
           revision: 4,
           status: 'cancelled_by_trainer',
           replayed: false,
@@ -296,7 +333,7 @@ test('switching account remounts the controller and rejects stale request comple
     new Promise((yes) => {
       resolve = () =>
         yes({
-          bookingId: 'booking-a',
+          bookingId: '20000000-0000-4000-8000-000000000001',
           revision: 4,
           status: 'cancelled_by_trainer',
           replayed: false,
@@ -374,7 +411,7 @@ test('an unresolved proposal blocks a new cancellation for the same workspace', 
 test('trainer pending resolution shares lock and refreshes verified terminal result', async () => {
   const command: PendingWorkspaceBookingStatus = {
     action: 'cancel',
-    bookingId: 'booking-a',
+    bookingId: '20000000-0000-4000-8000-000000000001',
     expectedRevision: 2,
     requestId: 'old-request',
   };
@@ -413,9 +450,9 @@ test('attendance commands target one participant and preserve the booking revisi
   await waitFor(() =>
     expect(attendanceSubmit).toHaveBeenCalledWith({
       action: 'markNoShow',
-      bookingId: 'booking-b',
+      bookingId: '20000000-0000-4000-8000-000000000002',
       expectedBookingRevision: 3,
-      requestId: 'new-request',
+      requestId: '30000000-0000-4000-8000-000000000002',
     }),
   );
   expect(submit).not.toHaveBeenCalled();
