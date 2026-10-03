@@ -320,6 +320,12 @@
 
 ### Исправлено
 
+- [SOM-34 / draft PR #43](https://github.com/anuar02/panda-trainer/pull/43): финансовые чтения изолированы по auth session_id; hooks сбрасывают данные
+  при повторном входе, bounded exact-count paging и scoped relations отклоняют
+  неполные snapshots. UI и mutations сохранены; live auth/native и приёмка открыты.
+  [Отчёт](app/review/som-34-financial-read-session-fencing/README.md),
+  [ADR 0077](docs/app/decisions/0077-financial-read-session-fencing.md).
+
 - SOM-29: синхронизация журнала больше не создаёт ложные конфликты. Миграция
   `20261003140000_workout_sync_revision_fixes`: серверная перестановка подходов не
   поднимает их `revision` (отдельный триггер `set_results`), пересчёт трогает только

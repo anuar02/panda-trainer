@@ -28,6 +28,12 @@
   Полный `cd app && npm run check`: 1636 tests / 154 suites, type/lint/format зелёные.
   SOM-26/SOM-45 остаются открытыми; creation/mutation commands не изменены.
 
+- 03.10.2026 — SOM-34 read fencing: [x] lifecycle/session identity guards,
+  hook epoch, bounded exact-count paging и scoped relation validation;
+  [ ] live auth/SQL/RLS/native/visual и одобрение владельца. UI/mutations не менялись.
+  [Отчёт](../../app/review/som-34-financial-read-session-fencing/README.md),
+  [ADR 0077](decisions/0077-financial-read-session-fencing.md).
+
 - 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
   fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.
   Удаление/local pending ack не подключены; SOM-41 и пилот не закрыты.
