@@ -136,7 +136,9 @@ function render() {
     return `<div class="lane"><div class="who"><span>${acc}${acc === "third" ? " · Pro" : ""}</span><span>${meta}</span></div>` +
       (t ? `<div class="what">${esc(t.title)}</div>${chip("running")} <span class="num" style="color:var(--muted)">${dur(t.duration)}</span>
              <div class="note" style="margin-top:8px">${esc(t.text)}</div>`
-         : `<div class="what">Idle</div>${chip("idle")} <span style="color:var(--muted)">${next ? next + " queued" : "waiting for coordinator"}</span>`) + `</div>`;
+         : `<div class="what">Idle</div>${chip("idle")} <span style="color:var(--muted)">${next ? next + " queued"
+             : d.coordinator[0] && d.coordinator[0].state === "running" ? "waiting for coordinator"
+             : "no unblocked tasks — see coordinator log"}</span>`) + `</div>`;
   });
   const c = d.coordinator[0];
   lanes.push(`<div class="lane"><div class="who"><span>coordinator · third</span><span>${c ? ago(c.started) : ""}</span></div>` +
