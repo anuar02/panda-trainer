@@ -15,7 +15,8 @@
   RPC/recovery; одна строка истории с зачёркнутой суммой, «Отменена» и датой.
   Долг исключает отменённую оплату, client/account/workspace изолированы;
   bigint и exact retry сохраняются. Визуальная/native приёмка открыта.
-  [Отчёт](app/review/som-34-payment-reversals/README.md).
+  [Отчёт](app/review/som-34-payment-reversals/README.md),
+  [draft PR #25](https://github.com/anuar02/panda-trainer/pull/25).
 
 - SOM-33/SOM-34: завершены создание пакета и ручная частичная оплата до остатка
   долга; история показывает сумму, дату, способ и «Записано», ошибки чтения дают

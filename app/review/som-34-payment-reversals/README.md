@@ -2,7 +2,9 @@
 
 2026-10-03. Base: `fix/som-50-template-picker`, owner decision `8c03812`,
 ADR 0059. Branch: `agent/som-34-payment-reversals`. One agent; Linear unchanged.
-This report does not accept the screen.
+Implementation commit: `cd98468`. Published
+[draft PR #25](https://github.com/anuar02/panda-trainer/pull/25) targets
+`fix/som-50-template-picker`. This report does not accept the screen.
 
 ## Criteria
 
@@ -50,6 +52,9 @@ Commands run from `/home/node/repo/app`, except git commands from the repo root.
 - Final `npm run check` (exit 0): typecheck, lint, format and **1232 tests / 126 suites passed**.
 - Final `npm run format:check` after documentation updates: passed.
 - `git diff --check`: passed (exit 0).
+- `git push -u origin agent/som-34-payment-reversals`: passed.
+- `gh pr create --base fix/som-50-template-picker --draft --fill`: created draft #25.
+- `gh pr edit 25 --body-file /tmp/som-34-pr-body.md`: set criterion statuses and validation gaps.
 
 `graft map` could not run: executable and `graft/` graph absent. No graph rebuild
 was possible. Live Linear project/issue reads unavailable through installed
