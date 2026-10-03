@@ -160,6 +160,7 @@ export function TrainerProfileScreen({
   scenario?: DemoScenario;
 }) {
   const tx = useProfileText();
+  const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const rows = [
     { icon: 'layers', title: 'library' },
@@ -233,6 +234,12 @@ export function TrainerProfileScreen({
           ))}
         </Card>
         <ProfilePreferences />
+        <Text className="text-secondary">{t('accountExport.demo')}</Text>
+        <Button
+          label={t('accountExport.title')}
+          variant="secondary"
+          onPress={() => router.push('/auth/account')}
+        />
         <RoleSwitch />
       </ScrollView>
     </SafeAreaView>

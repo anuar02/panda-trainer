@@ -6,6 +6,11 @@ import {
 } from '@/domain/account-export';
 
 export type ExportSession = { user: { id: string }; access_token: string };
+type ExportResponse = PromiseLike<{
+  data: unknown;
+  error: { code?: string } | null;
+  status: number;
+}>;
 export type AccountExportTransport = {
   auth: {
     getSession(): Promise<{
@@ -16,11 +21,7 @@ export type AccountExportTransport = {
   rpc(
     name: 'export_trainer_workspace',
     args: { p_workspace_id: string },
-  ): PromiseLike<{
-    data: unknown;
-    error: { code?: string } | null;
-    status: number;
-  }>;
+  ): ExportResponse & { abortSignal?(signal: AbortSignal): ExportResponse };
 };
 export type AccountExportErrorCode =
   | 'invalidInput'
@@ -40,7 +41,7 @@ export class AccountExportError extends Error {
 }
 export async function loadAccountExport(
   transport: AccountExportTransport,
-  input: { expectedUserId: string; workspaceId: string },
+  input: { expectedUserId: string; workspaceId: string; signal?: AbortSignal },
 ): Promise<AccountExport> {
   if (!isExportUuid(input.expectedUserId) || !isExportUuid(input.workspaceId))
     throw new AccountExportError('invalidInput');
@@ -53,9 +54,14 @@ export async function loadAccountExport(
       throw new AccountExportError('sessionChanged');
     const userId = session.user.id;
     const accessToken = session.access_token;
-    const response = await transport.rpc('export_trainer_workspace', {
+    if (input.signal?.aborted) throw new AccountExportError('sessionChanged');
+    const request = transport.rpc('export_trainer_workspace', {
       p_workspace_id: input.workspaceId,
     });
+    const response = await (input.signal && request.abortSignal
+      ? request.abortSignal(input.signal)
+      : request);
+    if (input.signal?.aborted) throw new AccountExportError('sessionChanged');
     const after = await transport.auth.getSession();
     if (after.error) throw new AccountExportError('network');
     if (

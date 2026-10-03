@@ -9,6 +9,11 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
+  fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.
+  Удаление/local pending ack не подключены; SOM-41 и пилот не закрыты.
+  [Отчёт](../../app/review/som-41-export-ui/README.md), [ADR 0074](decisions/0074-session-fenced-export-file-delivery.md).
+
 - 03.10.2026 — SOM-41 preflight: [x] pure typed evaluator и blocker tests,
   [x] [schema/technical handoff](privacy/DELETION-PREFLIGHT-CONTRACT.md);
   [ ] runtime integration/delete, local export/ack, DB/Auth recovery, backup rotation

@@ -11,6 +11,12 @@
 
 ### Добавлено
 
+- [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
+  session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
+  Native/visual и одобрение владельца открыты; deletion не подключён.
+  [Отчёт](app/review/som-41-export-ui/README.md),
+  [ADR 0074](docs/app/decisions/0074-session-fenced-export-file-delivery.md).
+
 - [SOM-41 / draft PR #35](https://github.com/anuar02/panda-trainer/pull/35): изолированный typed deletion preflight с fail-closed evidence, local snapshot proofs
   и внешними review gates; удаления и integration нет.
   [Контракт](docs/app/privacy/DELETION-PREFLIGHT-CONTRACT.md),
