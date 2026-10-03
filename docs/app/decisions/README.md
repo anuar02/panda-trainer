@@ -72,3 +72,5 @@
 | [0065](0065-push-notifications-v1.md) | Push-уведомления в первой версии | Принято владельцем | 03.10.2026 |
 | [0066](0066-screenshots-outside-git-and-proprietary-license.md) | Снимки экранов вне git и закрытая лицензия | Принято владельцем | 03.10.2026 |
 | [0067](0067-free-tier-pilot-budget.md) | Бюджет пилота: только бесплатные тарифы | Принято владельцем | 03.10.2026 |
+
+| [0069](0069-owner-scoped-server-workspace-export.md) | Owner-scoped серверный экспорт workspace | Реализовано; SQL/runtime и приёмка открыты | 03.10.2026 |
