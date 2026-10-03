@@ -51,6 +51,54 @@ const props = (): PurchasesPanelProps => ({
 });
 beforeEach(() => onRetry.mockClear());
 
+it('offers one retry for payment failure and one for combined read failure', async () => {
+  const view = await render(<PurchasesPanel {...props()} paymentsError />);
+  expect(screen.getAllByText('Повторить')).toHaveLength(1);
+  await fireEvent.press(screen.getByText('Повторить'));
+  expect(onRetry).toHaveBeenCalledTimes(1);
+  await view.rerender(<PurchasesPanel {...props()} paymentsError error />);
+  expect(screen.getAllByText('Повторить')).toHaveLength(1);
+});
+
+it('renders payment amount, long date, method, note and recorded status', async () => {
+  const value = billing();
+  const purchase = value.purchases[0];
+  const grant = value.credits[0];
+  if (!purchase || !grant) throw new Error('Missing purchase fixture');
+  purchase.id = '30000000-0000-4000-8000-000000000001';
+  grant.purchaseId = purchase.id;
+  await render(
+    <PurchasesPanel
+      {...props()}
+      billing={value}
+      payments={{
+        entries: [
+          {
+            ...scope,
+            id: '40000000-0000-4000-8000-000000000001',
+            purchaseId: purchase.id,
+            kind: 'payment',
+            amountMinor: '10000',
+            currency: 'KZT',
+            paidOn: '2026-10-03',
+            method: 'Kaspi',
+            source: 'manual',
+            reason: 'Первый взнос',
+            reversesEntryId: null,
+            createdAt: '2026-10-03T12:00:00Z',
+          },
+        ],
+      }}
+      onPayment={jest.fn()}
+    />,
+  );
+  expect(screen.getByText('Записано')).toBeTruthy();
+  expect(screen.getByText('сб, 3 окт · Kaspi · Первый взнос')).toBeTruthy();
+  expect(
+    screen.getByRole('button', { name: 'Записать оплату', disabled: false }),
+  ).toBeTruthy();
+});
+
 it('distinguishes loading and errors from an empty purchase list', async () => {
   const view = await render(<PurchasesPanel {...props()} loading />);
   expect(screen.getByLabelText('Загрузка покупок…')).toBeTruthy();

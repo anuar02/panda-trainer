@@ -1,6 +1,6 @@
 # ADR 0059: Package creation and payments capped at debt
 
-Date: 2026-10-03. Status: owner-approved product decisions; implementation pending.
+Date: 2026-10-03. Status: owner-approved product decisions; implementation delivered, container validation blocked by shared UI typecheck; visual/native acceptance pending.
 
 ## Decisions
 
@@ -22,4 +22,23 @@ comparison still requires owner approval.
 Payments remain separate from the immutable session credit ledger. Creation uses
 the existing owner-only purchase command. Payment and full reversal commands
 must preserve exact package ownership, immutable history, scoped recovery and
-lossless minor-unit money. Implementation evidence will be recorded separately.
+lossless minor-unit money.
+
+## Implementation and validation
+
+Package creation, capped payment commands, exact string/BigInt money, scoped
+reads and durable command replay are implemented in the WIP base and completed
+by this follow-up. History rows follow the prototype amount/date/method/status
+structure; read failures offer retry. Command snapshots normalize identifiers
+without changing UUID-shaped titles or reasons.
+
+Container evidence: [billing finish review](../../../app/review/som-34-billing-finish/README.md).
+Full `npm run check` remains blocked by the existing excess `hovered` property in
+`app/src/ui/button.tsx:83`; shared UI is outside this task's authorized scope.
+SQL and browser scenarios were not run in the container. The owner reported
+723 pgTAP checks and concurrency scenarios passing before this continuation;
+that report is prior evidence, not a fresh container result.
+
+Visual/native comparison and owner approval remain open. Display of reversed
+payments/reversal receipts is not defined by the prototype; the current UI
+shows unreversed payments and preserves the immutable server ledger.

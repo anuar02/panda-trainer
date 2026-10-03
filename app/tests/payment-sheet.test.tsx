@@ -133,7 +133,8 @@ test('synchronous lock prevents double submission and old result cannot close re
   );
   const screen = await render(<PaymentSheet {...props} onSubmit={submit} />);
   await act(async () => {
-    const handler = mockSavePress!;
+    const handler = mockSavePress;
+    if (!handler) throw new Error('Payment save handler is unavailable');
     handler();
     handler();
   });
@@ -145,4 +146,11 @@ test('synchronous lock prevents double submission and old result cannot close re
   await act(async () => resolve(true));
   expect(props.onClose).not.toHaveBeenCalled();
   expect(screen.getByLabelText(key('amount')).props.value).toBe('500');
+});
+test('cancel closes without submitting and invalid date explains disabled save', async () => {
+  const screen = await render(<PaymentSheet {...props} today="2026-02-30" />);
+  expect(screen.getByText(key('invalidDate'))).toBeTruthy();
+  await fireEvent.press(screen.getByText(key('cancel')));
+  expect(props.onClose).toHaveBeenCalledTimes(1);
+  expect(props.onSubmit).not.toHaveBeenCalled();
 });
