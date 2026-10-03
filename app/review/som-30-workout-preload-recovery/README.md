@@ -71,15 +71,15 @@ partial completion and explicit correction of completed journals (ADR0061).
 
 ## Acceptance criteria status
 
-| Criterion | Status / evidence |
-| --- | --- |
-| Typed server participants/snapshot/exercises/past sets, owner/relations/privacy | Implemented; service + recursive validator tests. SQL/RLS runtime unverified. |
-| Atomic preload, cached/uncached offline, stable assignment, three clients | Implemented; transactional SQLite mock + adapter/lifecycle tests. Real SQLite/crash/airplane unverified. |
-| UUID/selected booking/client/collapse/reopen and trainer dock | Implemented; provider/lifecycle/dock/readonly tests. Native/navigation/visual comparison and owner approval remain open. |
-| Account/workspace/session fencing, stop/close, retained pending, stale async | Implemented; lifecycle/provider/runtime tests and unchanged SOM-29 runner regression suites. Real session/device replay unverified. |
-| SOM-31 units/projection/revisions seam, no fake save/finish | Documented/implemented read-only guard; full input/conflict/finish deferred to SOM-31/32. |
-| Meaningful tests | Executed mock/unit suites below. No SQL/device proof inferred from them. |
-| Full check, docs, ADR, draft PR | See exact final validation below; owner screen acceptance is not claimed. |
+| Criterion                                                                       | Status / evidence                                                                                                                   |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Typed server participants/snapshot/exercises/past sets, owner/relations/privacy | Implemented; service + recursive validator tests. SQL/RLS runtime unverified.                                                       |
+| Atomic preload, cached/uncached offline, stable assignment, three clients       | Implemented; transactional SQLite mock + adapter/lifecycle tests. Real SQLite/crash/airplane unverified.                            |
+| UUID/selected booking/client/collapse/reopen and trainer dock                   | Implemented; provider/lifecycle/dock/readonly tests. Native/navigation/visual comparison and owner approval remain open.            |
+| Account/workspace/session fencing, stop/close, retained pending, stale async    | Implemented; lifecycle/provider/runtime tests and unchanged SOM-29 runner regression suites. Real session/device replay unverified. |
+| SOM-31 units/projection/revisions seam, no fake save/finish                     | Documented/implemented read-only guard; full input/conflict/finish deferred to SOM-31/32.                                           |
+| Meaningful tests                                                                | Executed mock/unit suites below. No SQL/device proof inferred from them.                                                            |
+| Full check, docs, ADR, draft PR                                                 | See exact final validation below; owner screen acceptance is not claimed.                                                           |
 
 ## Validation performed
 
@@ -195,3 +195,15 @@ SOM-29/30/31/32 gate and cannot pass through this readonly preload alone. Real
 SQLite/reopen/crash, native airplane mode, real RPC replay, visual/prototype parity,
 and owner screen acceptance remain open. No new PNGs or acceptance-table status
 changes were made.
+
+## Проверка координатора
+
+03.10.2026: база b240675 влита; ROADMAP/ADR index сохраняют обе стороны.
+Коллизия номера ADR 0064 исправлена переименованием preload ADR в 0068,
+ссылки актуализированы. Независимое read-only ревью server adapter: owner/scope,
+booking snapshot и privacy, блокеров не найдено. Проверены local cache atomicity,
+session fencing, bootstrap/dock и read-only seam. Минимальный Metro wasm asset
+необходим для SQLite bundle и обоснован отчётом. Новых dependencies/SQL/PNG нет.
+`cd app && npm run check` — PASS: typecheck/lint/format, 1382 tests / 140 suites.
+`git diff --check` — PASS. SQL/RLS runtime, real SQLite/device и приёмка
+владельца остаются непроверенными. SOM-31/32 не объявляются выполненными.
