@@ -9,6 +9,8 @@
 
 ## Не выпущено
 
+- SOM-35: клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0075](docs/app/decisions/0075-client-history-session-fencing.md).
+
 ### Добавлено
 
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,

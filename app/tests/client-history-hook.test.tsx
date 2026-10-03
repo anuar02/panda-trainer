@@ -22,7 +22,14 @@ jest.mock('../src/features/client-history/service', () => {
   const actual = jest.requireActual<
     typeof import('../src/features/client-history/service')
   >('../src/features/client-history/service');
-  return { ...actual, loadClientHistory: jest.fn() };
+  return {
+    ...actual,
+    loadClientHistory: jest.fn(),
+    openClientHistorySession: jest.fn(() => ({
+      valid: () => true,
+      dispose: jest.fn(),
+    })),
+  };
 });
 const load = jest.mocked(loadClientHistory);
 const scope = {
@@ -76,6 +83,8 @@ test('loads scoped first page and serializes pagination while preserving visible
   await waitFor(() => expect(hook.result.current.history).toEqual(first));
   expect(load).toHaveBeenCalledWith({
     expectedUserId: scope.userId,
+    session: expect.objectContaining({ valid: expect.any(Function) }),
+    workspaceId: undefined,
     clientRecordId: scope.clientRecordId,
     startsAtUtc: scope.startsAtUtc,
     endsAtUtc: scope.endsAtUtc,

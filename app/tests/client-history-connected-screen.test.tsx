@@ -102,6 +102,7 @@ const read = jest.mocked(useClientHistory),
   loadMore = jest.fn(),
   retryMore = jest.fn();
 const state = () => ({
+  generation: 0,
   history,
   loading: false,
   error: null,
@@ -249,4 +250,16 @@ test('replacement provenance marks the historical source while retaining replace
   ).toBeNull();
   expect(screen.getByText('8 повт.')).toBeTruthy();
   expect(screen.getByText('12 кг')).toBeTruthy();
+});
+
+test('new history generation resets an open historical detail even for identical journals', async () => {
+  const view = await render(<ClientConnectedHistoryScreen {...props} />);
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'ср, 2 окт · 10:03' }),
+  );
+  expect(screen.getByText('Immutable squat')).toBeTruthy();
+  read.mockReturnValue({ ...state(), generation: 1 });
+  await view.rerender(<ClientConnectedHistoryScreen {...props} />);
+  expect(screen.queryByText('Immutable squat')).toBeNull();
+  expect(screen.getByText('10:03')).toBeTruthy();
 });

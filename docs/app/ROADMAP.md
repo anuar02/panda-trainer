@@ -9,6 +9,8 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-35: [x] session fence клиентской истории, auth reset страниц/detail, workspace read seam и synthetic regressions (check: 1582 tests / 152 suites); [ ] live API/RLS, native, два телефона и приёмка владельца. [Отчёт](../../app/review/som-35-history-session-fencing/README.md), [ADR 0075](decisions/0075-client-history-session-fencing.md).
+
 - 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
   fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.
   Удаление/local pending ack не подключены; SOM-41 и пилот не закрыты.

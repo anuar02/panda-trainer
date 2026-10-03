@@ -29,6 +29,7 @@ function ClientConnectedHistoryContent(props: Props) {
   const { t } = useTranslation();
   const read = useClientHistory({
     userId: props.userId,
+    workspaceId: props.workspaceId,
     clientRecordId: props.clientRecordId,
   });
   const context = read.history?.context;
@@ -41,6 +42,7 @@ function ClientConnectedHistoryContent(props: Props) {
   const timezone = context?.timezone ?? 'UTC';
   return (
     <ClientHistoryScreen
+      key={read.generation}
       data={{
         trainerName: context?.trainerName ?? props.trainerName,
         timezone,
