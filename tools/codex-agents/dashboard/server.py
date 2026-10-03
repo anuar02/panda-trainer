@@ -87,7 +87,7 @@ def read_log(path):
     text = path.read_text(errors="replace").replace("\r", "\n")
     info = {"lines": text.count("\n")}
     tail = text[text.rfind("\ntokens used\n"):] if "\ntokens used\n" in text else ""
-    prs = PR.findall(tail)
+    prs = PR.findall(tail) or (PR.findall(text)[-1:] if tail else [])
     if prs:
         info["pr"] = int(prs[0])
     notes = list(re.finditer(r"\ncodex\n", text))
