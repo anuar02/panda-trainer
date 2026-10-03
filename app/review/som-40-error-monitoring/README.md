@@ -1,5 +1,8 @@
 # SOM-40 error monitoring: local evidence
 
+[Draft PR #33](https://github.com/anuar02/panda-trainer/pull/33), target
+`fix/som-50-template-picker`. Implementation commit: `78282f9`.
+
 Date: 2026-10-03. Branch: `agent/som-40-error-monitoring`.
 Starting commit: `08f0251` on the requested `fix/som-50-template-picker` base.
 Before push, rebased onto `a1d87e7` after config/backup packages merged.
