@@ -1,26 +1,41 @@
+import { WorkoutPreloadOfflineRecovery } from '@/features/workout-preload/offline-recovery';
+import { View } from 'react-native';
+import { WorkoutPreloadProvider } from '@/features/workout-preload/provider';
+import { WorkoutPreloadDock } from '@/features/workout-preload/dock';
 import { Redirect, Stack } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/provider';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
 import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
 import { WorkspaceMutationProvider } from '@/features/workspace-scheduling/mutation-provider';
-import { Button } from '@/ui/button';
-import { Screen } from '@/ui/screen';
 import { useTheme } from '@/ui/theme';
 
 export default function WorkspaceLayout() {
   const auth = useAuth();
   const context = useOnboardingContext();
-  const { t } = useTranslation();
   const { colors } = useTheme();
   if (auth.loading || auth.failed) return <AuthLoadingScreen />;
   if (!auth.session) return <Redirect href="/auth/sign-in" />;
-  if (context.loading) return <Screen title={t('common.loading')} />;
+  if (context.loading)
+    return (
+      <WorkoutPreloadOfflineRecovery pending onRetry={context.retry}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.canvas },
+          }}
+        />
+      </WorkoutPreloadOfflineRecovery>
+    );
   if (context.failed)
     return (
-      <Screen title={t('common.error')}>
-        <Button label={t('common.retry')} onPress={context.retry} />
-      </Screen>
+      <WorkoutPreloadOfflineRecovery onRetry={context.retry}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.canvas },
+          }}
+        />
+      </WorkoutPreloadOfflineRecovery>
     );
   const workspace = context.context?.workspace;
   if (!workspace) return <Redirect href="/auth/onboarding" />;
@@ -29,12 +44,20 @@ export default function WorkspaceLayout() {
       userId={auth.session.user.id}
       workspaceId={workspace.id}
     >
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.canvas },
-        }}
-      />
+      <WorkoutPreloadProvider
+        key={`${auth.session.user.id}:${workspace.id}`}
+        workspaceId={workspace.id}
+      >
+        <View className="flex-1">
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.canvas },
+            }}
+          />
+          <WorkoutPreloadDock />
+        </View>
+      </WorkoutPreloadProvider>
     </WorkspaceMutationProvider>
   );
 }

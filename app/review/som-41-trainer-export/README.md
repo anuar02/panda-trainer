@@ -3,7 +3,7 @@
 Дата: 03.10.2026. Исходная база схемы: `4758705`; перед PR обновлена до `2ccc2d0`, затем слит `b240675` (оба только документация). Ветка `agent/som-41-trainer-export`.
 
 Реализована только read-only часть SOM-41. UI, удаление аккаунта и документы
-приватности — отдельные пакеты; SOM-41 не закрыт. Решение: [ADR 0068](../../../docs/app/decisions/0068-owner-scoped-server-workspace-export.md).
+приватности — отдельные пакеты; SOM-41 не закрыт. Решение: [ADR 0069](../../../docs/app/decisions/0069-owner-scoped-server-workspace-export.md).
 
 ## Контракт
 
@@ -34,45 +34,45 @@ PostgreSQL int8. Никогда не приводить их к Number; испо
 321 явно перечисленное поле. Это частичный server product export, не DB backup.
 Полный field contract: `app/src/domain/account-export/schema.ts` и новая migration.
 
-| Таблица | Покрытие / исключения |
-| --- | --- |
-| `public.profiles` | Только профиль auth.uid; глобальные профили клиентов/других тренеров исключены. |
-| `public.trainer_workspaces` | Только checked workspace; timezone и working preferences включены. |
-| `public.client_records` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.invitations` | Только по своим client_records; token_hash исключён, safe lifecycle metadata сохранены. |
-| `private.exercise_catalog` | Исключён: общий starter catalog; workspace exercises включены. |
-| `public.exercises` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.workout_templates` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.template_exercises` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.group_sessions` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.bookings` | Все свои строки/статусы; request_id и raw request_payload исключены. |
-| `public.schedule_proposals` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `private.template_command_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `private.program_assignment_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `public.client_programs` | Все сохранённые assignment copies, source template ID/revision; не unstored старые mutable rows. |
-| `public.client_program_exercises` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.workout_instances` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.workout_exercises` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.set_results` | Все свои подходы, включая deleted_at, revisions, position/requested_position, source device, grams/reps/seconds/nulls. |
-| `public.session_notes` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.private_notes` | Все свои приватные заметки, включая client-only и journal notes. |
-| `public.sync_operations` | Исключена: operational receipt/envelope/result; product rows и conflict versions включены. |
-| `private.booking_status_command_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `private.client_creation_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `private.client_invitation_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `public.booking_programs` | Все неизменяемые booking snapshots и source template revision. |
-| `public.booking_program_exercises` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `private.booking_creation_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `private.booking_reschedule_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `private.booking_command_abandonments` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `public.client_purchases` | Все покупки, включая expired; price_minor decimal text. |
-| `public.attendance_records` | Все поля и все строки своего workspace, без фильтра архивов/статусов. |
-| `public.attendance_revisions` | Вся сохранённая immutable история посещений/исправлений. |
-| `public.credit_entries` | Весь ledger: grant/consume/restore/late cancellation, links/reasons/cycles. |
-| `private.billing_command_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result. |
-| `public.payment_entries` | Все immutable payment/reversal строки; signed bigint decimal text. |
-| `public.workout_sync_conflicts` | Все свои unresolved/resolved строки и обе сохранённые версии. |
-| `public.workout_correction_drafts` | Все сохранённые на сервере correction operations; не локальный pending. |
+| Таблица                                   | Покрытие / исключения                                                                                                  |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `public.profiles`                         | Только профиль auth.uid; глобальные профили клиентов/других тренеров исключены.                                        |
+| `public.trainer_workspaces`               | Только checked workspace; timezone и working preferences включены.                                                     |
+| `public.client_records`                   | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.invitations`                      | Только по своим client_records; token_hash исключён, safe lifecycle metadata сохранены.                                |
+| `private.exercise_catalog`                | Исключён: общий starter catalog; workspace exercises включены.                                                         |
+| `public.exercises`                        | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.workout_templates`                | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.template_exercises`               | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.group_sessions`                   | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.bookings`                         | Все свои строки/статусы; request_id и raw request_payload исключены.                                                   |
+| `public.schedule_proposals`               | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `private.template_command_receipts`       | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `private.program_assignment_receipts`     | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `public.client_programs`                  | Все сохранённые assignment copies, source template ID/revision; не unstored старые mutable rows.                       |
+| `public.client_program_exercises`         | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.workout_instances`                | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.workout_exercises`                | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.set_results`                      | Все свои подходы, включая deleted_at, revisions, position/requested_position, source device, grams/reps/seconds/nulls. |
+| `public.session_notes`                    | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.private_notes`                    | Все свои приватные заметки, включая client-only и journal notes.                                                       |
+| `public.sync_operations`                  | Исключена: operational receipt/envelope/result; product rows и conflict versions включены.                             |
+| `private.booking_status_command_receipts` | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `private.client_creation_receipts`        | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `private.client_invitation_receipts`      | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `public.booking_programs`                 | Все неизменяемые booking snapshots и source template revision.                                                         |
+| `public.booking_program_exercises`        | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `private.booking_creation_receipts`       | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `private.booking_reschedule_receipts`     | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `private.booking_command_abandonments`    | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `public.client_purchases`                 | Все покупки, включая expired; price_minor decimal text.                                                                |
+| `public.attendance_records`               | Все поля и все строки своего workspace, без фильтра архивов/статусов.                                                  |
+| `public.attendance_revisions`             | Вся сохранённая immutable история посещений/исправлений.                                                               |
+| `public.credit_entries`                   | Весь ledger: grant/consume/restore/late cancellation, links/reasons/cycles.                                            |
+| `private.billing_command_receipts`        | Исключена: служебная идемпотентность/coordination, raw command payload/result.                                         |
+| `public.payment_entries`                  | Все immutable payment/reversal строки; signed bigint decimal text.                                                     |
+| `public.workout_sync_conflicts`           | Все свои unresolved/resolved строки и обе сохранённые версии.                                                          |
+| `public.workout_correction_drafts`        | Все сохранённые на сервере correction operations; не локальный pending.                                                |
 
 Документация DATA-MODEL также описывает future `notifications`, `audit_events`,
 `client_balances`: таких таблиц в текущих migrations нет. При их появлении нужен
@@ -196,3 +196,16 @@ local export/ack contract и явное подтверждение владел�
 готовность к deletion и не восстанавливает pending потерянного телефона.
 Срок хранения до удаления аккаунта и ротация backup до 7 дней — ADR 0064;
 экспорт сам не меняет retention и не реализует backup deletion.
+
+## Проверка координатора
+
+03.10.2026: влита база 16eaf8f с SOM-30; CHANGELOG/ROADMAP сохраняют обе стороны.
+Коллизия номера export ADR исправлена переименованием в 0069 и обновлением ссылок.
+Независимое SQL/security ревью подтвердило явную owner проверку, workspace filters,
+STABLE snapshot, minimal grants и bigint text; статических блокеров не найдено.
+Координатор проверил typed validation/session fencing, scope, ссылки и отсутствие
+any/комментариев в новом app коде, новых PNG/секретов.
+`cd app && npm run check` — PASS: typecheck/lint/format, 1430 tests / 142 suites.
+`git diff --check` — PASS. SQL/pgTAP runtime, generated drift, concurrent MVCC
+и pilot volume остаются непроверенными. UI/deletion/юридический review открыты;
+privacy drafts уже влиты PR #27, это не их одобрение или закрытие SOM-41.
