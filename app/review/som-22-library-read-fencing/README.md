@@ -71,3 +71,22 @@ SQL/pgTAP/RLS/live API/real auth не запускались: Docker/Supabase о
 Browser/iOS/Android/native/parity, два устройства и owner acceptance не
 выполнялись. Только synthetic fixtures, без реальных клиентов и платных сервисов.
 Новые PNG не добавлялись. Экраны и SOM-22 целиком не объявлены принятыми.
+
+## Публикация
+
+Implementation commit `1bc6c32` pushed в
+`origin/agent/som-22-library-read-fencing`; remote SHA подтверждён через ls-remote.
+`gh pr list` не получил ответа; процесс остановлен после диагностики.
+`timeout 45s gh pr create --base fix/som-50-template-picker --draft --fill --title 'SOM-22: Validate and fence complete workspace library reads' --body-file /tmp/som-22-pr-body.md`
+завершился timeout (124). Создание PR не подтверждено.
+`curl -I --max-time 10 https://api.github.com` и IPv4-вариант — timeout (28),
+0 bytes received; DNS разрешается. Git push доступен, GitHub API недоступен.
+Готовое описание — [PR.md](PR.md). После восстановления API сначала проверить,
+не появился ли PR, затем при необходимости выполнить:
+
+```sh
+gh pr list --head agent/som-22-library-read-fencing --json number,url,state
+gh pr create --base fix/som-50-template-picker --draft --fill \
+  --title 'SOM-22: Validate and fence complete workspace library reads' \
+  --body-file app/review/som-22-library-read-fencing/PR.md
+```
