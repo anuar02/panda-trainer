@@ -9,6 +9,15 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-26 read gap: [x] runtime validation всех read rows/связей,
+  [x] bounded pagination без успешного обрезания, [x] фиксированная авторизация
+  страниц и session-aware hook/controller; предложения вне недели сохранены.
+  [Отчёт](../../app/review/som-26-schedule-read-fencing/README.md),
+  [ADR 0075](decisions/0075-session-fenced-schedule-read.md).
+  [ ] SQL/RLS/live API, native/parity, два устройства и одобрение владельца.
+  Полный `cd app && npm run check`: 1636 tests / 154 suites, type/lint/format зелёные.
+  SOM-26/SOM-45 остаются открытыми; creation/mutation commands не изменены.
+
 - 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
   fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.
   Удаление/local pending ack не подключены; SOM-41 и пилот не закрыты.

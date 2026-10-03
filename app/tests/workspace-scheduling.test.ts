@@ -126,6 +126,7 @@ const makeClient = (data: Partial<Record<TableName, Row[]>>) => {
     const builder: Record<string, unknown> = {};
     for (const method of ['select'] as const)
       builder[method] = jest.fn(() => builder);
+    builder.setHeader = jest.fn(() => builder);
     builder.eq = jest.fn((field: string, value: unknown) => {
       state.filters.push({ field, operator: 'eq', value });
       return builder;
@@ -217,15 +218,46 @@ const makeClient = (data: Partial<Record<TableName, Row[]>>) => {
           author_role:
             author_user_id === workspace().owner_user_id ? 'trainer' : 'client',
         }));
-      return Promise.resolve({
-        data: rows,
-        error: errors.schedule_proposals ?? null,
-      });
+      return Object.assign(
+        Promise.resolve({
+          data: rows,
+          error: errors.schedule_proposals ?? null,
+        }),
+        {
+          setHeader: () =>
+            Promise.resolve({
+              data: rows,
+              error: errors.schedule_proposals ?? null,
+            }),
+        },
+      );
     },
   );
   getClient.mockReturnValue({
     from,
     rpc,
+    auth: {
+      getSession: async () => ({
+        data: {
+          session: {
+            user: { id: workspace().owner_user_id },
+            access_token: `header.${btoa(
+              JSON.stringify({
+                sub: workspace().owner_user_id,
+                session_id: 'd1000000-0000-4000-8000-000000000001',
+              }),
+            )
+              .replace(/=/g, '')
+              .replace(/\+/g, '-')
+              .replace(/\//g, '_')}.signature`,
+          },
+        },
+        error: null,
+      }),
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: () => undefined } },
+      }),
+    },
   } as unknown as SupabaseClient<Database>);
   return { calls, errors, rpc };
 };
@@ -478,11 +510,12 @@ describe('workspace schedule service', () => {
     const rows = Array.from({ length: 501 }, (_, index) =>
       proposal({
         id: `a1000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        booking_id: `71000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
       }),
     );
     const { rpc } = makeClient({
       trainer_workspaces: [workspace()],
-      bookings: [booking({ id: secondBookingId })],
+      bookings: rows.map((row) => booking({ id: row.booking_id })),
       schedule_proposals: rows,
       client_records: [clientRecord(clientId, 'Client')],
     });
@@ -513,10 +546,15 @@ describe('workspace schedule service', () => {
       created_by: _creator,
       ...safe
     } = proposal();
-    rpc.mockResolvedValueOnce({
+    const response = {
       data: [{ ...safe, author_role: 'client', ...extra }],
       error: null,
-    });
+    };
+    rpc.mockReturnValueOnce(
+      Object.assign(Promise.resolve(response), {
+        setHeader: () => Promise.resolve(response),
+      }),
+    );
     await expect(
       loadWorkspaceSchedule(workspaceId, intervalStart, intervalEnd),
     ).rejects.toMatchObject({ code: 'request' });

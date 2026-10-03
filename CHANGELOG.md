@@ -11,6 +11,13 @@
 
 ### Добавлено
 
+- SOM-26: runtime validation и ограниченная пагинация чтения расписания,
+  фиксированная авторизация всех страниц и защита Today/week от старого snapshot
+  после смены сессии, retry и unmount. Команды создания/мутаций сохранены.
+  [Отчёт](app/review/som-26-schedule-read-fencing/README.md),
+  [ADR 0075](docs/app/decisions/0075-session-fenced-schedule-read.md).
+  SQL/live API/native/parity и одобрение владельца открыты.
+
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
   Native/visual и одобрение владельца открыты; deletion не подключён.
