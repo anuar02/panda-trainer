@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { Dimensions } from 'react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import { Circle } from 'react-native-svg';
 import type { ComponentProps } from 'react';
@@ -139,4 +140,33 @@ test('progress ring uses portable SVG transform without DOM transform-origin', a
   expect(progress?.transform).toBe('rotate(-90 21 21)');
   expect(progress?.origin).toBeUndefined();
   expect(progress?.rotation).toBeUndefined();
+});
+
+test('minimized journal keeps full client and exercise labels at 200% and restores normal layout', async () => {
+  const window = Dimensions.get('window');
+  const nativeScreen = Dimensions.get('screen');
+  await show(open('s1'));
+  await act(async () =>
+    Dimensions.set({
+      window: { ...window, fontScale: 2 },
+      screen: { ...nativeScreen, fontScale: 2 },
+    }),
+  );
+  try {
+    expect(
+      screen.getByText('Дана Ержанова').props.numberOfLines,
+    ).toBeUndefined();
+    expect(
+      screen.getByText('Приседания со штангой').props.numberOfLines,
+    ).toBeUndefined();
+    await act(async () =>
+      Dimensions.set({
+        window: { ...window, fontScale: 1 },
+        screen: { ...nativeScreen, fontScale: 1 },
+      }),
+    );
+    expect(screen.getByText('Дана Ержанова').props.numberOfLines).toBe(1);
+  } finally {
+    await act(async () => Dimensions.set({ window, screen: nativeScreen }));
+  }
 });

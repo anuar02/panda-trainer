@@ -20,6 +20,8 @@ import { useNavigation } from 'expo-router';
 import { Button } from './button';
 import { Text } from './text';
 import { tokens, useTheme } from './theme';
+import { ReduceMotion } from 'react-native-reanimated';
+import { motion, useSystemReduceMotion } from './motion';
 export function Sheet({
   open,
   title,
@@ -36,6 +38,7 @@ export function Sheet({
   closeLabel?: string;
   fixedContent?: { header: ReactNode; footer: ReactNode };
 }>) {
+  const reduced = useSystemReduceMotion();
   const ref = useRef<BottomSheetModal>(null);
   const presented = useRef(false);
   const navigation = useNavigation();
@@ -137,6 +140,11 @@ export function Sheet({
   ) : null;
   return (
     <BottomSheetModal
+      overrideReduceMotion={reduced ? ReduceMotion.Always : ReduceMotion.System}
+      animationConfigs={{
+        duration: motion.sheetDuration,
+        easing: motion.sheetEasing,
+      }}
       ref={ref}
       stackBehavior={stackBehavior}
       onDismiss={handleDismiss}

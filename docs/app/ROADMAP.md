@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-39: настройка calm отдельно для обеих ролей, API для SOM-38,
+  AccessibilityInfo и ReduceMotion; функциональные Reanimated-анимации и
+  адаптивная вёрстка Today/журнала при fontScale 134–200%. 1220 tests / 124 suites,
+  type/lint/format, all-platform export, 24 capture pairs и 8 web simulations
+  проходят. Проверки и ограничения
+  — [отчёт](../../app/review/som-39/README.md), [ADR 0060](decisions/0060-calm-mode-and-accessible-motion.md).
+  Нативная проверка и одобрение владельца остаются открытыми; SOM-38 не изменён.
+
 - 03.10.2026 — SOM-33/26/27: общий scoped coordinator над workspace Stack
   держит billing/status/proposal/creation pending и synchronous lock. Real Today
   открывает локальную participant sheet; Schedule использует тот же control.
@@ -698,6 +706,9 @@
   на iOS альфа-канал VP9 не поддерживается ([ADR 0005](decisions/0005-mascot-motion.md)).
 - [ ] Места появления — как в `prototype-fresh`: приглашение, пустые состояния,
   празднование после тренировки. Не в повторяющейся работе журнала.
+- [x] SOM-39: локальная настройка calm обеих ролей и hook для SOM-38,
+  AccessibilityInfo/ReduceMotion, функциональное движение и render-тесты
+  Today/журнала до 200%; [отчёт](../../app/review/som-39/README.md).
 - [ ] «Спокойный интерфейс» (маскот и празднования выключены) и системное «Уменьшение
   движения» (`AccessibilityInfo`, Reanimated `ReduceMotion`); полная приёмка
   компонентов перенесена из этапа 1.

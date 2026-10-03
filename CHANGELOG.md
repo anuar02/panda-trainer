@@ -11,6 +11,11 @@
 
 ### Добавлено
 
+- SOM-39: сохраняемый «Спокойный интерфейс» обеих ролей и hooks для SOM-38;
+  системное уменьшение движения, Reanimated-шторки/обратная связь подхода и
+  адаптация «Сегодня»/журнала к крупному шрифту до 200%. Нативная и визуальная
+  приёмка открыты ([отчёт](app/review/som-39/README.md), ADR 0060).
+
 - Real Today attendance и общий workspace coordinator для billing, cancellation,
   proposals и creation: retained routes используют один lock/pending store;
   отдельные recovery-команды сохраняются после смены дня/маршрута. Старая

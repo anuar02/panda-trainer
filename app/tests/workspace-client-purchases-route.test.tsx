@@ -206,7 +206,7 @@ test('creates an exact client package through the shared command controller', as
   await fireEvent.changeText(screen.getByLabelText('Количество занятий'), '8');
   await fireEvent.changeText(screen.getByLabelText('Стоимость, ₸'), '12000,50');
   await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Добавить пакет' })[1],
+    screen.getAllByRole('button', { name: 'Добавить пакет' })[1]!,
   );
   expect(mockSubmit).toHaveBeenCalledWith({
     action: 'createPurchase',
@@ -227,13 +227,13 @@ test('payment rejects over-debt input under the field and records a partial amou
   );
   await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '1250,51');
   await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Записать оплату' })[1],
+    screen.getAllByRole('button', { name: 'Записать оплату' })[1]!,
   );
   expect(mockSubmit).not.toHaveBeenCalled();
   expect(screen.getByText('Больше долга по пакету (1 250,50 ₸)')).toBeTruthy();
   await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '250,50');
   await fireEvent.press(
-    screen.getAllByRole('button', { name: 'Записать оплату' })[1],
+    screen.getAllByRole('button', { name: 'Записать оплату' })[1]!,
   );
   expect(mockSubmit).toHaveBeenCalledWith(
     expect.objectContaining({

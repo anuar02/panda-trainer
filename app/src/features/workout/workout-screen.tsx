@@ -6,6 +6,7 @@ import {
   ScrollView,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +28,9 @@ import { GradientBackground } from '@/ui/gradient-background';
 import { Icon } from '@/ui/icons';
 import { Sheet } from '@/ui/sheet';
 import { Text } from '@/ui/text';
-import { workoutStyles as s } from './measurements';
+import { getWorkoutStyles } from './measurements';
+import { useCalmMode } from '@/ui/calm-mode';
+import { MotionView } from '@/ui/motion';
 import {
   WorkoutExerciseSheet,
   type ExerciseSheetState,
@@ -72,6 +75,10 @@ export function WorkoutScreen({
   onRetrySave,
 }: Props) {
   const { t, i18n } = useTranslation();
+  const { fontScale, width } = useWindowDimensions();
+  const largeText = fontScale > 1.3 || width < 360;
+  const s = getWorkoutStyles(fontScale, width);
+  const calmMode = useCalmMode();
   const [localFocus, setLocalFocus] = useState<string | null>(null);
   const runtime = useWorkoutRuntime(sessionId, journal?.active ?? '');
   const focused = runtime.available ? runtime.focusedExerciseId : localFocus;
@@ -329,6 +336,76 @@ export function WorkoutScreen({
     scroll.current?.scrollTo({ y: 0, animated: false });
   };
 
+  const dock = (
+    <View style={s.dock}>
+      {!journal.finished && (
+        <View style={s.feedback}>
+          {interactive &&
+            journal.undo?.clientId === active &&
+            !editor &&
+            !exerciseSheet &&
+            !journal.finishPending && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('workout.undoLabel')}
+                onPress={() => dispatch({ type: 'undo', clientId: active })}
+                style={s.undo}
+              >
+                <Text style={[s.small, s.accent]}>{t('workout.undo')}</Text>
+              </Pressable>
+            )}
+          {saving && (
+            <Text style={[s.small, s.secondary]}>{t('workout.saving')}</Text>
+          )}
+        </View>
+      )}
+      {journal.finished ? (
+        <Button label={t('workout.return')} onPress={onLeave} />
+      ) : (
+        <View style={[s.row, { gap: 10 }]}>
+          <Pressable
+            {...disabledProps}
+            accessibilityRole="button"
+            accessibilityLabel={t('workout.voice')}
+            style={s.voice}
+          >
+            <GradientBackground start="#2e4be0" end="#2136b0" radius={18} />
+            {!calmMode && (
+              <View style={s.voiceFace}>
+                <Image
+                  source={require('./face-smile.png')}
+                  accessible={false}
+                  style={{ width: 32, height: 28 }}
+                />
+                <View style={s.voiceMic}>
+                  <Icon
+                    name="mic"
+                    size={12}
+                    color="#6f86ff"
+                    strokeWidth={2.6}
+                  />
+                </View>
+              </View>
+            )}
+            <View style={s.grow}>
+              <Text style={s.bold}>{t('workout.voice')}</Text>
+              <Text style={[s.small, { color: '#ffffff' }]}>
+                {t('workout.voiceHint')}
+              </Text>
+            </View>
+          </Pressable>
+          <Button
+            variant="soft"
+            label={t('workout.finish')}
+            disabled={readonly || storageError}
+            onPress={finish}
+            style={s.finish}
+          />
+        </View>
+      )}
+    </View>
+  );
+
   return (
     <SafeAreaView
       edges={['top', 'bottom']}
@@ -368,13 +445,22 @@ export function WorkoutScreen({
         </View>
       </View>
       <ScrollView
+        testID="workout-scroll"
         ref={scroll}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: 12 }}
       >
         <View style={s.head}>
-          <View style={[s.row, { alignItems: 'flex-end' }]}>
-            <View style={s.grow}>
+          <View
+            style={[
+              s.row,
+              {
+                alignItems: largeText ? 'stretch' : 'flex-end',
+                flexDirection: largeText ? 'column' : 'row',
+              },
+            ]}
+          >
+            <View style={[s.grow, largeText && { flex: undefined }]}>
               <Text accessibilityRole="header" style={s.title}>
                 {session.kind === 'personal' ? client?.name : session.title}
               </Text>
@@ -525,14 +611,14 @@ export function WorkoutScreen({
                       setError(false);
                     }}
                   >
-                    <Text numberOfLines={1} style={[s.small, s.secondary]}>
+                    <Text style={[s.small, s.secondary]}>
                       {t('workout.next', { name: next.name })}
                     </Text>
                     <Icon name="chevR" size={14} color="#a3a4ab" />
                   </Pressable>
                 )}
               </View>
-              <View style={s.exerciseHead}>
+              <MotionView style={s.exerciseHead} revision={focus.id}>
                 <Text accessibilityRole="header" style={s.exerciseName}>
                   {focus.name}
                 </Text>
@@ -559,7 +645,7 @@ export function WorkoutScreen({
                     <Icon name="more" size={20} color="#a3a4ab" />
                   </Pressable>
                 )}
-              </View>
+              </MotionView>
               <View style={s.chips}>
                 {Array.from({ length: focus.sets }, (_, i) => {
                   const value = values(focus)[i];
@@ -585,14 +671,30 @@ export function WorkoutScreen({
                           {i + 1}
                         </Text>
                       </View>
-                      <Text style={[s.bold, i === index && s.accent]}>
-                        {i === index
-                          ? t('workout.now')
-                          : value
-                            ? formatSet(value, focus)
-                            : '—'}
-                      </Text>
-                      {value && <Icon name="check" size={13} color="#3ddc97" />}
+                      <MotionView
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 6,
+                          flexShrink: 1,
+                          flexWrap: largeText ? 'wrap' : 'nowrap',
+                        }}
+                        recorded
+                        revision={
+                          value ? `${value.kg}:${value.reps}` : undefined
+                        }
+                      >
+                        <Text style={[s.bold, i === index && s.accent]}>
+                          {i === index
+                            ? t('workout.now')
+                            : value
+                              ? formatSet(value, focus)
+                              : '—'}
+                        </Text>
+                        {value && (
+                          <Icon name="check" size={13} color="#3ddc97" />
+                        )}
+                      </MotionView>
                     </Pressable>
                   );
                 })}
@@ -603,7 +705,14 @@ export function WorkoutScreen({
                     <Text style={s.bold}>
                       {t('workout.set', { number: index + 1 })}
                     </Text>
-                    <Text style={[s.small, s.secondary, s.grow]}>
+                    <Text
+                      style={[
+                        s.small,
+                        s.secondary,
+                        s.grow,
+                        largeText && { flex: undefined },
+                      ]}
+                    >
                       {t(
                         journal.drafts[active]?.[focus.id]?.[index]
                           ? 'workout.draft'
@@ -865,72 +974,9 @@ export function WorkoutScreen({
         {!journal.finished && (
           <Text style={s.footnote}>{t('workout.footnote')}</Text>
         )}
+        {largeText && dock}
       </ScrollView>
-      <View style={s.dock}>
-        {!journal.finished && (
-          <View style={s.feedback}>
-            {interactive &&
-              journal.undo?.clientId === active &&
-              !editor &&
-              !exerciseSheet &&
-              !journal.finishPending && (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={t('workout.undoLabel')}
-                  onPress={() => dispatch({ type: 'undo', clientId: active })}
-                  style={s.undo}
-                >
-                  <Text style={[s.small, s.accent]}>{t('workout.undo')}</Text>
-                </Pressable>
-              )}
-            {saving && (
-              <Text style={[s.small, s.secondary]}>{t('workout.saving')}</Text>
-            )}
-          </View>
-        )}
-        {journal.finished ? (
-          <Button label={t('workout.return')} onPress={onLeave} />
-        ) : (
-          <View style={[s.row, { gap: 10 }]}>
-            <Pressable
-              {...disabledProps}
-              accessibilityRole="button"
-              accessibilityLabel={t('workout.voice')}
-              style={s.voice}
-            >
-              <GradientBackground start="#2e4be0" end="#2136b0" radius={18} />
-              <View style={s.voiceFace}>
-                <Image
-                  source={require('./face-smile.png')}
-                  accessible={false}
-                  style={{ width: 32, height: 28 }}
-                />
-                <View style={s.voiceMic}>
-                  <Icon
-                    name="mic"
-                    size={12}
-                    color="#6f86ff"
-                    strokeWidth={2.6}
-                  />
-                </View>
-              </View>
-              <View>
-                <Text style={s.bold}>{t('workout.voice')}</Text>
-                <Text style={[s.small, { color: '#ffffff' }]}>
-                  {t('workout.voiceHint')}
-                </Text>
-              </View>
-            </Pressable>
-            <Button
-              variant="soft"
-              label={t('workout.finish')}
-              disabled={readonly || storageError}
-              onPress={finish}
-              style={s.finish}
-            />
-          </View>
-        )}
-      </View>
+      {!largeText && dock}
       {interactive && exerciseSheet && (
         <WorkoutExerciseSheet
           selection={exerciseSheet}

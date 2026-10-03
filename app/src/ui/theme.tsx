@@ -12,6 +12,7 @@ import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { vars } from 'nativewind';
 import tokens from './tokens.json';
+import { CalmModeProvider } from './calm-mode';
 export type Appearance = 'auto' | 'light' | 'dark';
 export type Role = 'trainer' | 'client';
 export const appearanceStorageKey = 'panda-trainer.appearance';
@@ -83,11 +84,13 @@ export function ThemeProvider({
     [appearance, scheme, colors, setAppearance],
   );
   return (
-    <ThemeContext.Provider value={value}>
-      <View className="flex-1 bg-canvas" style={variables}>
-        {children}
-      </View>
-    </ThemeContext.Provider>
+    <CalmModeProvider role={role}>
+      <ThemeContext.Provider value={value}>
+        <View className="flex-1 bg-canvas" style={variables}>
+          {children}
+        </View>
+      </ThemeContext.Provider>
+    </CalmModeProvider>
   );
 }
 export const useTheme = () => useContext(ThemeContext);

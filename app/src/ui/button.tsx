@@ -38,7 +38,6 @@ export function Button({
 }: Props) {
   const { colors, scheme } = useTheme();
   const [pressed, setPressed] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const blocked = disabled || loading;
   const primary = variant === 'primary';
   return (
@@ -56,11 +55,9 @@ export function Button({
         onPressOut?.(event);
       }}
       onHoverIn={(event) => {
-        setHovered(true);
         onHoverIn?.(event);
       }}
       onHoverOut={(event) => {
-        setHovered(false);
         onHoverOut?.(event);
       }}
       className={`relative flex-row items-center justify-center gap-[9px] px-5 py-3 ${compact ? 'min-h-touch rounded-[15px]' : 'min-h-button rounded-button'} ${variant === 'secondary' || variant === 'soft' ? 'bg-sunken' : ''} ${blocked ? (primary || variant === 'mint' ? '' : 'opacity-50') : 'active:opacity-80'} ${className}`}
@@ -80,7 +77,7 @@ export function Button({
           : {}),
         ...StyleSheet.flatten(
           typeof style === 'function'
-            ? style({ pressed: pressed && !blocked, hovered })
+            ? style({ pressed: pressed && !blocked })
             : style,
         ),
       }}
@@ -97,7 +94,7 @@ export function Button({
       )}
       {!loading && icon && <View className="relative z-[1]">{icon}</View>}
       <Text
-        style={labelStyle}
+        style={[{ flexShrink: 1 }, labelStyle]}
         className={`text-center font-bold tracking-[0.1px] ${compact ? 'text-[15px] leading-[21.75px]' : 'text-[16.5px] leading-[23.925px]'} ${primary && blocked && scheme === 'dark' ? 'text-secondary' : primary || variant === 'mint' ? 'text-white' : variant === 'ghost' ? 'text-secondary' : variant === 'danger' ? 'text-danger' : 'text-ink'}`}
       >
         {label}

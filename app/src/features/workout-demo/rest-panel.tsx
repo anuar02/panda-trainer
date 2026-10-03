@@ -74,6 +74,7 @@ export function WorkoutRestPanel({
         <Text
           style={{
             flexGrow: 1,
+            flexShrink: 1,
             fontFamily: 'Inter_600SemiBold',
             color: '#f2f2f3',
             fontSize: 15,
