@@ -1,8 +1,29 @@
 {
- "updated_at": "2026-10-03T22:14Z",
+ "updated_at": "2026-10-03T22:26Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-41",
+   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+   "status": "In Progress",
+   "milestone": "10",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-34",
+   "title": "Подключить ручные оплаты, долг и экран billing",
+   "status": "In Progress",
+   "milestone": "06",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-24",
+   "title": "Реализовать версионированные личные программы клиентов",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "agents"
+  },
   {
    "id": "SOM-20",
    "title": "Подключить onboarding тренера и управление клиентами",
@@ -25,13 +46,6 @@
    "group": "agents"
   },
   {
-   "id": "SOM-34",
-   "title": "Подключить ручные оплаты, долг и экран billing",
-   "status": "In Review",
-   "milestone": "06",
-   "group": "owner"
-  },
-  {
    "id": "SOM-31",
    "title": "Довести ввод подходов и мини-группы до production",
    "status": "In Progress",
@@ -44,13 +58,6 @@
    "status": "In Review",
    "milestone": "07",
    "group": "owner"
-  },
-  {
-   "id": "SOM-41",
-   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
-   "status": "In Progress",
-   "milestone": "10",
-   "group": "agents"
   },
   {
    "id": "SOM-37",
@@ -123,18 +130,11 @@
    "group": "owner"
   },
   {
-   "id": "SOM-24",
-   "title": "Реализовать версионированные личные программы клиентов",
-   "status": "In Progress",
-   "milestone": "03",
-   "group": "agents"
-  },
-  {
    "id": "SOM-23",
    "title": "Подключить редактор шаблонов к серверу",
    "status": "In Progress",
    "milestone": "03",
-   "group": "owner"
+   "group": "agents"
   },
   {
    "id": "SOM-21",
