@@ -66,3 +66,12 @@ AsyncStorage не даёт транзакцию с auth: восстановле�
 Сериализация защищает только этот JS runtime, не внешние writers или процессы.
 Экран и SOM-24 целиком не приняты; требуется одобрение владельца и runtime checks.
 [ADR 0080](../../../docs/app/decisions/0080-program-assignment-session-fencing.md).
+
+## Публикация
+
+Implementation commit: `86c97f6`.
+`git push -u origin agent/som-24-assignment-session-fencing-r2` — успешно.
+`gh pr create --base fix/som-50-template-picker --head agent/som-24-assignment-session-fencing-r2 --draft --fill --title "SOM-24: Verify assignment refresh identity and durable retry r2" --body-file /tmp/som24-r2-pr.md` — успешно.
+[Draft PR #49](https://github.com/anuar02/panda-trainer/pull/49): read-back
+подтвердил draft/open, base `fix/som-50-template-picker` и r2 head.
+После добавления ссылки на PR `cd app && npm run format:check` — exit 0.
