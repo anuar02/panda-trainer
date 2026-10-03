@@ -90,3 +90,14 @@ Refresh может оставить исходный bearer истёкшим —
 
 Описание PR и этот текстовый checkpoint публикуются отдельным документационным
 коммитом поверх проверенного кода; повторная full suite для текста не требуется.
+
+## Проверка координатора · 03.10.2026
+
+Свежая база `718adb9` включена. Конфликты CHANGELOG/ROADMAP/ADR index разрешены
+с сохранением обеих сторон; ADR клиентов перенумерован 0079. Независимый reviewer
+нашёл превышение разрешённых 3600 секунд: исправлены обе границы planned_seconds,
+добавлены negative regressions 3601, 1–3601, 9999; повторное review PASS.
+`cd app && npm run check` PASS: typecheck/lint/format, 161 suites / 1802 tests.
+`git diff --check` PASS. Lockfile/SQL не изменены; live/native/parity/приёмка открыты.
+GitHub checks исходного head отсутствовали; слияние по явному coordinator workflow
+с зелёным полным локальным check, CI не объявлен проверенным.
