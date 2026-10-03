@@ -300,3 +300,41 @@ export const todayStyles = StyleSheet.create({
   },
   skeletonCard: { height: 280, borderRadius: 26, marginHorizontal: 16 },
 });
+
+export function getTodayStyles(fontScale: number, width: number) {
+  const large = fontScale > 1.3 || width < 360;
+  if (!large) return todayStyles;
+  return {
+    ...todayStyles,
+    badge: { ...todayStyles.badge, height: undefined, minHeight: 19 },
+    row: { ...todayStyles.row, flexDirection: 'column' as const },
+    time: {
+      ...todayStyles.time,
+      width: undefined,
+      flexDirection: 'row' as const,
+      flexWrap: 'wrap' as const,
+      gap: 8,
+    },
+    main: {
+      ...todayStyles.main,
+      flex: undefined,
+      alignSelf: 'stretch' as const,
+    },
+    nameButton: {
+      ...todayStyles.nameButton,
+      flexWrap: 'wrap' as const,
+      marginTop: 0,
+      marginBottom: 0,
+    },
+    compactName: { ...todayStyles.compactName, flexShrink: 1 },
+    name: { ...todayStyles.name, flexShrink: 1 },
+    caption: { ...todayStyles.caption, flexWrap: 'wrap' as const },
+    sectionHead: { ...todayStyles.sectionHead, flexWrap: 'wrap' as const },
+    rsvp: { ...todayStyles.rsvp, flexWrap: 'wrap' as const, gap: 8 },
+    rsvpItems: { ...todayStyles.rsvpItems, flexWrap: 'wrap' as const },
+    programPicker: { ...todayStyles.programPicker, marginVertical: 0 },
+    gap: { ...todayStyles.gap, flexWrap: 'wrap' as const },
+    buddy: { ...todayStyles.buddy, flexDirection: 'column' as const },
+    empty: { ...todayStyles.empty, paddingHorizontal: 16 },
+  };
+}

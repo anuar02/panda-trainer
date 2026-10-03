@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import { Text } from './text';
 
 type Props = {
@@ -10,9 +10,17 @@ type Props = {
 };
 
 export function ScreenHeader({ greeting, title, subtitle, actions }: Props) {
+  const { fontScale, width } = useWindowDimensions();
+  const large = fontScale > 1.3 || width < 360;
   return (
-    <View className="flex-row items-start gap-3 px-[22px] pb-[14px] pt-[10px]">
-      <View className="min-w-0 flex-1">
+    <View
+      className="flex-row items-start gap-3 px-[22px] pb-[14px] pt-[10px]"
+      style={large ? { flexDirection: 'column' } : undefined}
+    >
+      <View
+        className="min-w-0 flex-1"
+        style={large ? { flex: undefined, alignSelf: 'stretch' } : undefined}
+      >
         {greeting && (
           <Text className="mb-[2px] font-bold text-[14px] leading-[20.3px] tracking-[0.1px] text-accent">
             {greeting}

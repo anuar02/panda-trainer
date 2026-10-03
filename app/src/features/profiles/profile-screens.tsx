@@ -8,6 +8,7 @@ import { Text } from '@/ui/text';
 import { Icon } from '@/ui/icons';
 import { GradientBackground } from '@/ui/gradient-background';
 import { useTheme } from '@/ui/theme';
+import { useCalmModePreference } from '@/ui/calm-mode';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
 import { styles as s } from './styles';
 import type { profiles } from './ru';
@@ -68,6 +69,7 @@ function Lead({
 export function ProfilePreferences() {
   const tx = useProfileText();
   const { colors, appearance, setAppearance } = useTheme();
+  const { calmMode, setCalmMode, error } = useCalmModePreference();
   const surface = {
     backgroundColor: colors.surface,
     borderColor: colors.border,
@@ -75,18 +77,32 @@ export function ProfilePreferences() {
   return (
     <View>
       <Pressable
-        disabled
+        onPress={() => setCalmMode(!calmMode)}
         accessibilityRole="switch"
         accessibilityLabel={tx('calm')}
-        accessibilityHint={tx('unavailable')}
-        accessibilityState={{ checked: false, disabled: true }}
+        accessibilityState={{ checked: calmMode }}
+        aria-checked={calmMode}
         style={[s.preference, surface]}
       >
         <Text style={s.preferenceLabel}>{tx('calm')}</Text>
-        <View style={[s.track, { backgroundColor: colors.secondary }]}>
-          <View style={[s.thumb, { backgroundColor: colors.surface }]} />
+        <View
+          style={[
+            s.track,
+            { backgroundColor: calmMode ? colors.accent : colors.secondary },
+          ]}
+        >
+          <View
+            style={[
+              s.thumb,
+              {
+                backgroundColor: colors.surface,
+                alignSelf: calmMode ? 'flex-end' : 'flex-start',
+              },
+            ]}
+          />
         </View>
       </Pressable>
+      {error && <Text accessibilityRole="alert">{tx('calmSaveError')}</Text>}
       <View
         style={[s.preference, s.theme, surface]}
         accessibilityLabel={tx('theme')}

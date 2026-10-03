@@ -61,4 +61,6 @@
 добавить строку в таблицу, упомянуть в `CHANGELOG.md`.
 
 | [0055](0055-attendance-billing-transport.md) | Typed attendance/purchase transport with lossless minor money | Accepted technically; UI integration open | 03.10.2026 |
+
+- [0063 — Настройка спокойного интерфейса и доступное движение](0063-calm-mode-and-accessible-motion.md) — SOM-39; нативная/визуальная приёмка открыты.
 | [0061](0061-journal-conflicts-and-client-visibility.md) | Конфликты журнала на двух устройствах, видимость черновика и ввод результатов | Принято владельцем | 03.10.2026 |

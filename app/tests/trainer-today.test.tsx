@@ -1,5 +1,8 @@
+import { Dimensions, StyleSheet } from 'react-native';
+import { getTodayStyles } from '../src/features/trainer-today/measurements';
 import type { PropsWithChildren } from 'react';
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -231,3 +234,36 @@ test('request action opens the shared inbox', async () => {
   await fireEvent.press(screen.getByRole('button', { name: '2 запроса' }));
   expect(mockPush).toHaveBeenCalledWith('/inbox');
 });
+
+test.each([1.34, 2])(
+  'Today keeps sessions and group controls at fontScale %s',
+  async (fontScale) => {
+    const originalWindow = Dimensions.get('window');
+    const originalScreen = Dimensions.get('screen');
+    await act(async () =>
+      Dimensions.set({
+        window: { ...originalWindow, width: 390, height: 844, fontScale },
+        screen: { ...originalScreen, width: 390, height: 844, fontScale },
+      }),
+    );
+    try {
+      await render(<TrainerTodayScreen />);
+      const styles = getTodayStyles(fontScale, 390);
+      expect(styles.row.flexDirection).toBe('column');
+      expect(StyleSheet.flatten(styles.badge).height).toBeUndefined();
+      expect(screen.getByText('Мини-группа')).toBeTruthy();
+      await fireEvent.press(
+        screen.getByRole('button', { name: /Прошло 5 занятий/ }),
+      );
+      expect(screen.getByText('09:00')).toBeTruthy();
+      await fireEvent.press(
+        screen.getByRole('button', { name: /Участники мини-группы/ }),
+      );
+      expect(screen.getByText('Дана Ержанова')).toBeTruthy();
+    } finally {
+      await act(async () =>
+        Dimensions.set({ window: originalWindow, screen: originalScreen }),
+      );
+    }
+  },
+);

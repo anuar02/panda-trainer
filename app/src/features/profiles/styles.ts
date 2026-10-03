@@ -97,7 +97,14 @@ export const styles = StyleSheet.create({
   track: { width: 44, height: 26, borderRadius: 999, padding: 3 },
   thumb: { width: 20, height: 20, borderRadius: 10 },
   theme: { paddingVertical: 8, paddingRight: 8, flexWrap: 'wrap', rowGap: 8 },
-  segments: { flexDirection: 'row', borderRadius: 10, padding: 2, gap: 2 },
+  segments: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    maxWidth: '100%',
+    borderRadius: 10,
+    padding: 2,
+    gap: 2,
+  },
   segment: {
     minHeight: 44,
     paddingHorizontal: 12,

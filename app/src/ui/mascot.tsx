@@ -1,6 +1,8 @@
 import { Image, type ImageProps } from 'expo-image';
 import { Platform } from 'react-native';
 import { lazy, Suspense } from 'react';
+import { useCalmMode } from './calm-mode';
+import { useSystemReduceMotion } from './motion';
 
 const RiveMascot = lazy(() => import('./mascot/rive-mascot'));
 
@@ -33,7 +35,9 @@ type Props = Omit<ImageProps, 'source'> & {
 };
 
 export function Mascot({ pose, size, style, hidden = false, ...props }: Props) {
-  if (hidden) return null;
+  const calmMode = useCalmMode();
+  const reducedMotion = useSystemReduceMotion();
+  if (hidden || calmMode) return null;
   const poster = (
     <Image
       accessible={false}
@@ -44,6 +48,7 @@ export function Mascot({ pose, size, style, hidden = false, ...props }: Props) {
     />
   );
   if (
+    reducedMotion ||
     process.env.EXPO_PUBLIC_MASCOT_RIVE !== 'true' ||
     Platform.OS === 'web' ||
     !['front', 'wave'].includes(pose)

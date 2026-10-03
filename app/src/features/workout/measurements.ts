@@ -402,3 +402,53 @@ export const workoutStyles = StyleSheet.create({
   },
   context: { paddingHorizontal: 18, paddingBottom: 10 },
 });
+
+export function getWorkoutStyles(fontScale: number, width: number) {
+  if (fontScale <= 1.3 && width >= 360) return workoutStyles;
+  return {
+    ...workoutStyles,
+    row: { ...workoutStyles.row, flexWrap: 'wrap' as const },
+    topbar: { ...workoutStyles.topbar, flexWrap: 'wrap' as const, gap: 8 },
+    topSide: { ...workoutStyles.topSide, width: undefined },
+    topTitle: { ...workoutStyles.topTitle, flexShrink: 1 },
+    eyebrow: { ...workoutStyles.eyebrow, flexWrap: 'wrap' as const },
+    next: { ...workoutStyles.next, flexWrap: 'wrap' as const },
+    chip: {
+      ...workoutStyles.chip,
+      maxWidth: '100%' as const,
+      flexWrap: 'wrap' as const,
+    },
+    chipNo: {
+      ...workoutStyles.chipNo,
+      width: undefined,
+      height: undefined,
+      minWidth: 26,
+      minHeight: 26,
+      paddingHorizontal: 4,
+    },
+    mark: {
+      ...workoutStyles.mark,
+      width: undefined,
+      height: undefined,
+      minWidth: 30,
+      minHeight: 30,
+      paddingHorizontal: 4,
+    },
+    composerHead: {
+      ...workoutStyles.composerHead,
+      flexDirection: 'column' as const,
+      alignItems: 'stretch' as const,
+    },
+    fields: { ...workoutStyles.fields, flexDirection: 'column' as const },
+    field: { ...workoutStyles.field, flex: undefined },
+    input: {
+      ...workoutStyles.input,
+      height: undefined,
+      minHeight: 48 * fontScale,
+    },
+    foot: { ...workoutStyles.foot, flexWrap: 'wrap' as const },
+    addSet: { ...workoutStyles.addSet, flexShrink: 1 },
+    voice: { ...workoutStyles.voice, flex: undefined, width: '100%' as const },
+    finish: { ...workoutStyles.finish, width: '100%' as const },
+  };
+}

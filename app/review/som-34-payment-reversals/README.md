@@ -90,3 +90,10 @@ Use only synthetic fixtures with an owner account and its workspace/client.
 Not verified: fresh pgTAP/SQL concurrency, Supabase/Docker, real network replay,
 browser or native runtime/visual parity, all-platform export, keyboard/gestures,
 screen reader, owner acceptance. Mock tests establish local invariants only.
+
+## Coordinator integration · 03.10.2026
+
+Merged base including SOM-39 PR #23, preserving both CHANGELOG/ROADMAP entries.
+`cd app && npm run check` passed: typecheck, lint, format, 128 suites / 1247 tests.
+Independent projection/recovery review found no blockers. Browser/native, real
+network replay, SQL runtime and owner acceptance remain unverified here.

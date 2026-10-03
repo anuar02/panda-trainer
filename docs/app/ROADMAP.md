@@ -9,6 +9,9 @@
 
 ## Где остановились
 
+- Coordinator integration SOM-34: база SOM-39 влита, полный npm run check
+  зелёный: 1247 tests / 128 suites, type/lint/format. Native/owner приёмка открыты.
+
 - 03.10.2026 — SOM-34 follow-up по решению `8c03812`: [x] одна строка
   отменённой оплаты с зачёркнутой суммой/датой; [x] подтверждение с причиной;
   [x] scoped durable reversal и workspace lock, receipt validation, refresh
@@ -17,6 +20,15 @@
   Linear не изменялся. [ADR 0059](decisions/0059-package-creation-and-capped-payments.md),
   [отчёт](../../app/review/som-34-payment-reversals/README.md).
 
+- 03.10.2026 — SOM-39: настройка calm отдельно для обеих ролей, API для SOM-38,
+  AccessibilityInfo и ReduceMotion; функциональные Reanimated-анимации и
+  адаптивная вёрстка Today/журнала при fontScale 134–200%. 1220 tests / 124 suites,
+  type/lint/format, all-platform export, 24 capture pairs и 8 web simulations
+  проходят. Проверки и ограничения
+  — [отчёт](../../app/review/som-39/README.md), [ADR 0063](decisions/0063-calm-mode-and-accessible-motion.md).
+  Координатор подключил shared mascot/celebration calm flags и reduced-motion PNG.
+  Свежий npm ci + check: 1228 tests / 126 suites, type/lint/format зелёные.
+  Нативная проверка и одобрение владельца остаются открытыми.
 - 03.10.2026 — SOM-33/SOM-34 продолжены с WIP `4704f31`: package creation,
   capped positive/partial payments и payment read подключены; история приведена
   к структуре прототипа, ошибка чтения предлагает retry. Исправлены undefined
@@ -728,6 +740,9 @@
   на iOS альфа-канал VP9 не поддерживается ([ADR 0005](decisions/0005-mascot-motion.md)).
 - [ ] Места появления — как в `prototype-fresh`: приглашение, пустые состояния,
   празднование после тренировки. Не в повторяющейся работе журнала.
+- [x] SOM-39: локальная настройка calm обеих ролей и hook для SOM-38,
+  AccessibilityInfo/ReduceMotion, функциональное движение и render-тесты
+  Today/журнала до 200%; [отчёт](../../app/review/som-39/README.md).
 - [ ] «Спокойный интерфейс» (маскот и празднования выключены) и системное «Уменьшение
   движения» (`AccessibilityInfo`, Reanimated `ReduceMotion`); полная приёмка
   компонентов перенесена из этапа 1.

@@ -4,8 +4,10 @@ import {
   render,
   screen,
   within,
+  waitFor,
 } from '@testing-library/react-native';
-import { BackHandler, Dimensions, Text } from 'react-native';
+import { AccessibilityInfo, BackHandler, Dimensions, Text } from 'react-native';
+import { ReduceMotion } from 'react-native-reanimated';
 import type { PropsWithChildren, Ref } from 'react';
 import '../src/lib/i18n';
 import { Sheet } from '../src/ui/sheet';
@@ -15,6 +17,8 @@ let mockOnDismiss: () => void;
 let mockOnBlur: () => void;
 let mockFocused = true;
 let mockStackBehavior: string | undefined;
+let mockReduceMotion: string | undefined;
+let mockAnimationDuration: number | undefined;
 const mockNavigation = {
   isFocused: () => mockFocused,
   addListener: jest.fn((event: string, listener: () => void) => {
@@ -47,11 +51,15 @@ jest.mock('@gorhom/bottom-sheet', () => {
       onDismiss,
       accessible,
       stackBehavior,
+      overrideReduceMotion,
+      animationConfigs,
     }: PropsWithChildren<{
       ref: Ref<{ present: () => void; dismiss: () => void }>;
       onDismiss: () => void;
       accessible?: boolean;
       stackBehavior?: string;
+      overrideReduceMotion?: string;
+      animationConfigs?: { duration: number };
     }>) => {
       React.useImperativeHandle(ref, () => ({
         present: mockPresent,
@@ -59,6 +67,8 @@ jest.mock('@gorhom/bottom-sheet', () => {
       }));
       mockOnDismiss = onDismiss;
       mockStackBehavior = stackBehavior;
+      mockReduceMotion = overrideReduceMotion;
+      mockAnimationDuration = animationConfigs?.duration;
       return (
         <View testID="sheet-content" accessible={accessible ?? true}>
           {children}
@@ -264,3 +274,23 @@ test('nested push preserves the library default for existing sheet callers', asy
   await act(async () => mockOnDismiss());
   expect(onClose).toHaveBeenCalledTimes(1);
 });
+
+test.each([true, false])(
+  'sheet forwards system reduceMotion=%s with prototype timing',
+  async (reduced) => {
+    const setting = jest
+      .spyOn(AccessibilityInfo, 'isReduceMotionEnabled')
+      .mockResolvedValue(reduced);
+    try {
+      await render(<Sheet open title="Шторка" onClose={jest.fn()} />);
+      await waitFor(() =>
+        expect(mockReduceMotion).toBe(
+          reduced ? ReduceMotion.Always : ReduceMotion.System,
+        ),
+      );
+      expect(mockAnimationDuration).toBe(420);
+    } finally {
+      setting.mockRestore();
+    }
+  },
+);
