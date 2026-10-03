@@ -24,7 +24,7 @@ git clone --reference-if-able /mirror --branch "$QUEUE_BRANCH" "$repo_url" queue
 prompt="$(sed -e "s|{{BASE}}|$BASE_BRANCH|g" \
   -e "s|{{QUEUE}}|$QUEUE_BRANCH|g" \
   -e "s|{{DONE}}|${DONE_COUNT:-0}|g" \
-  -e "s|{{MAX}}|${MAX_TASKS:-12}|g" \
+  -e "s|{{MAX}}|${MAX_TASKS:-1000}|g" \
   -e "s|{{FINAL}}|${FINAL:-0}|g" \
   -e "s|{{WORKERS}}|${WORKERS:-work personal}|g" \
   /task/COORDINATOR.md)"

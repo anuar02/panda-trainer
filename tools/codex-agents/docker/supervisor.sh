@@ -20,7 +20,7 @@ fi
 export GH_TOKEN BASE_BRANCH
 
 queue_branch=$(git -C "$root" branch --show-current)
-max_tasks=${MAX_TASKS:-12}
+max_tasks=${MAX_TASKS:-1000}
 workers=${WORKERS:-work personal third}
 coordinator=${COORDINATOR:-third}
 subagent_accounts=${SUBAGENT_ACCOUNTS:-third}
