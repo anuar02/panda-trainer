@@ -9,12 +9,13 @@
 
 ## Где остановились
 
-- 03.10.2026 — SOM-24: [x] session fence transport/hook, verified refresh,
-  [x] durable retry с исходным requestId и guarded conditional clear;
-  полный `cd app && npm run check` зелёный: 1673 tests / 157 suites, type/lint/format.
+- 03.10.2026 — SOM-24 r2: восстановлен полный пакет PR #46 без слияния;
+  [x] verified JWT sub/session_id fence transport/hook и durable retry;
+  свежая база с SOM-20/SOM-22 read fencing сохранена, ADR остаётся 0080.
+  Полный check: 1846 tests / 163 suites, type/lint/format зелёные.
+  Текущие проверки — в [отчёте r2](../../app/review/som-24-assignment-session-fencing-r2/README.md).
   [ ] live auth/SQL/RLS/concurrent receipts, real storage/reopen/crash,
   native/parity и одобрение владельца. SOM-24 целиком не закрыта.
-  [Отчёт](../../app/review/som-24-assignment-session-fencing/README.md),
   [ADR 0080](decisions/0080-program-assignment-session-fencing.md).
 
 - 03.10.2026 — SOM-20 reads: [x] owner/auth fencing, bounded deterministic pagination,

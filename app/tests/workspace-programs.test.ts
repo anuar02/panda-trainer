@@ -1,3 +1,4 @@
+import { assignmentJwt } from './assignment-jwt';
 import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getSupabaseClient } from '@/features/auth/client';
@@ -50,7 +51,7 @@ const clientRecordId = '71000000-0000-4000-8000-000000000001';
 const templateId = '81000000-0000-4000-8000-000000000001';
 const programId = '91000000-0000-4000-8000-000000000001';
 const requestId = 'a1000000-0000-4000-8000-000000000001';
-const accessToken = 'private-session-token';
+const accessToken = assignmentJwt(userId);
 
 const client = (parts: object, sessionUserId = userId) =>
   ({
@@ -522,5 +523,45 @@ describe('pending client program assignment storage', () => {
     await expect(
       loadPendingClientProgramAssignment(userId, workspaceId, clientRecordId),
     ).resolves.toEqual(newer);
+  });
+});
+
+describe('assignment pending removal cancellation', () => {
+  beforeEach(async () => {
+    await AsyncStorage.clear();
+  });
+  it('restores the exact request when invalidated while removeItem awaits', async () => {
+    await savePendingClientProgramAssignment(userId, workspaceId, pending);
+    const originalRemove = jest
+      .mocked(AsyncStorage.removeItem)
+      .getMockImplementation();
+    let release!: () => void;
+    let entered!: () => void;
+    const started = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const waiting = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    jest.mocked(AsyncStorage.removeItem).mockImplementationOnce(async (key) => {
+      await originalRemove?.(key);
+      entered();
+      await waiting;
+    });
+    let active = true;
+    const clearing = clearPendingClientProgramAssignment(
+      userId,
+      workspaceId,
+      clientRecordId,
+      requestId,
+      () => active,
+    );
+    await started;
+    active = false;
+    release();
+    await expect(clearing).resolves.toBe(false);
+    await expect(
+      loadPendingClientProgramAssignment(userId, workspaceId, clientRecordId),
+    ).resolves.toEqual(pending);
   });
 });

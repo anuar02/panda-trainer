@@ -113,12 +113,14 @@ export const loadPendingClientProgramAssignment = (
   userId: string,
   workspaceId: string,
   clientRecordId: string,
+  isCurrent: () => boolean = () => true,
 ): Promise<PendingClientProgramAssignment | null> => {
   const key = keyFor(userId, workspaceId, clientRecordId);
   return serialize(async () => {
     try {
+      if (!isCurrent()) return null;
       const raw = await AsyncStorage.getItem(key);
-      if (raw === null) return null;
+      if (!isCurrent() || raw === null) return null;
       return decodePendingAssignment(raw, clientRecordId);
     } catch (error) {
       if (error instanceof PendingClientProgramAssignmentError) throw error;
@@ -131,6 +133,7 @@ export const savePendingClientProgramAssignment = (
   userId: string,
   workspaceId: string,
   assignment: PendingClientProgramAssignment,
+  isCurrent: () => boolean = () => true,
 ): Promise<void> => {
   if (!isPendingAssignment(assignment, assignment.clientRecordId))
     throw new PendingClientProgramAssignmentError('invalid');
@@ -143,7 +146,9 @@ export const savePendingClientProgramAssignment = (
   const key = keyFor(userId, workspaceId, snapshot.clientRecordId);
   return serialize(async () => {
     try {
+      if (!isCurrent()) return;
       const raw = await AsyncStorage.getItem(key);
+      if (!isCurrent()) return;
       if (raw !== null) {
         const current = decodePendingAssignment(raw, snapshot.clientRecordId);
         if (sameAssignment(current, snapshot)) return;
@@ -169,11 +174,25 @@ export const clearPendingClientProgramAssignment = (
     throw new PendingClientProgramAssignmentError('invalid');
   return serialize(async () => {
     try {
+      if (!isCurrent()) return false;
       const raw = await AsyncStorage.getItem(key);
       if (raw === null) return false;
       const current = decodePendingAssignment(raw, clientRecordId);
       if (current.requestId !== expectedRequestId || !isCurrent()) return false;
-      await AsyncStorage.removeItem(key);
+      const restore = async () => {
+        const latest = await AsyncStorage.getItem(key);
+        if (latest === null) await AsyncStorage.setItem(key, raw);
+      };
+      try {
+        await AsyncStorage.removeItem(key);
+      } catch (error) {
+        await restore();
+        throw error;
+      }
+      if (!isCurrent()) {
+        await restore();
+        return false;
+      }
       return true;
     } catch (error) {
       if (error instanceof PendingClientProgramAssignmentError) throw error;

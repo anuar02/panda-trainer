@@ -107,8 +107,9 @@ export const createAssignClientProgramOperation = (
   } catch {
     throw new WorkspaceProgramAssignmentError('unavailable');
   }
+  let disposed = false;
   const assertValid = () => {
-    if (!fence.valid())
+    if (disposed || !fence.valid())
       throw new WorkspaceProgramAssignmentError('unavailable');
   };
   const args = {
@@ -120,10 +121,11 @@ export const createAssignClientProgramOperation = (
   let result: Promise<WorkspaceProgramAssignmentResult> | null = null;
   return {
     dispose: () => {
+      disposed = true;
       if (ownsSession) fence.dispose();
     },
     execute: () => {
-      if (!fence.valid())
+      if (disposed || !fence.valid())
         return Promise.reject(
           new WorkspaceProgramAssignmentError('unavailable'),
         );

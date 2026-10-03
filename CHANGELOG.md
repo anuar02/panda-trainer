@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- [SOM-24 / draft PR #46](https://github.com/anuar02/panda-trainer/pull/46): назначение программы закреплено за auth session и actor; поздние RPC/storage ответы изолированы, durable retry сохраняет requestId, conditional clear защищён поколением. [Отчёт](app/review/som-24-assignment-session-fencing/README.md), [ADR 0080](docs/app/decisions/0080-program-assignment-session-fencing.md). Live/native и приёмка владельца открыты.
+- SOM-24 r2: восстановлен полный пакет закрытого без слияния PR #46; refresh проверяет JWT sub/session_id, поздние RPC/storage и cached success закрываются при смене identity, durable retry сохраняет requestId. [Текущий отчёт](app/review/som-24-assignment-session-fencing-r2/README.md), [ADR 0080](docs/app/decisions/0080-program-assignment-session-fencing.md). Live/native и приёмка владельца открыты.
 
 - SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
 

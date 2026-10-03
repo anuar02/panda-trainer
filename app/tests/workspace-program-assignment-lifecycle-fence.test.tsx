@@ -1,3 +1,8 @@
+import {
+  assignmentJwt,
+  assignmentSessionId,
+  nextAssignmentSessionId,
+} from './assignment-jwt';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as Crypto from 'expo-crypto';
 import {
@@ -100,7 +105,12 @@ const installSuccessOperation = (
 beforeEach(() => {
   mockAuthListener = null;
   mockGetSession.mockResolvedValue({
-    data: { session: { access_token: 'token', user: { id: userId } } },
+    data: {
+      session: {
+        access_token: assignmentJwt(userId, assignmentSessionId, 'token'),
+        user: { id: userId },
+      },
+    },
     error: null,
   });
   randomUUID.mockReset();
@@ -135,7 +145,14 @@ describe('real assignment auth session integration', () => {
           event,
           event === 'SIGNED_OUT'
             ? null
-            : { access_token: 'refresh-token', user: { id: userId } },
+            : {
+                access_token: assignmentJwt(
+                  userId,
+                  assignmentSessionId,
+                  'refresh-token',
+                ),
+                user: { id: userId },
+              },
         );
       });
       if (event === 'SIGNED_OUT') {
@@ -143,7 +160,14 @@ describe('real assignment auth session integration', () => {
         expect(hook.result.current.error).toBe('unavailable');
         mockGetSession.mockResolvedValue({
           data: {
-            session: { access_token: 'new-token', user: { id: userId } },
+            session: {
+              access_token: assignmentJwt(
+                userId,
+                assignmentSessionId,
+                'new-token',
+              ),
+              user: { id: userId },
+            },
           },
           error: null,
         });
@@ -155,7 +179,11 @@ describe('real assignment auth session integration', () => {
         });
         await act(async () => {
           mockAuthListener?.('SIGNED_IN', {
-            access_token: 'new-token',
+            access_token: assignmentJwt(
+              userId,
+              assignmentSessionId,
+              'new-token',
+            ),
             user: { id: userId },
           });
         });
@@ -166,11 +194,20 @@ describe('real assignment auth session integration', () => {
       if (event === 'TOKEN_REFRESHED') {
         mockGetSession.mockResolvedValue({
           data: {
-            session: { access_token: 'refresh-token', user: { id: userId } },
+            session: {
+              access_token: assignmentJwt(
+                userId,
+                assignmentSessionId,
+                'refresh-token',
+              ),
+              user: { id: userId },
+            },
           },
           error: null,
         });
-        await expect(session?.token()).resolves.toBe('refresh-token');
+        await expect(session?.token()).resolves.toBe(
+          assignmentJwt(userId, assignmentSessionId, 'refresh-token'),
+        );
       }
       await act(async () => {
         execution.resolve(result);
@@ -196,6 +233,95 @@ describe('real assignment auth session integration', () => {
         expect(onAssigned).toHaveBeenCalledWith(result);
         expect(clearPending).toHaveBeenCalledTimes(1);
       }
+    },
+  );
+});
+
+describe('different JWT session refresh during storage', () => {
+  it.each(['load', 'save', 'rpc', 'clear'] as const)(
+    'retains the request without notifying the owner after %s invalidation',
+    async (stage) => {
+      const pending = {
+        clientRecordId,
+        templateId,
+        expectedTemplateRevision: 4,
+        requestId,
+      };
+      const loading = deferred<typeof pending | null>();
+      const saving = deferred<void>();
+      const execution = deferred<WorkspaceProgramAssignmentResult>();
+      const clearing = deferred<boolean>();
+      if (stage === 'load') loadPending.mockReturnValueOnce(loading.promise);
+      if (stage === 'save') savePending.mockReturnValueOnce(saving.promise);
+      if (stage === 'clear') clearPending.mockReturnValueOnce(clearing.promise);
+      installSuccessOperation(
+        stage === 'rpc' ? () => execution.promise : undefined,
+      );
+      const onAssigned = jest.fn();
+      const hook = await mount(userId, onAssigned);
+      let assignment = Promise.resolve();
+      if (stage === 'load') {
+        await waitFor(() => expect(loadPending).toHaveBeenCalled());
+      } else {
+        await waitFor(() => expect(hook.result.current.loading).toBe(false));
+        await act(async () => {
+          assignment = hook.result.current.assign(templateId, 4);
+          await Promise.resolve();
+        });
+        if (stage === 'save')
+          await waitFor(() => expect(savePending).toHaveBeenCalled());
+        if (stage === 'rpc')
+          await waitFor(() => expect(createOperation).toHaveBeenCalled());
+        if (stage === 'clear')
+          await waitFor(() => expect(clearPending).toHaveBeenCalled());
+      }
+      await act(async () => {
+        mockAuthListener?.('TOKEN_REFRESHED', {
+          user: { id: userId },
+          access_token: assignmentJwt(userId, nextAssignmentSessionId),
+        });
+        loading.resolve(pending);
+        saving.resolve();
+        execution.resolve(result);
+        clearing.resolve(false);
+        await assignment;
+      });
+      expect(onAssigned).not.toHaveBeenCalled();
+      if (stage === 'load' || stage === 'save')
+        expect(createOperation).not.toHaveBeenCalled();
+      if (stage === 'rpc') expect(clearPending).not.toHaveBeenCalled();
+      if (stage === 'clear')
+        expect(clearPending.mock.calls[0]![4]?.()).toBe(false);
+      loadPending.mockResolvedValue(pending);
+      mockGetSession.mockResolvedValue({
+        data: {
+          session: {
+            user: { id: userId },
+            access_token: assignmentJwt(userId, nextAssignmentSessionId),
+          },
+        },
+        error: null,
+      });
+      const callsBeforeLogin = createOperation.mock.calls.length;
+      await act(async () => {
+        mockAuthListener?.('SIGNED_IN', {
+          user: { id: userId },
+          access_token: assignmentJwt(userId, nextAssignmentSessionId),
+        });
+      });
+      await waitFor(() =>
+        expect(hook.result.current.pending?.requestId).toBe(requestId),
+      );
+      expect(createOperation).toHaveBeenCalledTimes(callsBeforeLogin);
+      loadPending.mockResolvedValue(null);
+      installSuccessOperation(async () => ({ ...result, replayed: true }));
+      await act(async () => {
+        await hook.result.current.assign();
+      });
+      expect(createOperation).toHaveBeenLastCalledWith(
+        expect.objectContaining({ requestId }),
+      );
+      expect(onAssigned).toHaveBeenCalledWith({ ...result, replayed: true });
     },
   );
 });

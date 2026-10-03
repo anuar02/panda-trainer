@@ -143,7 +143,12 @@ describe('client program assignment hook lifecycle', () => {
       assignment = hook.result.current.assign(templateId, 4);
       await Promise.resolve();
     });
-    expect(savePending).toHaveBeenCalledWith(userId, workspaceId, pending);
+    expect(savePending).toHaveBeenCalledWith(
+      userId,
+      workspaceId,
+      pending,
+      expect.any(Function),
+    );
     expect(createOperation).not.toHaveBeenCalled();
 
     await act(async () => {

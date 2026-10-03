@@ -157,6 +157,7 @@ export function useClientProgramAssignment({
               userId,
               workspaceId,
               clientRecordId,
+              isCurrent,
             );
           })
           .then(
@@ -262,6 +263,7 @@ export function useClientProgramAssignment({
               userId,
               workspaceId,
               command,
+              isCurrent,
             );
             if (!isCurrent()) return;
             setLoaded({
@@ -280,6 +282,7 @@ export function useClientProgramAssignment({
                 userId,
                 workspaceId,
                 clientRecordId,
+                isCurrent,
               );
               if (!isCurrent()) return;
               setLoaded({
@@ -330,6 +333,7 @@ export function useClientProgramAssignment({
             userId,
             workspaceId,
             clientRecordId,
+            isCurrent,
           );
           if (!isCurrent()) return;
           setLoaded({
@@ -361,6 +365,7 @@ export function useClientProgramAssignment({
               userId,
               workspaceId,
               clientRecordId,
+              isCurrent,
             );
             if (!isCurrent()) return;
             setLoaded({
