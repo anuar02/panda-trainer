@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type PropsWithChildren,
@@ -13,6 +14,8 @@ import {
   prepareTemplate,
   type Template,
 } from '@/domain/templates';
+import { getSupabaseClient } from '@/features/auth/client';
+import { librarySessionId, WorkspaceLibrarySessionError } from './read-session';
 import type { TemplateEditorStore } from '@/features/template-editor/provider';
 import { media } from '@/features/trainer-library/fixtures';
 import { decodeWorkspaceDraft, type WorkspaceDraft } from './draft';
@@ -43,6 +46,8 @@ export function WorkspaceLibraryProvider({
   children,
 }: PropsWithChildren<{ userId: string; workspaceId: string }>) {
   const key = `panda-trainer-workspace-template-v1:${userId}:${workspaceId}`;
+  const [client] = useState(getSupabaseClient);
+  const [visibleKey, setVisibleKey] = useState<string | null>(null);
   const [library, setLibrary] = useState(emptyLibrary);
   const [local, setLocal] = useState(emptyDraft);
   const [ready, setReady] = useState(false);
@@ -60,66 +65,137 @@ export function WorkspaceLibraryProvider({
   const available = useRef(false);
   const writes = useRef(Promise.resolve(true));
   const ticket = useRef(0);
+  const generation = useRef(0);
+  const request = useRef(0);
+  const identity = useRef<string | null>(null);
+  const scopeKey = useRef(key);
+  useLayoutEffect(() => {
+    if (scopeKey.current === key) return;
+    scopeKey.current = key;
+    generation.current += 1;
+    request.current += 1;
+    available.current = false;
+    identity.current = null;
+  }, [key]);
   const saveOperation = useRef<{
     operation: ReturnType<typeof saveWorkspaceTemplateOperation>;
     template: Template;
   } | null>(null);
 
   useEffect(() => {
-    let active = true;
     mounted.current = true;
     available.current = false;
-    void Promise.all([
-      loadWorkspaceLibrary(workspaceId),
-      AsyncStorage.getItem(key).then(decodeWorkspaceDraft),
-    ]).then(
-      ([data, draft]) => {
-        if (!active) return;
-        catalog.current = data;
-        current.current = draft;
-        saveOperation.current = draft.pendingSave
-          ? {
-              template: draft.pendingSave.template,
-              operation: saveWorkspaceTemplateOperation(
-                draft.pendingSave.template,
-                draft.pendingSave.expectedRevision,
-                userId,
-                draft.pendingSave.requestId,
-              ),
-            }
-          : null;
-        available.current = true;
-        setLibrary(data);
-        setLocal(draft);
-        setReady(true);
-        setReadError(false);
-        setStatus('saved');
-      },
-      () => {
-        if (active) {
-          setReadError(true);
-          setStatus('error');
-        }
-      },
-    );
+    identity.current = null;
+    const version = ++generation.current;
+    const read = ++request.current;
+    const isCurrent = () =>
+      mounted.current &&
+      generation.current === version &&
+      request.current === read &&
+      scopeKey.current === key;
+    void Promise.resolve().then(() => {
+      if (!isCurrent()) return;
+      setVisibleKey(null);
+      setReady(false);
+      setReadError(false);
+      setStatus('loading');
+      setBusy(false);
+    });
+    const invalidate = () => {
+      generation.current += 1;
+      request.current += 1;
+      available.current = false;
+      identity.current = null;
+      setVisibleKey(null);
+      setReady(false);
+      setReadError(true);
+      setStatus('error');
+    };
+    const subscription = client?.auth.onAuthStateChange((event, session) => {
+      if (!mounted.current || generation.current !== version) return;
+      const next = librarySessionId(session);
+      if (
+        session?.user.id === userId &&
+        next &&
+        ((event === 'INITIAL_SESSION' &&
+          (identity.current === null || next === identity.current)) ||
+          (event === 'TOKEN_REFRESHED' && next === identity.current))
+      )
+        return;
+      invalidate();
+    }).data.subscription;
+    void (async () => {
+      if (!client) throw new WorkspaceLibraryError('unavailable');
+      const { data: auth, error } = await client.auth.getSession();
+      if (!isCurrent()) return;
+      const sessionId = librarySessionId(auth.session);
+      if (error || auth.session?.user.id !== userId || !sessionId)
+        throw new WorkspaceLibraryError('unavailable');
+      identity.current = sessionId;
+      const [data, draft] = await Promise.all([
+        loadWorkspaceLibrary(workspaceId, '', {
+          userId,
+          workspaceId,
+          sessionId,
+          isCurrent,
+        }),
+        writes.current
+          .then(() => AsyncStorage.getItem(key))
+          .then(decodeWorkspaceDraft),
+      ]);
+      if (!isCurrent()) return;
+      catalog.current = data;
+      current.current = draft;
+      saveOperation.current = draft.pendingSave
+        ? {
+            template: draft.pendingSave.template,
+            operation: saveWorkspaceTemplateOperation(
+              draft.pendingSave.template,
+              draft.pendingSave.expectedRevision,
+              userId,
+              draft.pendingSave.requestId,
+            ),
+          }
+        : null;
+      available.current = true;
+      setLibrary(data);
+      setLocal(draft);
+      setVisibleKey(key);
+      setReady(true);
+      setReadError(false);
+      setStatus('saved');
+    })().catch(() => {
+      if (isCurrent()) {
+        setReadError(true);
+        setStatus('error');
+      }
+    });
     return () => {
-      active = false;
+      generation.current += 1;
+      request.current += 1;
       mounted.current = false;
       available.current = false;
+      subscription?.unsubscribe();
     };
-  }, [key, userId, workspaceId, attempt]);
+  }, [attempt, client, key, userId, workspaceId]);
 
   const persist = (next: WorkspaceDraft) => {
     const revision = ++ticket.current;
+    const version = generation.current;
+    const isCurrent = () =>
+      mounted.current &&
+      scopeKey.current === key &&
+      generation.current === version &&
+      revision === ticket.current;
     setStatus('saving');
     const result = writes.current
       .then(() => AsyncStorage.setItem(key, JSON.stringify(next)))
       .then(() => {
-        if (mounted.current && revision === ticket.current) setStatus('saved');
+        if (isCurrent()) setStatus('saved');
         return true;
       })
       .catch(() => {
-        if (mounted.current && revision === ticket.current) setStatus('error');
+        if (isCurrent()) setStatus('error');
         return false;
       });
     writes.current = result;
@@ -132,19 +208,63 @@ export function WorkspaceLibraryProvider({
     setCommandError(null);
     void persist(next);
   };
-  const refresh = async () => {
-    const data = await loadWorkspaceLibrary(workspaceId);
-    if (mounted.current) {
-      catalog.current = data;
-      setLibrary(data);
+  const readCatalog = async () => {
+    const version = generation.current;
+    const sessionId = identity.current;
+    if (
+      !mounted.current ||
+      !available.current ||
+      scopeKey.current !== key ||
+      !sessionId
+    )
+      throw new WorkspaceLibraryError('unavailable');
+    const read = ++request.current;
+    const isCurrent = () =>
+      mounted.current &&
+      available.current &&
+      scopeKey.current === key &&
+      generation.current === version &&
+      request.current === read &&
+      identity.current === sessionId;
+    if (!sessionId || !isCurrent())
+      throw new WorkspaceLibraryError('unavailable');
+    let data: WorkspaceLibrary;
+    try {
+      data = await loadWorkspaceLibrary(workspaceId, '', {
+        userId,
+        workspaceId,
+        sessionId,
+        isCurrent,
+      });
+    } catch (error) {
+      if (isCurrent() && error instanceof WorkspaceLibrarySessionError) {
+        generation.current += 1;
+        request.current += 1;
+        available.current = false;
+        identity.current = null;
+        setVisibleKey(null);
+        setReady(false);
+        setReadError(true);
+        setStatus('error');
+      }
+      throw error;
     }
+    if (!isCurrent()) throw new WorkspaceLibraryError('unavailable');
+    catalog.current = data;
+    setLibrary(data);
+    return { data, isCurrent };
   };
+  const refresh = async () => {
+    await readCatalog();
+  };
+  const visible = visibleKey === key;
+  const visibleLibrary = visible ? library : emptyLibrary;
   const editor: TemplateEditorStore = {
-    templates: library.templates,
-    draft: local.draft,
-    ready,
+    templates: visibleLibrary.templates,
+    draft: visible ? local.draft : null,
+    ready: visible && ready,
     readError,
-    busy,
+    busy: visible && busy,
     status,
     update: (draft) => {
       if (available.current && !locked.current)
@@ -162,22 +282,34 @@ export function WorkspaceLibraryProvider({
     },
     discard: async () => {
       if (!available.current || locked.current) return false;
+      const version = generation.current;
+      const isCurrent = () =>
+        mounted.current &&
+        available.current &&
+        generation.current === version &&
+        scopeKey.current === key;
       locked.current = true;
       setBusy(true);
       const ok = await persist(emptyDraft);
-      if (ok && mounted.current) {
+      if (ok && isCurrent()) {
         current.current = emptyDraft;
         setLocal(emptyDraft);
         saveOperation.current = null;
         setCommandError(null);
       }
       locked.current = false;
-      if (mounted.current) setBusy(false);
+      if (isCurrent()) setBusy(false);
       return ok;
     },
     save: async () => {
       if (!available.current || locked.current || !current.current.draft)
         return { ok: false, error: 'storage' };
+      const version = generation.current;
+      const isCurrent = () =>
+        mounted.current &&
+        available.current &&
+        scopeKey.current === key &&
+        generation.current === version;
       const result = saveOperation.current
         ? { ok: true as const, template: saveOperation.current.template }
         : prepareTemplate(
@@ -199,8 +331,7 @@ export function WorkspaceLibraryProvider({
           };
           const next = { ...current.current, pendingSave };
           if (!(await persist(next))) return { ok: false, error: 'storage' };
-          if (!mounted.current || !available.current)
-            return { ok: false, error: 'storage' };
+          if (!isCurrent()) return { ok: false, error: 'storage' };
           current.current = next;
           if (mounted.current) setLocal(next);
           saveOperation.current = {
@@ -214,25 +345,26 @@ export function WorkspaceLibraryProvider({
           };
         }
         const saved = await saveOperation.current.operation.execute();
+        if (!isCurrent()) return { ok: false, error: 'storage' };
         await refresh();
-        if (!mounted.current) return { ok: false, error: 'storage' };
+        if (!isCurrent()) return { ok: false, error: 'storage' };
         if (!(await persist(emptyDraft)))
           return { ok: false, error: 'storage' };
-        if (mounted.current) {
+        if (isCurrent()) {
           current.current = emptyDraft;
           setLocal(emptyDraft);
           saveOperation.current = null;
         }
         return { ok: true, template: { ...result.template, id: saved.id } };
       } catch (error) {
-        if (mounted.current)
+        if (isCurrent())
           setCommandError(
             error instanceof WorkspaceLibraryError ? error.code : 'request',
           );
         return { ok: false, error: 'storage' };
       } finally {
         locked.current = false;
-        if (mounted.current) setBusy(false);
+        if (isCurrent()) setBusy(false);
       }
     },
     retry: () => {
@@ -242,8 +374,8 @@ export function WorkspaceLibraryProvider({
   };
   const sources: typeof media = {};
   for (const exercise of [
-    ...library.exercises,
-    ...library.templates.flatMap((template) =>
+    ...visibleLibrary.exercises,
+    ...visibleLibrary.templates.flatMap((template) =>
       template.exercises.map((line) => line.exercise),
     ),
   ]) {
@@ -255,21 +387,20 @@ export function WorkspaceLibraryProvider({
       value={{
         workspaceId,
         editor,
-        library,
+        library: visibleLibrary,
         media: sources,
         refresh,
         commandError,
         reloadServerDraft: async () => {
-          if (locked.current) return;
+          if (!available.current || locked.current) return;
+          const version = generation.current;
           locked.current = true;
           setBusy(true);
           try {
             const id = current.current.draft?.id;
-            await refresh();
-            if (!mounted.current) return;
-            const template = catalog.current.templates.find(
-              (item) => item.id === id,
-            );
+            const { data, isCurrent } = await readCatalog();
+            if (!isCurrent()) return;
+            const template = data.templates.find((item) => item.id === id);
             if (template)
               update({
                 draft: beginTemplate(template),
@@ -278,7 +409,12 @@ export function WorkspaceLibraryProvider({
             else if (id) throw new WorkspaceLibraryError('unavailable');
           } finally {
             locked.current = false;
-            if (mounted.current) setBusy(false);
+            if (
+              mounted.current &&
+              generation.current === version &&
+              scopeKey.current === key
+            )
+              setBusy(false);
           }
         },
       }}
