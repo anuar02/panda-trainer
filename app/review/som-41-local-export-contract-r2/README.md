@@ -79,3 +79,26 @@ no fabricated UUID, replacement entityId or implicit current:null shortcut is us
 The [contract](../../../docs/app/privacy/LOCAL-EXPORT-CONTRACT.md) specifies read
 transaction/writer coordination, session fencing, cross-source barrier, actual file
 result and later cleanup/proof obligations. Runtime implementations are future work.
+
+## Publication evidence
+
+- Implementation commits: 32c11ee (transferred package), 254d15e (r2 code/tests),
+  608246c (merge fresh base), 1e4dc4c (fresh checks/ADR 0078).
+- `git push -u origin agent/som-41-local-export-contract-r2`: PASS.
+  `git ls-remote origin refs/heads/agent/som-41-local-export-contract-r2` confirmed
+  1e4dc4c9155fc99f58fe702c3fb465dc37396472 after push.
+- `timeout 25s gh pr list --head agent/som-41-local-export-contract-r2 --state all
+  --json number,url,state`: exit 124 without response.
+- `timeout 55s gh pr create --base fix/som-50-template-picker --draft --fill
+  --title "SOM-41: Preserve SQL conflict and correction forms in local export r2"
+  --body-file /tmp/som41-r2-pr-body.md`: exit 124 without URL/confirmation.
+- HTTPS probe `curl -I --connect-timeout 5 --max-time 12 https://api.github.com`:
+  exit 28, zero response bytes. Git transport remains available.
+- Subsequent `git ls-remote origin 'refs/pull/*/head'` did not contain the published
+  r2 SHA; draft creation is not confirmed. No PR URL or acceptance is claimed.
+  [Exact base/head/title/body](PR-DRAFT.md) preserved for publication retry after
+  API recovery. Check for an existing draft before retrying.
+
+This final text-only publication checkpoint does not alter tested code; full
+suite was not repeated for documentation. GitHub API unavailability prevents the
+requested draft PR step; implementation and branch push are complete.
