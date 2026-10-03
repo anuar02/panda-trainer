@@ -16,6 +16,13 @@
   [Отчёт](../../app/review/som-41-trainer-export/README.md),
   [ADR 0068](decisions/0068-owner-scoped-server-workspace-export.md).
 
+- 03.10.2026 — SOM-41: подготовлены review drafts политики приватности, карты
+  данных и checklist будущего удаления по схеме/ADR 0061/0062/0064.
+  [Документы](privacy/PRIVACY-POLICY-DRAFT.md),
+  [отчёт](../../app/review/som-41-privacy-documents/README.md).
+  Backend export выполняется отдельно; delete, юридический review и одобрение
+  владельца открыты. SOM-41 и этап 10 не закрыты.
+
 - 03.10.2026 — SOM-29 r2 после закрытого PR #24: исходный модуль перенесён
   на свежую базу с SOM-39/SOM-34; исправления конфликтов заметок и снимков
   структуры, усиленные SQLite/runner проверки. Существующие экраны не подключены.
