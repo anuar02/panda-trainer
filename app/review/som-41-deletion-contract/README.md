@@ -148,3 +148,11 @@ DB/Auth recovery требуют будущего review владельца/сп�
 `gh pr create --base fix/som-50-template-picker --draft --fill` с явными title/body-file.
 `gh pr view --json number,url,isDraft,baseRefName,headRefName,state` подтвердил
 OPEN, draft=true, правильные base/head. Remote CI этой сессией не проверен.
+
+## Coordinator integration · 2026-10-03 UTC
+
+Fresh base `6483314` merged without conflicts. After the lock update, `npm ci`
+and full `npm run check` passed: 1527 tests / 146 suites, typecheck/lint/format.
+`git diff --check` passed. Independent code/schema review found no blocking defects.
+PR diff against fresh base contains no Supabase changes. Runtime/native/legal and
+owner acceptance limitations above remain open.
