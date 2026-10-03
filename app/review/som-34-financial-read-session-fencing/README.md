@@ -55,7 +55,19 @@
   панели/attendance, capped payment и reversal/totals регрессии ADR 0059.
 - `gh api repos/anuar02/panda-trainer --jq .full_name` (timeout 20) — exit 124;
   `curl -I --max-time 12 https://api.github.com` и вариант `--noproxy '*'` —
-  exit 28, 0 bytes. Публикация PR ещё не подтверждена; git transport работает.
+  exit 28, 0 bytes. Обычный API route недоступен; git transport работает.
+- `git push -u origin agent/som-34-financial-read-session-fencing` — exit 0;
+  `git ls-remote --heads origin agent/som-34-financial-read-session-fencing`
+  подтвердил кодовый коммит `79b07d6f42405af34136aed1a370226c9c287ffa`.
+- `timeout 60 gh pr create --base fix/som-50-template-picker --draft --fill`
+  (с явными SOM-34 title и body-file) — exit 124, без результата.
+  HTTPS GitHub REST API с `curl --resolve api.github.com:443:140.82.113.5`
+  доступен; TLS verification включена, системные настройки не менялись.
+  После read-only проверки отсутствия PR создан
+  [draft PR #43](https://github.com/anuar02/panda-trainer/pull/43).
+  Повторный GET подтвердил `draft: true`, base `fix/som-50-template-picker`,
+  head `agent/som-34-financial-read-session-fencing` и кодовый SHA `79b07d6`.
+  Критерии в описании разделены на сделано / не проверено / одобрение владельца.
 
 ## Не проверено / требует владельца
 
