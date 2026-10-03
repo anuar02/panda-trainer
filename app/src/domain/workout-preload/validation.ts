@@ -45,7 +45,13 @@ function set(value: unknown, measure: unknown): boolean {
       'weightGrams',
       'reps',
       'seconds',
+      ...(Object.prototype.hasOwnProperty.call(value, 'deletedAt')
+        ? ['deletedAt']
+        : []),
     ]) &&
+    (value.deletedAt === undefined ||
+      value.deletedAt === null ||
+      date(value.deletedAt)) &&
     id(value.id) &&
     integer(value.revision) &&
     integer(value.position) &&

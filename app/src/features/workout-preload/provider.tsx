@@ -16,8 +16,12 @@ import { useAuth } from '@/features/auth/provider';
 import { createWorkoutPreloadLifecycle, type PreloadState } from './lifecycle';
 import { openWorkoutPreloadStore } from './storage';
 import { createWorkoutPreloadReader } from './service';
+import { flushEntryWriters } from '@/features/workout-entry/coordination';
+import { withPreparedWorkoutJournals } from './prepare';
 
 type PreloadActions = {
+  session: SyncSession | null;
+  getSession(): SyncSession | null;
   state: PreloadState;
   syncState: SyncState | null;
   open(bookingId: string): Promise<void>;
@@ -72,8 +76,8 @@ export function WorkoutPreloadProvider({
     typeof createWorkoutPreloadLifecycle
   > | null>(null);
   const session = useRef<SyncSession | null>(null);
-  useLayoutEffect(() => {
-    session.current =
+  const activeSession = useMemo<SyncSession | null>(
+    () =>
       auth.session && !auth.loading && !auth.failed
         ? {
             accountId: auth.session.user.id,
@@ -81,8 +85,12 @@ export function WorkoutPreloadProvider({
             accessToken: auth.session.access_token,
             sessionId,
           }
-        : null;
-  }, [auth.session, auth.loading, auth.failed, workspaceId, sessionId]);
+        : null,
+    [auth.session, auth.loading, auth.failed, workspaceId, sessionId],
+  );
+  useLayoutEffect(() => {
+    session.current = activeSession;
+  }, [activeSession]);
   useEffect(() => {
     let active = true;
     const snapshot = session.current;
@@ -102,7 +110,7 @@ export function WorkoutPreloadProvider({
           session: snapshot,
           getSession: () => (active ? session.current : null),
           store,
-          reader: createWorkoutPreloadReader(),
+          reader: withPreparedWorkoutJournals(createWorkoutPreloadReader()),
           onState: (state) => setLoaded({ key: sessionId, state }),
         });
         lifecycle.current = coordinator;
@@ -129,23 +137,39 @@ export function WorkoutPreloadProvider({
       void previous?.stop().catch(() => {});
     };
   }, [accountId, accessToken, workspaceId, attempt, sessionId]);
+  const isCurrent = () =>
+    activeSession !== null &&
+    session.current?.sessionId === activeSession.sessionId &&
+    session.current.accountId === activeSession.accountId &&
+    session.current.workspaceId === activeSession.workspaceId &&
+    session.current.accessToken === activeSession.accessToken;
   const navigate = () => router.push('/workspace/journal');
   return (
     <Context.Provider
       value={{
+        session: activeSession,
+        getSession: () => session.current,
         state,
         syncState,
         open: async (bookingId) => {
+          if (!isCurrent()) return;
           navigate();
           await lifecycle.current?.open(bookingId);
         },
         select: async (clientId) => {
+          if (!isCurrent()) return;
+          await flushEntryWriters(activeSession);
+          if (!isCurrent()) return;
           await lifecycle.current?.select(clientId);
         },
         collapse: async (collapsed) => {
+          if (!isCurrent()) return;
+          await flushEntryWriters(activeSession);
+          if (!isCurrent()) return;
           await lifecycle.current?.collapse(collapsed);
         },
         resume: async () => {
+          if (!isCurrent()) return;
           await lifecycle.current?.collapse(false);
           navigate();
         },

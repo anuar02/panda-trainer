@@ -36,6 +36,24 @@
   Полный `cd app && npm run check`: 1636 tests / 154 suites, type/lint/format зелёные.
   SOM-26/SOM-45 остаются открытыми; creation/mutation commands не изменены.
 
+- 03.10.2026 — SOM-31 r2: [x] исправлен lifecycle replacement/sets после current
+  receipt, сохранение свежего server snapshot для offline reopen и fencing участника;
+  [x] domain/service/hook регрессии current/incoming/retry/rejected;
+  app check: 1626 tests / 159 suites, type/lint/format зелёные.
+  [ ] needs-local-db: SQL lint/pgTAP/concurrency, generated drift, реальные SQLite/
+  crash/native/parity и одобрение владельца. SOM-31 целиком не принята.
+  [Отчёт r2](../../app/review/som-31-workout-entry-r2/README.md).
+
+- 03.10.2026 — SOM-31: [x] production focus/sheet, draft/null/zero, durable undo,
+  три изолированных участника, journal-only add/replace и conflict selection;
+  [x] новый snapshot preparation RPC и вымышленные fixtures;
+  app check зелёный: 1505 tests / 153 suites, type/lint/format.
+  [ ] SQL/pgTAP/concurrency runtime, generated drift, real SQLite/reopen/crash,
+  native/visual/accessibility и одобрение владельца. SOM-31 и этап 5 не приняты.
+  Finish/correction — SOM-32; SQL зависит от совместимого исправления PR #34.
+  [Отчёт](../../app/review/som-31-workout-entry/README.md),
+  [ADR 0075](decisions/0075-booking-snapshot-journal-entry.md).
+
 - 03.10.2026 — SOM-34 read fencing: [x] lifecycle/session identity guards,
   hook epoch, bounded exact-count paging и scoped relation validation;
   [ ] live auth/SQL/RLS/native/visual и одобрение владельца. UI/mutations не менялись.

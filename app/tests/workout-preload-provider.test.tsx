@@ -173,3 +173,22 @@ it('ignores restoration completed after logout', async () => {
   await waitFor(() => expect(local.close).toHaveBeenCalledTimes(1));
   await hook.unmount();
 });
+it('keeps callbacks captured by an old account from opening the next account store', async () => {
+  const previous = store();
+  const next = store();
+  mockOpen.mockResolvedValueOnce(previous).mockResolvedValueOnce(next);
+  const hook = await renderHook(useOptionalWorkoutPreload, { wrapper });
+  await waitFor(() => expect(hook.result.current?.state.status).toBe('ready'));
+  const oldActions = hook.result.current;
+  auth('other');
+  await hook.rerender({});
+  await waitFor(() => expect(next.readRecovery).toHaveBeenCalled());
+  await act(async () => {
+    await oldActions?.open('old-booking');
+    await oldActions?.select('old-client');
+    await oldActions?.collapse(true);
+  });
+  expect(next.read).not.toHaveBeenCalled();
+  expect(next.saveRecovery).not.toHaveBeenCalled();
+  await hook.unmount();
+});

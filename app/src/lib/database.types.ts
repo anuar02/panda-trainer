@@ -1951,6 +1951,14 @@ export type Database = {
         };
         Returns: string;
       };
+      prepare_workout_journal: {
+        Args: {
+          p_booking_id: string;
+          p_request_id: string;
+          p_workout_id: string;
+        };
+        Returns: Json;
+      };
       propose_booking_reschedule: {
         Args: {
           p_booking_id: string;
