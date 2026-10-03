@@ -125,6 +125,30 @@ unknown/null workspace и absent auth.uid; temp-table search_path attack;
 private notes/archives/tombstones, precision и history/storno/conflict versions;
 повторный read-only export и пустой workspace (starter library всё ещё существует).
 
+## GitHub CI: отдельные доказательства и блокеры
+
+[Run 37136349625](https://github.com/anuar02/panda-trainer/actions/runs/37136349625),
+head `d7259da` (до последующей правки только отчёта):
+
+- `npm run check` PASS: 1355 tests / 133 suites, type/lint/format PASS.
+- `supabase start --workdir .` PASS; лог подтверждает применение
+  `20261003130000_trainer_workspace_export.sql`. Это доказательство создания
+  функции, не исполнения экспортного RPC/177 pgTAP assertions.
+- `supabase db lint --local --fail-on warning --workdir .` FAIL:
+  warning `public.apply_operations`, `results` initialization, text → jsonb,
+  SQLSTATE `42804`. Эта функция находится в исходной migration
+  `20261003120000_workout_sync.sql:211`, которая не менялась в этом PR.
+  Export function отсутствует в списке lint issues.
+- `npx expo install --check` FAIL: Expo ожидает `expo ~57.0.26`,
+  `expo-constants ~57.0.20`, `expo-router ~57.0.24`; база закрепляет
+  `57.0.25 / 57.0.19 / 57.0.23`. package files не менялись.
+- pgTAP, database concurrency, type generation/drift и Expo export
+  **SKIPPED** после предыдущих ошибок. CI в целом красный.
+
+Оба блокера вне разрешённых границ. Старые migrations, outbox semantics,
+package files и CI workflow не исправлялись этим пакетом. После отдельного
+исправления/обновления базы повторить CI и локальные SQL команды ниже.
+
 ## Команды для локального Supabase
 
 Запускать на отдельном локальном окружении с Docker и только fixtures.
