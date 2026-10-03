@@ -15,7 +15,15 @@
   deletion integration и одобрение владельца. SOM-41 не закрыта.
   Полный app check на 9031157: 159 suites / 1731 tests; только synthetic проверки.
   [Свежий отчёт r2](../../app/review/som-41-local-export-contract-r2/README.md),
-  [ADR 0078](decisions/0078-pure-local-export-envelope.md).
+  [ADR 0080](decisions/0080-pure-local-export-envelope.md).
+
+- 03.10.2026 — SOM-20 reads: [x] owner/auth fencing, bounded deterministic pagination,
+  unknown-row validation и read lifecycle списка/карточки; [ ] SQL/RLS/live auth,
+  native/parity и одобрение владельца. Issue и экраны не приняты.
+  [Отчёт](../../app/review/som-20-trainer-client-read-fencing/README.md),
+  [ADR 0079](decisions/0079-trainer-client-read-fencing.md).
+
+- 03.10.2026 — SOM-22 read path: [x] runtime validation строк/связей, bounded pagination и session fence; [x] provider scope/request fencing с сохранением durable draft/pendingSave; полный check: 1698 tests / 156 suites, type/lint/format зелёные. [Отчёт](../../app/review/som-22-library-read-fencing/README.md), [ADR 0078](decisions/0078-validated-session-fenced-library-reads.md). [ ] SQL/RLS/live API/real auth, native/parity и приёмка владельца; SOM-22 целиком не закрыт.
 
 - 03.10.2026 — SOM-35: [x] session fence клиентской истории, auth reset страниц/detail, workspace read seam и synthetic regressions (check: 1582 tests / 152 suites); [ ] live API/RLS, native, два телефона и приёмка владельца. [Отчёт](../../app/review/som-35-history-session-fencing/README.md), [ADR 0076](decisions/0076-client-history-session-fencing.md).
 

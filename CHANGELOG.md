@@ -9,6 +9,8 @@
 
 ## Не выпущено
 
+- SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
+
 - [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
 
 ### Добавлено
@@ -18,6 +20,11 @@
   relations без collector/storage/UI/delete integration.
   [Отчёт r2](app/review/som-41-local-export-contract-r2/README.md),
   [контракт](docs/app/privacy/LOCAL-EXPORT-CONTRACT.md). Runtime и owner acceptance открыты.
+
+- SOM-20: безопасное owner-scoped чтение списка/карточки клиентов, bounded pagination,
+  runtime validation и session/retry fencing. Создание занятия сохраняет совместимый wrapper.
+  [Проверки и ограничения](app/review/som-20-trainer-client-read-fencing/README.md);
+  live/native/parity и приёмка владельца открыты.
 
 - [SOM-26 / draft PR #41](https://github.com/anuar02/panda-trainer/pull/41): runtime validation и ограниченная пагинация чтения расписания,
   фиксированная авторизация всех страниц и защита Today/week от старого snapshot

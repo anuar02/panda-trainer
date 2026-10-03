@@ -1,4 +1,14 @@
 import * as Crypto from 'expo-crypto';
+import {
+  createWorkspaceLibraryReadFence,
+  WorkspaceLibrarySessionError,
+} from './read-session';
+import {
+  isWorkspaceExerciseRead,
+  isWorkspaceTemplateRead,
+  isWorkspaceTemplateLineRead,
+  isWorkspaceLibraryOwner,
+} from './read-validation';
 import { getSupabaseClient } from '@/features/auth/client';
 import type { PlanExercise, Template } from '@/domain/templates';
 import type { Database, Json } from '@/lib/database.types';
@@ -33,22 +43,25 @@ export type WorkspaceLibraryErrorCode =
   | 'duplicate'
   | 'conflict'
   | 'unavailable'
-  | 'request';
+  | 'request'
+  | 'readLimit';
 
 export class WorkspaceLibraryError extends Error {
   constructor(readonly code: WorkspaceLibraryErrorCode) {
     super(
-      code === 'configuration'
-        ? 'Workspace library is unavailable'
-        : code === 'invalidInput'
-          ? 'Library data is invalid'
-          : code === 'duplicate'
-            ? 'A library item with this name already exists'
-            : code === 'conflict'
-              ? 'The template changed. Reload it and try again'
-              : code === 'unavailable'
-                ? 'The requested library item is unavailable'
-                : 'Workspace library request could not be completed',
+      code === 'readLimit'
+        ? 'Library data exceeds the bounded read limit'
+        : code === 'configuration'
+          ? 'Workspace library is unavailable'
+          : code === 'invalidInput'
+            ? 'Library data is invalid'
+            : code === 'duplicate'
+              ? 'A library item with this name already exists'
+              : code === 'conflict'
+                ? 'The template changed. Reload it and try again'
+                : code === 'unavailable'
+                  ? 'The requested library item is unavailable'
+                  : 'Workspace library request could not be completed',
     );
     this.name = 'WorkspaceLibraryError';
   }
@@ -128,100 +141,282 @@ const requireClient = () => {
 
 const validUuid = (value: string) => uuidPattern.test(value);
 
+export type WorkspaceLibraryReadScope = {
+  userId: string;
+  workspaceId: string;
+  sessionId?: string;
+  isCurrent?: () => boolean;
+};
+
+export const MAX_WORKSPACE_LIBRARY_READ_PAGES = 20;
+const readPageSize = 500;
+const readBatchSize = 200;
+type ReadClient = ReturnType<typeof requireClient>;
+type ReadFence = Awaited<ReturnType<typeof createWorkspaceLibraryReadFence>>;
+const rejectRead = (): never => {
+  throw new WorkspaceLibraryError('request');
+};
+const authorizeRead = <T extends { setHeader(name: string, value: string): T }>(
+  query: T,
+  fence: ReadFence,
+): T => query.setHeader('Authorization', `Bearer ${fence.accessToken}`);
+const readPages = async <T extends { id: string }>(
+  query: (
+    start: number,
+    end: number,
+  ) => PromiseLike<{ data: unknown; error: unknown }>,
+  validate: (value: unknown) => value is T,
+  fence: ReadFence,
+): Promise<T[]> => {
+  const rows: T[] = [];
+  const ids = new Set<string>();
+  for (let page = 0; page < MAX_WORKSPACE_LIBRARY_READ_PAGES; page += 1) {
+    await fence.assertCurrent();
+    const result = await query(
+      page * readPageSize,
+      (page + 1) * readPageSize - 1,
+    );
+    await fence.assertCurrent();
+    if (
+      result.error ||
+      !Array.isArray(result.data) ||
+      result.data.length > readPageSize
+    )
+      rejectRead();
+    const values: unknown[] = result.data as unknown[];
+    for (const value of values) {
+      if (!validate(value)) return rejectRead();
+      if (ids.has(value.id)) return rejectRead();
+      ids.add(value.id);
+      rows.push(value);
+    }
+    if (values.length < readPageSize) return rows;
+  }
+  throw new WorkspaceLibraryError('readLimit');
+};
+const readExercises = async (
+  client: ReadClient,
+  fence: ReadFence,
+  workspaceId: string,
+  query: string,
+) => {
+  const rows = await readPages(
+    (start, end) =>
+      authorizeRead(
+        client
+          .rpc('search_exercises', { search_query: query.trim() })
+          .eq('workspace_id', workspaceId)
+          .order('name_normalized')
+          .order('id')
+          .range(start, end),
+        fence,
+      ),
+    (value): value is WorkspaceExerciseRow =>
+      isWorkspaceExerciseRead(value, workspaceId) && value.archived_at === null,
+    fence,
+  );
+  return rows.map(toLibraryExercise);
+};
+const readTemplates = async (
+  client: ReadClient,
+  fence: ReadFence,
+  workspaceId: string,
+  includeArchived: boolean,
+) => {
+  const templates = await readPages(
+    (start, end) => {
+      let query = client
+        .from('workout_templates')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('name')
+        .order('id')
+        .range(start, end);
+      if (!includeArchived) query = query.is('archived_at', null);
+      return authorizeRead(query, fence);
+    },
+    (value): value is WorkspaceTemplateRow =>
+      isWorkspaceTemplateRead(value, workspaceId) &&
+      (includeArchived || value.archived_at === null),
+    fence,
+  );
+  const lines: WorkspaceTemplateExerciseRow[] = [];
+  const lineIds = new Set<string>();
+  for (let offset = 0; offset < templates.length; offset += readBatchSize) {
+    const ids = templates
+      .slice(offset, offset + readBatchSize)
+      .map((row) => row.id);
+    const requested = new Set(ids);
+    const batch = await readPages(
+      (start, end) =>
+        authorizeRead(
+          client
+            .from('template_exercises')
+            .select('*')
+            .eq('workspace_id', workspaceId)
+            .in('template_id', ids)
+            .order('template_id')
+            .order('position')
+            .order('id')
+            .range(start, end),
+          fence,
+        ),
+      (value): value is WorkspaceTemplateExerciseRow =>
+        isWorkspaceTemplateLineRead(value, workspaceId) &&
+        requested.has(value.template_id),
+      fence,
+    );
+    for (const line of batch) {
+      if (lineIds.has(line.id)) rejectRead();
+      lineIds.add(line.id);
+      lines.push(line);
+    }
+  }
+  const exerciseIds = [
+    ...new Set(lines.map((line) => line.exercise_id)),
+  ].sort();
+  const exercises: WorkspaceExerciseRow[] = [];
+  const foundIds = new Set<string>();
+  for (let offset = 0; offset < exerciseIds.length; offset += readBatchSize) {
+    const ids = exerciseIds.slice(offset, offset + readBatchSize);
+    const requested = new Set(ids);
+    const batch = await readPages(
+      (start, end) =>
+        authorizeRead(
+          client
+            .from('exercises')
+            .select('*')
+            .eq('workspace_id', workspaceId)
+            .in('id', ids)
+            .order('id')
+            .range(start, end),
+          fence,
+        ),
+      (value): value is WorkspaceExerciseRow =>
+        isWorkspaceExerciseRead(value, workspaceId) && requested.has(value.id),
+      fence,
+    );
+    for (const row of batch) {
+      if (foundIds.has(row.id)) rejectRead();
+      foundIds.add(row.id);
+      exercises.push(row);
+    }
+    if (batch.length !== ids.length) rejectRead();
+  }
+  const byId = new Map(
+    exercises.map((row) => [row.id, toLibraryExercise(row)]),
+  );
+  const linesByTemplate = new Map<string, WorkspaceTemplateExerciseRow[]>();
+  for (const line of lines) {
+    const group = linesByTemplate.get(line.template_id) ?? [];
+    group.push(line);
+    linesByTemplate.set(line.template_id, group);
+  }
+  for (const template of templates) {
+    const templateLines = (linesByTemplate.get(template.id) ?? []).sort(
+      (a, b) => a.position - b.position,
+    );
+    if (templateLines.length < 1 || templateLines.length > 50) rejectRead();
+    const relationIds = new Set<string>();
+    for (const [position, line] of templateLines.entries()) {
+      const exercise = byId.get(line.exercise_id);
+      if (
+        line.position !== position ||
+        relationIds.has(line.exercise_id) ||
+        !exercise ||
+        (exercise.measure === 'seconds') !== (line.planned_seconds !== null)
+      )
+        rejectRead();
+      relationIds.add(line.exercise_id);
+    }
+  }
+  return templates.map((row) =>
+    toWorkspaceTemplate(row, linesByTemplate.get(row.id) ?? [], byId),
+  );
+};
+const withLibraryRead = async <T>(
+  workspaceId: string,
+  scope: WorkspaceLibraryReadScope | undefined,
+  read: (client: ReadClient, fence: ReadFence) => Promise<T>,
+): Promise<T> => {
+  if (
+    !validUuid(workspaceId) ||
+    (scope &&
+      (!validUuid(scope.userId) ||
+        scope.workspaceId !== workspaceId ||
+        (scope.sessionId !== undefined && !validUuid(scope.sessionId))))
+  )
+    throw new WorkspaceLibraryError('invalidInput');
+  const client = requireClient();
+  const fence = await createWorkspaceLibraryReadFence(
+    client.auth,
+    scope,
+    scope?.isCurrent,
+  );
+  try {
+    await fence.assertCurrent();
+    const owner = await authorizeRead(
+      client
+        .from('trainer_workspaces')
+        .select('id,owner_user_id')
+        .eq('id', workspaceId)
+        .maybeSingle(),
+      fence,
+    );
+    await fence.assertCurrent();
+    if (
+      owner.error ||
+      !isWorkspaceLibraryOwner(owner.data, workspaceId, fence.userId)
+    )
+      throw new WorkspaceLibraryError('unavailable');
+    const result = await read(client, fence);
+    await fence.assertCurrent();
+    return result;
+  } catch (error: unknown) {
+    if (
+      error instanceof WorkspaceLibraryError ||
+      error instanceof WorkspaceLibrarySessionError
+    )
+      throw error;
+    throw new WorkspaceLibraryError('request');
+  } finally {
+    fence.dispose();
+  }
+};
 export async function loadWorkspaceExercises(
   workspaceId: string,
   query = '',
+  scope?: WorkspaceLibraryReadScope,
 ): Promise<WorkspaceLibraryExercise[]> {
-  if (!validUuid(workspaceId)) throw new WorkspaceLibraryError('invalidInput');
-  const client = requireClient();
-  const pageSize = 500;
-  const rows: WorkspaceExerciseRow[] = [];
-  for (let offset = 0; ; offset += pageSize) {
-    const { data, error } = await client
-      .rpc('search_exercises', { search_query: query.trim() })
-      .range(offset, offset + pageSize - 1);
-    if (error) throw requestError(error.code);
-    rows.push(...data);
-    if (data.length < pageSize) break;
-  }
-  return rows
-    .filter((exercise) => exercise.workspace_id === workspaceId)
-    .map(toLibraryExercise);
+  if (typeof query !== 'string')
+    throw new WorkspaceLibraryError('invalidInput');
+  return withLibraryRead(workspaceId, scope, (client, fence) =>
+    readExercises(client, fence, workspaceId, query),
+  );
 }
-
 export async function loadWorkspaceTemplates(
   workspaceId: string,
   includeArchived = false,
+  scope?: WorkspaceLibraryReadScope,
 ): Promise<WorkspaceWorkoutTemplate[]> {
-  if (!validUuid(workspaceId)) throw new WorkspaceLibraryError('invalidInput');
-  const client = requireClient();
-  const pageSize = 500;
-  const templates: WorkspaceTemplateRow[] = [];
-  for (let offset = 0; ; offset += pageSize) {
-    let templateQuery = client
-      .from('workout_templates')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .order('name')
-      .order('id')
-      .range(offset, offset + pageSize - 1);
-    if (!includeArchived) templateQuery = templateQuery.is('archived_at', null);
-    const { data, error } = await templateQuery;
-    if (error) throw requestError(error.code);
-    templates.push(...data);
-    if (data.length < pageSize) break;
-  }
-  const templateIds = templates.map((template) => template.id);
-  if (templateIds.length === 0) return [];
-
-  const lines: WorkspaceTemplateExerciseRow[] = [];
-  for (let offset = 0; ; offset += pageSize) {
-    const { data, error } = await client
-      .from('template_exercises')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .in('template_id', templateIds)
-      .order('position')
-      .order('id')
-      .range(offset, offset + pageSize - 1);
-    if (error) throw requestError(error.code);
-    lines.push(...data);
-    if (data.length < pageSize) break;
-  }
-  const exerciseIds = [...new Set(lines.map((line) => line.exercise_id))];
-  let exercises: WorkspaceExerciseRow[] = [];
-  const exercisePageSize = 200;
-  for (
-    let offset = 0;
-    offset < exerciseIds.length;
-    offset += exercisePageSize
-  ) {
-    const exercisePage = exerciseIds.slice(offset, offset + exercisePageSize);
-    const result = await client
-      .from('exercises')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .in('id', exercisePage);
-    if (result.error) throw requestError(result.error.code);
-    exercises.push(...result.data);
-  }
-  const byId = new Map(
-    exercises.map((exercise) => [exercise.id, toLibraryExercise(exercise)]),
-  );
-  return templates.map((template) =>
-    toWorkspaceTemplate(template, lines, byId),
+  if (typeof includeArchived !== 'boolean')
+    throw new WorkspaceLibraryError('invalidInput');
+  return withLibraryRead(workspaceId, scope, (client, fence) =>
+    readTemplates(client, fence, workspaceId, includeArchived),
   );
 }
-
 export async function loadWorkspaceLibrary(
   workspaceId: string,
   query = '',
+  scope?: WorkspaceLibraryReadScope,
 ): Promise<WorkspaceLibrary> {
-  const [exercises, templates] = await Promise.all([
-    loadWorkspaceExercises(workspaceId, query),
-    loadWorkspaceTemplates(workspaceId),
-  ]);
-  return { exercises, templates };
+  if (typeof query !== 'string')
+    throw new WorkspaceLibraryError('invalidInput');
+  return withLibraryRead(workspaceId, scope, async (client, fence) => {
+    const exercises = await readExercises(client, fence, workspaceId, query);
+    const templates = await readTemplates(client, fence, workspaceId, false);
+    return { exercises, templates };
+  });
 }
 
 export const createWorkspaceExerciseOperation = (
