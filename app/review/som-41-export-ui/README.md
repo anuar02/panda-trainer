@@ -126,3 +126,15 @@ Cleanup failure не гарантирует удаление при отказе
 и user cancel имеют общий cancelled outcome, поскольку SAF возвращает granted=false.
 Web без picker честно unsupported; fire-and-forget download не выдаётся за запись.
 Ни экран, ни SOM-41, ни пилот не объявлены принятыми.
+
+## Coordinator review · 2026-10-03 UTC
+
+Base `d305ebb` integrated; CHANGELOG/ROADMAP conflicts resolved by retaining both
+packages. Export ADR renumbered 0074 to preserve preflight ADR 0073. Independent
+review found no blocking brief violations. Supabase diff is empty against fresh base.
+The 30-second timeout bounds the raced read, not later auth guards or OS pickers;
+a stalled getSession after the read or during save can leave the UI waiting.
+This remaining robustness limitation does not establish native/cloud acceptance.
+
+Fresh coordinator `npm ci` and full `npm run check` passed: 1569 tests / 152 suites,
+typecheck/lint/format. Relative report/ADR links and `git diff --check` passed.
