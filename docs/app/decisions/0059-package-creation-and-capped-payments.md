@@ -1,6 +1,6 @@
 # ADR 0059: Package creation and payments capped at debt
 
-Date: 2026-10-03. Status: owner-approved product decisions; implementation delivered, container validation blocked by shared UI typecheck; visual/native acceptance pending.
+Date: 2026-10-03. Status: owner-approved product decisions; implementation delivered; worker check initially blocked by shared UI typecheck, coordinator integration validation recorded in the review; visual/native acceptance pending.
 
 ## Decisions
 
@@ -42,3 +42,7 @@ that report is prior evidence, not a fresh container result.
 Visual/native comparison and owner approval remain open. Display of reversed
 payments/reversal receipts is not defined by the prototype; the current UI
 shows unreversed payments and preserves the immutable server ledger.
+
+Coordinator merged PR #21 into the billing branch: full `npm run check` now
+passes, 1213 tests / 124 suites plus typecheck, lint and formatting. The earlier
+worker failure is historical. Native/visual and SQL/browser limitations remain.

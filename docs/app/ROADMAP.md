@@ -13,7 +13,8 @@
   capped positive/partial payments и payment read подключены; история приведена
   к структуре прототипа, ошибка чтения предлагает retry. Исправлены undefined
   guards в тестах и сохранение UUID-подобных title/reason при exact replay.
-  1210 tests / 123 suites, lint/format проходят; полный check блокирует
+  Coordinator integration: полный check зелёный, 1213 tests / 124 suites.
+  Историческая проверка рабочего: 1210 tests / 123 suites, lint/format проходят; полный check блокирует
   существующий `src/ui/button.tsx:83` (`hovered`), файл
   исключён границами задачи. SQL/browser не проверены в контейнере; владелец ранее
   сообщил о 723 pgTAP checks и concurrency. Native/visual/owner acceptance и

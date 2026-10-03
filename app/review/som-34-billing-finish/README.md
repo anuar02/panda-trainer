@@ -82,3 +82,13 @@ Live Linear project and SOM-33/SOM-34 descriptions/relations were read. Both are
 Backlog; SOM-33 depends on SOM-25, SOM-34 on SOM-33 and blocks SOM-47/SOM-36.
 Neither issue reports a duplicate. No Linear records/comments/messages changed.
 `graft` executable and graph were absent, so graph queries/build were unavailable.
+
+## Coordinator integration — 2026-10-03
+
+Merged the updated base containing PR #21. Preserved both changelog/checkpoint
+entries and the new billing history rows; the prior shared Button type error is
+resolved in the base. Native, SQL, browser and owner acceptance remain open.
+
+Coordinator `npm run check`: passed typecheck, lint, formatting and
+**1213 tests / 124 suites** on the integrated branch. `git diff --check` passed.
+The earlier blocked worker result above is preserved as historical evidence.
