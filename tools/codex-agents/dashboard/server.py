@@ -21,7 +21,7 @@ TASKS = AGENTS / "tasks"
 MIRROR = Path(os.environ.get("MIRROR", Path.home() / ".cache/panda-agent/mirror.git"))
 BASE = os.environ.get("BASE_BRANCH", "fix/som-50-template-picker")
 REPO_URL = "https://github.com/anuar02/panda-trainer"
-MAX_TASKS = int(os.environ.get("MAX_TASKS", "12"))
+MAX_TASKS = int(os.environ.get("MAX_TASKS", "1000"))
 PORT = int(os.environ.get("PORT", "8787"))
 
 EVENT = re.compile(r"^(START|OK|FAIL)\s+(\S+ \S+) (\S+) (\S+)")

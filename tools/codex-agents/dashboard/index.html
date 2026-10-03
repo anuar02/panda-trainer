@@ -125,7 +125,7 @@ function render() {
     `<span>Base <b>${esc(d.base)}</b></span><span>Updated ${new Date(d.now * 1000).toLocaleTimeString()}</span>`;
   const pct = Math.min(100, d.done / d.max * 100);
   document.getElementById("progress").innerHTML =
-    `<div class="meta"><span><b>${d.done}</b> of ${d.max} tasks finished</span></div><div class="bar"><i style="width:${pct}%"></i></div>`;
+    (d.max >= 1000 ? `<div class="meta"><span><b>${d.done}</b> tasks finished · no limit</span></div>` : `<div class="meta"><span><b>${d.done}</b> of ${d.max} tasks finished</span></div><div class="bar"><i style="width:${pct}%"></i></div>`);
   document.getElementById("stop").innerHTML = d.stop ? `<div class="banner"><b>Stopped by coordinator.</b>\n${esc(d.stop)}</div>` : "";
   document.getElementById("base").textContent = d.base;
 
