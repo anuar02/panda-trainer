@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-29 r2: перенесён исходный outbox на свежую базу, исправлены приватность
+- [SOM-29 r2 / draft PR #26](https://github.com/anuar02/panda-trainer/pull/26): перенесён исходный outbox на свежую базу, исправлены приватность
   нерешённых заметок, восстановление выбранной видимости и stale выбор структуры;
   усилены проверки SQLite receipts и сессий runner. SQL/native проверки открыты.
   [Отчёт r2](app/review/som-29-sqlite-outbox-r2/README.md).

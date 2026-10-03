@@ -1,5 +1,8 @@
 # SOM-29 · SQLite outbox r2
 
+[Draft PR #26](https://github.com/anuar02/panda-trainer/pull/26).
+Implementation commit `5fe8af6`.
+
 03.10.2026. Branch `agent/som-29-sqlite-outbox-r2`, base
 `fix/som-50-template-picker` at `7f07914` (includes ADR 0061, SOM-39 PR #23 and
 SOM-34 PR #25). Original `2380781` cherry-picked as `64f165b`; only CHANGELOG
