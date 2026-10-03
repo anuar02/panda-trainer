@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-41: owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
+- [SOM-41 / draft PR #29](https://github.com/anuar02/panda-trainer/pull/29): owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
   архивы/приватные заметки/history/conflicts и точные bigint strings; отдельные
   typed domain/service без UI. App check зелёный; SQL runtime не проверен.
   [Отчёт](app/review/som-41-trainer-export/README.md),
