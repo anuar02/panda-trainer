@@ -19,7 +19,8 @@
   существующая ошибка `ui/button.tsx:83`; SQL/browser
   не проверены в контейнере, внешний вид требует одобрения владельца.
   [ADR 0059](docs/app/decisions/0059-package-creation-and-capped-payments.md),
-  [отчёт](app/review/som-34-billing-finish/README.md).
+  [отчёт](app/review/som-34-billing-finish/README.md),
+  [PR #22](https://github.com/anuar02/panda-trainer/pull/22).
 
 - Real Today attendance и общий workspace coordinator для billing, cancellation,
   proposals и creation: retained routes используют один lock/pending store;
