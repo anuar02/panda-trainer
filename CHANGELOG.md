@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-30: typed server preload назначенных снимков и прошлых подходов, atomic scoped
+- [SOM-30 / draft PR #28](https://github.com/anuar02/panda-trainer/pull/28): typed server preload назначенных снимков и прошлых подходов, atomic scoped
   SQLite cache/recovery, read-only workspace journal и общий dock Today/Schedule/Stack;
   account/session fencing и lifecycle существующего SOM-29 runner без purge pending.
   Ввод/конфликты ждут SOM-31, завершение — SOM-32; SQL/native/parity и приёмка открыты.

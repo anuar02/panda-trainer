@@ -2,7 +2,8 @@
 
 03.10.2026. Base `fix/som-50-template-picker`, SOM-29-r2 merged PR #26,
 `19c62af`. Work branch `agent/som-30-workout-preload-recovery`.
-Merge is not owner acceptance. No real customer data or paid services were used.
+[Draft PR #28](https://github.com/anuar02/panda-trainer/pull/28), implementation commit
+`0964eab`. Merge is not owner acceptance. No real customer data or paid services were used.
 Linear project and SOM-30 were read; no records/comments/messages were changed.
 `graft` and `graft/` were absent; source context was read directly. No graph build
 was claimed. `tools/codex-agents/SUBAGENTS.md` was absent; the owner's fallback
