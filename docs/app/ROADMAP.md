@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
+  SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
+  synthetic round-trip regressions; [ ] collector, real SQLite/SQL/file API,
+  deletion integration и одобрение владельца. SOM-41 не закрыта.
+  Полный app check на 9031157: 159 suites / 1731 tests; только synthetic проверки.
+  [Свежий отчёт r2](../../app/review/som-41-local-export-contract-r2/README.md),
+  [ADR 0080](decisions/0080-pure-local-export-envelope.md).
+
 - 03.10.2026 — SOM-20 reads: [x] owner/auth fencing, bounded deterministic pagination,
   unknown-row validation и read lifecycle списка/карточки; [ ] SQL/RLS/live auth,
   native/parity и одобрение владельца. Issue и экраны не приняты.

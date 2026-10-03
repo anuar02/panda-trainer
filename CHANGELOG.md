@@ -15,6 +15,12 @@
 
 ### Добавлено
 
+- SOM-41 local export r2: перенесён pure versioned local envelope из закрытого PR #39;
+  lossless SQL conflict/correction формы, scoped resolve context и строгие aggregate
+  relations без collector/storage/UI/delete integration.
+  [Отчёт r2](app/review/som-41-local-export-contract-r2/README.md),
+  [контракт](docs/app/privacy/LOCAL-EXPORT-CONTRACT.md). Runtime и owner acceptance открыты.
+
 - SOM-20: безопасное owner-scoped чтение списка/карточки клиентов, bounded pagination,
   runtime validation и session/retry fencing. Создание занятия сохраняет совместимый wrapper.
   [Проверки и ограничения](app/review/som-20-trainer-client-read-fencing/README.md);
