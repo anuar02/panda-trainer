@@ -3,12 +3,15 @@ import { useFocusEffect } from 'expo-router';
 import {
   ClientHistoryError,
   loadClientHistory,
+  openClientHistorySession,
+  type ClientHistorySession,
   type ClientHistory,
 } from './service';
 
 export type ClientHistoryScope = {
   userId: string;
   clientRecordId: string;
+  workspaceId?: string;
   startsAtUtc?: string;
   endsAtUtc?: string;
   limit?: number;
@@ -21,13 +24,19 @@ type Loaded = {
   moreError: ErrorCode | null;
   loadingMore: boolean;
 };
-type Control = { active: boolean; key: string; locked: boolean };
+type Control = {
+  active: boolean;
+  key: string;
+  locked: boolean;
+  session?: ClientHistorySession;
+};
 const errorCode = (error: unknown): ErrorCode =>
   error instanceof ClientHistoryError ? error.code : 'request';
 
 export function useClientHistory({
   userId,
   clientRecordId,
+  workspaceId,
   startsAtUtc,
   endsAtUtc,
   limit = 50,
@@ -39,6 +48,7 @@ export function useClientHistory({
   const key = JSON.stringify([
     userId,
     clientRecordId,
+    workspaceId,
     startsAtUtc,
     endsAtUtc,
     limit,
@@ -51,12 +61,38 @@ export function useClientHistory({
       latest.current = null;
       setLoaded(null);
       const finish = (value: Loaded) => {
-        if (!token.active) return;
+        if (
+          !token.active ||
+          (value.history !== null && !token.session?.valid()) ||
+          control.current !== token
+        )
+          return;
         latest.current = value;
         setLoaded(value);
       };
+      try {
+        token.session = openClientHistorySession(userId, () => {
+          token.active = false;
+          latest.current = null;
+          setLoaded(null);
+          setAttempt((value) => value + 1);
+        });
+      } catch (error: unknown) {
+        finish({
+          key,
+          history: null,
+          error: errorCode(error),
+          moreError: null,
+          loadingMore: false,
+        });
+        return () => {
+          token.active = false;
+        };
+      }
       void loadClientHistory({
         expectedUserId: userId,
+        session: token.session,
+        workspaceId,
         clientRecordId,
         startsAtUtc,
         endsAtUtc,
@@ -82,8 +118,17 @@ export function useClientHistory({
       );
       return () => {
         token.active = false;
+        token.session?.dispose();
       };
-    }, [key, userId, clientRecordId, startsAtUtc, endsAtUtc, limit]),
+    }, [
+      key,
+      userId,
+      clientRecordId,
+      workspaceId,
+      startsAtUtc,
+      endsAtUtc,
+      limit,
+    ]),
   );
   const loadMore = useCallback(async () => {
     const token = control.current;
@@ -91,6 +136,7 @@ export function useClientHistory({
     const history = current?.history;
     if (
       !token?.active ||
+      !token.session?.valid() ||
       token.key !== key ||
       token.locked ||
       current?.key !== key ||
@@ -100,7 +146,8 @@ export function useClientHistory({
       return;
     token.locked = true;
     const update = (value: Loaded) => {
-      if (!token.active) return;
+      if (!token.active || !token.session?.valid() || control.current !== token)
+        return;
       latest.current = value;
       setLoaded(value);
     };
@@ -108,13 +155,16 @@ export function useClientHistory({
     try {
       const page = await loadClientHistory({
         expectedUserId: userId,
+        session: token.session,
+        workspaceId,
         clientRecordId,
         startsAtUtc,
         endsAtUtc,
         limit,
         offset: history.nextOffset,
       });
-      if (!token.active) return;
+      if (!token.active || !token.session?.valid() || control.current !== token)
+        return;
       const ids = new Set(history.journals.map((journal) => journal.id));
       if (
         JSON.stringify(page.context) !== JSON.stringify(history.context) ||
@@ -141,13 +191,25 @@ export function useClientHistory({
         moreError: null,
       });
     } catch (error: unknown) {
-      update({ ...current, loadingMore: false, moreError: errorCode(error) });
+      if (!token.active || control.current !== token) return;
+      if (!token.session?.valid()) {
+        latest.current = null;
+        setLoaded({
+          key,
+          history: null,
+          error: 'unavailable',
+          moreError: null,
+          loadingMore: false,
+        });
+      } else
+        update({ ...current, loadingMore: false, moreError: errorCode(error) });
     } finally {
       token.locked = false;
     }
-  }, [key, userId, clientRecordId, startsAtUtc, endsAtUtc, limit]);
+  }, [key, userId, clientRecordId, workspaceId, startsAtUtc, endsAtUtc, limit]);
   const current = loaded?.key === key ? loaded : null;
   return {
+    generation: attempt,
     history: current?.history ?? null,
     loading: current === null,
     error: current?.error ?? null,
