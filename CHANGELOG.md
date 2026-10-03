@@ -11,7 +11,7 @@
 
 ### Исправлено
 
-- SOM-31 r2: provenance reconciliation возвращает серверный original после current
+- [SOM-31 r2 / draft PR #42](https://github.com/anuar02/panda-trainer/pull/42): provenance reconciliation возвращает серверный original после current
   receipt, убирает отвергнутую replacement и отсутствующие подходы, сохраняет pending/
   rejected/drafts и свежий snapshot для offline reopen.
   [Отчёт r2](app/review/som-31-workout-entry-r2/README.md); SQL/native и приёмка открыты.

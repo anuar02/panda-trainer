@@ -1,5 +1,8 @@
 # SOM-31 · Production ввод подходов: reconciliation r2
 
+Implementation commit: `41cb21b`. [Draft PR #42](https://github.com/anuar02/panda-trainer/pull/42),
+base `fix/som-50-template-picker`; самостоятельного вливания нет.
+
 Ветка: `agent/som-31-workout-entry-r2`. Свежая база:
 `fix/som-50-template-picker`, `96db40a`. Полный пакет сохранённой ветки
 `origin/agent/som-31-workout-entry` (`ec6b5bb`) перенесён merge без конфликтов,
