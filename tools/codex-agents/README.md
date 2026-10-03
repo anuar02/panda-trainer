@@ -12,9 +12,9 @@
 
 | Аккаунт | Задача | Почему её можно брать |
 | --- | --- | --- |
-| work | SOM-38 маскот и Rive, затем SOM-33/34 довести пакеты и оплаты | Нет блокеров; WIP оплат уже в `fix/som-50-template-picker` |
+| work | SOM-38 маскот и Rive | Нет блокеров; `.riv` и PNG уже в репозитории |
 | personal | SOM-39 спокойный интерфейс, крупный текст, движение | Нет блокеров; граница с SOM-38 — общий флаг |
-| third | координатор (см. ниже) | Pro-аккаунт: проверяет и вливает PR, пополняет очереди |
+| third | координатор + рабочий с субагентами (см. ниже) | Pro-аккаунт: вливает PR, пополняет очереди и берёт крупные задачи с [SUBAGENTS.md](SUBAGENTS.md) |
 
 ## Почему остальное не в очереди
 
@@ -79,6 +79,9 @@ nohup tools/codex-agents/docker/supervisor.sh >/dev/null 2>&1 &
 ```
 
 Журналы: `logs/supervisor.txt`, `logs/summary.txt`, `logs/coordinator-*.log`,
-`COORDINATOR-LOG.md`. Остановить: `pkill -f supervisor.sh`, затем
+`COORDINATOR-LOG.md`. Остановить: `pkill -f supervisor`, затем
 `docker stop $(docker ps -q --filter name=agent-)`.
-Настройки: `MAX_TASKS`, `WORKERS`, `COORDINATOR`, `COORDINATOR_INTERVAL`, `POLL_SECONDS`.
+Настройки: `MAX_TASKS`, `WORKERS` (по умолчанию `work personal third`), `COORDINATOR`,
+`SUBAGENT_ACCOUNTS` (по умолчанию `third`), `COORDINATOR_INTERVAL`, `POLL_SECONDS`.
+Супервизор исполняет свою копию из `logs/`, поэтому обновление ветки очереди не
+ломает запущенный процесс; новые правки скриптов вступают в силу после перезапуска.

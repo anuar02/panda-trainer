@@ -26,6 +26,12 @@ prompt="$(cat /task/task.md)
 
 $(sed -e "s|{{BRANCH}}|$branch|g" -e "s|{{BASE}}|$base|g" /task/RULES.md)"
 
+if [ -f /task/SUBAGENTS.md ]; then
+  prompt="$prompt
+
+$(cat /task/SUBAGENTS.md)"
+fi
+
 status=0
 codex exec --dangerously-bypass-approvals-and-sandbox "$prompt" || status=$?
 

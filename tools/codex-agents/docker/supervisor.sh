@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-here=$(cd "$(dirname "$0")" && pwd)
+here=${SUPERVISOR_HERE:-$(cd "$(dirname "$0")" && pwd)}
+if [ -z "${SUPERVISOR_HERE:-}" ]; then
+  mkdir -p "$here/logs"
+  cp "$here/supervisor.sh" "$here/logs/.supervisor-running.sh"
+  SUPERVISOR_HERE=$here exec bash "$here/logs/.supervisor-running.sh" "$@"
+fi
 briefs=$(cd "$here/.." && pwd)
 root=$(git -C "$here" rev-parse --show-toplevel)
 logs="$here/logs"
@@ -16,8 +21,9 @@ export GH_TOKEN BASE_BRANCH
 
 queue_branch=$(git -C "$root" branch --show-current)
 max_tasks=${MAX_TASKS:-12}
-workers=${WORKERS:-work personal}
+workers=${WORKERS:-work personal third}
 coordinator=${COORDINATOR:-third}
+subagent_accounts=${SUBAGENT_ACCOUNTS:-third}
 interval=${COORDINATOR_INTERVAL:-1200}
 poll=${POLL_SECONDS:-60}
 worker_pattern=$(echo $workers | tr ' ' '|')
@@ -62,9 +68,13 @@ finished_count() { grep -cE "^(OK|FAIL) +[^ ]+ [^ ]+ ($worker_pattern) " "$summa
 
 launch_worker() {
   local acc=$1 task=$2 name
+  local extra="--cpus 2"
   name=$(basename "$task" .md)
+  case " $subagent_accounts " in
+    *" $acc "*) extra="--cpus 3 -v $briefs/SUBAGENTS.md:/task/SUBAGENTS.md:ro" ;;
+  esac
   echo "START $(date '+%F %T') $acc $name" >> "$summary"
-  note "start worker $acc $name"
+  note "start worker $acc $name ($extra)"
   (
     if docker run --rm --name "agent-$name" --label "panda.account=$acc" \
         -e GH_TOKEN -e BASE_BRANCH -e TASK_NAME="$name" -e ACCOUNT="$acc" \
@@ -72,7 +82,7 @@ launch_worker() {
         -v "$task:/task/task.md:ro" \
         -v "$briefs/RULES.md:/task/RULES.md:ro" \
         -v panda-agent-npm:/home/node/.npm \
-        --memory 5g --cpus 2 \
+        --memory 5g $extra \
         panda-agent > "$logs/$name.log" 2>&1; then
       echo "OK    $(date '+%F %T') $acc $name" >> "$summary"
     else
