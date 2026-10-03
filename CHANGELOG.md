@@ -11,6 +11,10 @@
 
 ### Добавлено
 
+- [SOM-40 / draft PR #31](https://github.com/anuar02/panda-trainer/pull/31): public pilot preflight CLI с безопасной диагностикой и тестами,
+  [Free Frankfurt environment handoff](docs/app/pilot/ENVIRONMENT.md) и ADR 0070.
+  Cloud deployment/region evidence, restore, telemetry и приёмка остаются открытыми.
+
 - [SOM-41 / draft PR #29](https://github.com/anuar02/panda-trainer/pull/29): owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
   архивы/приватные заметки/history/conflicts и точные bigint strings; отдельные
   typed domain/service без UI. App check зелёный; SQL runtime не проверен.

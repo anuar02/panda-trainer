@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "devProjectRef": "",
+  "devProjectUrl": "",
+  "pilotProjectRef": "",
+  "pilotProjectUrl": "",
+  "databaseRegion": "eu-central-1",
+  "inviteDomain": "trainer.narutouzumaki.kz",
+  "inviteBaseUrl": "https://trainer.narutouzumaki.kz",
+  "authSiteUrl": "https://trainer.narutouzumaki.kz",
+  "allowedRedirects": [
+    "https://trainer.narutouzumaki.kz/auth/callback",
+    "panda-trainer://auth/callback"
+  ],
+  "supabasePlan": "free",
+  "inviteHosting": "cloudflare-pages-free",
+  "smtpPlan": "free",
+  "monitoringPlan": "sentry-developer-free",
+  "buildPlan": "eas-free",
+  "pushService": "expo-push-free",
+  "backupMode": "self-managed-nightly-pg-dump",
+  "backupRetentionDays": 7,
+  "paidOptionsEnabled": false,
+  "prototypeImport": false
+}
