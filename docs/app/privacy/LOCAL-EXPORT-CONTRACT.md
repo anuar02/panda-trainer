@@ -1,6 +1,7 @@
 # SOM-41 · Pure local export v1
 
-03.10.2026, база `96db40a`, после server export UI. Изолированный
+03.10.2026, r2 на базе `90b7f73`; исходный PR #39 закрыт без слияния.
+ADR [0077](../decisions/0077-pure-local-export-envelope.md). Изолированный
 [serializer](../../../app/src/domain/account-local-export/index.ts),
 [типы](../../../app/src/domain/account-local-export/types.ts),
 [synthetic tests](../../../app/tests/account-local-export/serializer.test.ts).
@@ -54,7 +55,44 @@ shared. Это структурированный lossless adapter для SQL cu
 Collector обязан сохранить все aggregate поля, note shared и дочерние строки;
 null current/incoming явно означает отсутствующую версию. Correction сохраняет
 id/workout/createdAt и exact operation либо null как отсутствующую версию.
-Ссылки версии на entity/workout, дочерние replacement sets и workspace проверяются.
+SQL current_version раскладывается по форме incoming kind без изменения entityId:
+
+- replace_exercise: projection — старое workout_exercises с ID payload.replaced_from_id,
+  sets — все его подходы; entityId остаётся ID нового упражнения. Остальные aggregate
+  поля null/пусты, shared null. Projection revision равна expectedRevision.
+- upsert_set/delete_set: projection — существующий set с ID entityId либо, только для
+  upsert_set с base_revision 0, skipped exercise с ID payload.workout_exercise_id.
+  Exercise/exercise_revision, sets и replacements относятся к этому родителю.
+  Fallback не теряет новые entityId, tombstones или другие подходы и не становится
+  current:null. Delete без существующего set такой формы не имеет.
+- set_note: projection — исходный session_notes/private_notes snapshot, shared —
+  исходная видимость. Shared note SQL затем перемещает в private storage; collector
+  должен использовать форму snapshot до перемещения, не переписывать shared.
+  expectedRevision — текущий resolution token, может отличаться от snapshot revision
+  после перемещения или разрешения другого note conflict. Равенство здесь не требуется.
+- finish_workout: projection workout_instances, entityId/workoutId/row.id совпадают,
+  revision совпадает с expectedRevision; finished_at сохраняется дословно.
+
+У всех sets проверяются workout и workout_exercise_id; replacements обязаны иметь
+replaced_from_id родителя и собственные sets с их ID. Exercise row revision совпадает
+с exercise_revision, exercise row относится к projection/incoming parent; fallback
+projection и exercise row обязаны совпадать целиком. Если set projection также есть
+в sets, строки обязаны совпадать целиком. Отсутствующий exercise/revision или set
+projection в sets оставляет incomplete; противоречивые доступные строки — malformed.
+Повторные child IDs внутри/между ветвями aggregate отклоняются. Workspace/schema
+checks сохраняются для каждой строки. Unknown incoming сохраняется incomplete.
+
+Resolve_conflict correction сохраняет исходный resolve envelope без добавления
+workout_instance_id в payload и без изменения entity_id. Typed seam collector:
+`sources.conflicts: Source<Conflict>` должен включать snapshot конфликтов, на которые
+ссылаются correction operations (включая уже resolved, если draft ссылается на них),
+с оригинальными current/incoming и resolution expectedRevision на момент draft.
+Весь источник привязан к envelope Scope и snapshot barrier; это не UUID ownership proof.
+Serializer находит context по payload.conflict_id, сверяет entityId, workoutId draft
+и payload.expected_revision с context.expectedRevision. Отсутствующий context или
+его версии сохраняются lossless и явно делают journal incomplete. Чужой workout,
+entity или revision отклоняется; UUID membership/ownership ещё должен доказать
+авторизованный collector. Context не заменяется выдуманным workout UUID или proof.
 Связанный receipt и доступная incoming/correction operation должны совпадать целиком.
 Отсутствие linked record сохраняет incomplete; не означает resolved/zero.
 
@@ -115,5 +153,5 @@ evidence. Server export остаётся независимым; два част
 складываются в успешный backup. Ни identity verification, ни authorize delete,
 ни purge API не предоставляются. UX, удаление и retention не выбираются.
 
-Проверки и ограничения: [отчёт](../../../app/review/som-41-local-export-contract/README.md).
+Проверки и ограничения: [отчёт](../../../app/review/som-41-local-export-contract-r2/README.md).
 SOM-41 целиком, native/cloud/legal и owner acceptance остаются открытыми.

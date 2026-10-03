@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
+  SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
+  synthetic round-trip regressions; [ ] collector, real SQLite/SQL/file API,
+  deletion integration и одобрение владельца. SOM-41 не закрыта.
+  Полный app check: 157 suites / 1689 tests; только synthetic проверки.
+  [Свежий отчёт r2](../../app/review/som-41-local-export-contract-r2/README.md),
+  [ADR 0077](decisions/0077-pure-local-export-envelope.md).
+
 - 03.10.2026 — SOM-35: [x] session fence клиентской истории, auth reset страниц/detail, workspace read seam и synthetic regressions (check: 1582 tests / 152 suites); [ ] live API/RLS, native, два телефона и приёмка владельца. [Отчёт](../../app/review/som-35-history-session-fencing/README.md), [ADR 0076](decisions/0076-client-history-session-fencing.md).
 
 - 03.10.2026 — SOM-26 read gap: [x] runtime validation всех read rows/связей,

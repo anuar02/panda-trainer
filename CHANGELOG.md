@@ -13,6 +13,12 @@
 
 ### Добавлено
 
+- SOM-41 local export r2: перенесён pure versioned local envelope из закрытого PR #39;
+  lossless SQL conflict/correction формы, scoped resolve context и строгие aggregate
+  relations без collector/storage/UI/delete integration.
+  [Отчёт r2](app/review/som-41-local-export-contract-r2/README.md),
+  [контракт](docs/app/privacy/LOCAL-EXPORT-CONTRACT.md). Runtime и owner acceptance открыты.
+
 - [SOM-26 / draft PR #41](https://github.com/anuar02/panda-trainer/pull/41): runtime validation и ограниченная пагинация чтения расписания,
   фиксированная авторизация всех страниц и защита Today/week от старого snapshot
   после смены сессии, retry и unmount. Команды создания/мутаций сохранены.

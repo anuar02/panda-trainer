@@ -231,6 +231,153 @@ function projection(v: unknown, scope: Scope): Data {
   row(o.row, table, scope);
   return o;
 }
+function currentVersion(r: Data, scope: Scope): boolean {
+  const c = exact(r.current, [
+    'projection',
+    'exercise',
+    'exercise_revision',
+    'sets',
+    'replacements',
+    'shared',
+  ]);
+  const p = projection(c.projection, scope);
+  const pr = object(p.row);
+  check((pr.workout_instance_id ?? pr.id) === r.workoutId);
+  check(c.shared === null || typeof c.shared === 'boolean');
+  check(c.exercise_revision === null || integer(c.exercise_revision));
+  const ex = c.exercise === null ? null : projection(c.exercise, scope);
+  const er = ex === null ? null : object(ex.row);
+  if (ex !== null) {
+    check(
+      ex.table === 'workout_exercises' &&
+        er?.workout_instance_id === r.workoutId,
+    );
+    if (c.exercise_revision !== null)
+      check(c.exercise_revision === er?.revision);
+  }
+  const sets = array(c.sets);
+  const replacements = array(c.replacements);
+  const parent =
+    p.table === 'workout_exercises' ? pr.id : pr.workout_exercise_id;
+  for (const set of sets) {
+    const sr = row(set, 'set_results', scope);
+    check(
+      sr.workout_instance_id === r.workoutId &&
+        sr.workout_exercise_id === parent,
+    );
+  }
+  unique(sets, (s) => String(object(s).id));
+  const allSetIds = sets.map((s) => String(object(s).id));
+  for (const replacement of replacements) {
+    const rep = exact(replacement, ['row', 'sets']);
+    const rr = row(rep.row, 'workout_exercises', scope);
+    check(
+      rr.workout_instance_id === r.workoutId &&
+        rr.replaced_from_id === parent &&
+        rr.id !== parent,
+    );
+    const children = array(rep.sets);
+    for (const child of children) {
+      const sr = row(child, 'set_results', scope);
+      check(
+        sr.workout_instance_id === r.workoutId &&
+          sr.workout_exercise_id === rr.id,
+      );
+      allSetIds.push(String(sr.id));
+    }
+    unique(children, (s) => String(object(s).id));
+  }
+  unique(allSetIds, (s) => String(s));
+  unique(replacements, (s) => String(object(object(s).row).id));
+  if (p.table === 'set_results') {
+    if (er !== null) check(er.id === pr.workout_exercise_id);
+    const same = sets.find((s) => object(s).id === pr.id);
+    if (same !== undefined) check(canonical(same) === canonical(pr));
+  } else if (p.table === 'workout_exercises') {
+    if (er !== null) check(canonical(er) === canonical(pr));
+    if (c.exercise_revision !== null)
+      check(c.exercise_revision === pr.revision);
+  }
+  let complete = true;
+  if (r.incoming === null) complete = false;
+  else {
+    const op = object(r.incoming);
+    const payload = object(op.payload);
+    switch (op.kind) {
+      case 'replace_exercise':
+        check(
+          p.table === 'workout_exercises' && pr.id === payload.replaced_from_id,
+        );
+        check(
+          c.exercise === null &&
+            c.exercise_revision === null &&
+            replacements.length === 0 &&
+            c.shared === null,
+        );
+        check(pr.revision === r.expectedRevision);
+        break;
+      case 'upsert_set':
+      case 'delete_set':
+        check(c.shared === null);
+        if (p.table === 'set_results') {
+          check(
+            pr.id === r.entityId &&
+              pr.workout_exercise_id === payload.workout_exercise_id,
+          );
+        } else {
+          check(
+            op.kind === 'upsert_set' &&
+              op.base_revision === 0 &&
+              p.table === 'workout_exercises' &&
+              pr.id === payload.workout_exercise_id &&
+              pr.skipped === true,
+          );
+          check(!sets.some((s) => object(s).id === r.entityId));
+        }
+        if (er !== null) check(er.id === payload.workout_exercise_id);
+        check(pr.revision === r.expectedRevision);
+        if (er === null || c.exercise_revision === null) complete = false;
+        if (
+          p.table === 'set_results' &&
+          !sets.some((s) => object(s).id === pr.id)
+        )
+          complete = false;
+        break;
+      case 'set_note':
+        check(
+          (p.table === 'session_notes' || p.table === 'private_notes') &&
+            pr.id === r.entityId,
+        );
+        check(
+          c.exercise === null &&
+            c.exercise_revision === null &&
+            sets.length === 0 &&
+            replacements.length === 0,
+        );
+        if (c.shared === null) complete = false;
+        else check(c.shared === (p.table === 'session_notes'));
+        break;
+      case 'finish_workout':
+        check(
+          p.table === 'workout_instances' &&
+            pr.id === r.entityId &&
+            op.entity_id === r.workoutId,
+        );
+        check(pr.revision === r.expectedRevision);
+        check(
+          c.exercise === null &&
+            c.exercise_revision === null &&
+            sets.length === 0 &&
+            replacements.length === 0 &&
+            c.shared === null,
+        );
+        break;
+      default:
+        return fail();
+    }
+  }
+  return complete;
+}
 function canonical(v: unknown): string {
   if (Array.isArray(v)) return `[${v.map(canonical).join(',')}]`;
   if (v !== null && typeof v === 'object') {
@@ -371,62 +518,7 @@ export function serializeLocalExport(
           }
           if (r.current === null) complete = false;
           else {
-            const c = exact(r.current, [
-              'projection',
-              'exercise',
-              'exercise_revision',
-              'sets',
-              'replacements',
-              'shared',
-            ]);
-            const p = projection(c.projection, expected);
-            const pr = object(p.row);
-            check(
-              pr.id === r.entityId &&
-                (pr.workout_instance_id ?? pr.id) === r.workoutId,
-            );
-            check(c.shared === null || typeof c.shared === 'boolean');
-            if (
-              (p.table === 'session_notes' || p.table === 'private_notes') &&
-              c.shared === null
-            )
-              complete = false;
-            if (
-              p.table === 'set_results' &&
-              (c.exercise === null || c.exercise_revision === null)
-            )
-              complete = false;
-            check(c.exercise_revision === null || integer(c.exercise_revision));
-            if (c.exercise !== null) {
-              const ex = projection(c.exercise, expected);
-              check(
-                ex.table === 'workout_exercises' &&
-                  object(ex.row).workout_instance_id === r.workoutId,
-              );
-            }
-            const sets = array(c.sets);
-            for (const set of sets)
-              check(
-                row(set, 'set_results', expected).workout_instance_id ===
-                  r.workoutId,
-              );
-            unique(sets, (s) => String(object(s).id));
-            const replacements = array(c.replacements);
-            for (const replacement of replacements) {
-              const rep = exact(replacement, ['row', 'sets']);
-              const ex = row(rep.row, 'workout_exercises', expected);
-              check(ex.workout_instance_id === r.workoutId);
-              const children = array(rep.sets);
-              for (const set of children) {
-                const sr = row(set, 'set_results', expected);
-                check(
-                  sr.workout_instance_id === r.workoutId &&
-                    sr.workout_exercise_id === ex.id,
-                );
-              }
-              unique(children, (s) => String(object(s).id));
-            }
-            unique(replacements, (s) => String(object(object(s).row).id));
+            complete = currentVersion(r, expected) && complete;
           }
           conflicts.set(String(r.id), r);
         } else {
@@ -441,7 +533,8 @@ export function serializeLocalExport(
           else {
             const op = operation(r.operation);
             const p = object(op.payload);
-            check((p.workout_instance_id ?? op.entity_id) === r.workoutId);
+            if (op.kind !== 'resolve_conflict')
+              check((p.workout_instance_id ?? op.entity_id) === r.workoutId);
           }
           corrections.set(String(r.id), r);
         }
@@ -465,6 +558,23 @@ export function serializeLocalExport(
               : 0,
       );
     }
+    for (const correction of corrections.values()) {
+      if (correction.operation === null) continue;
+      const op = object(correction.operation);
+      if (op.kind !== 'resolve_conflict') continue;
+      const payload = object(op.payload);
+      const context = conflicts.get(String(payload.conflict_id));
+      if (!context) complete = false;
+      else {
+        check(
+          context.entityId === op.entity_id &&
+            context.workoutId === correction.workoutId,
+        );
+        check(context.expectedRevision === payload.expected_revision);
+        if (context.incoming === null || context.current === null)
+          complete = false;
+      }
+    }
     const other = exact(sources.otherLocalData, ['state']);
     check(other.state === 'unknown' || other.state === 'incomplete');
     for (const r of operations.values()) {
@@ -482,7 +592,9 @@ export function serializeLocalExport(
       ) {
         if (!linked) complete = false;
         else {
-          const op = linked.incoming ?? linked.operation;
+          const op = Object.hasOwn(linked, 'incoming')
+            ? linked.incoming
+            : linked.operation;
           if (op !== null && canonical(op) !== canonical(r.operation)) fail();
         }
       }

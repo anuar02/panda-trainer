@@ -1,4 +1,9 @@
-# SOM-41 · Local export contract review
+# SOM-41 · Local export contract review (historical, superseded)
+
+This is the archived closed PR #39 report, not current validation. Its suite count
+and completeness claims do not cover the SQL relation defects found by the owner.
+Use [r2](../som-41-local-export-contract-r2/README.md) for fresh evidence.
+The original ADR number 0075 collided with the fresh base; current ADR is 0077.
 
 03.10.2026; synthetic-only package on base `96db40a`, after export UI.
 Branch `agent/som-41-local-export-contract`; draft target `fix/som-50-template-picker`.

@@ -25,7 +25,10 @@ export type StoredOperation = {
 };
 export type CurrentVersion = {
   projection: Projection;
-  exercise: Projection | null;
+  exercise: {
+    table: 'workout_exercises';
+    row: ExportRow<'workout_exercises'>;
+  } | null;
   exercise_revision: number | null;
   sets: ExportRow<'set_results'>[];
   replacements: {
