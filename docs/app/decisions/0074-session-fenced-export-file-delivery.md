@@ -1,4 +1,4 @@
-# 0073. Session-fenced server export and explicit file delivery
+# 0074. Session-fenced server export and explicit file delivery
 
 - Статус: реализовано технически; native/web/visual и owner acceptance открыты
 - Дата: 03.10.2026

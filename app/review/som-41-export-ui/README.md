@@ -4,7 +4,7 @@
 Ветка `agent/som-41-export-ui`; implementation commit `36f727a`,
 [draft PR #36](https://github.com/anuar02/panda-trainer/pull/36). Только UI пакет SOM-41; удаление, local pending
 export/ack, политика приватности и пилот не завершены и не подключены.
-[ADR 0073](../../../docs/app/decisions/0073-session-fenced-export-file-delivery.md).
+[ADR 0074](../../../docs/app/decisions/0074-session-fenced-export-file-delivery.md).
 
 ## Реализовано
 
