@@ -11,6 +11,12 @@
 
 ### Добавлено
 
+- SOM-40: tooling зашифрованного pilot dump, приватного storage/ротации и
+  disposable restore harness; nightly выключен до environment/storage gate.
+  [Отчёт](app/review/som-40-pilot-backup/README.md),
+  [ADR 0070](docs/app/decisions/0070-encrypted-pilot-backup-and-disposable-restore.md).
+  Реальный EU storage/restore и готовность пилота не подтверждены.
+
 - [SOM-41 / draft PR #29](https://github.com/anuar02/panda-trainer/pull/29): owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
   архивы/приватные заметки/history/conflicts и точные bigint strings; отдельные
   typed domain/service без UI. App check зелёный; SQL runtime не проверен.

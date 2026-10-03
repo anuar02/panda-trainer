@@ -1,0 +1,73 @@
+name: Pilot synthetic restore verification (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pilot-synthetic-restore-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  synthetic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      fixture-source:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: synthetic-only
+          POSTGRES_DB: som40_source
+        ports: ['55431:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      fixture-target:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: synthetic-only
+          POSTGRES_DB: som40_target
+        ports: ['55432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PILOT_SOURCE_PASSWORD: synthetic-only
+      PILOT_TARGET_PASSWORD: synthetic-only
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install CLI tools
+        run: |
+          bash tools/pilot-backup/install-clients.sh
+      - name: Local tooling regressions
+        run: bash tools/pilot-backup/test.sh
+      - name: Prepare synthetic-only configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/som40-restore/tmp"
+          printf 'TMPDIR=%s\n' "$RUNNER_TEMP/som40-restore/tmp" >> "$GITHUB_ENV"
+          age-keygen -o "$RUNNER_TEMP/som40-restore/identity" 2>/dev/null
+          age-keygen -y "$RUNNER_TEMP/som40-restore/identity" > "$RUNNER_TEMP/som40-restore/recipient"
+          python3 - <<'PY'
+          import json, os, pathlib
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'som40-restore'
+          config = json.loads(pathlib.Path('tools/pilot-backup/config.example.json').read_text())
+          source = dict(host='127.0.0.1', port=55431, database='som40_source', user='postgres')
+          target = dict(host='127.0.0.1', port=55432, database='som40_target', user='postgres', kind='disposable-test')
+          config.update(enabled=True, fixture_source=True, source=source, target=target,
+                        source_allowlist=[source], target_allowlist=[target],
+                        encryption_recipient=(root / 'recipient').read_text().strip())
+          (root / 'config.json').write_text(json.dumps(config))
+          PY
+      - name: Restore twice and verify database behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PILOT_AGE_IDENTITY_FILE="$RUNNER_TEMP/som40-restore/identity"
+          python3 tools/pilot-backup/restore_harness.py --config "$RUNNER_TEMP/som40-restore/config.json" --opt-in disposable-test
+      - name: Remove all synthetic copies and key
+        if: always()
+        shell: bash
+        run: rm -rf -- "$RUNNER_TEMP/som40-restore"
