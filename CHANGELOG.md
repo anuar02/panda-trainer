@@ -309,6 +309,7 @@
   и ADR 0061/0062/0064. Не опубликованы; export/delete и юридическая приёмка открыты.
   [Отчёт](app/review/som-41-privacy-documents/README.md).
 
+- Решение владельца SOM-52: бюджет пилота — только бесплатные тарифы ([ADR 0067](docs/app/decisions/0067-free-tier-pilot-budget.md)); приглашения на `trainer.narutouzumaki.kz`.
 - Решения владельца: регион, хранение и домен пилота (ADR 0064), push в v1 (ADR 0065),
   снимки вне git и закрытая лицензия `LICENSE` (ADR 0066), общий остаток в шапке клиента (ADR 0059).
 - Решение владельца SOM-34: отменённая оплата показывается строкой «Отменена», тренер может отменить оплату с подтверждением ([ADR 0059](docs/app/decisions/0059-package-creation-and-capped-payments.md)).
