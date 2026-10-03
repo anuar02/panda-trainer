@@ -1,3 +1,4 @@
+import { WorkoutEntryPanel } from '@/features/workout-entry/screen';
 import { WorkoutSyncStatus } from '@/features/workout-sync';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -7,10 +8,6 @@ import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { Text } from '@/ui/text';
-import type {
-  PreloadExercise,
-  PreloadSet,
-} from '@/domain/workout-preload/types';
 import { useOptionalWorkoutPreload } from './provider';
 
 export function WorkoutPreloadScreen() {
@@ -24,61 +21,6 @@ export function WorkoutPreloadScreen() {
           (value) => value.clientRecordId === state.recovery?.clientRecordId,
         )
       : undefined;
-  const setLabel = (set: PreloadSet) =>
-    [
-      set.weightGrams === null
-        ? t('workoutPreload.unknown')
-        : t('workoutPreload.weight', { value: set.weightGrams / 1000 }),
-      set.reps === null
-        ? set.seconds === null
-          ? t('workoutPreload.unknown')
-          : t('workoutPreload.seconds', { value: set.seconds })
-        : t('workoutPreload.reps', { value: set.reps }),
-    ].join(' · ');
-  const cards = (lines: PreloadExercise[]) => (
-    <>
-      {lines.map((exercise) => (
-        <Card key={exercise.id}>
-          <Text className="font-strong">{exercise.name}</Text>
-          <Text>
-            {t('workoutPreload.plan', {
-              sets: exercise.plannedSets,
-              target:
-                exercise.measure === 'reps'
-                  ? t('workoutPreload.reps', {
-                      value:
-                        exercise.plannedReps ?? t('workoutPreload.unknown'),
-                    })
-                  : t('workoutPreload.seconds', {
-                      value:
-                        exercise.plannedSeconds ?? t('workoutPreload.unknown'),
-                    }),
-            })}
-          </Text>
-          {exercise.plannedWeightGrams !== null ? (
-            <Text>
-              {t('workoutPreload.weight', {
-                value: exercise.plannedWeightGrams / 1000,
-              })}
-            </Text>
-          ) : null}
-          {exercise.sets.map((set) => (
-            <Text key={set.id}>{setLabel(set)}</Text>
-          ))}
-          {exercise.previousSets.length ? (
-            <>
-              <Text className="text-secondary">
-                {t('workoutPreload.previous')}
-              </Text>
-              {exercise.previousSets.map((set) => (
-                <Text key={set.id}>{setLabel(set)}</Text>
-              ))}
-            </>
-          ) : null}
-        </Card>
-      ))}
-    </>
-  );
   return (
     <ThemeProvider role="trainer" workout>
       <Screen title={t('workoutPreload.title')}>
@@ -158,19 +100,12 @@ export function WorkoutPreloadScreen() {
             <Text className="font-heading text-title">
               {participant.programName}
             </Text>
-            <Text accessibilityRole="alert">
-              {t('workoutPreload.readonly')}
-            </Text>
-            <Text className="font-strong">{t('workoutPreload.assigned')}</Text>
-            {cards(participant.assignedExercises)}
-            {participant.workoutStatus !== 'not_created' ? (
-              <>
-                <Text className="font-strong">
-                  {t('workoutPreload.current')}
-                </Text>
-                {cards(participant.exercises)}
-              </>
-            ) : null}
+            <WorkoutEntryPanel
+              key={`${preload?.session?.sessionId}:${participant.workoutId}`}
+              participant={participant}
+              session={preload?.session ?? null}
+              getSession={preload?.getSession ?? (() => null)}
+            />
           </>
         ) : state?.status === 'ready' ? (
           <Text>{t('workoutPreload.unavailable')}</Text>

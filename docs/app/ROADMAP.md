@@ -9,6 +9,16 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-31: [x] production focus/sheet, draft/null/zero, durable undo,
+  три изолированных участника, journal-only add/replace и conflict selection;
+  [x] новый snapshot preparation RPC и вымышленные fixtures;
+  app check зелёный: 1505 tests / 153 suites, type/lint/format.
+  [ ] SQL/pgTAP/concurrency runtime, generated drift, real SQLite/reopen/crash,
+  native/visual/accessibility и одобрение владельца. SOM-31 и этап 5 не приняты.
+  Finish/correction — SOM-32; SQL зависит от совместимого исправления PR #34.
+  [Отчёт](../../app/review/som-31-workout-entry/README.md),
+  [ADR 0073](decisions/0073-booking-snapshot-journal-entry.md).
+
 - 03.10.2026 — SOM-40 monitoring: [x] isolated allowlist/opt-in/EU gate,
   injectable bounded transport и минимальный root bootstrap;
   [ ] cloud/native verification, инфраструктурные логи, юридический review
