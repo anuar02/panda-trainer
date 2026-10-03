@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-34 follow-up по решению `8c03812`: [x] одна строка
+  отменённой оплаты с зачёркнутой суммой/датой; [x] подтверждение с причиной;
+  [x] scoped durable reversal и workspace lock, receipt validation, refresh
+  истории/долга. Посещения/credits не меняются. Полный `npm run check` зелёный: 1232 tests / 126 suites, type/lint/format.
+  [ ] Native/visual/owner acceptance; SQL и real network replay не проверены.
+  Linear не изменялся. [ADR 0059](decisions/0059-package-creation-and-capped-payments.md),
+  [отчёт](../../app/review/som-34-payment-reversals/README.md).
+
 - 03.10.2026 — SOM-33/SOM-34 продолжены с WIP `4704f31`: package creation,
   capped positive/partial payments и payment read подключены; история приведена
   к структуре прототипа, ошибка чтения предлагает retry. Исправлены undefined

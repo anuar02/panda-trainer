@@ -13,6 +13,7 @@ export type PurchasePaymentProjection = {
     paidMinor: string;
     dueMinor: string;
     payments: PaymentEntry[];
+    history: (PaymentEntry & { reversedAt: string | null })[];
     reversals: PaymentEntry[];
   }[];
 };
@@ -82,6 +83,7 @@ export function projectPurchasePayments(
       reversed.has(key) ||
       original.purchaseId.toLowerCase() !== entry.purchaseId.toLowerCase() ||
       original.method !== entry.method ||
+      original.paidOn !== entry.paidOn ||
       entry.amountMinor !== `-${original.amountMinor}`
     )
       return invalid();
@@ -114,6 +116,22 @@ export function projectPurchasePayments(
       paidMinor: paid.toString(),
       dueMinor: (price - paid).toString(),
       payments,
+      history: history
+        .filter((entry) => entry.kind === 'payment')
+        .map((entry) => ({
+          ...entry,
+          reversedAt:
+            history.find(
+              (row) =>
+                row.reversesEntryId?.toLowerCase() === entry.id.toLowerCase(),
+            )?.createdAt ?? null,
+        }))
+        .sort(
+          (a, b) =>
+            b.paidOn.localeCompare(a.paidOn) ||
+            b.createdAt.localeCompare(a.createdAt) ||
+            b.id.localeCompare(a.id),
+        ),
       reversals: history.filter((entry) => entry.kind === 'reversal'),
     });
   }

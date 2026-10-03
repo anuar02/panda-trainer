@@ -29,6 +29,7 @@ export type PurchasesPanelProps = {
   paymentsLoading?: boolean;
   paymentsError?: boolean;
   disabled?: boolean;
+  onReverse?: (paymentEntryId: string) => void;
   onPayment?: (purchaseId: string) => void;
 };
 
@@ -44,6 +45,7 @@ export function PurchasesPanel({
   paymentsError = false,
   disabled = false,
   onPayment,
+  onReverse,
 }: PurchasesPanelProps) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
@@ -82,7 +84,7 @@ export function PurchasesPanel({
   const history =
     paymentProjection?.valid && !paymentsLoading
       ? paymentProjection.purchases
-          .flatMap((row) => row.payments)
+          .flatMap((row) => row.history)
           .sort(
             (a, b) =>
               b.paidOn.localeCompare(a.paidOn) ||
@@ -233,6 +235,9 @@ export function PurchasesPanel({
                     style={[
                       s.rowTitle,
                       { fontFamily: 'Inter_600SemiBold', letterSpacing: 0.1 },
+                      entry.reversedAt && {
+                        textDecorationLine: 'line-through',
+                      },
                     ]}
                   >
                     {formatPurchaseMoney(entry.amountMinor, i18n.language)}
@@ -255,9 +260,27 @@ export function PurchasesPanel({
                         : '',
                     })}
                   </Text>
+                  {entry.reversedAt ? (
+                    <Text style={[s.small, secondary]}>
+                      {t('trainerPurchases.reversedDate', {
+                        date: formatPurchaseExpiry(
+                          new Date(entry.reversedAt).toISOString().slice(0, 10),
+                          i18n.language,
+                        ),
+                      })}
+                    </Text>
+                  ) : onReverse ? (
+                    <Button
+                      label={text('reverse')}
+                      variant="ghost"
+                      compact
+                      disabled={disabled}
+                      onPress={() => onReverse(entry.id)}
+                    />
+                  ) : null}
                 </View>
                 <StatusPill
-                  label={text('recorded')}
+                  label={text(entry.reversedAt ? 'reversed' : 'recorded')}
                   tone="neutral"
                   dot={false}
                 />

@@ -57,3 +57,27 @@ worker failure is historical. Native/visual and SQL/browser limitations remain.
   `reverse_client_payment` command. Debt is recalculated after the reversal.
 - This is a known difference from the prototype (it does not define reversals);
   its appearance still requires owner acceptance.
+
+## Reversal implementation follow-up 03.10.2026
+
+Implemented the owner decision above. History retains each original payment
+with its validated reversal creation timestamp, one row and a struck amount;
+only active payments contribute to paid/debt totals. Original `paidOn` remains
+payment metadata; cancellation date uses reversal `createdAt` in UTC.
+
+Confirmation uses existing Row/Sheet/Button/Field layout and asks for the reason
+required by `reverseClientPayment`. Cancel sends nothing. Existing shared
+workspace coordinator locks submissions and stores the exact command before RPC.
+New reversal snapshots also persist client, purchase and original string amount
+for receipt validation and client-scoped recovery. Old reversal snapshots without
+this metadata remain preserved as invalid pending; they are not inferred or
+replayed. Payment/purchase snapshot formats and all server APIs are unchanged.
+Account/workspace/client changes reset confirmation; client mismatch disables
+replay, account/workspace scopes retain separate storage. Success refreshes both
+reads via coordinator generation and does not optimistically mark cancellation.
+
+Full `npm run check` passed: 1232 tests / 126 suites, typecheck/lint/format.
+Local check and mock evidence: [reversal review](../../../app/review/som-34-payment-reversals/README.md).
+Earlier paragraphs describing unreversed-only UI and worker typecheck failure
+are historical billing-finish evidence. This follow-up implements history/actions;
+SQL/network/native/browser and owner visual acceptance remain unverified here.
