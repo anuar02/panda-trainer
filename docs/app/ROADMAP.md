@@ -9,6 +9,8 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-24 client program read: [x] actor/client/session fence, explicit bearer, bounded validated lines и hook auth/retry/focus reset; [ ] SQL/RLS/live auth/native/parity/storage crash и одобрение владельца. Assignment не менялся; интеграция после invitation read. [Отчёт](../../app/review/som-24-client-program-read-fencing/README.md), [ADR 0080](decisions/0080-client-program-read-session-fencing.md). Issue и экран не приняты.
+
 - 03.10.2026 — SOM-20 reads: [x] owner/auth fencing, bounded deterministic pagination,
   unknown-row validation и read lifecycle списка/карточки; [ ] SQL/RLS/live auth,
   native/parity и одобрение владельца. Issue и экраны не приняты.
