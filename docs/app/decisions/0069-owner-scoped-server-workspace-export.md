@@ -1,4 +1,4 @@
-# 0068. Owner-scoped server workspace export v1
+# 0069. Owner-scoped server workspace export v1
 
 - **Статус:** Реализовано; SQL runtime и deployment не проверены
 - **Дата:** 03.10.2026

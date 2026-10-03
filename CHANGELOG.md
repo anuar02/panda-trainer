@@ -15,8 +15,14 @@
   архивы/приватные заметки/history/conflicts и точные bigint strings; отдельные
   typed domain/service без UI. App check зелёный; SQL runtime не проверен.
   [Отчёт](app/review/som-41-trainer-export/README.md),
-  [ADR 0068](docs/app/decisions/0068-owner-scoped-server-workspace-export.md).
+  [ADR 0069](docs/app/decisions/0069-owner-scoped-server-workspace-export.md).
   UI, удаление аккаунта и весь SOM-41 остаются открытыми.
+- [SOM-30 / draft PR #28](https://github.com/anuar02/panda-trainer/pull/28): typed server preload назначенных снимков и прошлых подходов, atomic scoped
+  SQLite cache/recovery, read-only workspace journal и общий dock Today/Schedule/Stack;
+  account/session fencing и lifecycle существующего SOM-29 runner без purge pending.
+  Ввод/конфликты ждут SOM-31, завершение — SOM-32; SQL/native/parity и приёмка открыты.
+  [ADR 0068](docs/app/decisions/0068-workout-preload-and-scoped-recovery.md),
+  [отчёт](app/review/som-30-workout-preload-recovery/README.md).
 
 - [SOM-29 r2 / draft PR #26](https://github.com/anuar02/panda-trainer/pull/26): перенесён исходный outbox на свежую базу, исправлены приватность
   нерешённых заметок, восстановление выбранной видимости и stale выбор структуры;
