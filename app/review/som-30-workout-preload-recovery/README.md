@@ -53,7 +53,7 @@ no production save/finish button, and no empty-queue "synced" success label.
 
 ## Boundary / SOM-31 seam
 
-[ADR 0064](../../../docs/app/decisions/0064-workout-preload-and-scoped-recovery.md)
+[ADR 0068](../../../docs/app/decisions/0068-workout-preload-and-scoped-recovery.md)
 contains UUID, integer grams/reps/seconds/null, zero-based positions, string planned
 ranges, immutable assignment vs current projection, and revision meanings.
 Stable UUIDs come from server rows or locally persisted expo-crypto randomUUID,

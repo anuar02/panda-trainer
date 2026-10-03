@@ -81,3 +81,10 @@ Local check and mock evidence: [reversal review](../../../app/review/som-34-paym
 Earlier paragraphs describing unreversed-only UI and worker typecheck failure
 are historical billing-finish evidence. This follow-up implements history/actions;
 SQL/network/native/browser and owner visual acceptance remain unverified here.
+
+## Owner decision 03.10.2026: client header totals
+
+- Remaining sessions in the client card header = sum of remaining sessions over
+  packages that have not expired.
+- Debt in the header = sum of unpaid amounts over all packages, including expired
+  ones, because expired packages can still be owed.
