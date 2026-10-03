@@ -1,3 +1,4 @@
+import { bootstrapErrorMonitoring } from '@/features/error-monitoring';
 import { TemplateProvider } from '@/features/template-editor/provider';
 import '../global.css';
 import '@/lib/i18n';
@@ -33,6 +34,7 @@ import {
 } from '@/features/scheduling-demo/provider';
 import { WorkoutDemoProvider } from '@/features/workout-demo';
 import { AuthProvider } from '@/features/auth/provider';
+const errorMonitoring = bootstrapErrorMonitoring();
 void SplashScreen.preventAutoHideAsync();
 function Navigation() {
   const { scheme, colors } = useTheme();
@@ -90,6 +92,9 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded || error) void SplashScreen.hideAsync();
   }, [loaded, error]);
+  useEffect(() => {
+    if (error) void errorMonitoring.report({ code: 'APP_FONT_LOAD_FAILED' });
+  }, [error]);
   if (!loaded && !error) return null;
   return (
     <GestureHandlerRootView className="flex-1">

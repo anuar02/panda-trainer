@@ -11,6 +11,11 @@
 
 ### Добавлено
 
+- SOM-40: изолированный opt-in мониторинг ошибок с allowlist, EU DSN gate,
+  bounded transport и root bootstrap; облачная активация и юридический review открыты.
+  [ADR 0072](docs/app/decisions/0072-allowlisted-opt-in-error-monitoring.md),
+  [отчёт](app/review/som-40-error-monitoring/README.md).
+
 - [SOM-40 / draft PR #32](https://github.com/anuar02/panda-trainer/pull/32): tooling зашифрованного pilot dump, приватного storage/ротации и
   disposable restore harness; nightly выключен до environment/storage gate.
   [Отчёт](app/review/som-40-pilot-backup/README.md),

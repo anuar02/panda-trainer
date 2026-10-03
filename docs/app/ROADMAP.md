@@ -9,6 +9,13 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-40 monitoring: [x] isolated allowlist/opt-in/EU gate,
+  injectable bounded transport и минимальный root bootstrap;
+  [ ] cloud/native verification, инфраструктурные логи, юридический review
+  и одобрение владельца. SOM-40 остаётся открытой.
+  [Отчёт](../../app/review/som-40-error-monitoring/README.md),
+  [handoff](pilot/ERROR-MONITORING.md).
+
 - 03.10.2026 — SOM-40 backup package: [x] encrypted dump/allowlists, UTC cleanup,
   disabled nightly и manual synthetic restore tooling; [ ] real restore, EU storage
   evidence, environment/secrets, schedule gate и одобрение владельца.
