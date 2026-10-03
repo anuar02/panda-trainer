@@ -40,7 +40,7 @@
   hook epoch, bounded exact-count paging и scoped relation validation;
   [ ] live auth/SQL/RLS/native/visual и одобрение владельца. UI/mutations не менялись.
   [Отчёт](../../app/review/som-34-financial-read-session-fencing/README.md),
-  [ADR 0078](decisions/0077-financial-read-session-fencing.md).
+  [ADR 0077](decisions/0077-financial-read-session-fencing.md).
 
 - 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
   fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.

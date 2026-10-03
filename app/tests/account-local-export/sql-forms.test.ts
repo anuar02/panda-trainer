@@ -302,6 +302,7 @@ function resolveFixture(form = 'existing'): LocalExportEnvelope {
   const resolve: TypedJournalOperation = {
     ...operation(),
     operation_id: id(40),
+    base_revision: c.expectedRevision,
     entity_id: c.entityId,
     kind: 'resolve_conflict',
     payload: {
@@ -350,7 +351,7 @@ test('missing resolve context preserves draft without invented workout proof', (
   expect(result.journalStatus).toBe('incomplete');
   expect(parseLocalExport(result.json, scope).envelope).toEqual(f);
 });
-test.each(['entity', 'workout', 'revision'])(
+test.each(['entity', 'workout', 'revision', 'base-revision'])(
   'contradictory resolve context %s fails',
   (field) => {
     const f = resolveFixture();
@@ -359,6 +360,12 @@ test.each(['entity', 'workout', 'revision'])(
     if (field === 'workout') {
       if (f.sources.corrections.state === 'unknown') throw new Error('fixture');
       f.sources.corrections.records[0]!.workoutId = id(90);
+    }
+    if (field === 'base-revision') {
+      if (f.sources.corrections.state === 'unknown') throw new Error('fixture');
+      const op = f.sources.corrections.records[0]!.operation;
+      if (!op) throw new Error('fixture');
+      op.base_revision = 0;
     }
     if (field === 'revision') {
       if (f.sources.corrections.state === 'unknown') throw new Error('fixture');

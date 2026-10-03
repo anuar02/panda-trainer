@@ -102,3 +102,20 @@ result and later cleanup/proof obligations. Runtime implementations are future w
 This final text-only publication checkpoint does not alter tested code; full
 suite was not repeated for documentation. GitHub API unavailability prevents the
 requested draft PR step; implementation and branch push are complete.
+
+## Coordinator integration · 03.10.2026
+
+Fresh base `4d308bc` merged; CHANGELOG/ROADMAP/ADR index conflicts preserve both
+packages. Local export ADR is now 0080 (library 0078/clients 0079 already in base).
+Financial ADR label and local contract label corrected without changing contracts.
+Independent review found a small correction invariant: resolve_conflict correction
+base_revision must equal payload.expected_revision, matching SQL rejection before
+creating a correction. Validation added only for correction drafts, fixtures now
+set the correct base revision, and contradictory base-revision regression added;
+pending/rejected operation encoding remains lossless.
+
+Fresh `cd app && npm run check` PASS: typecheck/lint/format, 163 suites /1843 tests.
+`git diff --check` PASS. Scope/SQL conflict shapes/aggregate links and code rules
+reviewed; no SQL/deps/lockfile changes. SQL/live/native/storage/collector/file
+proof/delete/legal/owner acceptance not tested or claimed. Collector remains future
+work; this pure envelope does not authorize deletion or claim file delivery.

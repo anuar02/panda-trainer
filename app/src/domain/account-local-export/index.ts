@@ -563,6 +563,7 @@ export function serializeLocalExport(
       const op = object(correction.operation);
       if (op.kind !== 'resolve_conflict') continue;
       const payload = object(op.payload);
+      check(op.base_revision === payload.expected_revision);
       const context = conflicts.get(String(payload.conflict_id));
       if (!context) complete = false;
       else {
