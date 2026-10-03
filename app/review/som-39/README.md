@@ -107,3 +107,35 @@ LD_LIBRARY_PATH не нужен; абсолютный NODE_OPTIONS заменя�
 
 Тесты используют небольшой JS mock Reanimated; реальный native timing и UI-thread
 они не проверяют. Размещение и движение Sheet в браузере не равны нативной приёмке.
+
+## Публикация и внешнее ограничение
+
+Реализация закоммичена: `28d1f6e187697ab744b52ebe24d024b666e4c390`.
+Ветка `agent/som-39-calm-ui-large-text-motion` опубликована в origin. Первый push
+оборвался с GnuTLS/RPC rewind; после проверки отсутствия удалённой ветки успешно
+выполнено:
+
+```sh
+git -c http.postBuffer=52428800 -c http.version=HTTP/1.1 push -u origin agent/som-39-calm-ui-large-text-motion
+```
+
+Draft PR **не подтверждён**: первый `gh pr create --base fix/som-50-template-picker
+--draft --fill` не завершился и был остановлен; повтор с HTTP/1.1 ограничен
+45 секундами и завершился timeout. GET pulls через gh/urllib и POST создания через
+`gh api --method POST .../pulls --input /tmp/som-39-pr.json` тоже завершились
+timeout. Ответа с номером/URL PR не получено. Последняя проверка
+`git ls-remote origin 'refs/pull/*/head'` не нашла pull-ref этого коммита;
+отдельный ls-remote подтвердил опубликованный head ветки. Не считать PR созданным
+на основании отправленного запроса. Все зависшие gh-процессы остановлены.
+
+[Готовое описание PR с критериями и ограничениями](PR.md) сохранено для повторения
+после восстановления API. Перед повтором проверить существующий PR по head,
+поскольку результат запросов с timeout нельзя трактовать как гарантированный
+отказ сервера. Команда публикации:
+
+```sh
+gh pr create --base fix/som-50-template-picker --draft --title 'SOM-39: Add calm mode, scalable workout layouts and accessible motion' --body-file app/review/som-39/PR.md
+```
+
+CHANGELOG пока ссылается на отчёт вместо отсутствующего подтверждённого PR URL.
+Это внешнее ограничение не закрывает приёмку SOM-39.
