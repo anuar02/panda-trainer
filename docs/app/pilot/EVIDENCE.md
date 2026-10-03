@@ -31,5 +31,14 @@
   Performance: 56 FK без индекса (в основном `created_by`) и 19 unused indexes на
   пустой базе — не блокирует, пересмотреть после synthetic smoke.
 
+## 03.10.2026 · Migration 20261003140000
+
+- UTC: `2026-10-03T18:50Z`. Commit `1d08be1` (PR #34, CI зелёный: lint, pgTAP,
+  concurrency, types). Dry-run: ровно `20261003140000_workout_sync_revision_fixes`,
+  `seeds: []`, `roles: []`; затем `db push --linked --skip-vault`. Разрешение владельца.
+- MCP: 25 migrations, последняя `20261003140000`; триггер `set_results_touch_updated_at`
+  → `private.touch_set_result()`; `apply_operations` с `'[]'::jsonb`; `auth.users` 0.
+- Security advisors без изменений (10 INFO private deny-all, 35 WARN командные RPC).
+
 Не подтверждено: Auth/SMTP/OAuth, Pages/DNS, регионы логов и
 бэкапов, monitoring, smoke и приёмка пилота. SOM-40 остаётся открытым.
