@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-29 r2 после закрытого PR #24: исходный модуль перенесён
+  на свежую базу с SOM-39/SOM-34; исправления конфликтов заметок и снимков
+  структуры, усиленные SQLite/runner проверки. Существующие экраны не подключены.
+  Свежий полный app check: 1307 tests / 131 suites, type/lint/format зелёные.
+  [Отчёт r2](../../app/review/som-29-sqlite-outbox-r2/README.md).
+  SQL/native/generated drift и одобрение владельца открыты. SOM-30/31 ждут
+  вливания исправленной SOM-29; этап 5 не принят.
+
 - Coordinator integration SOM-34: база SOM-39 влита, полный npm run check
   зелёный: 1247 tests / 128 suites, type/lint/format. Native/owner приёмка открыты.
 
@@ -29,6 +37,15 @@
   Координатор подключил shared mascot/celebration calm flags и reduced-motion PNG.
   Свежий npm ci + check: 1228 tests / 126 suites, type/lint/format зелёные.
   Нативная проверка и одобрение владельца остаются открытыми.
+- 03.10.2026 — SOM-29: самостоятельный SQLite outbox и journal RPC поверх SOM-28;
+  atomic local writes, scoped retries, receipts, обе версии конфликтов и приватные
+  correction drafts. Существующие экраны не подключены (SOM-30/31/32).
+  App check: 1254 tests / 127 suites, type/lint/format зелёные.
+  SQL runtime, native airplane/reopen/crash, generated type drift и owner приёмка
+  открыты; этап 5 не объявляется завершённым.
+  [Отчёт](../../app/review/som-29-sqlite-outbox/README.md),
+  [ADR 0062](decisions/0062-sqlite-journal-outbox.md).
+
 - 03.10.2026 — SOM-33/SOM-34 продолжены с WIP `4704f31`: package creation,
   capped positive/partial payments и payment read подключены; история приведена
   к структуре прототипа, ошибка чтения предлагает retry. Исправлены undefined
