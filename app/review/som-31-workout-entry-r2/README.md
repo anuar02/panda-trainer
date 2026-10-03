@@ -111,3 +111,14 @@ npm run db:types:check
 Повторить при network/cache failure и logout/account/workspace/token switch.
 Сверить прототип без параметров 390×844 и spec-dark.json; снимки вне git.
 Экран, SOM-31 целиком и пилот не объявляются принятыми.
+
+## Coordinator integration check — 2026-10-03
+
+Merged base `90b7f73` into the PR branch; CHANGELOG and ROADMAP conflicts resolved
+with both checkpoints preserved. Lockfile unchanged; npm ci not needed.
+`cd app && npm run check`: PASS, typecheck/lint/format and 163 suites / 1706 tests.
+`git diff --check`: PASS. Independent static review found no material defect;
+only new migration added, existing migrations and apply_operations unchanged.
+SQL lint/pgTAP/concurrency/generated-type drift remain unexecuted here. PR is
+handed off with needs-local-db for Claude to validate and decide merge locally.
+Receipt/cache crash gap and native/owner checks remain as documented above.
