@@ -72,3 +72,13 @@ real data; owner cloud activation and native checks remain open. No screen is
 changed or declared accepted. Default no-DSN behavior is covered locally; native
 startup cannot be claimed from Jest/static export. The strict EU gate deliberately
 blocks unreviewed DSN shapes. Per-process limits are not a monthly fleet quota.
+
+## Coordinator verification
+
+2026-10-03: current target base `a1d87e7` is already included, no conflicts.
+Fresh `npm ci` and `npm run check` passed: typecheck/lint/format,
+1469 tests / 145 suites. Relative report links and scoped diff checked.
+GitHub run 37140881715 fails on pre-existing Expo patch drift and
+`public.apply_operations` results initialization (text to jsonb, SQLSTATE 42804).
+No SQL or framework upgrades made in this monitoring package.
+Cloud/native/owner approvals remain open; local checks do not establish them.
