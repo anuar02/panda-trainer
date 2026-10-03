@@ -46,3 +46,14 @@ shows unreversed payments and preserves the immutable server ledger.
 Coordinator merged PR #21 into the billing branch: full `npm run check` now
 passes, 1213 tests / 124 suites plus typecheck, lint and formatting. The earlier
 worker failure is historical. Native/visual and SQL/browser limitations remain.
+
+## Owner decision 03.10.2026: reversed payments
+
+- A reversed payment stays in the client's payment history as one row: the
+  amount is struck through and the row shows the status «Отменена» with the
+  reversal date. No separate reversal row. Debt is calculated without it.
+- The trainer can reverse a mistaken payment from the app: a «Отменить оплату»
+  action on the payment row, with a confirmation step, using the existing
+  `reverse_client_payment` command. Debt is recalculated after the reversal.
+- This is a known difference from the prototype (it does not define reversals);
+  its appearance still requires owner acceptance.
