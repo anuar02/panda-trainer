@@ -209,3 +209,13 @@ any/комментариев в новом app коде, новых PNG/секр
 `git diff --check` — PASS. SQL/pgTAP runtime, generated drift, concurrent MVCC
 и pilot volume остаются непроверенными. UI/deletion/юридический review открыты;
 privacy drafts уже влиты PR #27, это не их одобрение или закрытие SOM-41.
+
+## Повтор экспортного агента после вливания SOM-30 и PR #29
+
+03.10.2026: PR #29 влит координатором в `08f0251`; его изменения и ADR 0069
+сохранены. `cd app && npm run check` повторён на объединённом дереве:
+exit 0, typecheck/lint/format PASS, 1430 tests / 142 suites PASS.
+Дополнение CI evidence подготовлено после merge и опубликовано отдельным
+documentation-only follow-up. Код экспорта, существующие migrations,
+package files и документы приватности в follow-up не менялись.
+SQL RPC/pgTAP/runtime, type drift, pilot volume и acceptance остаются открытыми.

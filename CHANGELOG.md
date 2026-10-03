@@ -14,6 +14,8 @@
 - [SOM-41 / draft PR #29](https://github.com/anuar02/panda-trainer/pull/29): owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
   архивы/приватные заметки/history/conflicts и точные bigint strings; отдельные
   typed domain/service без UI. App check зелёный; SQL runtime не проверен.
+  CI evidence: migration applied, pgTAP пропущен из-за исходного outbox lint;
+  Expo compatibility check блокируют версии зависимостей базы.
   [Отчёт](app/review/som-41-trainer-export/README.md),
   [ADR 0069](docs/app/decisions/0069-owner-scoped-server-workspace-export.md).
   UI, удаление аккаунта и весь SOM-41 остаются открытыми.
