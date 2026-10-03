@@ -10,6 +10,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      workout_correction_drafts: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          workout_instance_id: string;
+          operation: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          workspace_id: string;
+          workout_instance_id: string;
+          operation: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          workspace_id?: string;
+          workout_instance_id?: string;
+          operation?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workout_correction_drafts_workspace_id_workout_instance_id_fkey';
+            columns: ['workspace_id', 'workout_instance_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_instances';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'workout_correction_drafts_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+
+      workout_sync_conflicts: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          workout_instance_id: string;
+          entity_id: string;
+          kind: string;
+          current_version: Json;
+          incoming_operation: Json;
+          expected_revision: number;
+          resolved_at: string | null;
+          selected_version: string | null;
+        };
+        Insert: {
+          id?: string;
+          workspace_id: string;
+          workout_instance_id: string;
+          entity_id: string;
+          kind: string;
+          current_version: Json;
+          incoming_operation: Json;
+          expected_revision: number;
+          resolved_at?: string | null;
+          selected_version?: string | null;
+        };
+        Update: {
+          id?: string;
+          workspace_id?: string;
+          workout_instance_id?: string;
+          entity_id?: string;
+          kind?: string;
+          current_version?: Json;
+          incoming_operation?: Json;
+          expected_revision?: number;
+          resolved_at?: string | null;
+          selected_version?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'workout_sync_conflicts_workspace_id_workout_instance_id_fkey';
+            columns: ['workspace_id', 'workout_instance_id'];
+            isOneToOne: false;
+            referencedRelation: 'workout_instances';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'workout_sync_conflicts_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+
       attendance_records: {
         Row: {
           booking_id: string;
@@ -1113,6 +1208,7 @@ export type Database = {
       };
       set_results: {
         Row: {
+          requested_position: number | null;
           author_user_id: string;
           created_at: string;
           created_by: string | null;
@@ -1130,6 +1226,7 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
+          requested_position?: number | null;
           author_user_id: string;
           created_at?: string;
           created_by?: string | null;
@@ -1147,6 +1244,7 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
+          requested_position?: number | null;
           author_user_id?: string;
           created_at?: string;
           created_by?: string | null;
@@ -1186,6 +1284,7 @@ export type Database = {
       };
       sync_operations: {
         Row: {
+          envelope: Json | null;
           applied_at: string;
           base_revision: number;
           created_at: string;
@@ -1199,6 +1298,7 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
+          envelope?: Json | null;
           applied_at?: string;
           base_revision: number;
           created_at?: string;
@@ -1212,6 +1312,7 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
+          envelope?: Json | null;
           applied_at?: string;
           base_revision?: number;
           created_at?: string;
@@ -1360,6 +1461,7 @@ export type Database = {
       };
       workout_exercises: {
         Row: {
+          source_device_id: string | null;
           bodyweight_snapshot: boolean;
           created_at: string;
           created_by: string | null;
@@ -1386,6 +1488,7 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
+          source_device_id?: string | null;
           bodyweight_snapshot: boolean;
           created_at?: string;
           created_by?: string | null;
@@ -1412,6 +1515,7 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
+          source_device_id?: string | null;
           bodyweight_snapshot?: boolean;
           created_at?: string;
           created_by?: string | null;
@@ -1591,6 +1695,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      apply_operations: {
+        Args: { p_workspace_id: string; p_operations: Json };
+        Returns: Json;
+      };
       accept_booking_reschedule: {
         Args: {
           p_expected_booking_revision: number;

@@ -226,3 +226,13 @@ Payment RPC, долг и `client_balances` пока отсутствуют; пр
 - [ ] Устаревший перенос не перезаписывает более новое согласованное время.
 - [ ] Архивированное упражнение остаётся в прошлых журналах и шаблонах.
 - [ ] Пересечение `start < other_end and end > other_start`; касание концов — не пересечение.
+
+## SOM-29 sync additions
+
+New migration adds owner-only `workout_sync_conflicts` (both versions and revision)
+and `workout_correction_drafts` (finished-edit envelopes), plus immutable envelope
+receipts on SOM-28 sync_operations. apply_operations checks each operation and
+serializes replay; server errors do not discard following operations. Source device
+and requested position preserve deterministic merged set order. Finished data stay
+unchanged until an explicit later correction flow. [ADR 0062](decisions/0062-sqlite-journal-outbox.md).
+SQL runtime and generated type drift remain unverified in this container.

@@ -141,3 +141,10 @@ docs/app/                    эта документация
 - Токен приглашения хранится хэшем; принятие — RPC с проверкой срока и одноразовости.
 - Сессия хранится в `expo-secure-store`.
 - Переключатель роли в приложении — только навигация; права определяет база.
+
+## SOM-29 journal sync module
+
+Standalone `domain/workout-sync` contracts and `features/workout-sync` SQLite, transport,
+runner and status component implement [ADR 0062](decisions/0062-sqlite-journal-outbox.md).
+Existing screens remain disconnected; SOM-30/31 adapters and native/SQL validation
+are described in the [report](../../app/review/som-29-sqlite-outbox/README.md).
