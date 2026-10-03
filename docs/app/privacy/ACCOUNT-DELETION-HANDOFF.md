@@ -7,6 +7,9 @@ SOM-41, review checklist от 03.10.2026, база 4758705.
 [ADR 0064](../decisions/0064-pilot-data-region-retention-and-invites.md) и
 [ADR 0062](../decisions/0062-sqlite-journal-outbox.md).
 
+Техническое выявление препятствий без удаления: [preflight-контракт](DELETION-PREFLIGHT-CONTRACT.md).
+Pure evaluator не авторизует delete; все незавершённые gates ниже остаются открытыми.
+
 ## Серверная авторизация и область удаления
 
 - [ ] Проверить сервером действующую сессию и личность инициатора; не доверять

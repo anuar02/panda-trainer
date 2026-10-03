@@ -9,6 +9,12 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-41 preflight: [x] pure typed evaluator и blocker tests,
+  [x] [schema/technical handoff](privacy/DELETION-PREFLIGHT-CONTRACT.md);
+  [ ] runtime integration/delete, local export/ack, DB/Auth recovery, backup rotation
+  и одобрение владельца. SOM-41 остаётся открытой.
+  [Отчёт](../../app/review/som-41-deletion-contract/README.md).
+
 - 03.10.2026 — SOM-40 monitoring: [x] isolated allowlist/opt-in/EU gate,
   injectable bounded transport и минимальный root bootstrap;
   [ ] cloud/native verification, инфраструктурные логи, юридический review
