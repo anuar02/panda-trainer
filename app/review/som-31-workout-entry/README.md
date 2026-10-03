@@ -20,7 +20,7 @@ tools/codex-agents/SUBAGENTS.md отсутствует; три исполнит�
 | Private notes клиенту не раскрываются | Клиентские экраны/права не менялись; owner-only conflict reads; pgTAP fixtures подготовлены, runtime не проверен |
 | SOM-32 finish/correction отдельно | Кнопки фиктивного завершения нет; finished journal ввод отключён |
 
-Контракты и компромиссы: ADR 0073. Первое открытие требует сети и нового RPC;
+Контракты и компромиссы: ADR 0075. Первое открытие требует сети и нового RPC;
 после подготовки сохраняется in_progress cache. Partial preparation безопасна:
 повтор возвращает уже созданный journal identity. Проекция+операция атомарны
 в существующем outbox; SQLite drafts/index/resources — отдельная база, общая
@@ -79,3 +79,26 @@ Concurrency harness использует DATABASE_URL и psql; см. header са
 composer radius20, поля/stepper44, styles из features/workout/measurements.ts.
 Текстовый structural review и tests не заменяют пары native/visual сравнений.
 Экран, SOM-31 целиком и пилот не объявляются принятыми.
+
+
+## Coordinator review · 2026-10-03
+
+Merged fresh base 96db40a into the agent branch, retaining both documentation
+packages and base RPC signatures. Renumbered this journal ADR to 0075 because
+0073 and 0074 are used by merged deletion/export work. npm ci completed.
+Fresh npm run check PASS: typecheck, lint, format, 159 suites / 1605 tests.
+Git diff --check PASS. SQL/pgTAP/native were not executed.
+
+**Rejected for r2:** reconcileWorkout preserves a rejected local replacement after
+replace_exercise conflict selection current. With server original revision2 and
+skipped=false, local original skipped=true plus replacement revision1 with
+replacedFromId=original, pending=[] and issues=[], a direct synthetic invocation
+still returns skipped original and visible replacement. The revision>0 append and
+unconditional replacedFromId protection retain state with no pending provenance.
+Absent local sets also need lifecycle review. Add domain/service/hook regressions
+covering conflict selection, receipt, refresh and reopen, preserving pending,
+rejected data and both audit versions. Existing passing tests miss this case.
+
+PR #38 is closed without merging; followup agent/som-31-workout-entry-r2 must
+retain the full initial scope. Its SQL package will require needs-local-db and
+local db lint/test db before any merge. No owner acceptance is claimed.

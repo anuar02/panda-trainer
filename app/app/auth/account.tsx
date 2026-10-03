@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Redirect, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/ui/screen';
@@ -11,9 +11,25 @@ import { AuthLoadingScreen } from '@/features/auth/loading-screen';
 import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
 import { usePendingInvitation } from '@/features/invitations/use-pending-invitation';
 
+import { AccountExportControls } from '@/features/account-export/controls';
+
 export default function AccountRoute() {
   const auth = useAuth();
   const context = useOnboardingContext();
+  const exportUserId = auth.session?.user.id;
+  const exportToken = auth.session?.access_token;
+  const exportWorkspaceId = context.context?.workspace?.id;
+  const exportScope = useMemo(
+    () =>
+      exportUserId && exportToken && exportWorkspaceId
+        ? {
+            userId: exportUserId,
+            workspaceId: exportWorkspaceId,
+            token: exportToken,
+          }
+        : null,
+    [exportUserId, exportToken, exportWorkspaceId],
+  );
   const invitation = usePendingInvitation(auth.session?.user.id);
   const { t } = useTranslation();
   const pending = useRef(false);
@@ -75,6 +91,13 @@ export default function AccountRoute() {
                     name: context.context?.workspace?.name ?? '',
                   })}
                 </Text>
+                {exportScope && (
+                  <AccountExportControls
+                    key={`${exportScope.userId}:${exportScope.workspaceId}`}
+                    scope={exportScope}
+                    disabled={busy}
+                  />
+                )}
                 <Button
                   label={t('auth.openClients')}
                   disabled={busy}

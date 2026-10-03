@@ -14,8 +14,18 @@
 - [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
   add/replace/conflict selection; owner RPC создаёт журнал из booking assignment snapshot.
   [Отчёт](app/review/som-31-workout-entry/README.md),
-  [ADR 0073](docs/app/decisions/0073-booking-snapshot-journal-entry.md).
+  [ADR 0075](docs/app/decisions/0075-booking-snapshot-journal-entry.md).
   SQL/native/parity и одобрение владельца открыты; finish/correction — SOM-32.
+- [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
+  session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
+  Native/visual и одобрение владельца открыты; deletion не подключён.
+  [Отчёт](app/review/som-41-export-ui/README.md),
+  [ADR 0074](docs/app/decisions/0074-session-fenced-export-file-delivery.md).
+
+- [SOM-41 / draft PR #35](https://github.com/anuar02/panda-trainer/pull/35): изолированный typed deletion preflight с fail-closed evidence, local snapshot proofs
+  и внешними review gates; удаления и integration нет.
+  [Контракт](docs/app/privacy/DELETION-PREFLIGHT-CONTRACT.md),
+  [отчёт](app/review/som-41-deletion-contract/README.md).
 
 - [SOM-40 / draft PR #33](https://github.com/anuar02/panda-trainer/pull/33): изолированный opt-in мониторинг ошибок с allowlist, EU DSN gate,
   bounded transport и root bootstrap; облачная активация и юридический review открыты.
@@ -29,6 +39,7 @@
   Реальный EU storage/restore и готовность пилота не подтверждены.
 - [SOM-40 / draft PR #31](https://github.com/anuar02/panda-trainer/pull/31): public pilot preflight CLI с безопасной диагностикой и тестами,
   [Free Frankfurt environment handoff](docs/app/pilot/ENVIRONMENT.md) и ADR 0070.
+- SOM-40: [remote evidence](docs/app/pilot/EVIDENCE.md) пилотного проекта — Frankfurt, Free, чистый старт.
   Cloud deployment/region evidence, restore, telemetry и приёмка остаются открытыми.
 
 - [SOM-41 / draft PR #29](https://github.com/anuar02/panda-trainer/pull/29): owner-scoped read-only серверный экспорт 26 коллекций, versioned JSON,
@@ -299,6 +310,13 @@
 
 ### Исправлено
 
+- SOM-29: синхронизация журнала больше не создаёт ложные конфликты. Миграция
+  `20261003140000_workout_sync_revision_fixes`: серверная перестановка подходов не
+  поднимает их `revision` (отдельный триггер `set_results`), пересчёт трогает только
+  изменившиеся позиции, конфликт приватной заметки не повышает её ревизию, а
+  `apply_operations` типизирует `results` (`'[]'::jsonb`, db lint 42804). pgTAP
+  `workout_sync` впервые прогнан: 105/105. Expo 57.0.26 (constants 57.0.20,
+  router 57.0.24) для `expo install --check`.
 - SOM-27/36: сохранённые status/reschedule requests можно завершить через сервер:
   исходный успешный результат восстанавливается, невыполненный запрос навсегда
   блокируется перед очисткой локальной recovery-записи. Recovery доступен обеим

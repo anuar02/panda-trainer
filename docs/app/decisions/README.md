@@ -74,3 +74,5 @@
 | [0067](0067-free-tier-pilot-budget.md) | Бюджет пилота: только бесплатные тарифы | Принято владельцем | 03.10.2026 |
 
 | [0069](0069-owner-scoped-server-workspace-export.md) | Owner-scoped серверный экспорт workspace | Реализовано; SQL/runtime и приёмка открыты | 03.10.2026 |
+
+| [0074](0074-session-fenced-export-file-delivery.md) | Session-fenced server export и явная доставка JSON | Реализовано; native/web/parity и owner acceptance открыты | 03.10.2026 |

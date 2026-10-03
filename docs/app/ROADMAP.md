@@ -17,7 +17,17 @@
   native/visual/accessibility и одобрение владельца. SOM-31 и этап 5 не приняты.
   Finish/correction — SOM-32; SQL зависит от совместимого исправления PR #34.
   [Отчёт](../../app/review/som-31-workout-entry/README.md),
-  [ADR 0073](decisions/0073-booking-snapshot-journal-entry.md).
+  [ADR 0075](decisions/0075-booking-snapshot-journal-entry.md).
+- 03.10.2026 — SOM-41 UI: [x] authenticated settings entry, локализованный controller,
+  fenced snapshot и UTF-8 file adapters; [ ] real native/web/file API, parity и owner approval.
+  Удаление/local pending ack не подключены; SOM-41 и пилот не закрыты.
+  [Отчёт](../../app/review/som-41-export-ui/README.md), [ADR 0074](decisions/0074-session-fenced-export-file-delivery.md).
+
+- 03.10.2026 — SOM-41 preflight: [x] pure typed evaluator и blocker tests,
+  [x] [schema/technical handoff](privacy/DELETION-PREFLIGHT-CONTRACT.md);
+  [ ] runtime integration/delete, local export/ack, DB/Auth recovery, backup rotation
+  и одобрение владельца. SOM-41 остаётся открытой.
+  [Отчёт](../../app/review/som-41-deletion-contract/README.md).
 
 - 03.10.2026 — SOM-40 monitoring: [x] isolated allowlist/opt-in/EU gate,
   injectable bounded transport и минимальный root bootstrap;

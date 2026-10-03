@@ -1,3 +1,4 @@
+import { accountExportRu } from '@/features/account-export/strings';
 import { trainerBillingRu } from '@/features/trainer-billing/ru';
 import { trainerPurchasesRu } from '@/features/trainer-billing/purchases-ru';
 import { trainerBillingPurchaseRu } from '@/features/trainer-billing/purchase-create-ru';
@@ -28,6 +29,7 @@ import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
 import { workoutPreloadRu } from '@/features/workout-preload/strings';
 
 export const ru = {
+  accountExport: accountExportRu,
   workoutPreload: workoutPreloadRu,
   trainerBilling: trainerBillingRu,
   trainerPurchases: trainerPurchasesRu,
