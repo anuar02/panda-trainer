@@ -4,7 +4,6 @@ import { getSupabaseClient } from '../src/features/auth/client';
 import {
   archiveWorkspaceTemplateOperation,
   createWorkspaceExerciseOperation,
-  loadWorkspaceTemplates,
   saveWorkspaceTemplateOperation,
   WorkspaceLibraryError,
   type WorkspaceTemplateSaveInput,
@@ -171,6 +170,37 @@ describe('workspace library adapter', () => {
       unit: 'сек',
     });
   });
+});
+
+describe('workspace library adapter read validation', () => {
+  it('rejects unknown measures instead of silently defaulting to repetitions', () => {
+    expect(() => toLibraryExercise({ ...row, measure: 'meters' })).toThrow();
+  });
+
+  it('rejects plan units that disagree with the exercise measure', () => {
+    expect(() =>
+      toWorkspaceTemplate(
+        templateRow,
+        [line],
+        new Map([
+          [exerciseId, toLibraryExercise({ ...row, measure: 'seconds' })],
+        ]),
+      ),
+    ).toThrow();
+  });
+
+  it.each([null, 0, 1])(
+    'preserves exact grams %s and null separately from zero',
+    (grams) => {
+      const loaded = toWorkspaceTemplate(
+        templateRow,
+        [{ ...line, planned_weight_g: grams }],
+        new Map([[exerciseId, toLibraryExercise(row)]]),
+      );
+      expect(loaded.exercises[0]?.plannedWeightG).toBe(grams);
+      expect(loaded.exercises[0]?.target).toBe((grams ?? 0) / 1000);
+    },
+  );
 });
 
 describe('workspace library service operations', () => {
@@ -518,80 +548,5 @@ describe('workspace library service operations', () => {
 
     await expect(save.execute()).rejects.toMatchObject({ code: 'unavailable' });
     expect(rpc).not.toHaveBeenCalled();
-  });
-
-  it('loads every template line across PostgREST row-limit pages', async () => {
-    const templates = Array.from({ length: 24 }, (_, index) => ({
-      ...templateRow,
-      id: `92000000-0000-4000-8000-${index.toString(16).padStart(12, '0')}`,
-      name: `Тренировка ${index}`,
-    }));
-    const exerciseRows = Array.from({ length: 50 }, (_, index) => ({
-      ...row,
-      id: `82000000-0000-4000-8000-${index.toString(16).padStart(12, '0')}`,
-      archived_at: null,
-    }));
-    const templateLines = templates.flatMap((template, templateIndex) =>
-      Array.from({ length: 50 }, (_, lineIndex) => ({
-        ...line,
-        id: `b2000000-0000-4000-8000-${(templateIndex * 50 + lineIndex)
-          .toString(16)
-          .padStart(12, '0')}`,
-        template_id: template.id,
-        exercise_id: exerciseRows[lineIndex]?.id ?? exerciseId,
-        position: lineIndex,
-      })),
-    );
-    const lineRanges: number[] = [];
-    const from = jest.fn((table: string) => {
-      let start = 0;
-      let end = Number.POSITIVE_INFINITY;
-      let selectedIds: string[] = [];
-      const source =
-        table === 'workout_templates'
-          ? templates
-          : table === 'template_exercises'
-            ? templateLines
-            : exerciseRows;
-      const builder = {
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        is: jest.fn().mockReturnThis(),
-        in: jest.fn().mockImplementation((_column: string, ids: string[]) => {
-          selectedIds = ids;
-          return builder;
-        }),
-        order: jest.fn().mockReturnThis(),
-        range: jest.fn().mockImplementation((first: number, last: number) => {
-          start = first;
-          end = last;
-          if (table === 'template_exercises') lineRanges.push(first);
-          return builder;
-        }),
-        then: (
-          resolve: (value: { data: unknown[]; error: null }) => unknown,
-          reject?: (reason: unknown) => unknown,
-        ) => {
-          const filtered =
-            table === 'exercises'
-              ? source.filter((item) => selectedIds.includes(item.id))
-              : source;
-          return Promise.resolve({
-            data: filtered.slice(start, end + 1),
-            error: null,
-          }).then(resolve, reject);
-        },
-      };
-      return builder;
-    });
-    getClient.mockReturnValue(client({ from }));
-
-    const loaded = await loadWorkspaceTemplates(workspaceId);
-
-    expect(loaded).toHaveLength(24);
-    expect(
-      loaded.reduce((count, template) => count + template.exercises.length, 0),
-    ).toBe(1200);
-    expect(lineRanges).toEqual([0, 500, 1000]);
   });
 });

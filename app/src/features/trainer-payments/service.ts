@@ -1,5 +1,13 @@
-import { getSupabaseClient } from '@/features/auth/client';
-import { date, minorMoney, record, uuid } from '../trainer-billing/validation';
+import { financialPage } from '../trainer-billing/read-page';
+import { withReadAuth, financialRowLimit } from '../trainer-billing/read-auth';
+import { projectPurchasePayments } from '@/domain/payments';
+import {
+  date,
+  minorMoney,
+  record,
+  uuid,
+  parsePurchase,
+} from '../trainer-billing/validation';
 import {
   TrainerPaymentsError,
   type PaymentEntry,
@@ -78,43 +86,106 @@ export async function loadTrainerPayments(
     throw new TrainerPaymentsError('invalidInput');
   const scope = { ...input };
   try {
-    const client = getSupabaseClient();
-    if (!client) throw new TrainerPaymentsError('configuration');
-    const { data, error } = await client.auth.getSession();
-    const token = data.session?.access_token;
-    if (
-      error ||
-      !token ||
-      data.session?.user.id.toLowerCase() !== scope.expectedUserId.toLowerCase()
-    )
-      throw new TrainerPaymentsError('unavailable');
-    const entries: PaymentEntry[] = [];
-    const ids = new Set<string>();
-    for (let offset = 0; ; offset += 500) {
-      let request = client
-        .from('payment_entries')
-        .select(
-          'id,workspace_id,client_record_id,purchase_id,kind,amount_minor::text,currency,paid_on,method,source,reason,reverses_entry_id,created_at',
-        )
-        .eq('workspace_id', scope.workspaceId)
-        .order('id')
-        .range(offset, offset + 499);
-      if (scope.clientRecordId)
-        request = request.eq('client_record_id', scope.clientRecordId);
-      const { data: rows, error: readError } = await request.setHeader(
-        'Authorization',
-        `Bearer ${token}`,
-      );
-      if (readError || !Array.isArray(rows)) return fail();
-      for (const raw of rows) {
-        const entry = parsePaymentEntry(raw, scope);
-        const key = entry.id.toLowerCase();
-        if (ids.has(key)) return fail();
-        ids.add(key);
-        entries.push(entry);
-      }
-      if (rows.length < 500) return { entries };
-    }
+    return await withReadAuth(
+      scope.expectedUserId,
+      (code) => {
+        throw new TrainerPaymentsError(code);
+      },
+      async (client, token, guard) => {
+        const entries: PaymentEntry[] = [];
+        const ids = new Set<string>();
+        let total: number | null = null;
+        for (let offset = 0; offset <= financialRowLimit; offset += 500) {
+          await guard();
+          let request = client
+            .from('payment_entries')
+            .select(
+              'id,workspace_id,client_record_id,purchase_id,kind,amount_minor::text,currency,paid_on,method,source,reason,reverses_entry_id,created_at',
+              { count: 'exact' },
+            )
+            .eq('workspace_id', scope.workspaceId)
+            .order('id')
+            .range(offset, offset + 499);
+          if (scope.clientRecordId)
+            request = request.eq('client_record_id', scope.clientRecordId);
+          const {
+            data: rows,
+            error: readError,
+            count,
+          } = await request.setHeader('Authorization', `Bearer ${token}`);
+          await guard();
+          if (readError) return fail();
+          const page = financialPage(rows, count, offset, total, fail);
+          total = page.count;
+          for (const raw of page.rows) {
+            const entry = parsePaymentEntry(raw, scope);
+            const key = entry.id.toLowerCase();
+            if (ids.has(key)) return fail();
+            ids.add(key);
+            entries.push(entry);
+          }
+          if (page.done) break;
+        }
+        const purchases = [];
+        const purchaseIds = new Set<string>();
+        let purchaseTotal: number | null = null;
+        for (let offset = 0; offset <= financialRowLimit; offset += 500) {
+          await guard();
+          let request = client
+            .from('client_purchases')
+            .select(
+              'id,workspace_id,client_record_id,title,units,price_minor::text,currency,expires_on,created_at',
+              { count: 'exact' },
+            )
+            .eq('workspace_id', scope.workspaceId)
+            .order('id')
+            .range(offset, offset + 499);
+          if (scope.clientRecordId)
+            request = request.eq('client_record_id', scope.clientRecordId);
+          const { data, error, count } = await request.setHeader(
+            'Authorization',
+            `Bearer ${token}`,
+          );
+          await guard();
+          if (error) return fail();
+          const page = financialPage(data, count, offset, purchaseTotal, fail);
+          purchaseTotal = page.count;
+          for (const raw of page.rows) {
+            const purchase = parsePurchase(raw, scope);
+            const key = purchase.id.toLowerCase();
+            if (purchaseIds.has(key)) return fail();
+            purchaseIds.add(key);
+            purchases.push(purchase);
+          }
+          if (page.done) break;
+        }
+        const clients = new Set(
+          [...purchases, ...entries].map((row) =>
+            row.clientRecordId.toLowerCase(),
+          ),
+        );
+        for (const clientRecordId of clients) {
+          const clientPurchases = purchases.filter(
+            (row) => row.clientRecordId.toLowerCase() === clientRecordId,
+          );
+          const clientEntries = entries.filter(
+            (row) => row.clientRecordId.toLowerCase() === clientRecordId,
+          );
+          if (
+            !projectPurchasePayments(
+              clientPurchases,
+              { entries: clientEntries },
+              {
+                workspaceId: scope.workspaceId,
+                clientRecordId,
+              },
+            ).valid
+          )
+            return fail();
+        }
+        return { entries };
+      },
+    );
   } catch (error: unknown) {
     if (error instanceof TrainerPaymentsError) throw error;
     throw new TrainerPaymentsError('request');

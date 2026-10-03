@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import {
   Redirect,
   router,
@@ -9,11 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/provider';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
 import { useOnboardingContext } from '@/features/onboarding/use-onboarding-context';
-import {
-  WorkspaceClientDetailsScreen,
-  type WorkspaceClientDetailsData,
-} from '@/features/workspace-clients/details-screen';
+import { WorkspaceClientDetailsScreen } from '@/features/workspace-clients/details-screen';
 import { loadWorkspaceClientDetails } from '@/features/workspace-clients/service';
+import { useClientRead } from '@/features/workspace-clients/use-client-read';
 import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 import { useClientProgramAssignment } from '@/features/workspace-programs/use-assignment';
@@ -24,35 +22,32 @@ function ClientDetails({
   workspaceId,
   clientId,
   userId,
+  token,
   timezone,
   initialTab,
 }: {
   workspaceId: string;
   clientId: string;
   userId: string;
+  token: string;
   timezone: string;
   initialTab: 'sessions' | 'program' | 'progress' | 'billing' | 'notes';
 }) {
-  const [attempt, setAttempt] = useState(0);
-  const [loaded, setLoaded] = useState<{
-    attempt: number;
-    data: WorkspaceClientDetailsData | null;
-    failed: boolean;
-  } | null>(null);
-  useEffect(() => {
-    let active = true;
-    void loadWorkspaceClientDetails(workspaceId, clientId).then(
-      (data) => {
-        if (active) setLoaded({ attempt, data, failed: false });
-      },
-      () => {
-        if (active) setLoaded({ attempt, data: null, failed: true });
-      },
-    );
-    return () => {
-      active = false;
-    };
-  }, [attempt, clientId, workspaceId]);
+  const load = useCallback(
+    (signal: AbortSignal) =>
+      loadWorkspaceClientDetails(workspaceId, clientId, {
+        userId,
+        token,
+        signal,
+      }),
+    [workspaceId, clientId, userId, token],
+  );
+  const read = useClientRead(
+    `${userId}:${token}:${workspaceId}:${clientId}`,
+    userId,
+    token,
+    load,
+  );
   const assignment = useClientProgramAssignment({
     userId,
     workspaceId,
@@ -64,14 +59,13 @@ function ClientDetails({
       reloadAssignment();
     }, [reloadAssignment]),
   );
-  const current = loaded?.attempt === attempt ? loaded : null;
   return (
     <WorkspaceClientDetailsScreen
-      data={current?.data ?? null}
+      data={read.data ?? null}
       timezone={timezone}
-      loading={!current}
-      error={current?.failed ?? false}
-      onRetry={() => setAttempt((value) => value + 1)}
+      loading={read.loading}
+      error={read.failed}
+      onRetry={read.retry}
       onBack={() => router.replace('/workspace/clients')}
       initialTab={initialTab}
       billingContent={
@@ -79,7 +73,7 @@ function ClientDetails({
           userId={userId}
           workspaceId={workspaceId}
           clientRecordId={clientId}
-          clientName={current?.data?.client.display_name ?? ''}
+          clientName={read.data?.client.display_name ?? ''}
           timezone={timezone}
         />
       }
@@ -142,6 +136,7 @@ export default function WorkspaceClientDetailsRoute() {
         workspaceId={workspace.id}
         clientId={id}
         userId={auth.session.user.id}
+        token={auth.session.access_token}
         timezone={workspace.timezone}
         initialTab={tab === 'program' || tab === 'billing' ? tab : 'sessions'}
       />
