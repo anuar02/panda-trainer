@@ -1,8 +1,15 @@
 {
- "updated_at": "2026-10-03T21:22Z",
+ "updated_at": "2026-10-03T21:43Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-31",
+   "title": "Довести ввод подходов и мини-группы до production",
+   "status": "In Progress",
+   "milestone": "05",
+   "group": "agents"
+  },
   {
    "id": "SOM-35",
    "title": "Связать принятие приглашения с существующей историей",
@@ -29,13 +36,6 @@
    "title": "Подключить ручные оплаты, долг и экран billing",
    "status": "In Progress",
    "milestone": "06",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-31",
-   "title": "Довести ввод подходов и мини-группы до production",
-   "status": "In Progress",
-   "milestone": "05",
    "group": "agents"
   },
   {
@@ -92,7 +92,7 @@
    "title": "Принять крупный текст, спокойный интерфейс и движение",
    "status": "In Review",
    "milestone": "09",
-   "group": "owner"
+   "group": "acceptance"
   },
   {
    "id": "SOM-38",
@@ -113,7 +113,7 @@
    "title": "Реализовать версионированные личные программы клиентов",
    "status": "In Progress",
    "milestone": "03",
-   "group": "owner"
+   "group": "agents"
   },
   {
    "id": "SOM-23",
