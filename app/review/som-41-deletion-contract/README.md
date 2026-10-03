@@ -140,3 +140,11 @@ DB/Auth recovery требуют будущего review владельца/сп�
 Наличие внешнего evidence не является approval, а proof метаданные не удостоверяют
 содержимое выгрузки или личность. DB/Auth атомарность не обещается.
 Ни экран, ни удаление, ни весь SOM-41, ни пилот не объявлены принятыми.
+
+## Передача
+
+Реализация: commit `585d023`, push в `agent/som-41-deletion-contract` выполнен.
+[Draft PR #35](https://github.com/anuar02/panda-trainer/pull/35) создан через
+`gh pr create --base fix/som-50-template-picker --draft --fill` с явными title/body-file.
+`gh pr view --json number,url,isDraft,baseRefName,headRefName,state` подтвердил
+OPEN, draft=true, правильные base/head. Remote CI этой сессией не проверен.

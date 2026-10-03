@@ -11,7 +11,7 @@
 
 ### Добавлено
 
-- SOM-41: изолированный typed deletion preflight с fail-closed evidence, local snapshot proofs
+- [SOM-41 / draft PR #35](https://github.com/anuar02/panda-trainer/pull/35): изолированный typed deletion preflight с fail-closed evidence, local snapshot proofs
   и внешними review gates; удаления и integration нет.
   [Контракт](docs/app/privacy/DELETION-PREFLIGHT-CONTRACT.md),
   [отчёт](app/review/som-41-deletion-contract/README.md).
