@@ -14,6 +14,47 @@ import type { TrainerBilling } from '../src/features/trainer-billing/types';
 const workspaceId = '61000000-0000-4000-8000-000000000001';
 const clientId = '71000000-0000-4000-8000-000000000001';
 const userId = '81000000-0000-4000-8000-000000000001';
+const mockSubmit = jest.fn();
+const mockResume = jest.fn();
+let mockPending:
+  | import('../src/features/trainer-billing/commands').TrainerBillingCommand
+  | null = null;
+jest.mock('../src/features/workspace-scheduling/mutation-provider', () => ({
+  WorkspaceMutationBoundary: ({
+    children,
+  }: import('react').PropsWithChildren) => children,
+  useWorkspaceMutations: () => ({
+    generation: 0,
+    blocked: mockPending !== null,
+    busy: false,
+    billing: {
+      pending: mockPending,
+      error: null,
+      busy: false,
+      submit: mockSubmit,
+      resume: mockResume,
+      reload: jest.fn(),
+    },
+  }),
+}));
+jest.mock('../src/features/trainer-payments/use-payments', () => ({
+  useTrainerPayments: () => ({
+    data: { entries: [] },
+    error: null,
+    loading: false,
+    retry: jest.fn(),
+  }),
+}));
+jest.mock('../src/ui/sheet', () => ({
+  Sheet: ({
+    open,
+    children,
+  }: import('react').PropsWithChildren<{ open: boolean }>) =>
+    open ? children : null,
+}));
+jest.mock('expo-crypto', () => ({
+  randomUUID: () => 'c1000000-0000-4000-8000-000000000001',
+}));
 let mockTab: string | undefined = 'billing';
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), replace: jest.fn() },
@@ -104,6 +145,8 @@ const billing: TrainerBilling = {
 beforeEach(() => {
   jest.clearAllMocks();
   mockTab = 'billing';
+  mockPending = null;
+  mockSubmit.mockResolvedValue(true);
   jest.mocked(loadWorkspaceClientDetails).mockResolvedValue({
     client: {
       id: clientId,
@@ -125,9 +168,7 @@ test('opens the real billing tab from its route and reads only the selected clie
   expect(screen.getByRole('tab', { name: 'Оплаты' })).toBeSelected();
   expect(screen.getByText('1 250,50 ₸')).toBeTruthy();
   expect(screen.getByText('5 · использовано 0')).toBeTruthy();
-  expect(
-    screen.getByRole('button', { name: 'Записать оплату' }),
-  ).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Записать оплату' })).toBeEnabled();
   expect(screen.queryByText('Оплачено')).toBeNull();
 });
 
@@ -155,4 +196,69 @@ test('package loading is independent of core client loading and remains accessib
     screen.getByRole('progressbar', { name: 'Загрузка покупок…' }),
   ).toBeTruthy();
   expect(screen.queryByText('Покупок нет')).toBeNull();
+});
+
+test('creates an exact client package through the shared command controller', async () => {
+  await render(<WorkspaceClientDetailsRoute />);
+  await waitFor(() => expect(screen.getByText('Реальный пакет')).toBeTruthy());
+  await fireEvent.press(screen.getByRole('button', { name: 'Добавить пакет' }));
+  await fireEvent.changeText(screen.getByLabelText('Название'), 'Новый пакет');
+  await fireEvent.changeText(screen.getByLabelText('Количество занятий'), '8');
+  await fireEvent.changeText(screen.getByLabelText('Стоимость, ₸'), '12000,50');
+  await fireEvent.press(
+    screen.getAllByRole('button', { name: 'Добавить пакет' })[1],
+  );
+  expect(mockSubmit).toHaveBeenCalledWith({
+    action: 'createPurchase',
+    requestId: 'c1000000-0000-4000-8000-000000000001',
+    clientRecordId: clientId,
+    title: 'Новый пакет',
+    units: 8,
+    priceMinor: '1200050',
+    expiresOn: null,
+  });
+});
+
+test('payment rejects over-debt input under the field and records a partial amount on the exact purchase', async () => {
+  await render(<WorkspaceClientDetailsRoute />);
+  await waitFor(() => expect(screen.getByText('Реальный пакет')).toBeTruthy());
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Записать оплату' }),
+  );
+  await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '1250,51');
+  await fireEvent.press(
+    screen.getAllByRole('button', { name: 'Записать оплату' })[1],
+  );
+  expect(mockSubmit).not.toHaveBeenCalled();
+  expect(screen.getByText('Больше долга по пакету (1 250,50 ₸)')).toBeTruthy();
+  await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '250,50');
+  await fireEvent.press(
+    screen.getAllByRole('button', { name: 'Записать оплату' })[1],
+  );
+  expect(mockSubmit).toHaveBeenCalledWith(
+    expect.objectContaining({
+      action: 'recordPayment',
+      purchaseId,
+      amountMinor: '25050',
+      method: 'Kaspi',
+    }),
+  );
+});
+
+test('an unresolved shared command blocks new packages and can be resumed from the client card', async () => {
+  mockPending = {
+    action: 'createPurchase',
+    clientRecordId: clientId,
+    title: 'Pending',
+    units: 2,
+    priceMinor: '100',
+    requestId: 'c1000000-0000-4000-8000-000000000001',
+  };
+  await render(<WorkspaceClientDetailsRoute />);
+  await waitFor(() => expect(screen.getByText('Реальный пакет')).toBeTruthy());
+  expect(screen.getByRole('button', { name: 'Добавить пакет' })).toBeDisabled();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Повторить сохранённую операцию' }),
+  );
+  expect(mockResume).toHaveBeenCalledTimes(1);
 });

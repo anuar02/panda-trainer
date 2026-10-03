@@ -1,0 +1,350 @@
+{
+  "viewport": "390x844@2x",
+  "systemTheme": "light",
+  "accepted": false,
+  "errors": [],
+  "captures": [
+    {
+      "screen": "t-schedule",
+      "route": "schedule",
+      "theme": "auto",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-schedule__normal__auto-dark.png",
+      "app": "app/t-schedule__normal__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Расписание",
+        "Сентябрь 2026",
+        "Понедельник, 14 сентября"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Расписание",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "32.4px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 15.796875,
+          "width": 170.9375,
+          "height": 32.40625
+        },
+        {
+          "text": "Сентябрь 2026",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "17px",
+          "lineHeight": "22.1px",
+          "color": "rgb(242, 242, 243)",
+          "x": 32,
+          "y": 96.953125,
+          "width": 135.171875,
+          "height": 22.09375
+        },
+        {
+          "text": "Понедельник, 14 сентября",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "16px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 341.296875,
+          "width": 346,
+          "height": 24
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-schedule",
+      "route": "schedule",
+      "theme": "auto",
+      "scenario": "empty",
+      "scenarioInvariant": false,
+      "reference": "reference/t-schedule__empty__auto-dark.png",
+      "app": "app/t-schedule__empty__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Расписание",
+        "Сентябрь 2026",
+        "Понедельник, 14 сентября"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Расписание",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "32.4px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 15.796875,
+          "width": 170.9375,
+          "height": 32.40625
+        },
+        {
+          "text": "Сентябрь 2026",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "17px",
+          "lineHeight": "22.1px",
+          "color": "rgb(242, 242, 243)",
+          "x": 32,
+          "y": 96.953125,
+          "width": 135.171875,
+          "height": 22.09375
+        },
+        {
+          "text": "Понедельник, 14 сентября",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "16px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 341.296875,
+          "width": 346,
+          "height": 24
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-schedule",
+      "route": "schedule",
+      "theme": "auto",
+      "scenario": "loading",
+      "scenarioInvariant": false,
+      "reference": "reference/t-schedule__loading__auto-dark.png",
+      "app": "app/t-schedule__loading__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Расписание",
+        "Сентябрь 2026",
+        "Понедельник, 14 сентября"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Расписание",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "32.4px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 15.796875,
+          "width": 170.9375,
+          "height": 32.40625
+        },
+        {
+          "text": "Сентябрь 2026",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "17px",
+          "lineHeight": "22.1px",
+          "color": "rgb(242, 242, 243)",
+          "x": 32,
+          "y": 96.953125,
+          "width": 135.171875,
+          "height": 22.09375
+        },
+        {
+          "text": "Понедельник, 14 сентября",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "16px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 341.296875,
+          "width": 346,
+          "height": 24
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-schedule",
+      "route": "schedule",
+      "theme": "auto",
+      "scenario": "offline",
+      "scenarioInvariant": false,
+      "reference": "reference/t-schedule__offline__auto-dark.png",
+      "app": "app/t-schedule__offline__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Расписание",
+        "Сентябрь 2026",
+        "Понедельник, 14 сентября"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Расписание",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "32.4px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 15.796875,
+          "width": 170.9375,
+          "height": 32.40625
+        },
+        {
+          "text": "Сентябрь 2026",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "17px",
+          "lineHeight": "22.1px",
+          "color": "rgb(242, 242, 243)",
+          "x": 32,
+          "y": 96.953125,
+          "width": 135.171875,
+          "height": 22.09375
+        },
+        {
+          "text": "Понедельник, 14 сентября",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "16px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 341.296875,
+          "width": 346,
+          "height": 24
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-schedule",
+      "route": "schedule",
+      "theme": "dark",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-schedule__normal__dark.png",
+      "app": "app/t-schedule__normal__dark.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Расписание",
+        "Сентябрь 2026",
+        "Понедельник, 14 сентября"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Расписание",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "32.4px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 15.796875,
+          "width": 170.9375,
+          "height": 32.40625
+        },
+        {
+          "text": "Сентябрь 2026",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "17px",
+          "lineHeight": "22.1px",
+          "color": "rgb(242, 242, 243)",
+          "x": 32,
+          "y": 96.953125,
+          "width": 135.171875,
+          "height": 22.09375
+        },
+        {
+          "text": "Понедельник, 14 сентября",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "16px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 341.296875,
+          "width": 346,
+          "height": 24
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-schedule",
+      "route": "schedule",
+      "theme": "light",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-schedule__normal__light.png",
+      "app": "app/t-schedule__normal__light.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Расписание",
+        "Сентябрь 2026",
+        "Понедельник, 14 сентября"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Расписание",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "32.4px",
+          "color": "rgb(18, 20, 32)",
+          "x": 22,
+          "y": 15.796875,
+          "width": 170.9375,
+          "height": 32.40625
+        },
+        {
+          "text": "Сентябрь 2026",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "17px",
+          "lineHeight": "22.1px",
+          "color": "rgb(18, 20, 32)",
+          "x": 32,
+          "y": 96.953125,
+          "width": 135.171875,
+          "height": 22.09375
+        },
+        {
+          "text": "Понедельник, 14 сентября",
+          "fontFamily": "Montserrat_700Bold",
+          "fontSize": "16px",
+          "lineHeight": "24px",
+          "color": "rgb(18, 20, 32)",
+          "x": 22,
+          "y": 341.296875,
+          "width": 346,
+          "height": 24
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    }
+  ]
+}

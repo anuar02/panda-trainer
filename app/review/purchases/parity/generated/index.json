@@ -1,0 +1,116 @@
+{
+  "viewport": "390x844@2x",
+  "systemTheme": "light",
+  "accepted": false,
+  "errors": [],
+  "captures": [
+    {
+      "screen": "t-client",
+      "route": "client/c1",
+      "theme": "auto",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-client__normal__auto-dark.png",
+      "app": "app/t-client__normal__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Занятия",
+        "Программа",
+        "Прогресс",
+        "Оплаты",
+        "Заметки"
+      ]
+    },
+    {
+      "screen": "t-client",
+      "route": "client/c1",
+      "theme": "auto",
+      "scenario": "empty",
+      "scenarioInvariant": false,
+      "reference": "reference/t-client__empty__auto-dark.png",
+      "app": "app/t-client__empty__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Занятия",
+        "Программа",
+        "Прогресс",
+        "Оплаты",
+        "Заметки"
+      ]
+    },
+    {
+      "screen": "t-client",
+      "route": "client/c1",
+      "theme": "auto",
+      "scenario": "loading",
+      "scenarioInvariant": false,
+      "reference": "reference/t-client__loading__auto-dark.png",
+      "app": "app/t-client__loading__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": []
+    },
+    {
+      "screen": "t-client",
+      "route": "client/c1",
+      "theme": "auto",
+      "scenario": "offline",
+      "scenarioInvariant": false,
+      "reference": "reference/t-client__offline__auto-dark.png",
+      "app": "app/t-client__offline__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Занятия",
+        "Программа",
+        "Прогресс",
+        "Оплаты",
+        "Заметки"
+      ]
+    },
+    {
+      "screen": "t-client",
+      "route": "client/c1",
+      "theme": "dark",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-client__normal__dark.png",
+      "app": "app/t-client__normal__dark.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Занятия",
+        "Программа",
+        "Прогресс",
+        "Оплаты",
+        "Заметки"
+      ]
+    },
+    {
+      "screen": "t-client",
+      "route": "client/c1",
+      "theme": "light",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-client__normal__light.png",
+      "app": "app/t-client__normal__light.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Занятия",
+        "Программа",
+        "Прогресс",
+        "Оплаты",
+        "Заметки"
+      ]
+    }
+  ]
+}

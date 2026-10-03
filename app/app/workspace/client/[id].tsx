@@ -17,8 +17,8 @@ import { loadWorkspaceClientDetails } from '@/features/workspace-clients/service
 import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 import { useClientProgramAssignment } from '@/features/workspace-programs/use-assignment';
-import { useTrainerBilling } from '@/features/trainer-billing/use-billing';
-import { PurchasesPanel } from '@/features/trainer-billing/purchases-panel';
+import { ClientPurchaseControls } from '@/features/trainer-billing/client-purchase-controls';
+import { WorkspaceMutationBoundary } from '@/features/workspace-scheduling/mutation-provider';
 
 function ClientDetails({
   workspaceId,
@@ -34,7 +34,6 @@ function ClientDetails({
   initialTab: 'sessions' | 'program' | 'progress' | 'billing' | 'notes';
 }) {
   const [attempt, setAttempt] = useState(0);
-  const billing = useTrainerBilling(userId, workspaceId, clientId);
   const [loaded, setLoaded] = useState<{
     attempt: number;
     data: WorkspaceClientDetailsData | null;
@@ -76,13 +75,12 @@ function ClientDetails({
       onBack={() => router.replace('/workspace/clients')}
       initialTab={initialTab}
       billingContent={
-        <PurchasesPanel
-          billing={billing.data}
+        <ClientPurchaseControls
+          userId={userId}
           workspaceId={workspaceId}
           clientRecordId={clientId}
-          loading={billing.loading}
-          error={billing.error !== null}
-          onRetry={billing.retry}
+          clientName={current?.data?.client.display_name ?? ''}
+          timezone={timezone}
         />
       }
       assignmentPending={assignment.pending !== null}
@@ -135,13 +133,18 @@ export default function WorkspaceClientDetailsRoute() {
   const workspace = context.context?.workspace;
   if (!workspace) return <Redirect href="/auth/onboarding" />;
   return (
-    <ClientDetails
-      key={`${auth.session.user.id}:${workspace.id}:${id}:${refresh ?? ''}`}
-      workspaceId={workspace.id}
-      clientId={id}
+    <WorkspaceMutationBoundary
       userId={auth.session.user.id}
-      timezone={workspace.timezone}
-      initialTab={tab === 'program' || tab === 'billing' ? tab : 'sessions'}
-    />
+      workspaceId={workspace.id}
+    >
+      <ClientDetails
+        key={`${auth.session.user.id}:${workspace.id}:${id}:${refresh ?? ''}`}
+        workspaceId={workspace.id}
+        clientId={id}
+        userId={auth.session.user.id}
+        timezone={workspace.timezone}
+        initialTab={tab === 'program' || tab === 'billing' ? tab : 'sessions'}
+      />
+    </WorkspaceMutationBoundary>
   );
 }

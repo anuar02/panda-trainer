@@ -1,5 +1,10 @@
 import * as service from './service';
 import type {
+  RecordClientPaymentInput,
+  ReverseClientPaymentInput,
+  PaymentCommandResult,
+} from '../trainer-payments/commands';
+import type {
   CreateClientPurchaseInput,
   MarkAttendedInput,
   BillingBookingCommand,
@@ -23,9 +28,11 @@ export type TrainerBillingCommand =
   | Command<'markNoShow', BillingBookingCommand>
   | Command<'bindPurchase', BindAttendancePurchaseInput>
   | Command<'undoAttendance', UndoAttendanceInput>
-  | Command<'chargeLateCancellation', ChargeLateCancellationInput>;
+  | Command<'chargeLateCancellation', ChargeLateCancellationInput>
+  | Command<'recordPayment', RecordClientPaymentInput>
+  | Command<'reversePayment', ReverseClientPaymentInput>;
 export type TrainerBillingCommandResult =
-  BillingAttendanceResult | BillingPurchaseResult;
+  BillingAttendanceResult | BillingPurchaseResult | PaymentCommandResult;
 export function validTrainerBillingCommand(
   value: unknown,
 ): value is TrainerBillingCommand {
@@ -42,6 +49,40 @@ export function validTrainerBillingCommand(
       !positiveInteger(value.units) ||
       !minorMoney(value.priceMinor) ||
       (value.expiresOn != null && !date(value.expiresOn))
+    )
+      return false;
+  } else if (
+    value.action === 'recordPayment' ||
+    value.action === 'reversePayment'
+  ) {
+    if (value.action === 'recordPayment') {
+      keys.push('purchaseId', 'amountMinor', 'paidOn', 'method');
+      if (
+        !uuid(value.purchaseId) ||
+        !minorMoney(value.amountMinor) ||
+        value.amountMinor === '0' ||
+        !date(value.paidOn) ||
+        value.paidOn < '0001-01-01' ||
+        typeof value.method !== 'string' ||
+        !['Kaspi', 'Перевод', 'Наличные'].includes(value.method)
+      )
+        return false;
+    } else {
+      keys.push('paymentEntryId', 'reason');
+      if (
+        !uuid(value.paymentEntryId) ||
+        typeof value.reason !== 'string' ||
+        !value.reason.trim()
+      )
+        return false;
+    }
+    if (value.action === 'recordPayment' && 'reason' in value)
+      keys.push('reason');
+    if (
+      value.reason != null &&
+      (typeof value.reason !== 'string' ||
+        !value.reason.trim() ||
+        value.reason.trim().length > 1000)
     )
       return false;
   } else {
@@ -120,21 +161,27 @@ export async function submitTrainerBillingCommand(
   const payload = { ...command, expectedUserId: userId };
   let result: TrainerBillingCommandResult;
   try {
-    result = await (payload.action === 'createPurchase'
-      ? service.createClientPurchase(payload)
-      : payload.action === 'markAttended'
-        ? service.markAttended(payload)
-        : payload.action === 'markNoShow'
-          ? service.markNoShow(payload)
-          : payload.action === 'bindPurchase'
-            ? service.bindAttendancePurchase(payload)
-            : payload.action === 'undoAttendance'
-              ? service.undoAttendance(payload)
-              : service.chargeLateCancellation(payload));
+    result = await (payload.action === 'recordPayment'
+      ? service.recordClientPayment(payload)
+      : payload.action === 'reversePayment'
+        ? service.reverseClientPayment(payload)
+        : payload.action === 'createPurchase'
+          ? service.createClientPurchase(payload)
+          : payload.action === 'markAttended'
+            ? service.markAttended(payload)
+            : payload.action === 'markNoShow'
+              ? service.markNoShow(payload)
+              : payload.action === 'bindPurchase'
+                ? service.bindAttendancePurchase(payload)
+                : payload.action === 'undoAttendance'
+                  ? service.undoAttendance(payload)
+                  : service.chargeLateCancellation(payload));
   } catch (error: unknown) {
     if (
       error instanceof TrainerBillingError &&
-      (error.code === 'conflict' || error.code === 'invalidState')
+      (error.code === 'conflict' ||
+        error.code === 'invalidState' ||
+        error.code === 'overpayment')
     )
       await clearPendingTrainerBillingCommand(
         userId,

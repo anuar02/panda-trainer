@@ -1,6 +1,13 @@
 import { getSupabaseClient } from '@/features/auth/client';
 import type { Database } from '@/lib/database.types';
 import {
+  recordClientPayment as recordPayment,
+  reverseClientPayment as reversePayment,
+  TrainerPaymentCommandError,
+  type RecordClientPaymentInput,
+  type ReverseClientPaymentInput,
+} from '../trainer-payments/commands';
+import {
   TrainerBillingError,
   type BillingScope,
   type TrainerBilling,
@@ -25,6 +32,19 @@ import {
 } from './validation';
 
 export { TrainerBillingError } from './types';
+const paymentRequest = async <T>(run: () => Promise<T>): Promise<T> => {
+  try {
+    return await run();
+  } catch (error: unknown) {
+    throw new TrainerBillingError(
+      error instanceof TrainerPaymentCommandError ? error.code : 'request',
+    );
+  }
+};
+export const recordClientPayment = (input: RecordClientPaymentInput) =>
+  paymentRequest(() => recordPayment(input));
+export const reverseClientPayment = (input: ReverseClientPaymentInput) =>
+  paymentRequest(() => reversePayment(input));
 const invalid = (): never => {
   throw new TrainerBillingError('invalidInput');
 };

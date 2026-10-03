@@ -1,0 +1,18 @@
+export const trainerBillingPurchaseRu = {
+  add: 'Добавить пакет',
+  title: 'Добавить пакет',
+  name: 'Название',
+  namePlaceholder: 'Название пакета',
+  units: 'Количество занятий',
+  price: 'Стоимость, ₸',
+  pricePlaceholder: '0',
+  expiry: 'Срок действия',
+  expiryPlaceholder: 'ГГГГ-ММ-ДД',
+  expiryHint: 'Необязательно. Последний день включён.',
+  save: 'Добавить пакет',
+  invalidTitle: 'Введите название пакета.',
+  invalidUnits: 'Введите целое положительное число занятий.',
+  invalidPrice: 'Введите положительную стоимость в тенге.',
+  invalidExpiry: 'Введите существующую дату в формате ГГГГ-ММ-ДД.',
+  submitError: 'Не удалось добавить пакет. Повторите попытку.',
+} as const;

@@ -1,5 +1,7 @@
 import { trainerBillingRu } from '@/features/trainer-billing/ru';
 import { trainerPurchasesRu } from '@/features/trainer-billing/purchases-ru';
+import { trainerBillingPurchaseRu } from '@/features/trainer-billing/purchase-create-ru';
+import { trainerPaymentsRu } from '@/features/trainer-payments/ru';
 import { templateEditor } from '@/features/template-editor/ru';
 import { trainerInbox } from '@/features/trainer-inbox/ru';
 import { sessionEditorRu } from '@/features/session-editor/ru';
@@ -26,6 +28,8 @@ import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
 export const ru = {
   trainerBilling: trainerBillingRu,
   trainerPurchases: trainerPurchasesRu,
+  trainerBillingPurchase: trainerBillingPurchaseRu,
+  trainerPayments: trainerPaymentsRu,
   ...onboardingRu,
   invitations: invitationsRu,
   workspaceLibrary: workspaceLibraryRu,

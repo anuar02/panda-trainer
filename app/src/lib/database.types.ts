@@ -1845,6 +1845,17 @@ export type Database = {
         };
         Returns: Json;
       };
+      record_client_payment: {
+        Args: {
+          p_amount_minor: number;
+          p_method: string;
+          p_paid_on: string;
+          p_purchase_id: string;
+          p_reason?: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
       resolve_booking_reschedule_request: {
         Args: {
           p_booking_id: string;
@@ -1862,6 +1873,14 @@ export type Database = {
           p_booking_id: string;
           p_command: string;
           p_expected_revision: number;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
+      reverse_client_payment: {
+        Args: {
+          p_payment_entry_id: string;
+          p_reason: string;
           p_request_id: string;
         };
         Returns: Json;

@@ -7,10 +7,14 @@ import {
   loadPendingTrainerBillingCommand,
   savePendingTrainerBillingCommand,
 } from '../src/features/trainer-billing/command-storage';
-import { markNoShow } from '../src/features/trainer-billing/service';
+import {
+  markNoShow,
+  recordClientPayment,
+} from '../src/features/trainer-billing/service';
 import { TrainerBillingError } from '../src/features/trainer-billing/types';
 jest.mock('../src/features/trainer-billing/service', () => ({
   markNoShow: jest.fn(),
+  recordClientPayment: jest.fn(),
 }));
 jest.mock('@react-native-async-storage/async-storage', () => ({
   __esModule: true,
@@ -51,6 +55,66 @@ beforeEach(() => {
     creditEntryId: null,
     replayed: false,
   });
+});
+const paymentCommand: TrainerBillingCommand = {
+  action: 'recordPayment',
+  purchaseId: other,
+  amountMinor: '9007199254740993',
+  paidOn: '2026-10-03',
+  method: 'Kaspi',
+  requestId: '54444444-4444-4444-8444-444444444444',
+};
+const paymentResult = {
+  paymentEntryId: other,
+  workspaceId: workspace,
+  clientRecordId: other,
+  purchaseId: other,
+  kind: 'payment' as const,
+  amountMinor: '9007199254740993',
+  currency: 'KZT' as const,
+  paidOn: '2026-10-03',
+  method: 'Kaspi' as const,
+  source: 'manual' as const,
+  reason: null,
+  reversesEntryId: null,
+  paidMinor: '9007199254740993',
+  dueMinor: '0',
+  replayed: false,
+};
+test('lost payment response retains exact amount and request for replay', async () => {
+  const paymentRpc = jest.mocked(recordClientPayment);
+  paymentRpc
+    .mockRejectedValueOnce(new TrainerBillingError('request'))
+    .mockResolvedValue(paymentResult);
+  await expect(
+    submitTrainerBillingCommand(user, workspace, paymentCommand),
+  ).rejects.toMatchObject({ code: 'request' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    paymentCommand,
+  );
+  await submitTrainerBillingCommand(user, workspace, paymentCommand);
+  expect(paymentRpc.mock.calls[0][0]).toEqual(paymentRpc.mock.calls[1][0]);
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toBeNull();
+});
+test('definitive overpayment removes pending command so a corrected amount can be submitted', async () => {
+  jest
+    .mocked(recordClientPayment)
+    .mockRejectedValue(new TrainerBillingError('overpayment'));
+  await expect(
+    submitTrainerBillingCommand(user, workspace, paymentCommand),
+  ).rejects.toMatchObject({ code: 'overpayment' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toBeNull();
+});
+test('payment receipt from another workspace is not accepted and remains recoverable', async () => {
+  jest
+    .mocked(recordClientPayment)
+    .mockResolvedValue({ ...paymentResult, workspaceId: other });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, paymentCommand),
+  ).rejects.toMatchObject({ code: 'request' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    paymentCommand,
+  );
 });
 test('transport loss preserves exact request across reload and refuses replacement', async () => {
   rpc.mockRejectedValueOnce(new TrainerBillingError('request'));

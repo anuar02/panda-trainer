@@ -27,11 +27,13 @@ export function Sheet({
   children,
   fixedContent,
   stackBehavior,
+  closeLabel,
 }: PropsWithChildren<{
   open: boolean;
   title: string;
   onClose: () => void;
   stackBehavior?: 'push' | 'switch' | 'replace';
+  closeLabel?: string;
   fixedContent?: { header: ReactNode; footer: ReactNode };
 }>) {
   const ref = useRef<BottomSheetModal>(null);
@@ -197,7 +199,7 @@ export function Sheet({
           </Text>
           {children}
           <Button
-            label={t('common.close')}
+            label={closeLabel ?? t('common.close')}
             variant="secondary"
             onPress={dismiss}
           />

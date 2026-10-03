@@ -120,7 +120,12 @@ export function useTrainerBillingCommands({
         token.locked = false;
       }
       if (!token.active) return false;
-      if (result || failure === 'conflict' || failure === 'invalidState')
+      if (
+        result ||
+        failure === 'conflict' ||
+        failure === 'invalidState' ||
+        failure === 'overpayment'
+      )
         onChanged();
       return result !== null;
     },

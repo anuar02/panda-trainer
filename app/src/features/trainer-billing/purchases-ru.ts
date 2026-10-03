@@ -14,4 +14,7 @@ export const trainerPurchasesRu = {
   paymentHistory: 'История оплат',
   paymentUnavailable: 'Данные об оплатах пока недоступны.',
   unknown: '—',
+  paid: 'Оплачено',
+  debt: 'Есть долг',
+  noPayments: 'Оплат пока нет.',
 } as const;

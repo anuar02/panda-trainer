@@ -4,6 +4,7 @@ export type TrainerBillingErrorCode =
   | 'unavailable'
   | 'conflict'
   | 'invalidState'
+  | 'overpayment'
   | 'request';
 
 export class TrainerBillingError extends Error {
