@@ -9,6 +9,17 @@
 
 ## Где остановились
 
+- Coordinator integration SOM-34: база SOM-39 влита, полный npm run check
+  зелёный: 1247 tests / 128 suites, type/lint/format. Native/owner приёмка открыты.
+
+- 03.10.2026 — SOM-34 follow-up по решению `8c03812`: [x] одна строка
+  отменённой оплаты с зачёркнутой суммой/датой; [x] подтверждение с причиной;
+  [x] scoped durable reversal и workspace lock, receipt validation, refresh
+  истории/долга. Посещения/credits не меняются. Полный `npm run check` зелёный: 1232 tests / 126 suites, type/lint/format.
+  [ ] Native/visual/owner acceptance; SQL и real network replay не проверены.
+  Linear не изменялся. [ADR 0059](decisions/0059-package-creation-and-capped-payments.md),
+  [отчёт](../../app/review/som-34-payment-reversals/README.md).
+
 - 03.10.2026 — SOM-39: настройка calm отдельно для обеих ролей, API для SOM-38,
   AccessibilityInfo и ReduceMotion; функциональные Reanimated-анимации и
   адаптивная вёрстка Today/журнала при fontScale 134–200%. 1220 tests / 124 suites,

@@ -68,6 +68,7 @@ test.each(
       [reversal],
       [payment, { ...reversal, amountMinor: '-2999' }],
       [payment, { ...reversal, method: 'Наличные' }],
+      [payment, { ...reversal, paidOn: '2026-10-04' }],
       [payment, reversal, { ...reversal, id: id(6) }],
       [payment, { ...payment, id: id(7), amountMinor: '8000' }],
       [payment, payment],
@@ -98,3 +99,40 @@ test('rejects duplicate purchases and malformed scope', () => {
     ).valid,
   ).toBe(false);
 });
+
+test('history retains one original row with reversal creation date and exact debt', () => {
+  const amountMinor = '9007199254740993';
+  const original = { ...payment, amountMinor };
+  const reversed = {
+    ...reversal,
+    amountMinor: `-${amountMinor}`,
+    createdAt: '2026-10-05T09:30:00Z',
+  };
+  const result = project(
+    [original, reversed],
+    [{ ...purchase, priceMinor: amountMinor }],
+  );
+  expect(result.valid).toBe(true);
+  expect(result.purchases[0]).toMatchObject({
+    paidMinor: '0',
+    dueMinor: amountMinor,
+    payments: [],
+    history: [{ ...original, reversedAt: reversed.createdAt }],
+  });
+  expect(result.purchases[0]?.history).toHaveLength(1);
+  expect(project([payment]).purchases[0]?.history).toEqual([
+    { ...payment, reversedAt: null },
+  ]);
+});
+test.each(['workspaceId', 'clientRecordId', 'purchaseId'] as const)(
+  'foreign reversal %s never cancels the original',
+  (field) => {
+    const result = project([payment, { ...reversal, [field]: id(99) }]);
+    if (field === 'purchaseId') expect(result.valid).toBe(false);
+    else
+      expect(result.purchases[0]).toMatchObject({
+        paidMinor: payment.amountMinor,
+        history: [{ ...payment, reversedAt: null }],
+      });
+  },
+);

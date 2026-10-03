@@ -30,7 +30,14 @@ export type TrainerBillingCommand =
   | Command<'undoAttendance', UndoAttendanceInput>
   | Command<'chargeLateCancellation', ChargeLateCancellationInput>
   | Command<'recordPayment', RecordClientPaymentInput>
-  | Command<'reversePayment', ReverseClientPaymentInput>;
+  | Command<
+      'reversePayment',
+      ReverseClientPaymentInput & {
+        clientRecordId: string;
+        purchaseId: string;
+        amountMinor: string;
+      }
+    >;
 export type TrainerBillingCommandResult =
   BillingAttendanceResult | BillingPurchaseResult | PaymentCommandResult;
 export function validTrainerBillingCommand(
@@ -68,8 +75,18 @@ export function validTrainerBillingCommand(
       )
         return false;
     } else {
-      keys.push('paymentEntryId', 'reason');
+      keys.push(
+        'paymentEntryId',
+        'reason',
+        'clientRecordId',
+        'purchaseId',
+        'amountMinor',
+      );
       if (
+        !uuid(value.clientRecordId) ||
+        !uuid(value.purchaseId) ||
+        !minorMoney(value.amountMinor) ||
+        value.amountMinor === '0' ||
         !uuid(value.paymentEntryId) ||
         typeof value.reason !== 'string' ||
         !value.reason.trim()
@@ -152,6 +169,10 @@ export function snapshotTrainerBillingCommand(
       ]),
   ) as TrainerBillingCommand;
 }
+const isPaymentResult = (
+  result: TrainerBillingCommandResult,
+): result is PaymentCommandResult => 'paymentEntryId' in result;
+
 export async function submitTrainerBillingCommand(
   userId: string,
   workspaceId: string,
@@ -196,6 +217,19 @@ export async function submitTrainerBillingCommand(
   if (
     'workspaceId' in result &&
     result.workspaceId.toLowerCase() !== workspaceId.toLowerCase()
+  )
+    throw new TrainerBillingError('request');
+  if (
+    command.action === 'reversePayment' &&
+    (!isPaymentResult(result) ||
+      result.workspaceId.toLowerCase() !== workspaceId.toLowerCase() ||
+      result.clientRecordId.toLowerCase() !==
+        command.clientRecordId.toLowerCase() ||
+      result.kind !== 'reversal' ||
+      result.reversesEntryId?.toLowerCase() !==
+        command.paymentEntryId.toLowerCase() ||
+      result.amountMinor !== `-${command.amountMinor}` ||
+      result.purchaseId.toLowerCase() !== command.purchaseId.toLowerCase())
   )
     throw new TrainerBillingError('request');
   await clearPendingTrainerBillingCommand(

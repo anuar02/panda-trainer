@@ -10,6 +10,7 @@ import { useTrainerBilling } from './use-billing';
 import { PurchasesPanel } from './purchases-panel';
 import { PurchaseCreateSheet } from './purchase-create-sheet';
 import { useTrainerPayments } from '../trainer-payments/use-payments';
+import { PaymentReversalSheet } from '../trainer-payments/reversal-sheet';
 import { PaymentSheet } from '../trainer-payments/payment-sheet';
 import { projectPurchasePayments } from '@/domain/payments';
 import type { PurchasePaymentProjection } from '@/domain/payments';
@@ -17,24 +18,38 @@ import { workspaceDateKey } from '../workspace-scheduling/clock';
 import { useWorkspaceClock } from '../workspace-scheduling/use-clock';
 import { formatPurchaseMoney } from '@/domain/purchases';
 
-export function ClientPurchaseControls({
-  userId,
-  workspaceId,
-  clientRecordId,
-  clientName,
-  timezone,
-}: {
+type ClientPurchaseControlsProps = {
   userId: string;
   workspaceId: string;
   clientRecordId: string;
   clientName: string;
   timezone: string;
-}) {
+};
+export function ClientPurchaseControls(props: ClientPurchaseControlsProps) {
+  return (
+    <ClientPurchaseControlsContent
+      key={JSON.stringify([
+        props.userId,
+        props.workspaceId,
+        props.clientRecordId,
+      ])}
+      {...props}
+    />
+  );
+}
+function ClientPurchaseControlsContent({
+  userId,
+  workspaceId,
+  clientRecordId,
+  clientName,
+  timezone,
+}: ClientPurchaseControlsProps) {
   const { t } = useTranslation();
   const read = useTrainerBilling(userId, workspaceId, clientRecordId);
   const payments = useTrainerPayments(userId, workspaceId, clientRecordId);
   const now = useWorkspaceClock();
   const mutations = useWorkspaceMutations();
+  const [reversalId, setReversalId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [paymentSelection, setPaymentSelection] = useState<
     PurchasePaymentProjection['purchases'][number] | null
@@ -52,10 +67,15 @@ export function ClientPurchaseControls({
     retryPayments();
   }, [mutations.generation, retry, retryPayments]);
   const { billing } = mutations;
+  const foreignReversal =
+    billing.pending?.action === 'reversePayment' &&
+    billing.pending.clientRecordId.toLowerCase() !==
+      clientRecordId.toLowerCase();
   const pending =
     billing.pending &&
     billing.error !== 'storage' &&
-    billing.error !== 'invalidPending';
+    billing.error !== 'invalidPending' &&
+    !foreignReversal;
   const crossBusy = mutations.busy && !billing.busy;
   const projection =
     read.data && payments.data && !payments.error
@@ -88,7 +108,7 @@ export function ClientPurchaseControls({
           <Button
             label={t(pending ? 'trainerBilling.resume' : 'common.retry')}
             loading={billing.busy}
-            disabled={crossBusy}
+            disabled={crossBusy || foreignReversal}
             onPress={() => {
               if (pending) void billing.resume();
               else {
@@ -114,6 +134,9 @@ export function ClientPurchaseControls({
         paymentsLoading={payments.loading}
         paymentsError={Boolean(payments.error)}
         disabled={mutations.blocked}
+        onReverse={(id) => {
+          if (!mutations.blocked) setReversalId(id);
+        }}
         onPayment={(id) => {
           const purchase = projection?.valid
             ? projection.purchases.find((row) => row.purchase.id === id)
@@ -121,6 +144,36 @@ export function ClientPurchaseControls({
           if (purchase && !mutations.blocked) setPaymentSelection(purchase);
         }}
       />
+      {reversalId &&
+        projection?.valid &&
+        projection.purchases
+          .flatMap((row) => row.history)
+          .filter((entry) => entry.id === reversalId && !entry.reversedAt)
+          .map((entry) => (
+            <PaymentReversalSheet
+              key={entry.id}
+              payment={entry}
+              disabled={
+                mutations.blocked ||
+                payments.loading ||
+                Boolean(payments.error) ||
+                read.loading ||
+                Boolean(read.error)
+              }
+              onClose={() => setReversalId(null)}
+              onConfirm={(reason) =>
+                billing.submit({
+                  action: 'reversePayment',
+                  paymentEntryId: entry.id,
+                  purchaseId: entry.purchaseId,
+                  amountMinor: entry.amountMinor,
+                  clientRecordId,
+                  requestId: randomUUID(),
+                  reason,
+                })
+              }
+            />
+          ))}
       <PaymentSheet
         key={paymentSelection?.purchase.id ?? 'closed'}
         open={Boolean(selected)}

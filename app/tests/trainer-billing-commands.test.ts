@@ -10,11 +10,13 @@ import {
 import {
   markNoShow,
   recordClientPayment,
+  reverseClientPayment,
 } from '../src/features/trainer-billing/service';
 import { TrainerBillingError } from '../src/features/trainer-billing/types';
 jest.mock('../src/features/trainer-billing/service', () => ({
   markNoShow: jest.fn(),
   recordClientPayment: jest.fn(),
+  reverseClientPayment: jest.fn(),
 }));
 jest.mock('@react-native-async-storage/async-storage', () => ({
   __esModule: true,
@@ -190,3 +192,72 @@ test('corrupt storage is preserved and blocks all commands', async () => {
   expect(rpc).not.toHaveBeenCalled();
   expect(rows.size).toBe(1);
 });
+
+const reversalCommand: TrainerBillingCommand = {
+  action: 'reversePayment',
+  requestId: command.requestId,
+  paymentEntryId: other,
+  clientRecordId: other,
+  purchaseId: other,
+  amountMinor: paymentResult.amountMinor,
+  reason: 'Ошибка оплаты',
+};
+const reversalResult = {
+  ...paymentResult,
+  paymentEntryId: command.requestId,
+  kind: 'reversal' as const,
+  amountMinor: `-${paymentResult.amountMinor}`,
+  reason: reversalCommand.reason,
+  reversesEntryId: other,
+  paidMinor: '0',
+  dueMinor: paymentResult.amountMinor,
+};
+test('lost reversal response persists exact command across reload and isolates actor/workspace', async () => {
+  const reverse = jest.mocked(reverseClientPayment);
+  reverse
+    .mockRejectedValueOnce(new TrainerBillingError('request'))
+    .mockResolvedValue(reversalResult);
+  await expect(
+    submitTrainerBillingCommand(user, workspace, reversalCommand),
+  ).rejects.toMatchObject({ code: 'request' });
+  const saved = await loadPendingTrainerBillingCommand(user, workspace);
+  expect(saved).toEqual(reversalCommand);
+  expect(await loadPendingTrainerBillingCommand(other, workspace)).toBeNull();
+  expect(await loadPendingTrainerBillingCommand(user, other)).toBeNull();
+  if (!saved) throw new Error('Missing saved reversal');
+  await submitTrainerBillingCommand(user, workspace, saved);
+  expect(reverse.mock.calls[0]).toEqual(reverse.mock.calls[1]);
+  expect(reverse.mock.calls[1]?.[0]).toMatchObject({
+    expectedUserId: user,
+    requestId: command.requestId,
+  });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toBeNull();
+});
+test.each([
+  { clientRecordId: user },
+  { workspaceId: other },
+  { purchaseId: user },
+  { amountMinor: '-1' },
+])('mismatched reversal receipt retains recovery %j', async (change) => {
+  jest
+    .mocked(reverseClientPayment)
+    .mockResolvedValue({ ...reversalResult, ...change });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, reversalCommand),
+  ).rejects.toMatchObject({ code: 'request' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    reversalCommand,
+  );
+});
+test.each(['conflict', 'invalidState'] as const)(
+  'definitive reversal %s clears pending',
+  async (code) => {
+    jest
+      .mocked(reverseClientPayment)
+      .mockRejectedValue(new TrainerBillingError(code));
+    await expect(
+      submitTrainerBillingCommand(user, workspace, reversalCommand),
+    ).rejects.toMatchObject({ code });
+    expect(await loadPendingTrainerBillingCommand(user, workspace)).toBeNull();
+  },
+);
