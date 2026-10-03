@@ -5,6 +5,30 @@ import {
   type WorkspaceSchedule,
 } from '../src/features/workspace-scheduling/service';
 
+let mockAuthLoading = false;
+let mockAuthFailed = false;
+let mockUserId = 'user-a';
+let mockSessionId = '11111111-1111-4111-8111-111111111111';
+let mockAuthListener: ((event: string, session: null) => void) | undefined;
+jest.mock('../src/features/auth/provider', () => ({
+  useAuth: () => ({
+    configured: true,
+    loading: mockAuthLoading,
+    failed: mockAuthFailed,
+    session: {
+      user: { id: mockUserId },
+      access_token: `x.${Buffer.from(JSON.stringify({ sub: mockUserId, session_id: mockSessionId })).toString('base64url')}.x`,
+    },
+  }),
+}));
+jest.mock('../src/features/auth/service', () => ({
+  authService: {
+    onAuthStateChange: (listener: typeof mockAuthListener) => {
+      mockAuthListener = listener;
+      return { unsubscribe: jest.fn() };
+    },
+  },
+}));
 let mockFocused = true;
 jest.mock('expo-router', () => ({
   useFocusEffect: (effect: () => void | (() => void)) => {
@@ -52,6 +76,10 @@ const deferred = () => {
 
 beforeEach(() => {
   mockFocused = true;
+  mockAuthLoading = false;
+  mockAuthFailed = false;
+  mockUserId = 'user-a';
+  mockSessionId = '11111111-1111-4111-8111-111111111111';
   load.mockReset().mockResolvedValue(schedule);
 });
 
@@ -61,6 +89,11 @@ test('loads the padded week and reuses it when the selected day stays in that we
     'workspace-a',
     '2026-09-27T00:00:00.000Z',
     '2026-10-06T00:00:00.000Z',
+    expect.objectContaining({
+      expectedUserId: 'user-a',
+      expectedSessionId: mockSessionId,
+      assertCurrent: expect.any(Function),
+    }),
   );
   await waitFor(() => expect(hook.result.current.schedule).toBe(schedule));
   await hook.rerender({ ...props, date: '2026-10-04' });
@@ -78,6 +111,7 @@ for (const change of [
     const next = deferred();
     load.mockReturnValueOnce(old.promise).mockReturnValueOnce(next.promise);
     const hook = await mount();
+    if ('userId' in change && change.userId) mockUserId = change.userId;
     await hook.rerender({ ...props, ...change });
     await act(async () => old.resolve(schedule));
     expect(hook.result.current.schedule).toBeNull();
@@ -93,6 +127,7 @@ test('resolved data disappears immediately when a new scope loads', async () => 
   const hook = await mount();
   await waitFor(() => expect(hook.result.current.schedule).toBe(schedule));
   load.mockReturnValueOnce(deferred().promise);
+  mockUserId = 'user-b';
   await hook.rerender({ ...props, userId: 'user-b' });
   expect(hook.result.current.schedule).toBeNull();
   expect(hook.result.current.loading).toBe(true);
@@ -139,3 +174,26 @@ test('unmount ignores a pending request result', async () => {
   await act(async () => pending.resolve(schedule));
   expect(load).toHaveBeenCalledTimes(1);
 });
+
+test('same account login immediately clears data and rejects pending old snapshots', async () => {
+  const old = deferred();
+  load.mockReturnValueOnce(old.promise);
+  const hook = await mount();
+  await act(() => mockAuthListener?.('SIGNED_IN', null));
+  await waitFor(() => expect(hook.result.current.schedule).toBe(schedule));
+  await act(async () => old.resolve({ ...schedule, bookings: [] }));
+  expect(hook.result.current.schedule).toBe(schedule);
+});
+
+for (const state of ['loading', 'failed'] as const) {
+  test(`hides saved data when auth is ${state}`, async () => {
+    const hook = await mount();
+    await waitFor(() => expect(hook.result.current.schedule).toBe(schedule));
+    if (state === 'loading') mockAuthLoading = true;
+    else mockAuthFailed = true;
+    await hook.rerender(props);
+    expect(hook.result.current.schedule).toBeNull();
+    await waitFor(() => expect(hook.result.current.failed).toBe(true));
+    expect(load).toHaveBeenCalledTimes(1);
+  });
+}

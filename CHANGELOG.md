@@ -16,6 +16,8 @@
   rejected/drafts и свежий snapshot для offline reopen.
   [Отчёт r2](app/review/som-31-workout-entry-r2/README.md); SQL/native и приёмка открыты.
 
+- [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
+
 ### Добавлено
 
 - [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
@@ -23,6 +25,13 @@
   [Отчёт](app/review/som-31-workout-entry/README.md),
   [ADR 0075](docs/app/decisions/0075-booking-snapshot-journal-entry.md).
   SQL/native/parity и одобрение владельца открыты; finish/correction — SOM-32.
+- [SOM-26 / draft PR #41](https://github.com/anuar02/panda-trainer/pull/41): runtime validation и ограниченная пагинация чтения расписания,
+  фиксированная авторизация всех страниц и защита Today/week от старого snapshot
+  после смены сессии, retry и unmount. Команды создания/мутаций сохранены.
+  [Отчёт](app/review/som-26-schedule-read-fencing/README.md),
+  [ADR 0075](docs/app/decisions/0075-session-fenced-schedule-read.md).
+  SQL/live API/native/parity и одобрение владельца открыты.
+
 - [SOM-41 / draft PR #36](https://github.com/anuar02/panda-trainer/pull/36): серверный экспорт в authenticated account settings, entry из профиля тренера,
   session fencing и отдельная доставка точного UTF-8 JSON на web/Android/iOS.
   Native/visual и одобрение владельца открыты; deletion не подключён.

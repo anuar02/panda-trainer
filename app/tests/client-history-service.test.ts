@@ -183,7 +183,12 @@ function setup(
     return builder;
   });
   jest.mocked(getSupabaseClient).mockReturnValue({
-    auth: { getSession },
+    auth: {
+      getSession,
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
     rpc,
     from,
   } as unknown as SupabaseClient<Database>);

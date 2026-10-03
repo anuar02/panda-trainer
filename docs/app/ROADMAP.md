@@ -9,6 +9,17 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-35: [x] session fence клиентской истории, auth reset страниц/detail, workspace read seam и synthetic regressions (check: 1582 tests / 152 suites); [ ] live API/RLS, native, два телефона и приёмка владельца. [Отчёт](../../app/review/som-35-history-session-fencing/README.md), [ADR 0076](decisions/0076-client-history-session-fencing.md).
+
+- 03.10.2026 — SOM-26 read gap: [x] runtime validation всех read rows/связей,
+  [x] bounded pagination без успешного обрезания, [x] фиксированная авторизация
+  страниц и session-aware hook/controller; предложения вне недели сохранены.
+  [Отчёт](../../app/review/som-26-schedule-read-fencing/README.md),
+  [ADR 0075](decisions/0075-session-fenced-schedule-read.md).
+  [ ] SQL/RLS/live API, native/parity, два устройства и одобрение владельца.
+  Полный `cd app && npm run check`: 1636 tests / 154 suites, type/lint/format зелёные.
+  SOM-26/SOM-45 остаются открытыми; creation/mutation commands не изменены.
+
 - 03.10.2026 — SOM-31 r2: [x] исправлен lifecycle replacement/sets после current
   receipt, сохранение свежего server snapshot для offline reopen и fencing участника;
   [x] domain/service/hook регрессии current/incoming/retry/rejected;
