@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { TrainerScheduleScreen } from '../trainer-schedule/trainer-schedule-screen';
+import { useWorkspaceClock } from './use-clock';
 import { calendarWeekDateKeys, workspaceDateKey } from './clock';
 import {
   workspaceScheduleRows,
@@ -12,6 +13,7 @@ import { useWorkspaceSchedule } from './use-schedule';
 import {
   WorkspaceMutationBoundary,
   useWorkspaceMutations,
+  useWorkspaceScreenScope,
 } from './mutation-provider';
 import { WorkspaceSessionControls } from './workspace-session-controls';
 import { Button } from '@/ui/button';
@@ -32,7 +34,7 @@ export function WorkspaceScheduleScreen(props: WorkspaceScheduleScreenProps) {
       workspaceId={props.workspaceId}
     >
       <WorkspaceScheduleContent
-        key={`${props.userId}:${props.workspaceId}:${props.timezone}:${props.initialDate ?? ''}`}
+        key={`${props.userId}:${props.workspaceId}:${props.timezone}:${props.initialDate ?? ''}:${props.initialSelectedId ?? ''}`}
         {...props}
       />
     </WorkspaceMutationBoundary>
@@ -49,20 +51,24 @@ function WorkspaceScheduleContent({
   const { t } = useTranslation();
   const router = useRouter();
   const mutations = useWorkspaceMutations();
-  const today = workspaceDateKey(new Date(), timezone);
-  const [date, setDate] = useState(() => {
-    if (!initialDate) return today;
+  const today = workspaceDateKey(useWorkspaceClock(), timezone);
+  const [chosenDate, setDate] = useState<string | null>(() => {
+    if (!initialDate) return null;
     try {
       calendarWeekDateKeys(initialDate);
       return initialDate;
     } catch {
-      return today;
+      return null;
     }
   });
+  const date = chosenDate ?? today;
   const [selectedId, setSelectedId] = useState<string | null>(
     initialSelectedId ?? null,
   );
   const read = useWorkspaceSchedule(userId, workspaceId, date);
+  const caller = useWorkspaceScreenScope(
+    JSON.stringify([date, mutations.generation, read.loading]),
+  );
   const retryRead = read.retry;
   const lastGeneration = useRef(mutations.generation);
   useEffect(() => {
@@ -77,9 +83,15 @@ function WorkspaceScheduleContent({
     : [];
   return (
     <View className="flex-1 bg-canvas">
-      {read.failed ? (
+      {read.failed || mutations.unavailable ? (
         <Screen title={t('common.error')}>
-          <Button label={t('common.retry')} onPress={read.retry} />
+          <Button
+            label={t('common.retry')}
+            onPress={() => {
+              if (mutations.unavailable) mutations.retrySession();
+              else if (caller.isCurrent()) read.retry();
+            }}
+          />
         </Screen>
       ) : (
         <TrainerScheduleScreen
@@ -95,17 +107,30 @@ function WorkspaceScheduleContent({
               : [],
             createDisabled: mutations.blocked || read.loading || !schedule,
             onDateChange: (next) => {
+              if (!caller.isCurrent()) return;
               setDate(next);
               setSelectedId(null);
             },
             onCreate: (selectedDate, start) => {
-              if (mutations.blocked) return;
-              router.push({
-                pathname: '/workspace/new',
-                params: { date: selectedDate, ...(start ? { start } : {}) },
+              if (
+                mutations.blocked ||
+                !caller.isCurrent() ||
+                read.loading ||
+                !read.schedule
+              )
+                return;
+              void caller.verifyCurrent().then((valid) => {
+                if (!valid || !caller.isCurrent()) return;
+                router.push({
+                  pathname: '/workspace/new',
+                  params: { date: selectedDate, ...(start ? { start } : {}) },
+                });
               });
             },
-            onSelect: (session) => setSelectedId(session.id),
+            onSelect: (session) => {
+              if (caller.isCurrent() && !read.loading)
+                setSelectedId(session.id);
+            },
           }}
         />
       )}
@@ -115,7 +140,9 @@ function WorkspaceScheduleContent({
         timezone={timezone}
         schedule={schedule}
         selectedId={selectedId}
-        onClose={() => setSelectedId(null)}
+        onClose={() => {
+          if (caller.isCurrent()) setSelectedId(null);
+        }}
         onRetry={read.retry}
         loading={read.loading}
       />

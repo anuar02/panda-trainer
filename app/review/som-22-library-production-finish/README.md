@@ -29,7 +29,7 @@ Linear не менялся. GitHub merge statuses #52/#55/#44 сверены rea
 | Storage/clear failures не success; late finally/new submit/unmount не сбрасывают новую форму/lock | Сделано synthetic: serialized storage/backup/marker, guarded compensation; shared owned provider lock; route guard/cancel и scoped selection |
 | Runtime validation unknown rows/ID/scope/dates/units | Сделано: mutation row validation плюс full input equality, reused read validators; wrong scoped rows/dates/units/payload tests |
 | Existing template/assignment/read tests | PASS: полный app check, 2347 tests / 186 suites |
-| SQL migrations | Только новая additive `20261004100000_exercise_replay_identity.sql`: INSERT privilege существующей колонки id. Existing migrations не изменены. Новых SQL objects/types нет, generated types прежние |
+| SQL migrations | Только новая additive `20261004110000_exercise_replay_identity.sql`: INSERT privilege существующей колонки id. Existing migrations не изменены. Новых SQL objects/types нет, generated types прежние |
 | Native/visual/accessibility и приёмка экрана/issue | Не проверено; требует одобрения владельца |
 
 Доказанный defect, требующий additive migration: раньше server-generated UUID

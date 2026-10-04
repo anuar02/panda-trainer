@@ -236,3 +236,15 @@ serializes replay; server errors do not discard following operations. Source dev
 and requested position preserve deterministic merged set order. Finished data stay
 unchanged until an explicit later correction flow. [ADR 0062](decisions/0062-sqlite-journal-outbox.md).
 SQL runtime and generated type drift remain unverified in this container.
+
+## SOM-32 explicit correction
+
+`workout_correction_drafts` сохраняет original operation и добавляет applied_at /
+applied_request_id. Приватные immutable receipts/audit связаны tenant composite FK;
+public journal/exercise last_correction_request_id указывает конкретную команду.
+Owner-only list/review/apply RPC сериализуется с обычным sync, проверяет original
+provenance, выбранные conflict snapshots и ожидаемые версии. Журнал остаётся
+finished с исходным timestamp; личная программа, booking/attendance/financial
+данные не изменяются. Прямой authenticated DML закрыт.
+[ADR 0090](decisions/0090-explicit-finished-journal-correction.md),
+[needs-local-db gate](../../app/review/som-32-explicit-correction-server/README.md).

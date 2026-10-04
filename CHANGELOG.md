@@ -11,6 +11,13 @@
 
 - [SOM-22 / draft PR #58](https://github.com/anuar02/panda-trainer/pull/58): create/archive упражнений закреплены за actor/workspace/login; durable input/UUID replay, validated mutation rows и provider/route lifecycle guards защищают от дублей и поздних результатов. Additive grant INSERT(id), SQL archive/history regressions и concurrency handoff; [отчёт](app/review/som-22-library-production-finish/README.md), [ADR 0089](docs/app/decisions/0089-exercise-mutation-session-and-replay.md). SQL/runtime/native и приёмка владельца открыты.
 
+- [SOM-26 / draft PR #57](https://github.com/anuar02/panda-trainer/pull/57): Today/week/create и общий mutation provider сбрасывают selections,
+  callbacks и locks при relogin/logout; verified refresh сохраняет сценарий.
+  Исправлен повтор save после overlap acknowledgement; default week следует
+  workspace clock. [Проверки](app/review/som-26-schedule-production-finish/README.md),
+  [ADR 0087](docs/app/decisions/0087-schedule-presentation-session-lifecycle.md).
+  SQL/live auth/native/parity и одобрение владельца не проверены.
+
 - [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
   terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),
@@ -31,6 +38,14 @@
 - [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
 
 ### Добавлено
+
+- [SOM-32 / draft PR #56](https://github.com/anuar02/panda-trainer/pull/56): отдельное явное применение сохранённого correction draft завершённого
+  журнала: owner RPC, immutable receipts/audit и tenant/revision/provenance guards;
+  scoped transport, durable exact retry, просмотр/подтверждение и readback в журнале.
+  [Отчёт](app/review/som-32-explicit-correction-server/README.md),
+  [ADR 0090](docs/app/decisions/0090-explicit-finished-journal-correction.md).
+  SQL runtime — needs-local-db; native/parity и одобрение владельца открыты.
+  Выборочное обновление личной программы и SOM-32 целиком не завершены.
 
 - [SOM-41 / draft PR #51](https://github.com/anuar02/panda-trainer/pull/51): внутренний read-only scoped SQLite outbox snapshot всех операций/receipts
   и raw entries в одной queued transaction, bounded paging и session cancellation.
