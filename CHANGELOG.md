@@ -9,6 +9,10 @@
 
 ## Не выпущено
 
+- [SOM-26 / draft PR #50](https://github.com/anuar02/panda-trainer/pull/50): создание занятия закреплено за login и workspace; поздние ответы и кэш успеха проверяют сессию, durable retry сохраняет requestId/план, conditional clear защищает pending. [Отчёт](app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0080](docs/app/decisions/0080-booking-creation-session-fencing-and-durable-retry.md). Runtime и приёмка владельца открыты.
+- [SOM-24 r2 / draft PR #49](https://github.com/anuar02/panda-trainer/pull/49): восстановлен полный пакет закрытого без слияния PR #46; refresh проверяет JWT sub/session_id, поздние RPC/storage и cached success закрываются при смене identity, durable retry сохраняет requestId. [Текущий отчёт](app/review/som-24-assignment-session-fencing-r2/README.md), [ADR 0080](docs/app/decisions/0080-program-assignment-session-fencing.md). Live/native и приёмка владельца открыты.
+- SOM-24: чтение личной immutable программы закреплено за actor/client/session; same-user relogin скрывает старые данные, refresh проверяется, страницы и snapshot валидируются по схеме. [Проверки](app/review/som-24-client-program-read-fencing/README.md), [ADR 0080](docs/app/decisions/0080-client-program-read-session-fencing.md).
+
 - SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
 - [SOM-31 r2 / draft PR #42](https://github.com/anuar02/panda-trainer/pull/42): provenance reconciliation возвращает серверный original после current
   receipt, убирает отвергнутую replacement и отсутствующие подходы, сохраняет pending/

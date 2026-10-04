@@ -1,4 +1,4 @@
-# 0081. Scoped read-only SQLite snapshot через очередь outbox
+# 0084. Scoped read-only SQLite snapshot через очередь outbox
 
 - Дата: 04.10.2026
 - Статус: реализовано технически; native/runtime и owner acceptance открыты

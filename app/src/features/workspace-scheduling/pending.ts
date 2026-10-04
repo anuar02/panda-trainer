@@ -149,6 +149,7 @@ export const clearPendingWorkspaceBooking = (
   userId: string,
   workspaceId: string,
   expectedRequestId: string,
+  guard: () => void = () => {},
 ): Promise<boolean> => {
   const key = keyFor(userId, workspaceId);
   if (!validUuid(expectedRequestId))
@@ -160,7 +161,14 @@ export const clearPendingWorkspaceBooking = (
       decode(raw).requestId !== expectedRequestId.toLowerCase()
     )
       return false;
-    await AsyncStorage.removeItem(key);
+    guard();
+    try {
+      await AsyncStorage.removeItem(key);
+      guard();
+    } catch (error) {
+      await AsyncStorage.setItem(key, raw);
+      throw error;
+    }
     return true;
   });
 };

@@ -1,3 +1,5 @@
+import { getSupabaseClient } from '../src/features/auth/client';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import {
   act,
   fireEvent,
@@ -136,6 +138,9 @@ const mount = () =>
 const press = (name: string) =>
   fireEvent.press(screen.getByRole('button', { name }));
 beforeEach(() => {
+  jest
+    .mocked(getSupabaseClient)
+    .mockReturnValue(bookingAuthFixture('user').client);
   mockFocused = true;
   mockUuid = 0;
   onCreated.mockReset();
@@ -246,6 +251,7 @@ test('pending command restores all participants duration and later program and s
         startsAtUtc: pending.startsAtUtc,
         endsAtUtc: pending.endsAtUtc,
       }),
+      expect.any(Function),
     ),
   );
   expect(onCreated).toHaveBeenCalledWith('2030-10-03');

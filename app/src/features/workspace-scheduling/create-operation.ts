@@ -1,4 +1,7 @@
-import { getSupabaseClient } from '@/features/auth/client';
+import {
+  createBookingSessionFence,
+  type BookingSessionFence,
+} from './creation-session';
 import type { Database } from '@/lib/database.types';
 import { WorkspaceSchedulingError } from './service';
 
@@ -118,6 +121,7 @@ const parseResult = (
 
 export const createWorkspaceBookingOperation = (
   input: CreateWorkspaceBookingInput,
+  suppliedFence?: BookingSessionFence,
 ) => {
   if (
     !ids(input.clientRecordIds) ||
@@ -148,55 +152,62 @@ export const createWorkspaceBookingOperation = (
       }
     : null;
   let pending: Promise<CreateWorkspaceBookingResult> | null = null;
+  let success: CreateWorkspaceBookingResult | null = null;
+  let fence = suppliedFence;
+  const execute = async (): Promise<CreateWorkspaceBookingResult> => {
+    fence ??= createBookingSessionFence(expectedUserId);
+    await fence.assertCurrent();
+    if (success) {
+      fence.guard();
+      return success;
+    }
+    const client = fence.client;
+    const token = fence.accessToken;
+    const request = plan
+      ? client.rpc('create_booking_set_with_plan', {
+          ...args,
+          p_template_id: plan.templateId,
+          p_expected_template_revision: plan.expectedTemplateRevision,
+        })
+      : client.rpc('create_booking_set', args);
+    const { data, error } = await request.setHeader(
+      'Authorization',
+      `Bearer ${token}`,
+    );
+    await fence.assertCurrent();
+    if (error)
+      throw new WorkspaceSchedulingError(
+        error.code === '22023'
+          ? 'invalidInput'
+          : error.code === '42501' ||
+              error.code === 'P0002' ||
+              error.code === '23503'
+            ? 'unavailable'
+            : error.code === '40001'
+              ? 'conflict'
+              : error.code === '55000' || error.code === '23514'
+                ? 'invalidState'
+                : 'request',
+      );
+    const result = parseResult(data, args.p_client_record_ids.length);
+    fence.guard();
+    if (result.created) success = result;
+    return result;
+  };
   return {
+    dispose: () => {
+      if (!suppliedFence) fence?.dispose();
+    },
     execute: (): Promise<CreateWorkspaceBookingResult> => {
       if (pending) return pending;
-      pending = (async (): Promise<CreateWorkspaceBookingResult> => {
-        const client = getSupabaseClient();
-        if (!client) throw new WorkspaceSchedulingError('configuration');
-        const session = await client.auth.getSession();
-        const token = session.data.session?.access_token;
-        if (
-          session.error ||
-          session.data.session?.user.id.toLowerCase() !== expectedUserId ||
-          !token
-        )
-          throw new WorkspaceSchedulingError('unavailable');
-        const request = plan
-          ? client.rpc('create_booking_set_with_plan', {
-              ...args,
-              p_template_id: plan.templateId,
-              p_expected_template_revision: plan.expectedTemplateRevision,
-            })
-          : client.rpc('create_booking_set', args);
-        const { data, error } = await request.setHeader(
-          'Authorization',
-          `Bearer ${token}`,
-        );
-        if (error)
-          throw new WorkspaceSchedulingError(
-            error.code === '22023'
-              ? 'invalidInput'
-              : error.code === '42501' ||
-                  error.code === 'P0002' ||
-                  error.code === '23503'
-                ? 'unavailable'
-                : error.code === '40001'
-                  ? 'conflict'
-                  : error.code === '55000' || error.code === '23514'
-                    ? 'invalidState'
-                    : 'request',
-          );
-        return parseResult(data, args.p_client_record_ids.length);
-      })()
-        .then((result) => {
-          if (!result.created) pending = null;
-          return result;
-        })
-        .catch((error: unknown) => {
-          pending = null;
+      pending = execute()
+        .catch(async (error: unknown) => {
+          if (fence) await fence.assertCurrent();
           if (error instanceof WorkspaceSchedulingError) throw error;
           throw new WorkspaceSchedulingError('request');
+        })
+        .finally(() => {
+          pending = null;
         });
       return pending;
     },

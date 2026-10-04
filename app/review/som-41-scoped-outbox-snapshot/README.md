@@ -28,7 +28,7 @@ duplicateOf null, решения SOM-51/59 Done. Linear не изменялся.
 - Новые UUID/metadata каждого чтения с globalAtomicity unknown. Snapshot только
   SELECT; старые save/ack/pending/read/close methods и schema не изменены.
 - [Handoff API/coverage/barrier](../../../docs/app/privacy/SCOPED-OUTBOX-SNAPSHOT.md),
-  minimal LOCAL-EXPORT-CONTRACT link, CHANGELOG/ROADMAP, ADR 0081.
+  minimal LOCAL-EXPORT-CONTRACT link, CHANGELOG/ROADMAP, ADR 0084.
 
 ## Проверки ведущего
 
