@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-41: полный подтверждённый account deletion для client/trainer/dual role,
+- [SOM-41 / draft PR #73](https://github.com/anuar02/panda-trainer/pull/73): полный подтверждённый account deletion для client/trainer/dual role,
   сохранение чужих карточек/истории по ADR 0101, durable DB/Auth recovery, scoped
   local inventory/export/ack и writer fences без purge outstanding. Новая migration,
   pgTAP full FK fixtures и extended existing Auth smoke; privacy draft/handoff

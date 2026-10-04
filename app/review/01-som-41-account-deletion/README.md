@@ -1,5 +1,7 @@
 # SOM-41 · Account deletion
 
+[Draft PR #73](https://github.com/anuar02/panda-trainer/pull/73). Implementation commit `f9a9452`.
+
 04.10.2026. Branch `agent/01-som-41-account-deletion`; base
 `fix/som-50-template-picker`, refreshed `8ca8fc0` (#71). Full implementation package,
 not a preflight/report-only PR. Product rule [ADR 0101](../../../docs/app/decisions/0101-account-deletion-keeps-trainer-history.md);
