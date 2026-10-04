@@ -90,3 +90,80 @@ describe('pending invitation token storage', () => {
     await expect(pendingInvitationToken.peek()).resolves.toBeNull();
   });
 });
+
+it('does not clear on an identity change while the expected token is being read', async () => {
+  let finish!: (value: string | null) => void;
+  let current = true;
+  getItem.mockReturnValueOnce(
+    new Promise((resolve) => {
+      finish = resolve;
+    }),
+  );
+  removeItem.mockClear();
+  const clearing = pendingInvitationToken.clear(token, async () => {
+    if (!current) throw new Error('Session unavailable');
+  });
+  while (!finish) await new Promise((resolve) => setImmediate(resolve));
+  current = false;
+  finish(token);
+  await expect(clearing).rejects.toThrow('Session unavailable');
+  expect(removeItem).not.toHaveBeenCalled();
+});
+
+it('preserves a new pending intent queued while remove is awaiting storage', async () => {
+  let saved: string | null = token;
+  let finish!: () => void;
+  getItem.mockImplementation(async () => saved);
+  setItem.mockImplementation(async (_key, value) => {
+    saved = value;
+  });
+  removeItem.mockImplementationOnce(async () => {
+    await new Promise<void>((resolve) => {
+      finish = resolve;
+    });
+    saved = null;
+  });
+  const clearing = pendingInvitationToken.clear(token);
+  while (!finish) await new Promise((resolve) => setImmediate(resolve));
+  const newerToken = `${token.slice(0, -1)}A`;
+  const writing = pendingInvitationToken.set(newerToken);
+  finish();
+  await expect(clearing).resolves.toBe(false);
+  await writing;
+  expect(saved).toBe(newerToken);
+});
+
+it('failed storage does not poison the queue or allow a stale guarded write', async () => {
+  setItem.mockRejectedValueOnce(new Error('Storage unavailable'));
+  await expect(pendingInvitationToken.set(token)).rejects.toThrow(
+    'Storage unavailable',
+  );
+  await pendingInvitationToken.set(token);
+  setItem.mockClear();
+  await pendingInvitationToken.set(token, () => false);
+  expect(setItem).not.toHaveBeenCalled();
+});
+
+it('a stale set cannot supersede a current queued set', async () => {
+  let finish!: (value: string | null) => void;
+  getItem.mockReturnValueOnce(
+    new Promise((resolve) => {
+      finish = resolve;
+    }),
+  );
+  const reading = pendingInvitationToken.peek();
+  while (!finish) await new Promise((resolve) => setImmediate(resolve));
+  setItem.mockClear();
+  const newerToken = `${token.slice(0, -1)}A`;
+  const current = pendingInvitationToken.set(newerToken);
+  const stale = pendingInvitationToken.set(token, () => false);
+  finish(null);
+  await reading;
+  await current;
+  await stale;
+  expect(setItem).toHaveBeenCalledTimes(1);
+  expect(setItem).toHaveBeenCalledWith(
+    'panda-trainer-pending-invitation',
+    newerToken,
+  );
+});

@@ -217,6 +217,7 @@ export function TrainerInvitationScreen({
             <Button
               label={t('invitations.trainer.retry')}
               variant="soft"
+              disabled={busy}
               onPress={onRetry}
             />
           </View>
@@ -402,6 +403,7 @@ export function ClientInvitationScreen({
             <Button
               label={t('invitations.client.retry')}
               variant="soft"
+              disabled={busy}
               onPress={onRetry}
             />
           </View>
@@ -431,6 +433,7 @@ export function ClientInvitationScreen({
         ) : !loading ? (
           <Button
             label={t('invitations.client.signIn')}
+            disabled={busy}
             onPress={onSignIn}
             style={s.primaryAction}
           />

@@ -108,3 +108,4 @@
 
 | [0094](0094-template-editor-caller-lifetime.md) | Lifetime вызывающего редактора шаблона | Реализовано технически; runtime и приёмка открыты | 04.10.2026 |
 | [0095](0095-financial-presentation-and-client-totals.md) | Financial presentation lifecycle и scoped totals карточки клиента | Реализовано технически; SQL/runtime/parity/owner acceptance открыты | 04.10.2026 |
+| [0096](0096-invitation-caller-session-and-intent.md) | Caller session и поколение pending приглашения | Реализовано технически; runtime и приёмка открыты | 04.10.2026 |

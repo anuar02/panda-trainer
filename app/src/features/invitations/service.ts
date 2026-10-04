@@ -1,5 +1,11 @@
 import * as Crypto from 'expo-crypto';
-import { getSupabaseClient } from '@/features/auth/client';
+import {
+  createInvitationFence,
+  InvitationSessionError,
+  type InvitationScope,
+  type InvitationFence,
+} from './session';
+import { timestamp } from '@/features/workspace-clients/read-validation';
 
 const tokenAlphabet =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -41,9 +47,11 @@ export type InvitationAcceptance = {
 
 export type InvitationIssueOperation = {
   execute: () => Promise<IssuedInvitation>;
+  dispose(): void;
 };
 
 export type InvitationRevokeOperation = {
+  dispose(): void;
   execute: () => Promise<{
     invitationId: string;
     revoked: true;
@@ -126,8 +134,7 @@ export const buildInvitationLink = (token: string, baseUrl: string) => {
   return `${origin}/invite/${token}`;
 };
 
-const validDate = (value: unknown): value is string =>
-  typeof value === 'string' && Number.isFinite(Date.parse(value));
+const validDate = (value: unknown): value is string => timestamp(value);
 
 const rpcError = (code: string | undefined) =>
   new InvitationServiceError(code === 'P0002' ? 'unavailable' : 'request');
@@ -141,7 +148,7 @@ const parseIssueResult = (value: unknown) => {
     typeof value.active !== 'boolean' ||
     typeof value.replayed !== 'boolean'
   )
-    throw new InvitationServiceError('unavailable');
+    throw new InvitationServiceError('request');
   return {
     invitationId: value.invitation_id,
     expiresAt: value.expires_at,
@@ -153,27 +160,68 @@ const parseIssueResult = (value: unknown) => {
 export const createIssueClientInvitationOperation = async (
   clientRecordId: string,
   baseUrl: string,
+  scope: InvitationScope,
 ): Promise<InvitationIssueOperation> => {
+  scope = { ...scope };
   if (!uuidPattern.test(clientRecordId))
     throw new InvitationServiceError('invalidInput');
   const origin = validBaseUrl(baseUrl);
   if (!origin) throw new InvitationServiceError('configuration');
-  const token = await createToken();
+  if (
+    scope?.clientRecordId !== clientRecordId ||
+    !scope.workspaceId ||
+    !uuidPattern.test(scope.workspaceId)
+  )
+    throw new InvitationServiceError('invalidInput');
+  const fence = createInvitationFence(scope);
+  let token: string;
+  try {
+    await fence.verify();
+    await verifyTrainerScope(fence, scope);
+    await fence.guard();
+    token = await createToken();
+    await fence.guard();
+  } catch (error) {
+    try {
+      await fence.guard();
+    } finally {
+      fence.dispose();
+    }
+    if (error instanceof InvitationSessionError) throw error;
+    throw new InvitationServiceError('request');
+  }
   const requestId = Crypto.randomUUID();
   let result: Promise<IssuedInvitation> | null = null;
 
   return {
-    execute: () => {
-      if (result) return result;
+    dispose: fence.dispose,
+    execute: async () => {
+      await fence.guard();
+      if (result) {
+        try {
+          const cached = await result;
+          await fence.guard();
+          return cached;
+        } catch (error) {
+          await fence.guard();
+          throw error;
+        }
+      }
       result = (async () => {
         try {
-          const client = getSupabaseClient();
-          if (!client) throw new InvitationServiceError('configuration');
-          const { data, error } = await client.rpc('issue_client_invitation', {
-            p_client_record_id: clientRecordId,
-            p_token: token,
-            p_request_id: requestId,
-          });
+          await fence.verify();
+          await verifyTrainerScope(fence, scope);
+          await fence.guard();
+          const client = fence.client;
+          const { data, error } = await client
+            .rpc('issue_client_invitation', {
+              p_client_record_id: clientRecordId,
+              p_token: token,
+              p_request_id: requestId,
+            })
+            .setHeader('Authorization', `Bearer ${fence.bearer}`)
+            .abortSignal(fence.signal);
+          await fence.guard();
           if (error) throw rpcError(error.code);
           const parsed = parseIssueResult(data);
           return {
@@ -182,6 +230,7 @@ export const createIssueClientInvitationOperation = async (
           };
         } catch (error) {
           result = null;
+          await fence.guard();
           if (error instanceof InvitationServiceError) throw error;
           throw new InvitationServiceError('request');
         }
@@ -193,9 +242,19 @@ export const createIssueClientInvitationOperation = async (
 
 export const createRevokeClientInvitationOperation = (
   invitationId: string,
+  scope: InvitationScope,
 ): InvitationRevokeOperation => {
+  scope = { ...scope };
   if (!uuidPattern.test(invitationId))
     throw new InvitationServiceError('invalidInput');
+  if (
+    !scope?.workspaceId ||
+    !uuidPattern.test(scope.workspaceId) ||
+    !scope.clientRecordId ||
+    !uuidPattern.test(scope.clientRecordId)
+  )
+    throw new InvitationServiceError('invalidInput');
+  const fence = createInvitationFence(scope);
   const requestId = Crypto.randomUUID();
   let result: Promise<{
     invitationId: string;
@@ -203,16 +262,48 @@ export const createRevokeClientInvitationOperation = (
     replayed: boolean;
   }> | null = null;
   return {
-    execute: () => {
-      if (result) return result;
+    dispose: fence.dispose,
+    execute: async () => {
+      await fence.guard();
+      if (result) {
+        try {
+          const cached = await result;
+          await fence.guard();
+          return cached;
+        } catch (error) {
+          await fence.guard();
+          throw error;
+        }
+      }
       result = (async () => {
         try {
-          const client = getSupabaseClient();
-          if (!client) throw new InvitationServiceError('configuration');
-          const { data, error } = await client.rpc('revoke_client_invitation', {
-            p_invitation_id: invitationId,
-            p_request_id: requestId,
-          });
+          await fence.verify();
+          await verifyTrainerScope(fence, scope);
+          await fence.guard();
+          const client = fence.client;
+          const invitation = await client
+            .from('invitations')
+            .select('id,client_record_id')
+            .eq('id', invitationId)
+            .eq('client_record_id', scope.clientRecordId!)
+            .setHeader('Authorization', `Bearer ${fence.bearer}`)
+            .abortSignal(fence.signal)
+            .maybeSingle();
+          await fence.guard();
+          if (
+            invitation.error ||
+            invitation.data?.id !== invitationId ||
+            invitation.data.client_record_id !== scope.clientRecordId
+          )
+            throw new InvitationServiceError('request');
+          const { data, error } = await client
+            .rpc('revoke_client_invitation', {
+              p_invitation_id: invitationId,
+              p_request_id: requestId,
+            })
+            .setHeader('Authorization', `Bearer ${fence.bearer}`)
+            .abortSignal(fence.signal);
+          await fence.guard();
           if (error) throw rpcError(error.code);
           if (
             !isRecord(data) ||
@@ -228,6 +319,7 @@ export const createRevokeClientInvitationOperation = (
           };
         } catch (error) {
           result = null;
+          await fence.guard();
           if (error instanceof InvitationServiceError) throw error;
           throw new InvitationServiceError('request');
         }
@@ -239,15 +331,22 @@ export const createRevokeClientInvitationOperation = (
 
 export const acceptInvitation = async (
   token: string,
+  scope: InvitationScope,
 ): Promise<InvitationAcceptance> => {
   if (!isInvitationToken(token))
     throw new InvitationServiceError('invalidInput');
-  const client = getSupabaseClient();
-  if (!client) throw new InvitationServiceError('configuration');
+  const fence = createInvitationFence(scope);
+  const client = fence.client;
   try {
-    const { data, error } = await client.rpc('accept_invitation', {
-      p_token: token,
-    });
+    await fence.verify();
+    await fence.guard();
+    const { data, error } = await client
+      .rpc('accept_invitation', {
+        p_token: token,
+      })
+      .setHeader('Authorization', `Bearer ${fence.bearer}`)
+      .abortSignal(fence.signal);
+    await fence.guard();
     if (error) throw rpcError(error.code);
     if (
       !isRecord(data) ||
@@ -256,6 +355,8 @@ export const acceptInvitation = async (
       !uuidPattern.test(data.client_record_id) ||
       typeof data.trainer_name !== 'string' ||
       !data.trainer_name.trim() ||
+      data.trainer_name.length > 120 ||
+      /[\u0000-\u001f\u007f]/.test(data.trainer_name) ||
       !validDate(data.accepted_at) ||
       typeof data.replayed !== 'boolean'
     )
@@ -267,7 +368,50 @@ export const acceptInvitation = async (
       replayed: data.replayed,
     };
   } catch (error) {
+    await fence.guard();
     if (error instanceof InvitationServiceError) throw error;
     throw new InvitationServiceError('request');
+  } finally {
+    fence.dispose();
   }
 };
+
+async function verifyTrainerScope(
+  fence: InvitationFence,
+  scope: InvitationScope,
+) {
+  await fence.guard();
+  const owner = await fence.client
+    .from('trainer_workspaces')
+    .select('id,owner_user_id')
+    .eq('id', scope.workspaceId!)
+    .eq('owner_user_id', scope.userId)
+    .setHeader('Authorization', `Bearer ${fence.bearer}`)
+    .abortSignal(fence.signal)
+    .maybeSingle();
+  await fence.guard();
+  if (
+    owner.error ||
+    !owner.data ||
+    owner.data?.id !== scope.workspaceId ||
+    owner.data.owner_user_id !== scope.userId
+  )
+    throw new InvitationServiceError('request');
+  const card = await fence.client
+    .from('client_records')
+    .select('id,workspace_id')
+    .eq('id', scope.clientRecordId!)
+    .eq('workspace_id', scope.workspaceId!)
+    .is('archived_at', null)
+    .setHeader('Authorization', `Bearer ${fence.bearer}`)
+    .abortSignal(fence.signal)
+    .maybeSingle();
+  await fence.guard();
+  if (
+    card.error ||
+    !card.data ||
+    card.data?.id !== scope.clientRecordId ||
+    card.data.workspace_id !== scope.workspaceId
+  )
+    throw new InvitationServiceError('request');
+}
