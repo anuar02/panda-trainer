@@ -2,6 +2,9 @@
 
 Full implementation, not the report-only PR #68. Branch:
 `agent/12-som-73-push-v1-r3`; intended base `fix/som-50-template-picker`.
+Published implementation commit `fa2b6112c153c1111f29a62dfb99bc8729107a4e` in
+[draft PR #69](https://github.com/anuar02/panda-trainer/pull/69). App/database CI
+started for that head; results are not yet claimed as received.
 No issue, screen, stage or live delivery is declared accepted.
 
 ## Prerequisites and scope

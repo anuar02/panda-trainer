@@ -13,7 +13,8 @@
   generation lifecycle; [x] native prompt/rotation/logout и own cold/warm open;
   [x] sender/leases/tickets/receipts/unknown recovery и due reminder/daily scheduler;
   [x] synthetic controller/native hook/service/transport/routing tests, pgTAP и
-  отдельный concurrency harness. [Отчёт](../../app/review/12-som-73-push-v1-r3/README.md),
+  отдельный concurrency harness. Fresh app check: 233 suites / 3005 tests;
+  iOS/Android/web export, Deno typecheck и localhost fail-closed probe PASS. [Отчёт](../../app/review/12-som-73-push-v1-r3/README.md),
   [handoff](PUSH-V1.md), [ADR 0099](decisions/0099-push-device-leases-and-due-evaluation.md).
   [ ] SQL lint/pgTAP/type drift CI и manual push/notification concurrency;
   [ ] live EAS/APNs/FCM/Expo, installed iOS/Android, parity/accessibility и owner

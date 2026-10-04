@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-73 r3: Expo SDK 57 native device lifecycle и системное разрешение, logout/
+- [SOM-73 r3 / draft PR #69](https://github.com/anuar02/panda-trainer/pull/69): Expo SDK 57 native device lifecycle и системное разрешение, logout/
   rotation/cold-warm own routing; additive private RLS devices/deliveries, bounded
   leased sender с tickets/receipts/unknown recovery и timezone due scheduler поверх
   SOM-37. [Отчёт](app/review/12-som-73-push-v1-r3/README.md),
