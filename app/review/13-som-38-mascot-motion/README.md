@@ -227,3 +227,10 @@ opacity stop) исправлены; lint потребовал sharedValue.set в
 темы/крупный шрифт/VoiceOver/TalkBack требуют проверки владельцем.
 Пары снимков не создают приёмку; новых PNG/снимков в git нет (ADR 0066).
 Экран или полная визуальная эквивалентность не объявлены принятыми.
+
+
+## Coordinator integration
+
+Fresh base including clip candidates PR #75 merged into this branch.
+CHANGELOG and ROADMAP conflicts resolved by preserving both entries.
+Application source unchanged by coordinator; fresh combined GitHub CI required.
