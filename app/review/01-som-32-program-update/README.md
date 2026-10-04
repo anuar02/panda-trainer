@@ -14,17 +14,17 @@ SOM-32, экран и этап не объявлены принятыми.
 | Finish → явный выбор | Action только у server-finished participant, после сохранённых результатов; отдельный Sheet, реальные server plan/fact, checkboxes, вес, reps/seconds, sets; program-update-screen и existing finish screen suites |
 | Нет выбора / отмена | Controller не dispatches при пустом selection; dismiss disposes transport, сохраняет неизвестный intent; UI/controller/hook/store regressions |
 | Только сохранённое | Server читает set_results; deleted, unknown weight, zero reps/seconds исключены; last saved position + 1 и last valid result; pgTAP assertions, SQL runtime не проверен локально |
-| Новая immutable копия | Additive command копирует source; unselected order/metadata, replacement position, append/skip; прежний journal/template/program не меняются; pgTAP, runtime CI gate |
+| Новая immutable копия | Additive command копирует source; unselected order/metadata, replacement position, append/skip; прежний journal/template/program не меняются; pgTAP, runtime CI PASS |
 | Происхождение | Private immutable receipt: source kind/ID/revision, booking snapshot/template revision, journal/current revision, chosen keys и exercise snapshots/facts |
 | Реальный источник SOM-31 | prepare_workout_journal использует booking snapshot без source_program_id; command поддерживает первую личную копию из него и строго доказанное соответствие существующей личной программе; pgTAP вызывает existing prepare/save/finish RPC |
-| Exact replay / rollback / stale | Request UUID + exact canonical JSON; identical result; changed payload/foreign/duplicate/malformed/archived/stale отклоняются; constraint rollback проверяется pgTAP, runtime CI gate |
+| Exact replay / rollback / stale | Request UUID + exact canonical JSON; identical result; changed payload/foreign/duplicate/malformed/archived/stale отклоняются; constraint rollback проверяется pgTAP, runtime CI PASS |
 | Assignment/correction concurrency | Advisory workspace → workspace row → request lock; extended existing CI program_concurrency.py: identical concurrent retry, correction-before-update, assignment-before-update, update-before-waiting-assignment |
 | Caller/session lifetime | JWT sub/session_id fence с verified refresh и explicit bearer; actor/workspace/workout/client закреплены; late success/error, relogin, correction revision, dismiss/unmount regressions |
 | Pending и неизвестный результат | Scoped AsyncStorage key + exact program/revisions/selected keys/UUID; conditional clear; read failure после receipt не считается отказом; повтор использует прежний ID |
 | Readback / клиент | После validated receipt заново читается current context; existing client programme focus/retry API/RLS видит новую copy и сохраняет доступ к old history; actual two-phone read требует внешней проверки |
 | Correction → повторное предложение | Correction сама не создаёт копию; новая review revision и same-journal provenance допускают новый explicit update; pgTAP flow и hook revision tests |
 | Attendance/payment/finish retry | Эти writers и finish/correction transport/functions не изменены; full app suite перепроверяет их regressions |
-| SQL/types CI | Новая migration и generator-format Functions добавлены; Docker/psql отсутствуют, lint/pgTAP/concurrency/type generation runtime оставлен CI/Claude |
+| SQL/types CI | Новая migration и generator-format Functions добавлены; Docker/psql локально отсутствуют; GitHub CI: lint/pgTAP/concurrency/type generation PASS |
 | Parity/accessibility/owner | Labels/action/Sheet и checkbox roles подключены; screenshot comparison, real native gesture/screen reader и принятие владельцем **не проверены** |
 
 ## Контекст и границы
@@ -109,3 +109,9 @@ app check/Expo/export PASS; DB lint PASS. pgTAP fixture's private-table privileg
 inspection required reset role because authenticated cannot resolve private schema.
 The privilege assertion now runs as postgres while checking authenticated rights;
 no grants were broadened. Repeat runtime pending.
+
+Client outcome distinguishes unknown dispatch from a validated receipt whose
+readback/storage recovery is incomplete: the latter explicitly reports a saved
+server copy, retains the same intent, and cannot be discarded as a rejection.
+
+Run [37209153635](https://github.com/anuar02/panda-trainer/actions/runs/37209153635) на `8391013`: app check/Expo/export PASS; database lint, весь pgTAP (включая 49 новых assertions), existing program_concurrency.py с новыми races, все остальные concurrency harnesses и generated types PASS. Предыдущие runtime gates закрыты этим запуском. Native/parity/owner gates остаются открытыми.
