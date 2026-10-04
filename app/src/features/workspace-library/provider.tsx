@@ -1,7 +1,9 @@
+import { useExerciseCommands } from './exercise-commands';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { randomUUID } from 'expo-crypto';
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -29,6 +31,7 @@ import {
 
 type LibraryStore = {
   workspaceId: string;
+  exerciseCommands: ReturnType<typeof useExerciseCommands>;
   editor: TemplateEditorStore;
   library: WorkspaceLibrary;
   media: typeof media;
@@ -48,6 +51,7 @@ export function WorkspaceLibraryProvider({
   const key = `panda-trainer-workspace-template-v1:${userId}:${workspaceId}`;
   const pendingClearKey = `${key}:pending-clear`;
   const [client] = useState(getSupabaseClient);
+  const [exerciseSession, setExerciseSession] = useState<string | null>(null);
   const [visibleKey, setVisibleKey] = useState<string | null>(null);
   const [library, setLibrary] = useState(emptyLibrary);
   const [local, setLocal] = useState(emptyDraft);
@@ -182,6 +186,7 @@ export function WorkspaceLibraryProvider({
           }
         : null;
       available.current = true;
+      setExerciseSession(sessionId);
       setLibrary(data);
       setLocal(draft);
       setVisibleKey(key);
@@ -314,6 +319,42 @@ export function WorkspaceLibraryProvider({
   const refresh = async () => {
     await readCatalog();
   };
+  const captureExerciseScope = useCallback(() => {
+    const sessionId = identity.current;
+    const version = generation.current;
+    if (!sessionId || !available.current || scopeKey.current !== key)
+      return null;
+    return {
+      userId,
+      workspaceId,
+      sessionId,
+      isCurrent: () =>
+        mounted.current &&
+        available.current &&
+        scopeKey.current === key &&
+        generation.current === version &&
+        identity.current === sessionId,
+    };
+  }, [key, userId, workspaceId]);
+  const acquireExercise = useCallback(() => {
+    if (!available.current || locked.current !== null) return null;
+    const owner = ++command.current;
+    locked.current = owner;
+    return owner;
+  }, []);
+  const releaseExercise = useCallback((owner: number) => {
+    if (locked.current === owner) locked.current = null;
+  }, []);
+  const exerciseCommands = useExerciseCommands({
+    userId,
+    workspaceId,
+    sessionId: exerciseSession,
+    ready: visibleKey === key && ready,
+    capture: captureExerciseScope,
+    refresh,
+    acquire: acquireExercise,
+    release: releaseExercise,
+  });
   const visible = visibleKey === key;
   const visibleLibrary = visible ? library : emptyLibrary;
   const editor: TemplateEditorStore = {
@@ -493,6 +534,7 @@ export function WorkspaceLibraryProvider({
     <Context.Provider
       value={{
         workspaceId,
+        exerciseCommands,
         editor,
         library: visibleLibrary,
         media: sources,

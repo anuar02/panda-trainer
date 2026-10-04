@@ -9,6 +9,8 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-22: [x] exercise create/archive session fence, durable exact input/UUID replay, shared owned provider lock и route unmount/scope guards; [x] independent synthetic service/provider/route regressions; полный app check 2347 tests / 186 suites, type/lint/format зелёные. [Отчёт](../../app/review/som-22-library-production-finish/README.md), [ADR 0089](decisions/0089-exercise-mutation-session-and-replay.md). [ ] needs-local-db: additive INSERT(id) grant, pgTAP/concurrency; live Auth/storage/crash/reopen/native/parity и одобрение владельца.
+
 - 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
   explicit bearer/result/error/storage guards; [x] session-aware command hook,
   conditional clear/recovery и exact-ID durable retry с synthetic regressions.
