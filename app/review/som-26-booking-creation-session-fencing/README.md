@@ -61,3 +61,11 @@ SQL/policy/types/deps/prototype, third mutations, read controllers, routes/UI,
 auth provider and account/journal/sync were not changed. No new PNG, real client
 data or paid services. Screen and whole issue acceptance require the owner;
 this package does not declare SOM-26 or screens accepted.
+
+## Coordinator integration · 04.10.2026
+
+Fresh base `7c41dff` merged; both documentation packages preserved.
+Creation ADR renumbered 0083, ADR index labels corrected. Independent read-only
+reviewer found no material defects; boundaries and synthetic evidence checked.
+`cd app && npm run check` PASS: typecheck/lint/format, 175 suites /2017 tests.
+`git diff --check` PASS; SQL/native/real storage/owner acceptance not tested.
