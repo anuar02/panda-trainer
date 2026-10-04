@@ -14,7 +14,7 @@
   не пересекают поколения. Дополнены synthetic workflow/regression, pgTAP и
   concurrency проверки отдельного списания с причиной; серверная policy и
   billing implementation сохранены. [Отчёт](app/review/som-27-reschedule-production-finish/README.md),
-  [ADR 0093](docs/app/decisions/0093-booking-command-session-and-recovery.md).
+  [ADR 0094](docs/app/decisions/0093-booking-command-session-and-recovery.md).
   SQL/native/parity и приёмка владельца открыты.
 
 - [SOM-41 / draft PR #61](https://github.com/anuar02/panda-trainer/pull/61): единый settings → coverage → JSON UTF-8 v2 flow объединяет серверный
@@ -26,7 +26,7 @@
   [ADR 0092](docs/app/decisions/0092-account-export-source-coverage.md).
   Runtime, визуальная приёмка, удаление и публикация политики остаются открытыми.
 
-- [SOM-23 / draft PR #63](https://github.com/anuar02/panda-trainer/pull/63): editor screen/route/launcher закреплены за caller и draft scope; поздние save/discard/reload не вызывают callbacks новой формы. Неопределённый pendingSave сохраняет payload/requestId, explicit reload ждёт storage. [Проверки](app/review/04-som-23-editor-production-finish/README.md), [ADR 0093](docs/app/decisions/0093-template-editor-caller-lifetime.md). SQL/runtime/native/parity и приёмка владельца открыты.
+- [SOM-23 / draft PR #63](https://github.com/anuar02/panda-trainer/pull/63): editor screen/route/launcher закреплены за caller и draft scope; поздние save/discard/reload не вызывают callbacks новой формы. Неопределённый pendingSave сохраняет payload/requestId, explicit reload ждёт storage. [Проверки](app/review/04-som-23-editor-production-finish/README.md), [ADR 0094](docs/app/decisions/0094-template-editor-caller-lifetime.md). SQL/runtime/native/parity и приёмка владельца открыты.
 
 - [SOM-20 / draft PR #60](https://github.com/anuar02/panda-trainer/pull/60): production onboarding теперь валидирует actor/workspace/connections,
   фиксирует JWT session и explicit bearer на весь read/completion, защищает

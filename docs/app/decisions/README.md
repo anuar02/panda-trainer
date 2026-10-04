@@ -106,4 +106,4 @@
 | [0091](0091-exercise-mutation-session-and-replay.md) | Exercise mutation session fence и durable UUID replay | Реализовано технически; SQL/runtime/owner acceptance открыты | 04.10.2026 |
 | [0089](0089-terminal-finish-current-recovery.md) | Продолжение ввода после доказанного current finish resolution | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
 
-| [0093](0093-template-editor-caller-lifetime.md) | Lifetime вызывающего редактора шаблона | Реализовано технически; runtime и приёмка открыты | 04.10.2026 |
+| [0094](0094-template-editor-caller-lifetime.md) | Lifetime вызывающего редактора шаблона | Реализовано технически; runtime и приёмка открыты | 04.10.2026 |

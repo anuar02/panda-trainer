@@ -23,7 +23,7 @@ SOM-20 onboarding #60: `8feff49`; перед финальным коммитом
 | Double tap/save→leave→reopen | Screen local lock предотвращает вторую команду до provider rerender. Back доступен во время save; leave запрещает callbacks, provider pending продолжает existing recovery. Reopened form после фонового success может начать следующий draft без зависания в loading. Реальный crash/reopen не проверен. |
 | Общий demo editor, production без demo fallback | Existing template-editor/provider suites проходят; production передаёт свой store/catalog/media. Transport и program assignment callers не изменены. |
 | SQL receipts/archive-safe snapshots/concurrency | Новый `supabase/tests/database/template_editor_flow.test.sql`, 10 assertions; existing `template_commands.test.sql`, `client_programs.test.sql`, `template_concurrency.py` сверены по исходникам. SQL не исполнялся здесь; **needs-local-db** для Claude/CI. |
-| Документация/ADR | CHANGELOG, minimal ROADMAP, ADR 0093 и этот отчёт. Issue и экраны не приняты. |
+| Документация/ADR | CHANGELOG, minimal ROADMAP, ADR 0094 и этот отчёт. Issue и экраны не приняты. |
 
 ## Проверки
 
