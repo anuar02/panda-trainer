@@ -97,3 +97,6 @@ Stack использует animation:none, а вход выполняется о
 Не добавлялись платные сервисы. PNG не коммитятся. Native screen-reader,
 крупный текст на устройстве, сравнение всех тем/состояний, Release first-frame,
 быстрый tab switching на устройстве и одобрение владельца остаются открытыми.
+
+Draft PR: [SOM-39 #77](https://github.com/anuar02/panda-trainer/pull/77).
+Implementation commit: `957c0d3`; ветка `agent/14-som-39-motion-navigation`.

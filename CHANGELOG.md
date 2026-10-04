@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-39: общий Reanimated-вход экранов, tabPop/индикаторы вкладок, прерываемый
+- [SOM-39 / draft PR #77](https://github.com/anuar02/panda-trainer/pull/77): общий Reanimated-вход экранов, tabPop/индикаторы вкладок, прерываемый
   отклик кнопок/строк/чипов, pulse/shimmer/growX и idle-предзагрузка вкладок.
   Calm/reduce motion показывают контент сразу; native и одобрение владельца открыты.
   [Отчёт](app/review/14-som-39-motion-navigation/README.md).

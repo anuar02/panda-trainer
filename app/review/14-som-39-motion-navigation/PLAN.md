@@ -17,7 +17,7 @@ stagger, interruptible press animations, idle tab preload. No new dependency.
 - [x] Headless web: verify navigation, actual intermediate transforms, calm and
   NativeWind styling; register cssInterop where Animated classes were lost.
 - [x] Run full check and platform export; update CHANGELOG/ROADMAP/ADR/report.
-- [ ] Commit, push specified branch and create draft PR with acceptance statuses.
+- [x] Commit, push specified branch and create draft PR with acceptance statuses.
 
 Owner acceptance, full theme/state comparisons and native device testing remain
 open; neither the plan nor passing tests accepts a screen or closes SOM-39.
