@@ -1,6 +1,8 @@
 # SOM-34 · financial command session fence / durable retry
 
-Дата: 04.10.2026. Один агент; только synthetic fixtures. Ветка:
+Дата: 04.10.2026. Один агент; только synthetic fixtures.
+[Draft PR #53](https://github.com/anuar02/panda-trainer/pull/53); implementation commit `19f3087`.
+Ветка:
 `agent/som-34-financial-command-session-fencing`; draft PR предназначен только
 для `fix/som-50-template-picker`. Исходная база `9b6d8b7`, перед финальной
 проверкой обновлена fast-forward до `34d4fb3`, включая client-program read PR48.

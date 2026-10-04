@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-34: financial mutation session fence, защита pending/clear и hook callbacks
+- [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
   terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),
   [ADR 0084](docs/app/decisions/0084-financial-command-session-fencing.md).
