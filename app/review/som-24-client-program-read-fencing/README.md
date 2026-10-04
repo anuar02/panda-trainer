@@ -66,3 +66,10 @@ assignment tests are included in targeted and full suites.
 
 No SQL/types/dependencies/prototype/routes/screens/auth provider/assignment or
 other feature module changes. No new PNG. ADR 0081 documents local read approach.
+
+## Coordinator integration · 04.10.2026
+
+Fresh integration base `2e55df7` merged, ROADMAP preserved both packages;
+ADR renumbered 0081 to avoid existing local export ADR0080.
+`cd app && npm run check` PASS: typecheck, lint, format, 172 suites /1948 tests.
+`git diff --check` PASS. No dependencies, SQL, native or owner acceptance tested.
