@@ -19,7 +19,14 @@ import {
 } from './workspace-client-read-fixtures';
 import '../src/lib/i18n';
 
+let mockUuid = 0;
+jest.mock('expo-crypto', () => ({
+  randomUUID: () =>
+    `91000000-0000-4000-8000-${String(++mockUuid).padStart(12, '0')}`,
+}));
 let mockToken = 'original-token';
+let mockListProps: ComponentProps<typeof WorkspaceClientsScreen>;
+const mockCreate = jest.fn<Promise<void>, unknown[]>();
 let mockWorkspaceId = workspaceId;
 const mockReload = jest.fn();
 const mockUserId = userId;
@@ -53,7 +60,7 @@ jest.mock('expo-router', () => ({
 jest.mock('@/features/workspace-clients/service', () => ({
   loadWorkspaceClients: (...args: unknown[]) => mockRead(...args),
   loadWorkspaceClientDetails: (...args: unknown[]) => mockRead(...args),
-  createWorkspaceClient: jest.fn(),
+  createWorkspaceClient: (...args: unknown[]) => mockCreate(...args),
 }));
 jest.mock('@/features/workspace-programs/use-assignment', () => ({
   useClientProgramAssignment: () => ({
@@ -74,22 +81,25 @@ jest.mock('@/features/workspace-scheduling/mutation-provider', () => ({
 jest.mock('@/features/workspace-clients/clients-screen', () => ({
   WorkspaceClientsScreen: (
     props: ComponentProps<typeof WorkspaceClientsScreen>,
-  ) => (
-    <>
-      <MockText>
-        {props.loading
-          ? 'loading'
-          : props.error
-            ? 'error'
-            : props.rows.map((row) => row.name).join(',')}
-      </MockText>
-      <MockPressable
-        accessibilityRole="button"
-        accessibilityLabel="retry"
-        onPress={props.onRetry}
-      />
-    </>
-  ),
+  ) => {
+    mockListProps = props;
+    return (
+      <>
+        <MockText>
+          {props.loading
+            ? 'loading'
+            : props.error
+              ? 'error'
+              : props.rows.map((row) => row.name).join(',')}
+        </MockText>
+        <MockPressable
+          accessibilityRole="button"
+          accessibilityLabel="retry"
+          onPress={props.onRetry}
+        />
+      </>
+    );
+  },
 }));
 jest.mock('@/features/workspace-clients/details-screen', () => ({
   WorkspaceClientDetailsScreen: (
@@ -199,3 +209,108 @@ for (const mode of ['list', 'details'] as const) {
     expect(loader()).toHaveBeenCalledTimes(3);
   });
 }
+
+test('creation retry preserves ID, double tap locks, old scope finally leaves new submit busy', async () => {
+  mockRead.mockResolvedValue([]);
+  const first = deferred<void>();
+  const second = deferred<void>();
+  mockCreate
+    .mockReset()
+    .mockImplementationOnce(() => first.promise)
+    .mockImplementationOnce(() => second.promise)
+    .mockResolvedValue(undefined);
+  const view = await render(<WorkspaceClientsRoute />);
+  let old!: Promise<void>;
+  await act(async () => {
+    old = mockListProps.onAdd('Name');
+    void old.catch(() => {});
+  });
+  await expect(mockListProps.onAdd('Name')).rejects.toThrow();
+  expect(mockCreate).toHaveBeenCalledTimes(1);
+  mockWorkspaceId = '61000000-0000-4000-8000-000000000002';
+  await view.rerender(<WorkspaceClientsRoute />);
+  expect(mockListProps.busy).toBe(false);
+  let current!: Promise<void>;
+  await act(async () => {
+    current = mockListProps.onAdd('Name');
+    void current.catch(() => {});
+  });
+  const reads = mockRead.mock.calls.length;
+  await act(async () => {
+    first.resolve();
+    await expect(old).rejects.toThrow();
+  });
+  expect(mockListProps.busy).toBe(true);
+  expect(mockRead).toHaveBeenCalledTimes(reads);
+  await act(async () => {
+    second.reject(new Error('lost response'));
+    await expect(current).rejects.toThrow();
+  });
+  const requestId = mockCreate.mock.calls[1]?.[1];
+  await act(async () => {
+    await mockListProps.onAdd('Name');
+  });
+  expect(mockCreate.mock.calls[2]?.[1]).toBe(requestId);
+  await view.unmount();
+});
+
+test.each(['resolve', 'reject'] as const)(
+  'same actor relogin suppresses old creation %s and drops old request',
+  async (kind) => {
+    const jwt = (sessionId: string) =>
+      `header.${Buffer.from(JSON.stringify({ sub: userId, session_id: sessionId })).toString('base64url')}.signature`;
+    mockToken = jwt('91000000-0000-4000-8000-000000000001');
+    mockRead.mockResolvedValue([]);
+    const old = deferred<void>();
+    mockCreate
+      .mockReset()
+      .mockImplementationOnce(() => old.promise)
+      .mockResolvedValue(undefined);
+    const view = await render(<WorkspaceClientsRoute />);
+    let command!: Promise<void>;
+    await act(async () => {
+      command = mockListProps.onAdd('Name');
+      void command.catch(() => {});
+    });
+    const request = mockCreate.mock.calls[0]?.[1];
+    mockToken = jwt('91000000-0000-4000-8000-000000000002');
+    await view.rerender(<WorkspaceClientsRoute />);
+    const reads = mockRead.mock.calls.length;
+    await act(async () => {
+      if (kind === 'resolve') old.resolve();
+      else old.reject(new Error('late'));
+      await expect(command).rejects.toThrow();
+    });
+    expect(mockListProps.busy).toBe(false);
+    expect(mockRead).toHaveBeenCalledTimes(reads);
+    await act(async () => {
+      await mockListProps.onAdd('Name');
+    });
+    expect(mockCreate.mock.calls[1]?.[1]).not.toBe(request);
+    await view.unmount();
+  },
+);
+
+test('same session refresh retains caller and retry ID after cancelled auth attempt', async () => {
+  const jwt = (version: number) =>
+    `header.${Buffer.from(JSON.stringify({ sub: userId, session_id: '91000000-0000-4000-8000-000000000001', version })).toString('base64url')}.signature`;
+  mockToken = jwt(1);
+  mockRead.mockResolvedValue([]);
+  mockCreate
+    .mockReset()
+    .mockRejectedValueOnce(new Error('auth cancelled'))
+    .mockResolvedValue(undefined);
+  const view = await render(<WorkspaceClientsRoute />);
+  await act(async () => {
+    await expect(mockListProps.onAdd('Name')).rejects.toThrow();
+  });
+  const requestId = mockCreate.mock.calls[0]?.[1];
+  mockToken = jwt(2);
+  await view.rerender(<WorkspaceClientsRoute />);
+  await act(async () => {
+    await mockListProps.onAdd('Name');
+  });
+  expect(mockCreate.mock.calls[1]?.[1]).toBe(requestId);
+  expect(mockCreate.mock.calls[1]?.[2]).toMatchObject({ token: mockToken });
+  await view.unmount();
+});
