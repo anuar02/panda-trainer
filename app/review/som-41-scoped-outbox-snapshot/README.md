@@ -82,3 +82,11 @@ export proof/user ack proof/delete authorization не реализованы. Se
 corrections, AsyncStorage/in-memory/other sources остаются unknown; общей transaction
 между источниками нет и atomic confirmed полного export не выдаётся.
 SOM-41 целиком остаётся открытой; приёмку issue подтверждает владелец.
+
+## Coordinator integration · 04.10.2026
+
+Fresh base `34d4fb3` merged, ROADMAP preserved both packages; snapshot ADR0084.
+Independent read-only reviewer found no material defects. Scope/transaction/paging/
+validation/tests/handoff checked; no SQL/dependency changes in this PR.
+`cd app && npm run check` PASS: typecheck/lint/format, 177 suites /2124 tests.
+`git diff --check` PASS. Native SQLite/SQL/live auth/owner acceptance not tested.

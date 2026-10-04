@@ -4,7 +4,7 @@
 в [storage.ts](../../../app/src/features/workout-sync/storage.ts),
 [types](../../../app/src/features/workout-sync/snapshot-types.ts),
 [validation](../../../app/src/features/workout-sync/snapshot-validation.ts).
-[ADR 0081](../decisions/0084-scoped-sqlite-outbox-snapshot.md).
+[ADR 0084](../decisions/0084-scoped-sqlite-outbox-snapshot.md).
 
 ## API и coverage
 
