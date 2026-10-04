@@ -1,8 +1,22 @@
 {
- "updated_at": "2026-10-04T00:44Z",
+ "updated_at": "2026-10-04T00:48Z",
  "updated_by": "coordinator",
- "done": 11,
+ "done": 12,
  "issues": [
+  {
+   "id": "SOM-23",
+   "title": "Подключить редактор шаблонов к серверу",
+   "status": "In Review",
+   "milestone": "03",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-32",
+   "title": "Завершать и исправлять журнал с обновлением программы",
+   "status": "In Progress",
+   "milestone": "05",
+   "group": "agents"
+  },
   {
    "id": "SOM-22",
    "title": "Подключить серверную библиотеку, поиск и архивирование",
@@ -15,13 +29,6 @@
    "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
    "status": "In Progress",
    "milestone": "10",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-23",
-   "title": "Подключить редактор шаблонов к серверу",
-   "status": "In Progress",
-   "milestone": "03",
    "group": "agents"
   },
   {
@@ -39,13 +46,6 @@
    "group": "owner"
   },
   {
-   "id": "SOM-32",
-   "title": "Завершать и исправлять журнал с обновлением программы",
-   "status": "In Progress",
-   "milestone": "05",
-   "group": "agents"
-  },
-  {
    "id": "SOM-24",
    "title": "Реализовать версионированные личные программы клиентов",
    "status": "In Review",
@@ -57,13 +57,6 @@
    "title": "Подключить onboarding тренера и управление клиентами",
    "status": "In Progress",
    "milestone": "02",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-34",
-   "title": "Подключить ручные оплаты, долг и экран billing",
-   "status": "In Progress",
-   "milestone": "06",
    "group": "agents"
   },
   {
