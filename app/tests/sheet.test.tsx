@@ -6,10 +6,17 @@ import {
   within,
   waitFor,
 } from '@testing-library/react-native';
-import { AccessibilityInfo, BackHandler, Dimensions, Text } from 'react-native';
+import {
+  AccessibilityInfo,
+  BackHandler,
+  Dimensions,
+  Text,
+  Pressable,
+} from 'react-native';
 import { ReduceMotion } from 'react-native-reanimated';
 import type { PropsWithChildren, Ref } from 'react';
 import '../src/lib/i18n';
+import { CalmModeProvider, useCalmModePreference } from '../src/ui/calm-mode';
 import { Sheet } from '../src/ui/sheet';
 const mockPresent = jest.fn();
 const mockDismiss = jest.fn();
@@ -294,3 +301,28 @@ test.each([true, false])(
     }
   },
 );
+
+test('calm disables sheet movement and the set editor has no spatial entrance', async () => {
+  const view = await render(
+    <Sheet open title="Editor" immediate onClose={jest.fn()} />,
+  );
+  expect(mockReduceMotion).toBe(ReduceMotion.Always);
+  await view.rerender(<Sheet open title="Menu" onClose={jest.fn()} />);
+  expect(mockReduceMotion).toBe(ReduceMotion.System);
+});
+
+function CalmSheetSwitch() {
+  const { setCalmMode } = useCalmModePreference();
+  return <Pressable testID="sheet-calm" onPress={() => setCalmMode(true)} />;
+}
+test('live calm uses the same immediate policy as system reduced motion', async () => {
+  const view = await render(
+    <CalmModeProvider role="trainer">
+      <CalmSheetSwitch />
+      <Sheet open title="Menu" onClose={jest.fn()} />
+    </CalmModeProvider>,
+  );
+  expect(mockReduceMotion).toBe(ReduceMotion.System);
+  await fireEvent.press(view.getByTestId('sheet-calm'));
+  expect(mockReduceMotion).toBe(ReduceMotion.Always);
+});

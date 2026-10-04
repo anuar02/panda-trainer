@@ -90,6 +90,18 @@
 | — | Какой вид прототипа переносить | `prototype-fresh` по умолчанию, «Чернила» (не «Инструмент») | [ADR 0007](decisions/0007-ui-reference.md) |
 | — | Тема по умолчанию | По роли: тренер тёмная, клиент светлая, журнал всегда тёмный | [ADR 0007](decisions/0007-ui-reference.md) |
 
+## SOM-39, бриф 15: существующий demo/hold голоса
+
+04.10.2026 — в базе после PR #77 (`65e5a5a`) нет существующего voice demo/hold:
+`features/workout/workout-screen.tsx` сохраняет disabled-кнопку «Голос», а
+workout-demo/runtime хранит только focus/rest. Бриф разрешает движение уже
+существующего demo/hold, без нового сценария и без обхода SOM-54. Безопасное
+временное правило: реализовать presentation adapters holdIn/holdOut/bubble,
+micRing/micHint/bar/vitemIn с synthetic-проверками, сохранить disabled и не
+добавлять распознавание, запись или новый flow. Runtime-подключение откладывается
+до разрешённого demo/hold в SOM-54; его приёмка не подтверждена этим пакетом.
+[Отчёт](../../app/review/15-som-39-motion-workout-r2/README.md).
+
 ## SOM-39: функциональная обратная связь записи подхода
 
 03.10.2026 — default prototype app.js добавляет `is-set-recorded`, но его

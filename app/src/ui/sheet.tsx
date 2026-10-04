@@ -1,13 +1,19 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   type PropsWithChildren,
   type ReactNode,
 } from 'react';
-import { BackHandler, View, useWindowDimensions } from 'react-native';
 import {
-  BottomSheetBackdrop,
+  BackHandler,
+  Pressable,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
+import {
   BottomSheetHandle,
   BottomSheetModal,
   BottomSheetScrollView,
@@ -20,8 +26,14 @@ import { useNavigation } from 'expo-router';
 import { Button } from './button';
 import { Text } from './text';
 import { tokens, useTheme } from './theme';
-import { ReduceMotion } from 'react-native-reanimated';
-import { motion, useSystemReduceMotion } from './motion';
+import Animated, {
+  ReduceMotion,
+  cancelAnimation,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from 'react-native-reanimated';
+import { motion, useMotionDisabled } from './motion';
 export function Sheet({
   open,
   title,
@@ -30,15 +42,18 @@ export function Sheet({
   fixedContent,
   stackBehavior,
   closeLabel,
+  immediate = false,
 }: PropsWithChildren<{
   open: boolean;
+  immediate?: boolean;
   title: string;
   onClose: () => void;
   stackBehavior?: 'push' | 'switch' | 'replace';
   closeLabel?: string;
   fixedContent?: { header: ReactNode; footer: ReactNode };
 }>) {
-  const reduced = useSystemReduceMotion();
+  const reduced = useMotionDisabled();
+  const scrim = useSharedValue(0);
   const ref = useRef<BottomSheetModal>(null);
   const presented = useRef(false);
   const navigation = useNavigation();
@@ -46,7 +61,26 @@ export function Sheet({
   useEffect(() => {
     close.current = onClose;
   }, [onClose]);
-  const { colors } = useTheme();
+  const { colors, scheme } = useTheme();
+  const moveScrim = useCallback(
+    (visible: boolean) => {
+      cancelAnimation(scrim);
+      scrim.set(
+        reduced || immediate
+          ? Number(visible)
+          : withTiming(Number(visible), {
+              duration: 280,
+              easing: motion.ease,
+              reduceMotion: ReduceMotion.System,
+            }),
+      );
+    },
+    [scrim, reduced, immediate],
+  );
+  useEffect(() => {
+    moveScrim(open);
+    return () => cancelAnimation(scrim);
+  }, [open, moveScrim, scrim]);
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { height, fontScale } = useWindowDimensions();
@@ -80,7 +114,14 @@ export function Sheet({
     presented.current = false;
     if (notify) onClose();
   }, [onClose]);
-  const dismiss = useCallback(() => ref.current?.dismiss(), []);
+  const currentScrim = useRef(moveScrim);
+  useLayoutEffect(() => {
+    currentScrim.current = moveScrim;
+  }, [moveScrim]);
+  const dismiss = useCallback(() => {
+    currentScrim.current(false);
+    ref.current?.dismiss();
+  }, []);
   useEffect(() => {
     if (!open) return;
     const subscription = BackHandler.addEventListener(
@@ -95,15 +136,17 @@ export function Sheet({
   }, [open, dismiss]);
   const backdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
+      <SheetScrim
         {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        accessibilityLabel={t('common.close')}
-        accessibilityHint=""
+        opacity={scrim}
+        reduced={reduced || immediate}
+        open={open}
+        scheme={scheme}
+        label={t('common.close')}
+        onPress={dismiss}
       />
     ),
-    [t],
+    [scrim, reduced, immediate, open, scheme, t, dismiss],
   );
   const fixed = !!fixedContent;
   const handle = useCallback(
@@ -140,7 +183,10 @@ export function Sheet({
   ) : null;
   return (
     <BottomSheetModal
-      overrideReduceMotion={reduced ? ReduceMotion.Always : ReduceMotion.System}
+      overrideReduceMotion={
+        reduced || immediate ? ReduceMotion.Always : ReduceMotion.System
+      }
+      onAnimate={(_from, to) => moveScrim(to >= 0)}
       animationConfigs={{
         duration: motion.sheetDuration,
         easing: motion.sheetEasing,
@@ -214,5 +260,46 @@ export function Sheet({
         </BottomSheetScrollView>
       )}
     </BottomSheetModal>
+  );
+}
+
+function SheetScrim({
+  style,
+  opacity,
+  reduced,
+  open,
+  scheme,
+  label,
+  onPress,
+}: BottomSheetBackdropProps & {
+  opacity: { value: number };
+  reduced: boolean;
+  open: boolean;
+  scheme: 'light' | 'dark';
+  label: string;
+  onPress: () => void;
+}) {
+  const animated = useAnimatedStyle(() => ({
+    opacity: reduced ? Number(open) : opacity.value,
+  }));
+  return (
+    <Animated.View
+      style={[
+        style,
+        StyleSheet.absoluteFill,
+        {
+          backgroundColor:
+            scheme === 'dark' ? 'rgba(0,0,0,0.62)' : 'rgba(14,16,28,0.45)',
+        },
+        animated,
+      ]}
+    >
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        onPress={onPress}
+      />
+    </Animated.View>
   );
 }

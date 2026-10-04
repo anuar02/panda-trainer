@@ -15,6 +15,11 @@ import { getWorkoutStyles } from '@/features/workout/measurements';
 import { WorkoutSyncStatus } from '@/features/workout-sync';
 import { CorrectionPanel } from '@/features/workout-corrections';
 import { useWorkoutEntry } from './use-entry';
+import {
+  WorkoutStep,
+  WorkoutEffect,
+  useNewWorkoutExercises,
+} from '@/features/workout/workout-motion';
 import { entrySessionIdentity } from './session-identity';
 import {
   summarizeWorkoutFinish,
@@ -75,6 +80,11 @@ function WorkoutEntryContent({
       ? corrected.participant
       : originalParticipant;
   const exercises = p.exercises.filter((exercise) => !exercise.skipped);
+  const freshExercise = useNewWorkoutExercises(
+    correctionScope,
+    p.exercises.map((exercise) => exercise.id),
+    entry.state !== null,
+  );
   const draft: EntryDraft = entry.state?.draft ?? {
     workoutId: p.workoutId,
     bookingId: p.bookingId,
@@ -198,7 +208,7 @@ function WorkoutEntryContent({
             />
             <View style={s.row}>
               {[-step, step].map((delta) => (
-                <Pressable
+                <WorkoutStep
                   key={delta}
                   style={s.step}
                   disabled={disabled}
@@ -217,7 +227,7 @@ function WorkoutEntryContent({
                   <Text>
                     {t(delta < 0 ? 'workoutEntry.minus' : 'workoutEntry.plus')}
                   </Text>
-                </Pressable>
+                </WorkoutStep>
               ))}
             </View>
           </View>
@@ -332,7 +342,12 @@ function WorkoutEntryContent({
         !finished &&
         !finishPending &&
         (!notFinished || canContinue) && (
-          <View style={s.focus}>
+          <WorkoutEffect
+            kind="new"
+            active={freshExercise === focus.id}
+            revision={`${correctionScope}:${focus.id}`}
+            style={s.focus}
+          >
             <View style={s.eyebrow}>
               <Text style={s.eyebrowText}>
                 {t('workoutEntry.now', {
@@ -353,7 +368,13 @@ function WorkoutEntryContent({
                 })}
               </Text>
             </View>
-            <View style={s.chips}>
+            <WorkoutEffect
+              kind="recorded"
+              key={focus.id}
+              active={entry.state !== null}
+              revision={focus.sets.length}
+              style={s.chips}
+            >
               {focus.sets.map((set, index) => (
                 <Text key={set.id} style={s.chip}>
                   {t('workoutEntry.recordedValue', {
@@ -362,7 +383,7 @@ function WorkoutEntryContent({
                   })}
                 </Text>
               ))}
-            </View>
+            </WorkoutEffect>
             <View style={s.composer}>
               <View style={s.composerHead}>
                 <Text style={s.bold}>
@@ -409,7 +430,7 @@ function WorkoutEntryContent({
               disabled={disabled || !entry.resources.catalog.length}
               onPress={() => setSheet('replace')}
             />
-          </View>
+          </WorkoutEffect>
         )}
       {last && !finished && !finishPending && (!notFinished || canContinue) && (
         <Button
@@ -598,6 +619,7 @@ function WorkoutEntryContent({
       )}
       {sheet === 'set' && focus && (
         <Sheet
+          immediate
           open
           title={focus.name}
           onClose={() => setSheet(null)}

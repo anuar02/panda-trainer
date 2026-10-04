@@ -9,6 +9,12 @@
 
 ## Не выпущено
 
+- SOM-39, бриф 15 r2: Reanimated-тосты/лицо, общий calm/reduce для шторок и scrim,
+  immediate-редакторы подхода, прерываемые шаги, запись только нового подхода,
+  выделение нового упражнения, заметки, отдых и pulse demo dock. Voice/hold
+  adapters проверены отдельно; кнопка Голос остаётся disabled по SOM-54.
+  Native/owner acceptance открыты. [Отчёт](app/review/15-som-39-motion-workout-r2/README.md).
+
 - [SOM-39 / draft PR #77](https://github.com/anuar02/panda-trainer/pull/77): общий Reanimated-вход экранов, tabPop/индикаторы вкладок, прерываемый
   отклик кнопок/строк/чипов, pulse/shimmer/growX и idle-предзагрузка вкладок.
   Calm/reduce motion показывают контент сразу; native и одобрение владельца открыты.

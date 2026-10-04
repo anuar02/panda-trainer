@@ -1,6 +1,7 @@
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { AccessibilityInfo, Pressable } from 'react-native';
 import { ToastProvider, useToast } from '../src/ui/toast';
+import { withTiming } from 'react-native-reanimated';
 import { tokens } from '../src/ui/theme';
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
@@ -45,4 +46,43 @@ test('shows, announces, replaces and expires messages from the latest trigger', 
   expect(view.getByText('Второе')).toBeOnTheScreen();
   await act(async () => jest.advanceTimersByTime(tokens.duration.toast - 1));
   expect(view.queryByText('Второе')).toBeNull();
+});
+
+test('every trigger, including the same text, restarts the spring entrance', async () => {
+  const view = await render(
+    <ToastProvider>
+      <Probe />
+    </ToastProvider>,
+  );
+  jest.mocked(withTiming).mockClear();
+  await fireEvent.press(view.getByRole('button', { name: 'first' }));
+  expect(withTiming).toHaveBeenCalledWith(
+    1,
+    expect.objectContaining({ duration: 600 }),
+  );
+  jest.mocked(withTiming).mockClear();
+  await fireEvent.press(view.getByRole('button', { name: 'first' }));
+  expect(withTiming).toHaveBeenCalledWith(
+    1,
+    expect.objectContaining({ duration: 600 }),
+  );
+});
+
+test('system reduced motion shows the full toast without scheduling an entrance', async () => {
+  jest
+    .spyOn(AccessibilityInfo, 'isReduceMotionEnabled')
+    .mockResolvedValue(true);
+  const view = await render(
+    <ToastProvider>
+      <Probe />
+    </ToastProvider>,
+  );
+  jest.mocked(withTiming).mockClear();
+  await fireEvent.press(view.getByRole('button', { name: 'first' }));
+  expect(view.getByTestId('toast')).toHaveStyle({
+    opacity: 1,
+    transform: [{ translateY: 0 }, { scale: 1 }],
+  });
+  expect(view.getByText('Первое')).toBeOnTheScreen();
+  expect(withTiming).not.toHaveBeenCalled();
 });

@@ -1,4 +1,6 @@
 import { useReducer, type PropsWithChildren } from 'react';
+import { withTiming } from 'react-native-reanimated';
+import { motion } from '../src/ui/motion';
 import { Dimensions, StyleSheet } from 'react-native';
 import {
   act,
@@ -306,3 +308,64 @@ test.each([1.34, 2])(
     }
   },
 );
+
+test('selecting an exercise with existing sets does not replay recorded feedback', async () => {
+  let state = workoutReducer(createWorkoutState(), {
+    type: 'open',
+    sessionId: 's1',
+  });
+  const journal = state.sessions.s1!;
+  const second = journal.plans[journal.active]!.exercises[1]!;
+  state = workoutReducer(state, {
+    type: 'save',
+    clientId: journal.active,
+    exerciseId: second.id,
+    setIndex: 0,
+    value: { kg: 40, reps: 8 },
+  });
+  await render(
+    <WorkoutScreen
+      sessionId="s1"
+      journal={state.sessions.s1!}
+      dispatch={jest.fn()}
+      onMinimize={minimize}
+      onLeave={leave}
+    />,
+  );
+  jest.mocked(withTiming).mockClear();
+  await fireEvent.press(screen.getByRole('button', { name: second.name }));
+  expect(
+    jest
+      .mocked(withTiming)
+      .mock.calls.filter(
+        (call) =>
+          call[1]?.duration === 200 &&
+          call[1]?.easing === motion.standardEasing,
+      ),
+  ).toHaveLength(0);
+});
+test('deleting the first note preserves the remaining note without replaying riseIn', async () => {
+  const opened = workoutReducer(createWorkoutState(), {
+    type: 'open',
+    sessionId: 's1',
+  });
+  const clientId = opened.sessions.s1!.active;
+  await render(
+    <Harness
+      actions={[
+        { type: 'addNote', clientId, text: 'First note', at: '12:30' },
+        { type: 'addNote', clientId, text: 'Second note', at: '12:31' },
+      ]}
+    />,
+  );
+  jest.mocked(withTiming).mockClear();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Удалить заметку: First note' }),
+  );
+  expect(screen.getByText('Second note')).toBeOnTheScreen();
+  expect(
+    jest
+      .mocked(withTiming)
+      .mock.calls.filter((call) => call[1]?.duration === 400),
+  ).toHaveLength(0);
+});
