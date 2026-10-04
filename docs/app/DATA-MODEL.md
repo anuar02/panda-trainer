@@ -258,5 +258,5 @@ remaining/active units и due minor, а также date/count для подтв�
 долг — все, включая истёкшие, с учётом payment reversal. Полные ledger rows,
 приватные причины/receipts, draft journals и чужие карточки не входят в RPC.
 Это stable read; он не изменяет bookings, attendance, credits или payments.
-Migration: `20261005033548_client_overview_reads.sql`; runtime/type drift pending CI.
+Migration: `20261004110100_client_overview_reads.sql`; runtime/type drift pending CI.
 [ADR 0097](decisions/0097-client-overview-and-read-lifetimes.md).

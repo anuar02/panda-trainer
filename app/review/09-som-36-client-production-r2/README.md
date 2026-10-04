@@ -97,7 +97,7 @@ AsyncStorage seams are replaced; business readers and command protocols are not.
 
 ## SQL/CI handoff
 
-Only new migration `20261005033548_client_overview_reads.sql` and new pgTAP
+Only new migration `20261004110100_client_overview_reads.sql` and new pgTAP
 `som36_client_overview.test.sql`; no applied migration edits. The creation clock
 was 2026-10-04 03:35:48 UTC, earlier than the base's applied
 `20261004110000_exercise_replay_identity.sql`. A next-day timestamp with seconds

@@ -47,7 +47,7 @@ not infer success or attach a billing effect to cancellation. Finished correctio
 appear only after explicit server apply and read refresh; clients never apply them.
 Immutable program reads/assignment and the trainer-only result rule are preserved.
 
-Migration `20261005033548_client_overview_reads.sql` is intentionally after the
+Migration `20261004110100_client_overview_reads.sql` is intentionally after the
 base's already-applied `20261004110000` migration. At creation the actual UTC
 clock was 2026-10-04 03:35:48, earlier than that base identifier. The new slot uses
 the next UTC day's timestamp with seconds to preserve additive migration order
