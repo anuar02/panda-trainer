@@ -1,3 +1,4 @@
+import '@/features/account-deletion/storage-fence';
 import { PushObserver } from '@/features/push/observer';
 import { bootstrapErrorMonitoring } from '@/features/error-monitoring';
 import { TemplateProvider } from '@/features/template-editor/provider';

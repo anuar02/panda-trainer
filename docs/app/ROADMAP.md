@@ -9,6 +9,21 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 deletion: [x] обе роли/dual по server identity и ADR 0101,
+  own workspace cleanup и сохранение чужой истории; [x] durable prepare/DB/Auth/
+  complete/status recovery и transactional writer interlock; [x] account-local
+  inventory, exact file outcome/ack, pending/rejected/conflict/draft blockers,
+  inflight/storage/session fences и scoped settled-cache cleanup; [x] independent
+  controller/service/UI/storage tests, server synthetic transport, full FK pgTAP
+  fixtures и extended CI Auth smoke. App check: 238 suites / 3079 tests; server
+  synthetic: 12 tests. [Отчёт](../../app/review/01-som-41-account-deletion/README.md),
+  [handoff](privacy/ACCOUNT-DELETION-HANDOFF.md),
+  [ADR 0102](decisions/0102-durable-account-deletion-and-local-proof.md).
+  [ ] needs-local-db: SQL lint/pgTAP/Auth/concurrency/type drift в CI;
+  [ ] installed native/file/SQLite/logout/reopen, два телефона, cloud apply,
+  backup/log rotation, юрист, visual/accessibility и owner acceptance.
+  Политика draft, пилот не изменён; SOM-41 целиком и экран не приняты.
+
 - 04.10.2026 — SOM-73 r3: [x] additive private device/delivery schema и JWT/capability/
   generation lifecycle; [x] native prompt/rotation/logout и own cold/warm open;
   [x] sender/leases/tickets/receipts/unknown recovery и due reminder/daily scheduler;

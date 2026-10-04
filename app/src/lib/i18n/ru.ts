@@ -1,3 +1,4 @@
+import { accountDeletionRu } from '@/features/account-deletion/strings';
 import { notificationsRu } from '@/features/notifications/ru';
 import { accountExportRu } from '@/features/account-export/strings';
 import { trainerBillingRu } from '@/features/trainer-billing/ru';
@@ -31,6 +32,7 @@ import { workoutPreloadRu } from '@/features/workout-preload/strings';
 import { workoutCorrectionsRu } from '@/features/workout-corrections/strings';
 
 export const ru = {
+  accountDeletion: accountDeletionRu,
   push: { signIn: 'Войдите, чтобы открыть уведомление' },
   notifications: notificationsRu,
   accountExport: accountExportRu,

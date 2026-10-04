@@ -116,3 +116,5 @@
 | [0099](0099-push-device-leases-and-due-evaluation.md) | Push devices, leased Expo delivery and current due evaluation | Реализовано технически; push rollout не выполнен |
 | [0100](0100-post-workout-program-update-by-trainer.md) | Обновление личной программы после тренировки по предложению тренеру | Принято |
 | [0101](0101-account-deletion-keeps-trainer-history.md) | Удаление аккаунта клиента сохраняет историю у тренеров | Принято |
+
+| [0102](0102-durable-account-deletion-and-local-proof.md) | Durable account deletion, local file proof и scoped writer fences | Реализовано технически; SQL/native/legal/owner acceptance открыты | 04.10.2026 |

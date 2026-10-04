@@ -1,3 +1,4 @@
+import { AccountDeletionRecoveryEntry } from '@/features/account-deletion/recovery-entry';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -216,6 +217,7 @@ export function SignInScreen({
             ) : null}
           </View>
 
+          <AccountDeletionRecoveryEntry />
           <Text className="px-4 text-center text-sm leading-5 text-secondary">
             {t('auth.privacyNote')}
           </Text>
