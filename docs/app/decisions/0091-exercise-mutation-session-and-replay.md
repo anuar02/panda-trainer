@@ -1,4 +1,4 @@
-# 0089. Exercise mutations: session fence и durable UUID replay
+# 0091. Exercise mutations: session fence и durable UUID replay
 
 - **Статус:** Реализовано технически; SQL/runtime и приёмка открыты
 - **Дата:** 04.10.2026
