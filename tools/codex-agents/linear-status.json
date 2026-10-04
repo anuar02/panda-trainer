@@ -1,8 +1,43 @@
 {
- "updated_at": "2026-10-03T22:26Z",
+ "updated_at": "2026-10-04T00:29Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-26",
+   "title": "Подключить Today, неделю и создание занятия к серверу",
+   "status": "In Progress",
+   "milestone": "04",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-31",
+   "title": "Довести ввод подходов и мини-группы до production",
+   "status": "In Review",
+   "milestone": "05",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-32",
+   "title": "Завершать и исправлять журнал с обновлением программы",
+   "status": "In Progress",
+   "milestone": "05",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-24",
+   "title": "Реализовать версионированные личные программы клиентов",
+   "status": "In Review",
+   "milestone": "03",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-20",
+   "title": "Подключить onboarding тренера и управление клиентами",
+   "status": "In Progress",
+   "milestone": "02",
+   "group": "agents"
+  },
   {
    "id": "SOM-41",
    "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
@@ -18,39 +53,11 @@
    "group": "agents"
   },
   {
-   "id": "SOM-24",
-   "title": "Реализовать версионированные личные программы клиентов",
-   "status": "In Progress",
-   "milestone": "03",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-20",
-   "title": "Подключить onboarding тренера и управление клиентами",
-   "status": "In Review",
-   "milestone": "02",
-   "group": "owner"
-  },
-  {
    "id": "SOM-22",
    "title": "Подключить серверную библиотеку, поиск и архивирование",
    "status": "In Review",
    "milestone": "03",
    "group": "owner"
-  },
-  {
-   "id": "SOM-26",
-   "title": "Подключить Today, неделю и создание занятия к серверу",
-   "status": "In Progress",
-   "milestone": "04",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-31",
-   "title": "Довести ввод подходов и мини-группы до production",
-   "status": "In Progress",
-   "milestone": "05",
-   "group": "agents"
   },
   {
    "id": "SOM-35",
@@ -246,13 +253,6 @@
    "title": "Подключить клиентские экраны и действия к серверным данным",
    "status": "Backlog",
    "milestone": "07",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-32",
-   "title": "Завершать и исправлять журнал с обновлением программы",
-   "status": "Backlog",
-   "milestone": "05",
    "group": "agents"
   },
   {
