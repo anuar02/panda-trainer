@@ -2,6 +2,9 @@
 
 04.10.2026. Branch `agent/02-som-22-library-production-finish`, target
 `fix/som-50-template-picker`. Один агент, без субагентов.
+Implementation commit `493b729`; [draft PR #58](https://github.com/anuar02/panda-trainer/pull/58)
+создан и push выполнен. Draft/base/head и label `needs-local-db` сверены read-back.
+GitHub app/database CI запущен; результат не объявлен зелёным этим отчётом.
 
 Свежая база `4c20e22`: SOM-23 #52, SOM-20 creation #55 и read fencing #44 влиты.
 Невлитые personal/third ветки не использованы. Рабочие изменения ограничены exercise
