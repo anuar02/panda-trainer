@@ -28,6 +28,9 @@ import {
   props,
 } from './som36-client-network';
 import { clientReadToken } from './client-read-auth-fixture';
+jest.mock('../src/features/notifications/feed', () => ({
+  NotificationEntry: () => null,
+}));
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));

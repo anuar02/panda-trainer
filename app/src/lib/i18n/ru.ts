@@ -1,3 +1,4 @@
+import { notificationsRu } from '@/features/notifications/ru';
 import { accountExportRu } from '@/features/account-export/strings';
 import { trainerBillingRu } from '@/features/trainer-billing/ru';
 import { trainerPurchasesRu } from '@/features/trainer-billing/purchases-ru';
@@ -30,6 +31,7 @@ import { workoutPreloadRu } from '@/features/workout-preload/strings';
 import { workoutCorrectionsRu } from '@/features/workout-corrections/strings';
 
 export const ru = {
+  notifications: notificationsRu,
   accountExport: accountExportRu,
   workoutPreload: workoutPreloadRu,
   workoutCorrections: workoutCorrectionsRu,

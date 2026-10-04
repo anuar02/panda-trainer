@@ -263,3 +263,21 @@ test('new history generation resets an open historical detail even for identical
   expect(screen.queryByText('Immutable squat')).toBeNull();
   expect(screen.getByText('10:03')).toBeTruthy();
 });
+
+test('notification workout target opens only its own finished result detail', async () => {
+  const view = await render(
+    <ClientConnectedHistoryScreen
+      {...props}
+      initialSelectedId="own-finished"
+    />,
+  );
+  expect(screen.getByText('Immutable squat')).toBeTruthy();
+  await view.rerender(
+    <ClientConnectedHistoryScreen
+      {...props}
+      clientRecordId="other-card"
+      initialSelectedId="foreign-workout"
+    />,
+  );
+  expect(screen.queryByText('Immutable squat')).toBeNull();
+});

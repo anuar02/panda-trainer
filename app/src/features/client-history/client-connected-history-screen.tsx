@@ -16,6 +16,7 @@ type Props = {
   workspaceId: string;
   clientRecordId: string;
   trainerName: string;
+  initialSelectedId?: string;
 };
 export function ClientConnectedHistoryScreen(props: Props) {
   return (
@@ -44,6 +45,7 @@ function ClientConnectedHistoryContent(props: Props) {
     <ClientHistoryScreen
       key={read.generation}
       data={{
+        initialSelectedId: props.initialSelectedId,
         trainerName: context?.trainerName ?? props.trainerName,
         timezone,
         loading: read.loading,

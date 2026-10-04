@@ -1,5 +1,5 @@
 import { Mascot } from '@/ui/mascot';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type {
   TrainerTodayAgenda,
   TrainerTodaySessionRow,
@@ -119,6 +119,7 @@ function Time({
 
 export type TrainerTodayData = {
   trainerName: string;
+  notificationAction?: ReactNode;
   timezone: string;
   onOpenOverlap?: (
     overlap: Extract<TrainerTodayAgendaItem, { kind: 'overlap' }>,
@@ -788,6 +789,7 @@ export function TrainerTodayScreen({
             }
             actions={
               <View style={s.actions}>
+                {data?.notificationAction}
                 {iconButton(
                   'inbox',
                   data

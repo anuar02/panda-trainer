@@ -1,3 +1,4 @@
+import { NotificationEntry } from '@/features/notifications/feed';
 import { useMemo, useRef, useState } from 'react';
 import { Redirect, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -75,6 +76,7 @@ export default function AccountRoute() {
     !context.context?.connections.length
   )
     return <Redirect href="/auth/onboarding" />;
+  const notificationUserId = auth.session.user.id;
   return (
     <Screen title={t('auth.accountTitle')} subtitle={t('auth.accountSubtitle')}>
       <Card>
@@ -91,6 +93,12 @@ export default function AccountRoute() {
                     name: context.context?.workspace?.name ?? '',
                   })}
                 </Text>
+                <NotificationEntry
+                  userId={notificationUserId}
+                  workspaceId={context.context.workspace.id}
+                  role="trainer"
+                  variant="row"
+                />
                 {exportScope && (
                   <AccountExportControls
                     key={`${exportScope.userId}:${exportScope.workspaceId}`}
@@ -122,6 +130,13 @@ export default function AccountRoute() {
             ) : null}
             {context.context?.connections.map((connection) => (
               <Card key={connection.client_record_id}>
+                <NotificationEntry
+                  userId={notificationUserId}
+                  workspaceId={connection.workspace_id}
+                  clientRecordId={connection.client_record_id}
+                  role="client"
+                  variant="row"
+                />
                 <Text>
                   {t('auth.connectedTrainer', {
                     name: connection.trainer_name,

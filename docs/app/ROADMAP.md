@@ -9,6 +9,16 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-37 r2: [x] additive notification events/read/RLS schema;
+  [x] реальные ленты, серверный unread, явный read, pagination и own target обеих
+  ролей; [x] isolated Realtime/JWT/caller/reconnect/focus fences и independent
+  synthetic regressions. App check: 225 suites / 2960 tests, type/lint/format green.
+  [Отчёт](../../app/review/10-som-37-notification-feed-r2/README.md),
+  [ADR 0098](decisions/0098-transactional-notification-feed.md).
+  [ ] needs-local-db: SQL lint/pgTAP/type drift и новый manual concurrency harness;
+  [ ] real Auth/Realtime на двух телефонах, native/accessibility/parity и owner
+  acceptance. Push transport — отдельная SOM-73 по ADR 0065; экран/issue не принят.
+
 - 04.10.2026 — SOM-36 r2 на свежей базе `9e0328c`: [x] authenticated client entry,
   Home с server schedule/plan/request/aggregate balance и finished progress;
   [x] History/detail, Progress/week/exercise history и JWT/caller/reset guards;

@@ -260,3 +260,57 @@ remaining/active units и due minor, а также date/count для подтв�
 Это stable read; он не изменяет bookings, attendance, credits или payments.
 Migration: `20261004110100_client_overview_reads.sql`; runtime/type drift pending CI.
 [ADR 0097](decisions/0097-client-overview-and-read-lifetimes.md).
+
+## SOM-37: in-app notification event contract v1
+
+`notifications` belongs to `workspace_id` + `recipient_user_id` + role and an
+exact tenant `client_record_id`. Only the recipient with a current owner/active
+client relationship can read. Direct authenticated DML is denied. Read state is
+monotonic, server-owned; `mark_notification_read` accepts an own workspace/event
+and retains the first timestamp under replay/concurrent retry.
+
+| Source transition | Kind | Stable `event_key` | Recipient |
+| --- | --- | --- | --- |
+| Booking insert | `booking_requested` / `booking_confirmed` | `booking:<id>:<revision>` | Linked counterpart, excluding actor |
+| Booking confirm/cancel/time change | `booking_confirmed` / `booking_cancelled` / `booking_rescheduled` | `booking:<id>:<revision>` | Linked counterpart |
+| Proposal insert/counter/decline/withdraw | `reschedule_requested` / `reschedule_declined` / `reschedule_withdrawn` | `proposal:<id>:<revision>` | Linked counterpart |
+| First finished transition | `workout_finished` | `finished:<workout-id>` | Linked client |
+| Applied, client-visible finished correction audit | `workout_corrected` | `correction:<request-id>` | Linked client |
+
+Accepted proposals emit the booking time event once; stale/accepted proposal
+status itself adds no duplicate. No-op writes and command receipt replay emit
+nothing. Triggers run inside the existing command transaction; rollback removes
+events and unique recipient/workspace/event keys prevent duplicate delivery rows.
+No existing writer, lock, booking policy or financial rule is replaced. Existing
+historical events are not backfilled, and unlinked cards have no client recipient.
+Private-only note edits/conflict resolutions and unfinished/draft writes emit
+nothing. A public note correction/removal can signal changed visible finished
+content, but never copies note text or the correction envelope into an event.
+
+Payload is exactly `{ "version": 1 }`. The row adds kind, target type/UUID,
+client-card UUID, tenant, recipient, role, event key, created_at and read_at;
+no private notes, phones, email, journal values, auth tokens, conflict snapshots,
+financial amounts or arbitrary strings are transported. SOM-73 can use the
+stable event key and recipient for its separate delivery receipt; this migration
+provides no push transport/tokens/scheduler or push delivery guarantee.
+
+`notification_feed` returns at most 50 rows, ordered `(created_at DESC, id DESC)`;
+`has_more` is computed with one lookahead row; the paired cursor contains the last
+full server timestamp and UUID. `unread_count` counts the entire own selected
+role/workspace/client feed in the same stable SQL snapshot, never only loaded
+pages. New realtime signals reconcile the first page and explicitly retain
+`has_more`; older pages remain accessible. RLS scopes every read. A trainer who
+also has client cards gets separate role feeds. `notification_target` checks the
+same recipient/relationship fence and returns only current own booking metadata
+or the availability of a still-finished own workout. Removed/unfinished targets
+remain an honest unavailable event; cascade deletion/revoked relationships remove
+or hide the event.
+
+Realtime publishes this safe table. App subscriptions use INSERT/UPDATE only;
+DELETE key events are excluded: DEFAULT replica identity cannot provide the
+same recipient/RLS guarantee.
+Deletion/revocation is reconciled on focus/foreground/reconnect. An isolated client/channel verifies JWT
+identity, expected caller session, user and observed token refresh; it treats
+changes as invalidations rather than applying websocket row payloads. Foreground,
+focus and subscribe/reconnect trigger server reconciliation. Controller generations
+fence old reads/counts/errors; read flags never regress when rows are merged.
