@@ -14,6 +14,13 @@
   Calm/reduce motion показывают контент сразу; native и одобрение владельца открыты.
   [Отчёт](app/review/14-som-39-motion-navigation/README.md).
 
+- [SOM-38 / draft PR #76](https://github.com/anuar02/panda-trainer/pull/76): PNG-панда движется через Reanimated по кейфреймам prototype-fresh:
+  семь режимов, тень/glow, sleep z, вход/poke и празднование 2200 мс с confetti/spark.
+  Reduce motion и calm отключают движение; неизвестный calm-контекст сохраняет
+  скрытие. Rive-флаг сохранён. [Отчёт](app/review/13-som-38-mascot-motion/README.md).
+
+- [SOM-38 / draft PR #75](https://github.com/anuar02/panda-trainer/pull/75): кандидаты покадрового движения из семи одобренных роликов и существующих front-idle/listen, WebP и спрайт-листы с JSON, локальная страница сравнения. В приложение не подключены; выбор владельца открыт. [Материалы](design-exploration/mascot-motion-2026-10-04/README.md).
+
 - SOM-41 / PR #73: интеграция с SOM-32 сохраняет pending обновления программы в inventory/export и блокирует удаление до разрешения; exact SQL fence smoke, ADR 0103 и новая migration после актуальной базы.
 
 - SOM-41 / PR #73: исправлены оставшиеся конфликты алиасов `c`/`a` при установке triggers и cleanup; миграции base/pilot не изменены.
