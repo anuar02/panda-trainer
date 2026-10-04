@@ -93,5 +93,8 @@ dark/light/default 390×844 parity и одобрение владельца. Т�
 
 ## GitHub CI
 
-App/database workflow запущен на PR #72. Runtime результат будет добавлен после
-завершения; текущая публикация не утверждает green SQL или принятие экрана.
+Первый полный запуск [37207347151](https://github.com/anuar02/panda-trainer/actions/runs/37207347151)
+применил migration, но DB lint остановился на `private.program_update_context`:
+JSONB local initializer `options := '[]'` имел неявный text cast. Исправлено
+явным `'[]'::jsonb`; pgTAP/concurrency/types в этом запуске не дошли до исполнения.
+Повторный запуск проверит исправление; green SQL или приёмка экрана пока не заявлены.

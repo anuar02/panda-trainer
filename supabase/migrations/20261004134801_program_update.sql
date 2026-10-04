@@ -24,7 +24,7 @@ create trigger client_programs_stamp_created_at before insert on public.client_p
 create function private.program_update_context(p_actor_id uuid,p_workspace_id uuid,p_workout_id uuid,p_client_record_id uuid)
 returns jsonb language plpgsql security definer set search_path=pg_catalog as $$
 declare w public.workout_instances; p public.client_programs; b public.booking_programs; source_id uuid; source_rev integer; source_name text; source_kind text; e public.workout_exercises; root public.workout_exercises;
- target public.client_program_exercises; last_set public.set_results; options jsonb:='[]'; item jsonb; kind text; recorded integer;
+ target public.client_program_exercises; last_set public.set_results; options jsonb:='[]'::jsonb; item jsonb; kind text; recorded integer;
 begin
  if auth.uid() is null or auth.uid() is distinct from p_actor_id or not public.is_workspace_owner(p_workspace_id) then
  raise exception 'scope_unavailable' using errcode='42501'; end if;
