@@ -194,7 +194,7 @@ export function createUpdateController(options: {
             publish({ ready: false });
           }
         }
-        publish({ error: confirmed ? 'update_unknown' : failure(e) });
+        publish({ error: confirmed ? 'update_confirmed_pending' : failure(e) });
       } finally {
         locked = false;
         publish({ busy: false });

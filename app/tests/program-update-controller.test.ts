@@ -139,7 +139,7 @@ test('readback conflict keeps confirmed receipt retryable with the original ID',
   await f.controller.load();
   f.controller.toggle(context.options[0]!.key);
   await f.controller.confirm();
-  expect(f.state().error).toBe('update_unknown');
+  expect(f.state().error).toBe('update_confirmed_pending');
   expect(rows.size).toBe(1);
   expect(f.state().applied).toBe(false);
 });
@@ -162,7 +162,7 @@ test('confirmed receipt followed by read conflict keeps exact intent instead of 
   f.controller.toggle(context.options[0]!.key);
   f.transport.load.mockRejectedValue(new Error('update_conflict'));
   await f.controller.confirm();
-  expect(f.state().error).toBe('update_unknown');
+  expect(f.state().error).toBe('update_confirmed_pending');
   await f.controller.reject();
   expect(rows.size).toBe(1);
 });
