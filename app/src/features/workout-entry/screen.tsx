@@ -1,3 +1,4 @@
+import { ProgramUpdatePanel } from '@/features/program-update/panel';
 import { useState } from 'react';
 import { Pressable, TextInput, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -482,6 +483,13 @@ function WorkoutEntryContent({
             </View>
           ))}
         </View>
+      )}
+      {p.workoutStatus === 'finished' && (
+        <ProgramUpdatePanel
+          session={session}
+          getSession={getSession}
+          participant={p}
+        />
       )}
       {!finished && !finishPending && (!notFinished || canContinue) && (
         <Button

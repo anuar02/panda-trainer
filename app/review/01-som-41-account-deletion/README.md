@@ -5,7 +5,7 @@
 04.10.2026. Branch `agent/01-som-41-account-deletion`; base
 `fix/som-50-template-picker`, refreshed `8ca8fc0` (#71). Full implementation package,
 not a preflight/report-only PR. Product rule [ADR 0101](../../../docs/app/decisions/0101-account-deletion-keeps-trainer-history.md);
-technical [ADR 0102](../../../docs/app/decisions/0102-durable-account-deletion-and-local-proof.md),
+technical [ADR 0103](../../../docs/app/decisions/0103-durable-account-deletion-and-local-proof.md),
 [privacy handoff](../../../docs/app/privacy/ACCOUNT-DELETION-HANDOFF.md).
 
 ## Delivered behavior
@@ -209,3 +209,17 @@ require the exact 500 / 55000 / account_deletion_in_progress response, plus a
 database assertion that the rejected client card was not persisted. HTTP error
 JSON is now retained by the synthetic request helper. No migration or business
 behavior changed. Python compilation and git diff --check pass; fresh CI required.
+
+
+## Integration after SOM-32 merge #72
+
+Merged fresh base 0e5560a. Kept both CHANGELOG/ROADMAP/i18n/ADR entries; deletion
+ADR renumbered to 0103. The new, still unmerged deletion migration is now
+20261004143210_account_deletion.sql, later than program update 20261004134801.
+Its catalog inventory now installs the existing deletion fences on the new
+program_update_receipts table and includes it in own-workspace cleanup; the
+shared immutable trigger permits only the deletion transaction. Added program
+update pending keys to local inventory/export and extended own/foreign pending
+regression so unresolved intent blocks cleanup. Global pending storage fence
+already covers this namespace. No existing migration or program API changed.
+Fresh combined CI is required; standalone green checks do not validate integration.

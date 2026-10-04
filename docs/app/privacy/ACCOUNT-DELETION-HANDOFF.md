@@ -1,6 +1,6 @@
 # SOM-41 · Передача удаления аккаунта
 
-04.10.2026. Реализованный пакет: [ADR 0102](../decisions/0102-durable-account-deletion-and-local-proof.md),
+04.10.2026. Реализованный пакет: [ADR 0103](../decisions/0103-durable-account-deletion-and-local-proof.md),
 [отчёт](../../../app/review/01-som-41-account-deletion/README.md).
 Продуктовое правило shared/dual role принято владельцем в
 [ADR 0101](../decisions/0101-account-deletion-keeps-trainer-history.md);

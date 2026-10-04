@@ -34,6 +34,7 @@ export const deletionLocalAdapter: DeletionLocalAdapter = {
   hash: (value) => digestStringAsync(CryptoDigestAlgorithm.SHA256, value),
 };
 const prefixes = [
+  'panda-trainer-pending-program-update-v1:',
   'panda-trainer-pending-program-v1:',
   'panda-trainer-pending-correction-v1:',
   'panda-trainer-pending-booking-v1:',

@@ -9,6 +9,8 @@
 
 ## Не выпущено
 
+- SOM-41 / PR #73: интеграция с SOM-32 сохраняет pending обновления программы в inventory/export и блокирует удаление до разрешения; exact SQL fence smoke, ADR 0103 и новая migration после актуальной базы.
+
 - SOM-41 / PR #73: исправлены оставшиеся конфликты алиасов `c`/`a` при установке triggers и cleanup; миграции base/pilot не изменены.
 
 - SOM-41 / PR #73: исправлен конфликт SQL-алиаса с PL/pgSQL record в новой, ещё не применённой deletion migration; проверки и ограничения — в [отчёте](app/review/01-som-41-account-deletion/README.md).
@@ -18,8 +20,14 @@
   local inventory/export/ack и writer fences без purge outstanding. Новая migration,
   pgTAP full FK fixtures и extended existing Auth smoke; privacy draft/handoff
   обновлены. [Отчёт](app/review/01-som-41-account-deletion/README.md),
-  [ADR 0102](docs/app/decisions/0102-durable-account-deletion-and-local-proof.md).
+  [ADR 0103](docs/app/decisions/0103-durable-account-deletion-and-local-proof.md).
   SQL/Auth CI, native/cloud/legal и одобрение экранов остаются открытыми.
+- [SOM-32 / draft PR #72](https://github.com/anuar02/panda-trainer/pull/72): явный выбор изменений завершённого журнала создаёт новую личную копию;
+  immutable provenance/receipt, exact durable retry, stale assignment/correction
+  guards и readback. Existing finish/correction сохранены; добавлены pgTAP и races
+  в CI program harness. [Отчёт](app/review/01-som-32-program-update/README.md),
+  [ADR 0102](docs/app/decisions/0102-program-update-receipts-and-sources.md).
+  DB runtime, native/parity и одобрение владельца открыты.
 
 - Решения владельца 04.10.2026: SOM-32 обновление программы по предложению тренеру ([ADR 0100](docs/app/decisions/0100-post-workout-program-update-by-trainer.md)), SOM-41 удаление аккаунта сохраняет историю у тренеров ([ADR 0101](docs/app/decisions/0101-account-deletion-keeps-trainer-history.md)), утренняя push-сводка в 07:00; пилот получил migrations до `20261004110241` ([evidence](docs/app/pilot/EVIDENCE.md)).
 

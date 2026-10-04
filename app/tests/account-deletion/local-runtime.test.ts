@@ -144,26 +144,31 @@ test.each([
   },
 );
 
-test('own scoped pending survives and foreign key is excluded from export', async () => {
-  const own = `panda-trainer-pending-billing-v1:${accountId}:workspace`;
-  const other = `panda-trainer-pending-billing-v1:${foreign}:workspace`;
-  const { adapter, keys, deleted } = fixture(
-    {},
-    {
-      [own]: JSON.stringify({ command: 'synthetic' }),
-      [other]: JSON.stringify({ command: 'foreign' }),
-    },
-  );
-  const snapshot = await readDeletionLocal(accountId, guard, adapter);
-  expect(snapshot.outstanding).toBe(1);
-  expect(snapshot.records.map((record) => record.source)).toContain(own);
-  expect(snapshot.records.map((record) => record.source)).not.toContain(other);
-  await expect(
-    cleanupDeletedAccountCache(snapshot, guard, adapter),
-  ).rejects.toThrow();
-  expect(Object.keys(keys)).toEqual([own, other]);
-  expect(deleted).toHaveLength(0);
-});
+test.each(['billing', 'program-update'])(
+  'own scoped %s pending survives and foreign key is excluded from export',
+  async (kind) => {
+    const own = `panda-trainer-pending-${kind}-v1:${accountId}:workspace`;
+    const other = `panda-trainer-pending-${kind}-v1:${foreign}:workspace`;
+    const { adapter, keys, deleted } = fixture(
+      {},
+      {
+        [own]: JSON.stringify({ command: 'synthetic' }),
+        [other]: JSON.stringify({ command: 'foreign' }),
+      },
+    );
+    const snapshot = await readDeletionLocal(accountId, guard, adapter);
+    expect(snapshot.outstanding).toBe(1);
+    expect(snapshot.records.map((record) => record.source)).toContain(own);
+    expect(snapshot.records.map((record) => record.source)).not.toContain(
+      other,
+    );
+    await expect(
+      cleanupDeletedAccountCache(snapshot, guard, adapter),
+    ).rejects.toThrow();
+    expect(Object.keys(keys)).toEqual([own, other]);
+    expect(deleted).toHaveLength(0);
+  },
+);
 
 test('unknown own storage key fails closed instead of reporting no work', async () => {
   const { adapter } = fixture(

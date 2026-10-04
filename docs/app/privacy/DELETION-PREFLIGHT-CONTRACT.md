@@ -1,7 +1,7 @@
 # SOM-41 · Контракт preflight будущего удаления
 
 04.10.2026: это исторический pure evaluator ADR 0073, не delete authorization.
-Реализованный runtime описан в [ADR 0102](../decisions/0102-durable-account-deletion-and-local-proof.md)
+Реализованный runtime описан в [ADR 0103](../decisions/0103-durable-account-deletion-and-local-proof.md)
 и [handoff](ACCOUNT-DELETION-HANDOFF.md). Продуктовый shared/dual gate заменён ADR
 0101; unknown/review-required этого evaluator не превращены в allow. Внешние
 legal/cloud/native/backup/log/other-device доказательства не объявлены имеющимися.

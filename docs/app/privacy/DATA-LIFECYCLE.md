@@ -9,7 +9,7 @@ links удаляются, карточки каждого тренера сох�
 всех отвязываемых карточек удаляются независимо от accepted_by. Прежний bearer
 не может создавать links/данные: deletion guard и удалённый Auth запрещают это.
 
-Реализация [ADR 0102](../decisions/0102-durable-account-deletion-and-local-proof.md)
+Реализация [ADR 0103](../decisions/0103-durable-account-deletion-and-local-proof.md)
 и [handoff](ACCOUNT-DELETION-HANDOFF.md) покрывают все current public/private
 workspace tables, архивы и private receipts child-first. Служебный private deletion
 receipt без FK на Auth остаётся: account/request UUID, workspace UUID, capability
