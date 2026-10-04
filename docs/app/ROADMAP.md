@@ -18,6 +18,7 @@
   [ADR 0093](decisions/0093-booking-command-session-and-recovery.md).
   [ ] needs-local-db: SQL/RLS/Auth/concurrency/types; real storage/crash/reopen,
   два телефона, native/parity/accessibility и одобрение владельца. Не принята.
+
 - 04.10.2026 — SOM-41 export: [x] пользовательский settings → prepare → coverage
   → file flow, версия 2 с серверным snapshot, scoped SQLite raw operations/receipts,
   валидированными local entries, server conflicts/correction context и доступными
