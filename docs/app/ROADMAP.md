@@ -9,9 +9,10 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-26 creation: [x] login/scope/lifecycle fence и durable retry с conditional clear; [x] synthetic regressions relogin/refresh/storage/cache/overlap/plan; [ ] live auth, SQL/RLS, native/parity, реальный storage crash и приёмка владельца. [Отчёт](../../app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0083](decisions/0083-booking-creation-session-fencing-and-durable-retry.md). Issue и экраны не приняты.
 - 03.10.2026 — SOM-24 r2: восстановлен полный пакет PR #46 без слияния;
   [x] verified JWT sub/session_id fence transport/hook и durable retry;
-  свежая база с SOM-20/SOM-22 read fencing сохранена, ADR остаётся 0080.
+  свежая база с SOM-20/SOM-22 read fencing сохранена, ADR при интеграции перенумерован 0082.
   Полный check: 1846 tests / 163 suites, type/lint/format зелёные.
   Текущие проверки — в [отчёте r2](../../app/review/som-24-assignment-session-fencing-r2/README.md).
   [ ] live auth/SQL/RLS/concurrent receipts, real storage/reopen/crash,

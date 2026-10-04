@@ -1,4 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  createBookingSessionFence,
+  type BookingSessionFence,
+} from './creation-session';
+import { getSupabaseClient } from '@/features/auth/client';
+import { scheduleSessionId } from './read-session';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { submitWorkspaceBooking } from './creation';
 import type { CreateWorkspaceBookingResult } from './create-operation';
 import {
@@ -13,7 +25,14 @@ import {
 
 type CreationError =
   'storage' | 'invalidPending' | WorkspaceSchedulingErrorCode;
-type Control = { key: string; active: boolean; locked: boolean };
+type Control = {
+  key: string;
+  active: boolean;
+  locked: boolean;
+  fence?: BookingSessionFence;
+};
+const isCurrent = (token: Control, current: Control | null, key: string) =>
+  token.active && token.key === key && current === token;
 type State = {
   key: string;
   pending: PendingWorkspaceBooking | null;
@@ -62,28 +81,67 @@ export function useWorkspaceBookingCreation({
   onCreated: (result: CreateWorkspaceBookingResult) => void;
 }) {
   const [attempt, setAttempt] = useState(0);
-  const key = JSON.stringify([userId, workspaceId, attempt]);
-  const [state, setState] = useState<State | null>(null);
+  const [authEpoch, setAuthEpoch] = useState(0);
+  const identity = useRef<string | null>(null);
+  const renderedKey = useRef('');
   const control = useRef<Control | null>(null);
+  useEffect(() => {
+    const client = getSupabaseClient();
+    if (!client) return;
+    const subscription = client.auth.onAuthStateChange((event, session) => {
+      const next = scheduleSessionId(session);
+      if (event === 'INITIAL_SESSION') {
+        identity.current = next;
+        return;
+      }
+      if (
+        event === 'TOKEN_REFRESHED' &&
+        next &&
+        next === identity.current &&
+        session?.user.id.toLowerCase() === userId.toLowerCase()
+      )
+        return;
+      identity.current = next;
+      if (control.current) control.current.active = false;
+      setAuthEpoch((value) => value + 1);
+    }).data.subscription;
+    return () => subscription.unsubscribe();
+  }, [userId]);
+  const key = JSON.stringify([userId, workspaceId, attempt, authEpoch]);
+  const [state, setState] = useState<State | null>(null);
+  useLayoutEffect(() => {
+    renderedKey.current = key;
+  }, [key]);
   useEffect(() => {
     const token: Control = { key, active: true, locked: false };
     control.current = token;
-    void loadPendingWorkspaceBooking(userId, workspaceId).then(
-      (pending) => {
-        if (token.active) setState({ key, pending, busy: false, error: null });
-      },
-      (error: unknown) => {
-        if (token.active)
+    void (async () => {
+      try {
+        token.fence = createBookingSessionFence(userId, () =>
+          isCurrent(token, control.current, renderedKey.current),
+        );
+        await token.fence.assertCurrent();
+        identity.current = token.fence.sessionId;
+        const pending = await loadPendingWorkspaceBooking(userId, workspaceId);
+        await token.fence.assertCurrent();
+        if (isCurrent(token, control.current, renderedKey.current))
+          setState({ key, pending, busy: false, error: null });
+      } catch (error: unknown) {
+        if (isCurrent(token, control.current, renderedKey.current))
           setState({
             key,
             pending: null,
             busy: false,
-            error: pendingErrorCode(error),
+            error:
+              error instanceof WorkspaceSchedulingError
+                ? error.code
+                : pendingErrorCode(error),
           });
-      },
-    );
+      }
+    })();
     return () => {
       token.active = false;
+      token.fence?.dispose();
     };
   }, [key, userId, workspaceId]);
   const current = state?.key === key ? state : null;
@@ -109,30 +167,49 @@ export function useWorkspaceBookingCreation({
         return null;
       token.locked = true;
       setState({ ...current, busy: true, error: null });
+      const active = () =>
+        isCurrent(token, control.current, renderedKey.current);
       let result: CreateWorkspaceBookingResult | null = null;
       let failure: CreationError | null = null;
       try {
-        result = await submitWorkspaceBooking(userId, workspaceId, saved);
+        await token.fence?.assertCurrent();
+        result = await submitWorkspaceBooking(
+          userId,
+          workspaceId,
+          saved,
+          active,
+        );
       } catch (error: unknown) {
         failure = errorCode(error);
       }
+      if (!active()) {
+        token.locked = false;
+        return null;
+      }
       try {
+        await token.fence?.assertCurrent();
         const pending = await loadPendingWorkspaceBooking(userId, workspaceId);
-        if (!token.active) return null;
+        await token.fence?.assertCurrent();
+        if (!isCurrent(token, control.current, renderedKey.current))
+          return null;
         setState({ key, pending, busy: false, error: failure });
       } catch (error: unknown) {
-        if (!token.active) return null;
+        if (!isCurrent(token, control.current, renderedKey.current))
+          return null;
         setState({
           key,
           pending: current.pending ?? saved,
           busy: false,
-          error: pendingErrorCode(error),
+          error:
+            error instanceof WorkspaceSchedulingError
+              ? error.code
+              : pendingErrorCode(error),
         });
         result = null;
       } finally {
         token.locked = false;
       }
-      if (!token.active) return null;
+      if (!isCurrent(token, control.current, renderedKey.current)) return null;
       if (result?.created) onCreated(result);
       return result;
     },
@@ -143,7 +220,12 @@ export function useWorkspaceBookingCreation({
     [current, submit],
   );
   const reload = useCallback(() => {
-    if (!control.current?.locked) setAttempt((value) => value + 1);
+    if (
+      control.current?.active &&
+      control.current.key === renderedKey.current &&
+      !control.current.locked
+    )
+      setAttempt((value) => value + 1);
   }, []);
   return {
     pending: current?.pending ?? null,
