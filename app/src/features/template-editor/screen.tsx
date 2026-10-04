@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -28,7 +35,11 @@ import {
 } from '@/features/trainer-library/fixtures';
 import { styles as libraryStyles } from '@/features/trainer-library/styles';
 import type { TemplateError } from '@/domain/templates';
-import { useOptionalTemplates, type TemplateEditorStore } from './provider';
+import {
+  nextTemplateEditorScope,
+  useOptionalTemplates,
+  type TemplateEditorStore,
+} from './provider';
 const PickerTextInput =
   Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
 export function TemplateEditorScreen({
@@ -38,6 +49,7 @@ export function TemplateEditorScreen({
   suppliedExercises,
   suppliedMedia,
   header,
+  callerScope,
 }: {
   onLeave: () => void;
   onSaved: (id: string) => void;
@@ -45,14 +57,79 @@ export function TemplateEditorScreen({
   suppliedExercises?: LibraryExercise[];
   suppliedMedia?: LibraryMediaMap;
   header?: ReactNode;
+  callerScope?: string;
 }) {
   const contextStore = useOptionalTemplates();
   const store = suppliedStore ?? contextStore;
   if (!store) throw new Error('TemplateProvider is required');
+  const suppliedScope = useMemo(
+    () => (suppliedStore ? nextTemplateEditorScope() : 0),
+    [suppliedStore],
+  );
+  return (
+    <TemplateEditorForm
+      key={`${store.scope ?? suppliedScope}:${callerScope ?? ''}`}
+      store={store}
+      onLeave={onLeave}
+      onSaved={onSaved}
+      suppliedExercises={suppliedExercises}
+      suppliedMedia={suppliedMedia}
+      header={header}
+    />
+  );
+}
+function TemplateEditorForm({
+  store,
+  onLeave,
+  onSaved,
+  suppliedExercises,
+  suppliedMedia,
+  header,
+}: {
+  store: TemplateEditorStore;
+  onLeave: () => void;
+  onSaved: (id: string) => void;
+  suppliedExercises?: LibraryExercise[];
+  suppliedMedia?: LibraryMediaMap;
+  header?: ReactNode;
+}) {
+  const mounted = useRef(false);
+  const attempt = useRef(0);
+  const locked = useRef(false);
+  const latest = useRef(store);
+  useLayoutEffect(() => {
+    latest.current = store;
+  }, [store]);
+  useLayoutEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      attempt.current += 1;
+    };
+  }, []);
+  const capture = () => {
+    const ticket = ++attempt.current;
+    const validScope = store.capture?.() ?? (() => true);
+    const startingDraft = store.draft;
+    return () =>
+      mounted.current &&
+      ticket === attempt.current &&
+      validScope() &&
+      (latest.current.draft === startingDraft || latest.current.draft === null);
+  };
+  const leave = () => {
+    if (!mounted.current) return;
+    mounted.current = false;
+    attempt.current += 1;
+    onLeave();
+  };
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const toast = useToast();
   const [sheet, setSheet] = useState<'picker' | 'discard' | null>(null);
+  useLayoutEffect(() => {
+    attempt.current += 1;
+  }, [sheet]);
   const [query, setQuery] = useState('');
   const [error, setError] = useState<{
     key: TemplateError;
@@ -60,15 +137,17 @@ export function TemplateEditorScreen({
   } | null>(null);
   const [edited, setEdited] = useState(false);
   const updateDraft: typeof store.update = (next) => {
+    if (store.pendingSave) return;
     setEdited(true);
     store.update(next);
   };
   const initialized = useRef(false);
   const nameInput = useRef<TextInput>(null);
   useEffect(() => {
-    if (store.ready && !initialized.current) {
-      initialized.current = true;
-      if (!store.draft) store.begin();
+    if (!mounted.current) return;
+    if (store.busy && !locked.current) initialized.current = false;
+    if (store.ready && !store.busy && !initialized.current) {
+      initialized.current = store.draft !== null || store.begin();
     }
   }, [store]);
   const draft = store.draft;
@@ -139,7 +218,17 @@ export function TemplateEditorScreen({
     updateDraft({ ...draft, exercises });
   };
   const save = async () => {
-    const result = await store.save();
+    if (!mounted.current || locked.current || store.busy) return;
+    const isCurrent = capture();
+    locked.current = true;
+    const result: Awaited<ReturnType<typeof store.save>> = await store
+      .save()
+      .catch(() => ({
+        ok: false as const,
+        error: 'storage' as const,
+      }));
+    locked.current = false;
+    if (!isCurrent()) return;
     if (result.ok) {
       toast(t('templateEditor.saved'));
       onSaved(result.template.id);
@@ -167,7 +256,14 @@ export function TemplateEditorScreen({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={s.topbar}>
-          {iconButton('chevL', t('trainerLibrary.back'), onLeave)}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('trainerLibrary.back')}
+            onPress={leave}
+            style={libraryStyles.iconButton}
+          >
+            <Icon name="chevL" size={24} color={colors.ink} />
+          </Pressable>
           <Text style={s.topTitle}>
             {t(draft.id ? 'templateEditor.editing' : 'templateEditor.title')}
           </Text>
@@ -208,7 +304,7 @@ export function TemplateEditorScreen({
               placeholderTextColor={colors.secondary}
               value={draft.name}
               maxLength={80}
-              editable={!store.busy}
+              editable={!store.busy && !store.pendingSave}
               onChangeText={(name) => updateDraft({ ...draft, name })}
             />
           </View>
@@ -227,7 +323,7 @@ export function TemplateEditorScreen({
               multiline
               maxLength={400}
               value={draft.description}
-              editable={!store.busy}
+              editable={!store.busy && !store.pendingSave}
               onChangeText={(description) =>
                 updateDraft({ ...draft, description })
               }
@@ -314,7 +410,7 @@ export function TemplateEditorScreen({
                                 ? 'decimal-pad'
                                 : 'number-pad'
                           }
-                          editable={!store.busy}
+                          editable={!store.busy && !store.pendingSave}
                           onChangeText={(value) =>
                             updateExercise(index, { [key]: value })
                           }
@@ -451,14 +547,23 @@ export function TemplateEditorScreen({
           variant="soft"
           label={t('templateEditor.discard')}
           disabled={store.busy}
-          onPress={() =>
-            void store.discard().then((ok) => {
-              if (ok) {
-                setSheet(null);
-                onLeave();
-              }
-            })
-          }
+          onPress={() => {
+            if (!mounted.current || locked.current || store.busy) return;
+            const isCurrent = capture();
+            locked.current = true;
+            void store
+              .discard()
+              .catch(() => false)
+              .then((ok) => {
+                locked.current = false;
+                if (!isCurrent()) return;
+                if (!ok) setError({ key: 'storage' });
+                if (ok) {
+                  setSheet(null);
+                  leave();
+                }
+              });
+          }}
         />
       </Sheet>
       <Sheet

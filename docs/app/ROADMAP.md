@@ -22,6 +22,8 @@
   промежуточных записей не доказано. Deletion/policy остаются отдельным пакетом,
   SOM-41 целиком не закрыта.
 
+- 04.10.2026 — SOM-23 editor: [x] caller/draft scope и late save/discard/reload guards; [x] immutable pending retry и durable explicit reload; [x] synthetic create/edit/copy/read и lifecycle regressions; полный app check 2717 tests / 209 suites, type/lint/format зелёные. [Отчёт](../../app/review/04-som-23-editor-production-finish/README.md), [ADR 0093](decisions/0093-template-editor-caller-lifetime.md). [ ] needs-local-db: новый template-specific pgTAP и existing concurrency; live Auth/storage/crash/reopen/native/parity и одобрение владельца. Issue и экраны не приняты.
+
 - 04.10.2026 — SOM-20 onboarding: [x] полный service → hook → route/welcome session fence,
   unknown scoped context, explicit bearer и safe atomic retry; [x] synthetic workflow
   first trainer → optional client → existing real client read → return, relogin на

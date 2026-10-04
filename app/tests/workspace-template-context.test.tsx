@@ -98,3 +98,49 @@ describe('workspace template client context routes', () => {
     });
   });
 });
+
+it('old launcher cannot resume or begin after client context changes or unmount', async () => {
+  const hook = await renderHook(
+    ({ id }: { id: string }) => useWorkspaceTemplateLauncher(id),
+    { initialProps: { id: clientId } },
+  );
+  const old = hook.result.current;
+  await hook.rerender({ id: 'next-client' });
+  await act(() => {
+    old.resume();
+    old.start(templateId);
+  });
+  expect(router.push).not.toHaveBeenCalled();
+  expect(begin).not.toHaveBeenCalled();
+  await act(() => hook.result.current.start(templateId, true));
+  expect(router.push).toHaveBeenCalledWith(
+    workspaceTemplateEditorHref('next-client'),
+  );
+  const leaving = hook.result.current;
+  await hook.unmount();
+  jest.clearAllMocks();
+  await act(() => {
+    leaving.resume();
+    leaving.start(templateId);
+  });
+  expect(router.push).not.toHaveBeenCalled();
+  expect(begin).not.toHaveBeenCalled();
+});
+
+it('old conflict close callback cannot dismiss the next scope confirmation', async () => {
+  jest.mocked(useWorkspaceLibrary).mockReturnValue({
+    ...store,
+    editor: { ...editor, draft: {} },
+  } as unknown as ReturnType<typeof useWorkspaceLibrary>);
+  const hook = await renderHook(
+    ({ id }: { id: string }) => useWorkspaceTemplateLauncher(id),
+    { initialProps: { id: clientId } },
+  );
+  await act(() => hook.result.current.start(templateId));
+  const oldClose = hook.result.current.conflict.props.onClose as () => void;
+  await hook.rerender({ id: 'next-client' });
+  await act(() => hook.result.current.start(templateId, true));
+  expect(hook.result.current.conflict.props.open).toBe(true);
+  await act(oldClose);
+  expect(hook.result.current.conflict.props.open).toBe(true);
+});
