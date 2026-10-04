@@ -3,6 +3,10 @@ import {
   type TrainerBillingCommand,
 } from '../src/features/trainer-billing/commands';
 
+jest.mock('../src/features/auth/client', () => ({
+  getSupabaseClient: jest.fn(),
+}));
+
 const uppercaseId = 'ABCDEFAB-1234-4234-8234-ABCDEFABCDEF';
 
 jest.mock('../src/features/trainer-billing/service', () => ({}));

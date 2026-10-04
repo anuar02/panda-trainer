@@ -1,3 +1,5 @@
+import { getSupabaseClient } from '../src/features/auth/client';
+import { financialToken } from './financial-read-fixtures';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   submitTrainerBillingCommand,
@@ -13,6 +15,9 @@ import {
   reverseClientPayment,
 } from '../src/features/trainer-billing/service';
 import { TrainerBillingError } from '../src/features/trainer-billing/types';
+jest.mock('../src/features/auth/client', () => ({
+  getSupabaseClient: jest.fn(),
+}));
 jest.mock('../src/features/trainer-billing/service', () => ({
   markNoShow: jest.fn(),
   recordClientPayment: jest.fn(),
@@ -33,9 +38,39 @@ const command: TrainerBillingCommand = {
 };
 const rpc = jest.mocked(markNoShow);
 const rows = new Map<string, string>();
+let sessionId = other;
+const listeners = new Set<(event: string, session: unknown) => void>();
+const authSession = () => ({
+  user: { id: user },
+  access_token: financialToken(user, sessionId),
+});
+const relogin = () => {
+  sessionId = command.requestId;
+  for (const listener of listeners) listener('SIGNED_IN', authSession());
+};
 beforeEach(() => {
   jest.resetAllMocks();
   rows.clear();
+  listeners.clear();
+  sessionId = other;
+  jest.mocked(getSupabaseClient).mockReturnValue({
+    auth: {
+      getSession: jest.fn(async () => ({
+        data: { session: authSession() },
+        error: null,
+      })),
+      onAuthStateChange: (
+        listener: (event: string, session: unknown) => void,
+      ) => {
+        listeners.add(listener);
+        return {
+          data: {
+            subscription: { unsubscribe: () => listeners.delete(listener) },
+          },
+        };
+      },
+    },
+  } as unknown as NonNullable<ReturnType<typeof getSupabaseClient>>);
   jest
     .mocked(AsyncStorage.getItem)
     .mockImplementation(async (key) => rows.get(key) ?? null);
@@ -226,7 +261,7 @@ test('lost reversal response persists exact command across reload and isolates a
   expect(await loadPendingTrainerBillingCommand(user, other)).toBeNull();
   if (!saved) throw new Error('Missing saved reversal');
   await submitTrainerBillingCommand(user, workspace, saved);
-  expect(reverse.mock.calls[0]).toEqual(reverse.mock.calls[1]);
+  expect(reverse.mock.calls[0]?.[0]).toEqual(reverse.mock.calls[1]?.[0]);
   expect(reverse.mock.calls[1]?.[0]).toMatchObject({
     expectedUserId: user,
     requestId: command.requestId,
@@ -259,5 +294,224 @@ test.each(['conflict', 'invalidState'] as const)(
       submitTrainerBillingCommand(user, workspace, reversalCommand),
     ).rejects.toMatchObject({ code });
     expect(await loadPendingTrainerBillingCommand(user, workspace)).toBeNull();
+  },
+);
+
+test.each(['conflict', 'invalidState', 'overpayment'] as const)(
+  'same-user relogin while RPC returns %s keeps durable command',
+  async (code) => {
+    rpc.mockImplementationOnce(async () => {
+      relogin();
+      throw new TrainerBillingError(code);
+    });
+    await expect(
+      submitTrainerBillingCommand(user, workspace, command),
+    ).rejects.toMatchObject({ code: 'unavailable' });
+    expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+      command,
+    );
+  },
+);
+test('same-user relogin after successful RPC keeps durable command for receipt replay', async () => {
+  const result = await rpc({ ...command, expectedUserId: user });
+  rpc.mockClear();
+  rpc.mockImplementationOnce(async () => {
+    relogin();
+    return result;
+  });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, command),
+  ).rejects.toMatchObject({ code: 'unavailable' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    command,
+  );
+});
+test('same-user relogin during durable save prevents dispatch but preserves saved request', async () => {
+  jest
+    .mocked(AsyncStorage.setItem)
+    .mockImplementationOnce(async (key, value) => {
+      rows.set(key, value);
+      relogin();
+    });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, command),
+  ).rejects.toMatchObject({ code: 'unavailable' });
+  expect(rpc).not.toHaveBeenCalled();
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    command,
+  );
+});
+test('same-user relogin during clear read prevents deletion', async () => {
+  rpc.mockImplementationOnce(async () => {
+    jest.mocked(AsyncStorage.getItem).mockImplementationOnce(async (key) => {
+      relogin();
+      return rows.get(key) ?? null;
+    });
+    return {
+      attendanceId: other,
+      bookingId: other,
+      revision: 1,
+      status: 'noshow',
+      cycle: 1,
+      serviceDate: '2026-10-03',
+      purchaseId: null,
+      charged: false,
+      creditEntryId: null,
+      replayed: false,
+    };
+  });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, command),
+  ).rejects.toMatchObject({ code: 'unavailable' });
+  expect(AsyncStorage.removeItem).not.toHaveBeenCalled();
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    command,
+  );
+});
+
+test('relogin while removal completes restores original command for reopen retry', async () => {
+  jest.mocked(AsyncStorage.removeItem).mockImplementationOnce(async (key) => {
+    rows.delete(key);
+    relogin();
+  });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, command),
+  ).rejects.toMatchObject({ code: 'unavailable' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    command,
+  );
+});
+test('failed removal after deleting data restores the same request for retry', async () => {
+  jest.mocked(AsyncStorage.removeItem).mockImplementationOnce(async (key) => {
+    rows.delete(key);
+    throw new Error('uncertain storage completion');
+  });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, command),
+  ).rejects.toMatchObject({ code: 'storage' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    command,
+  );
+});
+
+test('clear never removes a newer pending request', async () => {
+  const newer = { ...command, requestId: other };
+  rpc.mockImplementationOnce(async () => {
+    rows.set(
+      `panda-trainer-pending-billing-v1:${user}:${workspace}`,
+      JSON.stringify(newer),
+    );
+    return {
+      attendanceId: other,
+      bookingId: other,
+      revision: 1,
+      status: 'noshow',
+      cycle: 1,
+      serviceDate: '2026-10-03',
+      purchaseId: null,
+      charged: false,
+      creditEntryId: null,
+      replayed: false,
+    };
+  });
+  await submitTrainerBillingCommand(user, workspace, command);
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    newer,
+  );
+  expect(AsyncStorage.removeItem).not.toHaveBeenCalled();
+});
+test('cancelled clear restoration does not overwrite newer pending', async () => {
+  const newer = { ...command, requestId: other };
+  jest.mocked(AsyncStorage.removeItem).mockImplementationOnce(async (key) => {
+    rows.set(key, JSON.stringify(newer));
+    relogin();
+  });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, command),
+  ).rejects.toMatchObject({ code: 'unavailable' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    newer,
+  );
+});
+test('same-session refresh while saving permits RPC and durable keys/payload contain no credentials', async () => {
+  jest
+    .mocked(AsyncStorage.setItem)
+    .mockImplementationOnce(async (key, value) => {
+      rows.set(key, value);
+      for (const listener of listeners)
+        listener('TOKEN_REFRESHED', {
+          user: { id: user },
+          access_token: financialToken(user, sessionId, 2),
+        });
+    });
+  await submitTrainerBillingCommand(user, workspace, command);
+  expect(rpc).toHaveBeenCalledTimes(1);
+  const saved = jest.mocked(AsyncStorage.setItem).mock.calls[0];
+  expect(saved?.[0]).toBe(
+    `panda-trainer-pending-billing-v1:${user}:${workspace}`,
+  );
+  expect(JSON.parse(saved?.[1] ?? '{}')).toEqual(command);
+  expect(
+    JSON.stringify(jest.mocked(AsyncStorage.setItem).mock.calls),
+  ).not.toContain('synthetic.');
+});
+test('late storage error after relogin is auth cancellation and never dispatches', async () => {
+  jest
+    .mocked(AsyncStorage.setItem)
+    .mockImplementationOnce(async (key, value) => {
+      rows.set(key, value);
+      relogin();
+      throw new Error('private storage error');
+    });
+  await expect(
+    submitTrainerBillingCommand(user, workspace, command),
+  ).rejects.toMatchObject({ code: 'unavailable' });
+  expect(rpc).not.toHaveBeenCalled();
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    command,
+  );
+});
+test('same request id cannot replace canonical payload', async () => {
+  await savePendingTrainerBillingCommand(user, workspace, paymentCommand);
+  await expect(
+    savePendingTrainerBillingCommand(user, workspace, {
+      ...paymentCommand,
+      amountMinor: '1',
+    }),
+  ).rejects.toMatchObject({ code: 'unresolved' });
+  expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+    paymentCommand,
+  );
+});
+
+test.each(['success', 'conflict', 'invalidState', 'overpayment'] as const)(
+  'relogin at final command guard after %s clear retains request',
+  async (outcome) => {
+    if (outcome !== 'success')
+      rpc.mockRejectedValueOnce(new TrainerBillingError(outcome));
+    const client = getSupabaseClient();
+    if (!client) throw new Error('Missing synthetic auth');
+    const getSession = jest.mocked(client.auth.getSession);
+    jest.mocked(AsyncStorage.removeItem).mockImplementationOnce(async (key) => {
+      rows.delete(key);
+      getSession.mockImplementationOnce(
+        async () =>
+          ({ data: { session: authSession() }, error: null }) as Awaited<
+            ReturnType<typeof client.auth.getSession>
+          >,
+      );
+      getSession.mockImplementationOnce(async () => {
+        relogin();
+        return { data: { session: authSession() }, error: null } as Awaited<
+          ReturnType<typeof client.auth.getSession>
+        >;
+      });
+    });
+    await expect(
+      submitTrainerBillingCommand(user, workspace, command),
+    ).rejects.toMatchObject({ code: 'unavailable' });
+    expect(await loadPendingTrainerBillingCommand(user, workspace)).toEqual(
+      command,
+    );
   },
 );

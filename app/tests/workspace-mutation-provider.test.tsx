@@ -1,3 +1,4 @@
+import { mutationAuth, financialId } from './financial-mutation-fixtures';
 import { useEffect } from 'react';
 import { act, render, waitFor } from '@testing-library/react-native';
 import {
@@ -74,11 +75,11 @@ function Schedule() {
   }, [store]);
   return null;
 }
-function Tree({ userId = 'user-a' }: { userId?: string }) {
+function Tree({ userId = financialId(1) }: { userId?: string }) {
   return (
-    <WorkspaceMutationProvider userId={userId} workspaceId="workspace">
+    <WorkspaceMutationProvider userId={userId} workspaceId={financialId(2)}>
       <Today />
-      <WorkspaceMutationBoundary userId={userId} workspaceId="workspace">
+      <WorkspaceMutationBoundary userId={userId} workspaceId={financialId(2)}>
         <Schedule />
       </WorkspaceMutationBoundary>
     </WorkspaceMutationProvider>
@@ -91,8 +92,11 @@ const deferred = <T,>() => {
   });
   return { promise, resolve };
 };
+let auth: ReturnType<typeof mutationAuth>;
 beforeEach(() => {
   jest.clearAllMocks();
+  auth = mutationAuth(financialId(1));
+  auth.install();
   jest
     .mocked(loadPendingTrainerBillingCommand)
     .mockReset()
@@ -158,8 +162,8 @@ test('legacy pending in two domains allows owned replay but refuses new commands
   jest.mocked(loadPendingWorkspaceBookingStatus).mockResolvedValue(null);
   await act(async () => expect(await schedule.status.resume()).toBe(true));
   expect(submitWorkspaceBookingStatus).toHaveBeenCalledWith(
-    'user-a',
-    'workspace',
+    financialId(1),
+    financialId(2),
     statusCommand,
   );
   expect(today.billing.pending).toEqual(command);
@@ -195,7 +199,8 @@ test('account change isolates delayed completion and invalidates captured callba
   await act(async () => {
     void old.status.submit(statusCommand);
   });
-  await view.rerender(<Tree userId="user-b" />);
+  await act(async () => auth.emit('SIGNED_IN', auth.session(financialId(9))));
+  await view.rerender(<Tree userId={financialId(9)} />);
   await waitFor(() => expect(today.blocked).toBe(false));
   await act(async () =>
     request.resolve({
@@ -205,7 +210,7 @@ test('account change isolates delayed completion and invalidates captured callba
       replayed: false,
     }),
   );
-  expect(today.userId).toBe('user-b');
+  expect(today.userId).toBe(financialId(9));
   expect(today.generation).toBe(0);
   expect(today.status.pending).toBeNull();
   await act(async () => expect(await old.billing.submit(command)).toBe(false));

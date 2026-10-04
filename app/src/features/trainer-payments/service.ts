@@ -15,6 +15,7 @@ import {
   type TrainerPayments,
 } from './types';
 
+export { recordClientPayment, reverseClientPayment } from './mutations';
 export { TrainerPaymentsError } from './types';
 const fail = (): never => {
   throw new TrainerPaymentsError('request');
