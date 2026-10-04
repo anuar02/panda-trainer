@@ -1,3 +1,5 @@
+import { getSupabaseClient } from '@/features/auth/client';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import {
   submitWorkspaceBooking,
   resumeWorkspaceBooking,
@@ -9,6 +11,7 @@ import {
   clearPendingWorkspaceBooking,
   type PendingWorkspaceBooking,
 } from '@/features/workspace-scheduling/pending';
+jest.mock('@/features/auth/client', () => ({ getSupabaseClient: jest.fn() }));
 
 jest.mock('@/features/workspace-scheduling/create-operation', () => ({
   createWorkspaceBookingOperation: jest.fn(),
@@ -42,7 +45,12 @@ const clear = jest.mocked(clearPendingWorkspaceBooking);
 
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.mocked(createWorkspaceBookingOperation).mockReturnValue({ execute });
+  jest
+    .mocked(getSupabaseClient)
+    .mockReturnValue(bookingAuthFixture(userId).client);
+  jest
+    .mocked(createWorkspaceBookingOperation)
+    .mockReturnValue({ execute, dispose: jest.fn() });
   execute.mockResolvedValue(result);
   save.mockResolvedValue();
   clear.mockResolvedValue(true);
@@ -61,7 +69,12 @@ test('waits for durable storage before contacting the server', async () => {
   expect(execute).not.toHaveBeenCalled();
   saved();
   expect(await pending).toEqual(result);
-  expect(clear).toHaveBeenCalledWith(userId, workspaceId, command.requestId);
+  expect(clear).toHaveBeenCalledWith(
+    userId,
+    workspaceId,
+    command.requestId,
+    expect.any(Function),
+  );
 });
 test('does not send when storage fails or another command is unresolved', async () => {
   save.mockRejectedValueOnce(new Error('unresolved'));
@@ -81,10 +94,14 @@ test('keeps the pending command after a lost response', async () => {
   expect(await resumeWorkspaceBooking(userId, workspaceId)).toMatchObject({
     replayed: true,
   });
-  expect(createWorkspaceBookingOperation).toHaveBeenNthCalledWith(2, {
-    ...command,
-    expectedUserId: userId,
-  });
+  expect(createWorkspaceBookingOperation).toHaveBeenNthCalledWith(
+    2,
+    {
+      ...command,
+      expectedUserId: userId,
+    },
+    expect.any(Object),
+  );
 });
 test('recovers a receipt when local cleanup fails after server creation', async () => {
   clear.mockRejectedValueOnce(new Error('storage unavailable'));
@@ -106,10 +123,16 @@ test('releases a validated overlap warning without automatically acknowledging',
   expect(
     await submitWorkspaceBooking(userId, workspaceId, command),
   ).toMatchObject({ created: false });
-  expect(clear).toHaveBeenCalledWith(userId, workspaceId, command.requestId);
+  expect(clear).toHaveBeenCalledWith(
+    userId,
+    workspaceId,
+    command.requestId,
+    expect.any(Function),
+  );
   expect(createWorkspaceBookingOperation).toHaveBeenCalledTimes(1);
   expect(createWorkspaceBookingOperation).toHaveBeenCalledWith(
     expect.objectContaining({ collisionAcknowledged: false }),
+    expect.any(Object),
   );
 });
 test('does nothing when the current scope has no pending command', async () => {
@@ -140,8 +163,12 @@ test('restores selected template and exact revision after a lost response', asyn
   expect(clear).not.toHaveBeenCalled();
   execute.mockResolvedValueOnce({ ...result, replayed: true });
   await resumeWorkspaceBooking(userId, workspaceId);
-  expect(createWorkspaceBookingOperation).toHaveBeenNthCalledWith(2, {
-    ...selected,
-    expectedUserId: userId,
-  });
+  expect(createWorkspaceBookingOperation).toHaveBeenNthCalledWith(
+    2,
+    {
+      ...selected,
+      expectedUserId: userId,
+    },
+    expect.any(Object),
+  );
 });

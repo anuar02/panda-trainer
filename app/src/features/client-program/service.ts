@@ -1,4 +1,8 @@
 import { getSupabaseClient } from '@/features/auth/client';
+import {
+  createProgramReadFence,
+  ClientProgramSessionError,
+} from './program-read-session';
 import type { ClientScheduleContext } from '../client-scheduling/service';
 
 export type ClientPersonalProgramExercise = {
@@ -57,10 +61,28 @@ const integer = (
   value <= max;
 const nullableText = (value: unknown): value is string | null =>
   value === null || text(value);
-const timestamp = (value: unknown): value is string =>
-  text(value) &&
-  /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(value) &&
-  Number.isFinite(Date.parse(value));
+const boundedText = (value: unknown, max: number): value is string =>
+  text(value) && [...value].length <= max;
+const boundedName = (value: string, max: number) => {
+  const name = value.replace(/^ +| +$/g, '');
+  return [...name].length >= 1 && [...name].length <= max;
+};
+const units = (value: unknown, digits: number): value is string | null =>
+  value === null ||
+  (text(value) &&
+    new RegExp(`^[0-9]{1,${digits}}([–-][0-9]{1,${digits}})?$`).test(value));
+const timestamp = (value: unknown): value is string => {
+  if (
+    !text(value) ||
+    !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?(?:Z|\+00:00)$/.test(value)
+  )
+    return false;
+  const parsed = Date.parse(value);
+  return (
+    Number.isFinite(parsed) &&
+    new Date(parsed).toISOString().slice(0, 19) === value.slice(0, 19)
+  );
+};
 const fail = (): never => {
   throw new ClientProgramError('request');
 };
@@ -68,26 +90,33 @@ const fail = (): never => {
 export async function loadLatestClientProgram(input: {
   expectedUserId: string;
   clientRecordId: string;
+  expectedSessionId?: string;
+  isCurrent?: () => boolean;
 }): Promise<ClientProgramData> {
+  input = { ...input };
   if (!uuid(input.expectedUserId) || !uuid(input.clientRecordId))
     throw new ClientProgramError('invalidInput');
   const client = getSupabaseClient();
   if (!client) throw new ClientProgramError('configuration');
+  let fence: Awaited<ReturnType<typeof createProgramReadFence>> | undefined;
   try {
-    const session = await client.auth.getSession();
-    const token = session.data.session?.access_token;
-    if (
-      session.error ||
-      !token ||
-      session.data.session?.user.id.toLowerCase() !==
-        input.expectedUserId.toLowerCase()
-    )
-      throw new ClientProgramError('unavailable');
+    fence = await createProgramReadFence(
+      client.auth,
+      {
+        userId: input.expectedUserId.toLowerCase(),
+        sessionId: input.expectedSessionId,
+      },
+      input.isCurrent,
+    );
+    fence.checkCurrent();
+    const token = fence.accessToken;
     const result = await client
       .rpc('get_my_client_schedule_context', {
         p_client_record_id: input.clientRecordId.toLowerCase(),
       })
       .setHeader('Authorization', `Bearer ${token}`);
+    await fence.assertCurrent();
+    fence.checkCurrent();
     if (result.error) throw new ClientProgramError('unavailable');
     const contextRow: unknown = result.data;
     if (
@@ -125,6 +154,8 @@ export async function loadLatestClientProgram(input: {
       .order('id', { ascending: false })
       .limit(1)
       .maybeSingle();
+    await fence.assertCurrent();
+    fence.checkCurrent();
     if (response.error) return fail();
     const row: unknown = response.data;
     let program: ClientPersonalProgram | null = null;
@@ -135,8 +166,8 @@ export async function loadLatestClientProgram(input: {
         row.workspace_id !== context.workspaceId ||
         row.client_record_id !== context.clientRecordId ||
         !text(row.name) ||
-        !row.name.trim() ||
-        !text(row.description) ||
+        !boundedName(row.name, 80) ||
+        !boundedText(row.description, 400) ||
         !integer(row.revision, 1) ||
         !timestamp(row.created_at)
       )
@@ -151,11 +182,12 @@ export async function loadLatestClientProgram(input: {
       };
       const ids = new Set<string>();
       const positions = new Set<number>();
+      const exerciseIds = new Set<string>();
       for (let offset = 0; offset <= 50; offset += 25) {
         const lines = await client
           .from('client_program_exercises')
           .select(
-            'id,workspace_id,client_program_id,exercise_name_snapshot,measure_snapshot,bodyweight_snapshot,muscle_group_snapshot,equipment_snapshot,instructions_snapshot,position,planned_sets,planned_reps,planned_seconds,planned_weight_g,rest_seconds,note,revision',
+            'id,workspace_id,client_program_id,exercise_id,exercise_name_snapshot,measure_snapshot,bodyweight_snapshot,muscle_group_snapshot,equipment_snapshot,instructions_snapshot,position,planned_sets,planned_reps,planned_seconds,planned_weight_g,rest_seconds,note,revision',
           )
           .eq('workspace_id', context.workspaceId)
           .eq('client_program_id', program.id)
@@ -163,6 +195,8 @@ export async function loadLatestClientProgram(input: {
           .order('position')
           .order('id')
           .range(offset, offset + 24);
+        await fence.assertCurrent();
+        fence.checkCurrent();
         if (
           lines.error ||
           !Array.isArray(lines.data) ||
@@ -174,11 +208,13 @@ export async function loadLatestClientProgram(input: {
           if (
             !object(value) ||
             !uuid(value.id) ||
-            ids.has(value.id) ||
+            ids.has(value.id.toLowerCase()) ||
+            !uuid(value.exercise_id) ||
+            exerciseIds.has(value.exercise_id.toLowerCase()) ||
             value.workspace_id !== context.workspaceId ||
             value.client_program_id !== program.id ||
             !text(value.exercise_name_snapshot) ||
-            !value.exercise_name_snapshot.trim() ||
+            !boundedName(value.exercise_name_snapshot, 120) ||
             (value.measure_snapshot !== 'reps' &&
               value.measure_snapshot !== 'seconds') ||
             typeof value.bodyweight_snapshot !== 'boolean' ||
@@ -189,8 +225,8 @@ export async function loadLatestClientProgram(input: {
             !integer(value.position, 0, 49) ||
             positions.has(value.position) ||
             !integer(value.planned_sets, 1, 20) ||
-            !nullableText(value.planned_reps) ||
-            !nullableText(value.planned_seconds) ||
+            !units(value.planned_reps, 3) ||
+            !units(value.planned_seconds, 4) ||
             (value.measure_snapshot === 'reps'
               ? value.planned_reps === null || value.planned_seconds !== null
               : value.planned_seconds === null ||
@@ -202,7 +238,8 @@ export async function loadLatestClientProgram(input: {
             !integer(value.revision, 1)
           )
             return fail();
-          ids.add(value.id);
+          ids.add(value.id.toLowerCase());
+          exerciseIds.add(value.exercise_id.toLowerCase());
           positions.add(value.position);
           program.exercises.push({
             id: value.id,
@@ -228,16 +265,24 @@ export async function loadLatestClientProgram(input: {
         (a, b) => a.position - b.position || a.id.localeCompare(b.id),
       );
     }
-    const final = await client.auth.getSession();
-    if (
-      final.error ||
-      final.data.session?.user.id.toLowerCase() !==
-        input.expectedUserId.toLowerCase()
-    )
-      throw new ClientProgramError('unavailable');
+    await fence.assertCurrent();
+    fence.checkCurrent();
     return { context, program };
   } catch (error: unknown) {
+    if (fence)
+      await fence.assertCurrent().catch(() => {
+        throw new ClientProgramError('unavailable');
+      });
+    try {
+      fence?.checkCurrent();
+    } catch {
+      throw new ClientProgramError('unavailable');
+    }
+    if (error instanceof ClientProgramSessionError)
+      throw new ClientProgramError('unavailable');
     if (error instanceof ClientProgramError) throw error;
     throw new ClientProgramError('request');
+  } finally {
+    fence?.dispose();
   }
 }

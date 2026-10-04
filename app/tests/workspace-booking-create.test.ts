@@ -1,3 +1,4 @@
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/features/auth/client';
 import {
@@ -51,17 +52,13 @@ const setup = (response: unknown = created(), sessionUser = userId) => {
     header.mockReturnValue(result);
     return { setHeader: header };
   });
-  const getSession = jest.fn().mockResolvedValue({
-    data: {
-      session: { user: { id: sessionUser }, access_token: 'test-token' },
-    },
-    error: null,
-  });
+  const fixture = bookingAuthFixture(sessionUser);
+  const { getSession } = fixture.auth;
   getClient.mockReturnValue({
-    auth: { getSession },
+    auth: fixture.auth,
     rpc,
   } as unknown as SupabaseClient<Database>);
-  return { rpc, header, getSession };
+  return { rpc, header, getSession, fixture };
 };
 
 beforeEach(() => jest.clearAllMocks());
@@ -76,9 +73,12 @@ test('pins the session token and shares in-flight and successful requests', asyn
     bookingIds: [bookingId],
     replayed: false,
   });
-  expect(operation.execute()).toBe(first);
+  expect(await operation.execute()).toEqual(await first);
   expect(rpc).toHaveBeenCalledTimes(1);
-  expect(header).toHaveBeenCalledWith('Authorization', 'Bearer test-token');
+  expect(header).toHaveBeenCalledWith(
+    'Authorization',
+    `Bearer ${bookingAuthFixture(userId).session().access_token}`,
+  );
 });
 
 test('snapshots and sorts participants before the caller can mutate input', async () => {
@@ -302,4 +302,86 @@ test.each([
       plan: { templateId: groupId, expectedTemplateRevision: 1 },
     }).execute(),
   ).rejects.toMatchObject({ code: expected });
+});
+
+test.each(['SIGNED_OUT', 'SIGNED_IN'] as const)(
+  'cached success fails closed after %s with identical actor',
+  async (event) => {
+    const { fixture, rpc } = setup();
+    const operation = createWorkspaceBookingOperation(input());
+    await operation.execute();
+    fixture.change(fixture.session(), event);
+    await expect(operation.execute()).rejects.toMatchObject({
+      code: 'unavailable',
+    });
+    expect(rpc).toHaveBeenCalledTimes(1);
+    operation.dispose();
+    expect(fixture.listenerCount).toBe(0);
+  },
+);
+
+test('cached success revalidates login identity even without an event', async () => {
+  const { fixture } = setup();
+  const operation = createWorkspaceBookingOperation(input());
+  await operation.execute();
+  fixture.change(fixture.session(userId, groupId));
+  await expect(operation.execute()).rejects.toMatchObject({
+    code: 'unavailable',
+  });
+  operation.dispose();
+});
+
+test.each(['success', 'error', 'throw'] as const)(
+  'late RPC %s is unavailable after same-user relogin',
+  async (kind) => {
+    const { fixture, rpc } = setup();
+    rpc.mockImplementationOnce(() => ({
+      setHeader: async () => {
+        fixture.change(fixture.session(userId, groupId), 'SIGNED_IN');
+        if (kind === 'throw')
+          throw new Error('transport credentials must not escape');
+        return {
+          data: created(),
+          error: kind === 'error' ? { code: '22023' } : null,
+        };
+      },
+    }));
+    const operation = createWorkspaceBookingOperation(input());
+    await expect(operation.execute()).rejects.toMatchObject({
+      code: 'unavailable',
+    });
+    operation.dispose();
+  },
+);
+
+test('verified refresh during RPC permits result and cache reuse', async () => {
+  const { fixture, rpc } = setup();
+  rpc.mockImplementationOnce(() => ({
+    setHeader: async () => {
+      fixture.change(
+        fixture.session(userId, fixture.sessionId, 'refresh'),
+        'TOKEN_REFRESHED',
+      );
+      return { data: created(), error: null };
+    },
+  }));
+  const operation = createWorkspaceBookingOperation(input());
+  await expect(operation.execute()).resolves.toMatchObject({ created: true });
+  await expect(operation.execute()).resolves.toMatchObject({ created: true });
+  expect(rpc).toHaveBeenCalledTimes(1);
+  operation.dispose();
+});
+
+test('login event before initial auth resolves prevents RPC', async () => {
+  const { fixture, rpc, getSession } = setup();
+  getSession.mockImplementationOnce(async () => {
+    fixture.change(fixture.session(), 'SIGNED_IN');
+    return { data: { session: fixture.session() }, error: null };
+  });
+  const operation = createWorkspaceBookingOperation(input());
+  await expect(operation.execute()).rejects.toMatchObject({
+    code: 'unavailable',
+  });
+  expect(rpc).not.toHaveBeenCalled();
+  operation.dispose();
 });

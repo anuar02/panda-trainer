@@ -1,3 +1,5 @@
+import { getSupabaseClient } from '../src/features/auth/client';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useWorkspaceBookingCreation } from '../src/features/workspace-scheduling/use-creation';
 import { submitWorkspaceBooking } from '../src/features/workspace-scheduling/creation';
@@ -47,12 +49,17 @@ const mount = () =>
   );
 const deferred = <T,>() => {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((yes) => {
+  let reject!: (error: Error) => void;
+  const promise = new Promise<T>((yes, no) => {
     resolve = yes;
+    reject = no;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
 };
+let auth: ReturnType<typeof bookingAuthFixture>;
 beforeEach(() => {
+  auth = bookingAuthFixture(props.userId);
+  jest.mocked(getSupabaseClient).mockReturnValue(auth.client);
   load.mockReset().mockResolvedValue(null);
   submit.mockReset().mockResolvedValue(created);
   callback.mockReset();
@@ -173,6 +180,7 @@ test('scope change ignores old hydration and old mutation completion', async () 
   const hydration = deferred<PendingWorkspaceBooking | null>();
   load.mockReturnValueOnce(hydration.promise);
   const hook = await mount();
+  auth.change(auth.session('user-b'));
   await hook.rerender({ userId: 'user-b', workspaceId: 'workspace-b' });
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   await act(async () => hydration.resolve(command));
@@ -182,6 +190,7 @@ test('scope change ignores old hydration and old mutation completion', async () 
   await act(async () => {
     void hook.result.current.submit(command);
   });
+  auth.change(auth.session());
   await hook.rerender(props);
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   await act(async () => request.resolve(created));
@@ -199,5 +208,87 @@ test('unmount ignores successful creation callback', async () => {
   });
   await hook.unmount();
   await act(async () => request.resolve(created));
+  expect(callback).not.toHaveBeenCalled();
+});
+
+test('same-user relogin hides busy/pending/error and drops late success', async () => {
+  load.mockResolvedValue(command);
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  const request = deferred<CreateWorkspaceBookingResult>();
+  submit.mockReturnValueOnce(request.promise);
+  let completion!: Promise<CreateWorkspaceBookingResult | null>;
+  await act(async () => {
+    completion = hook.result.current.resume();
+  });
+  expect(hook.result.current.busy).toBe(true);
+  load.mockResolvedValue(null);
+  await act(async () =>
+    auth.change(
+      auth.session(props.userId, 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'),
+      'SIGNED_IN',
+    ),
+  );
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  expect(hook.result.current.busy).toBe(false);
+  expect(hook.result.current.pending).toBeNull();
+  await act(async () => request.resolve(created));
+  expect(await completion).toBeNull();
+  expect(callback).not.toHaveBeenCalled();
+  expect(hook.result.current.error).toBeNull();
+  await hook.unmount();
+  expect(auth.listenerCount).toBe(0);
+});
+
+test('refresh keeps pending available and allows completion', async () => {
+  load.mockResolvedValue(command);
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  await act(async () =>
+    auth.change(
+      auth.session(props.userId, auth.sessionId, 'refresh'),
+      'TOKEN_REFRESHED',
+    ),
+  );
+  expect(hook.result.current.pending).toEqual(command);
+  load.mockResolvedValue(null);
+  await act(async () => {
+    await hook.result.current.resume();
+  });
+  expect(callback).toHaveBeenCalledTimes(1);
+});
+
+test('late storage error after logout does not poison the new login', async () => {
+  const hydration = deferred<PendingWorkspaceBooking | null>();
+  load.mockReturnValueOnce(hydration.promise);
+  const hook = await mount();
+  await waitFor(() => expect(load).toHaveBeenCalledTimes(1));
+  await act(async () => auth.change(auth.session(), 'SIGNED_IN'));
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  await act(async () =>
+    hydration.reject(new PendingWorkspaceBookingError('storage')),
+  );
+  expect(hook.result.current.pending).toBeNull();
+  expect(hook.result.current.error).toBeNull();
+});
+
+test('late mutation error after unmount does not reload or notify', async () => {
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.loading).toBe(false));
+  let reject!: (error: Error) => void;
+  submit.mockReturnValueOnce(
+    new Promise((_, no) => {
+      reject = no;
+    }),
+  );
+  let completion!: Promise<CreateWorkspaceBookingResult | null>;
+  await act(async () => {
+    completion = hook.result.current.submit(command);
+  });
+  const loads = load.mock.calls.length;
+  await hook.unmount();
+  await act(async () => reject(new WorkspaceSchedulingError('request')));
+  expect(await completion).toBeNull();
+  expect(load).toHaveBeenCalledTimes(loads);
   expect(callback).not.toHaveBeenCalled();
 });

@@ -1,4 +1,4 @@
-# 0081. Session fence template save/archive
+# 0085. Session fence template save/archive
 
 - **Статус:** Принято технически; runtime и приёмка открыты
 - **Дата:** 04.10.2026
