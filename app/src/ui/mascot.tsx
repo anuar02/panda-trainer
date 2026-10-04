@@ -3,6 +3,8 @@ import { Platform } from 'react-native';
 import { lazy, Suspense } from 'react';
 import { useCalmMode } from './calm-mode';
 import { useSystemReduceMotion } from './motion';
+import { mascotPolicy, motionForPose } from './mascot/keyframes';
+import { PngMotion } from './mascot/png-motion';
 
 const RiveMascot = lazy(() => import('./mascot/rive-mascot'));
 
@@ -32,28 +34,49 @@ type Props = Omit<ImageProps, 'source'> & {
   pose: keyof typeof poses;
   size: number;
   hidden?: boolean;
+  context?: 'empty' | 'onboarding' | 'hero' | 'inline' | 'celebration';
 };
 
-export function Mascot({ pose, size, style, hidden = false, ...props }: Props) {
+export function Mascot({
+  pose,
+  size,
+  style,
+  hidden = false,
+  context,
+  ...props
+}: Props) {
   const calmMode = useCalmMode();
   const reducedMotion = useSystemReduceMotion();
-  if (hidden || calmMode) return null;
+  const policy = mascotPolicy(pose, calmMode, reducedMotion, context);
+  if (hidden || !policy.visible) return null;
   const poster = (
     <Image
-      accessible={false}
       contentFit="contain"
       {...props}
+      accessible={false}
       source={poses[pose]}
       style={[{ width: size, height: size }, style]}
     />
   );
   if (
     reducedMotion ||
+    calmMode ||
     process.env.EXPO_PUBLIC_MASCOT_RIVE !== 'true' ||
     Platform.OS === 'web' ||
     !['front', 'wave'].includes(pose)
   )
-    return poster;
+    return policy.animated ? (
+      <PngMotion
+        {...props}
+        source={poses[pose]}
+        mode={motionForPose(pose)!}
+        entering={context !== 'celebration'}
+        size={size}
+        style={style}
+      />
+    ) : (
+      poster
+    );
   return (
     <Suspense fallback={poster}>
       <RiveMascot pose={pose} size={size} style={style} fallback={poster} />
