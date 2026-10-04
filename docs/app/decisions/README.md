@@ -91,3 +91,5 @@
 | [0084](0084-scoped-sqlite-outbox-snapshot.md) | Scoped read-only SQLite snapshot через очередь outbox | Реализовано технически; native/runtime и owner acceptance открыты | 04.10.2026 |
 
 | [0085](0085-template-mutation-session-fencing.md) | Template mutation session fence и durable pending-clear recovery | Реализовано технически; runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0086](0086-client-creation-session-fencing.md) | Client creation session/caller fence и in-memory retry | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |

@@ -11,6 +11,8 @@
 
 - 04.10.2026 — SOM-23: [x] template save/archive session fencing и provider pending recovery/owned lock; [x] synthetic relogin/refresh/cache/clear-await regressions, полный check 1931 tests / 172 suites; type/lint/format зелёные. [Отчёт](../../app/review/som-23-template-save-session-fencing/README.md), [ADR 0085](decisions/0085-template-mutation-session-fencing.md). [ ] Live auth/SQL/RLS/storage/crash/native/parity и одобрение владельца.
 
+- 04.10.2026 — SOM-20 creation: [x] actor/workspace/JWT session/caller fencing, explicit bearer, route/sheet generations и in-memory retry с прежним requestId; [x] synthetic race regressions. [ ] Live auth/SQL/RLS/native/parity и одобрение владельца; disk/crash/reopen recovery не заявляется. [Отчёт](../../app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](decisions/0086-client-creation-session-fencing.md). Issue и экраны не приняты.
+
 - 04.10.2026 — SOM-41 scoped SQLite snapshot: [x] additive read-only API всех
   scoped outbox rows и raw entries, одна queued transaction, runtime validation
   и session/close/cancellation fencing; [x] synthetic driver/seam regressions.
