@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-04T21:11Z",
+  "updated_at": "2026-10-04T21:39Z",
   "updated_by": "coordinator",
   "done": 11,
   "groups": {
@@ -12,9 +12,9 @@
     {
       "id": "SOM-38",
       "title": "Интегрировать утверждённую панду и принять Rive",
-      "status": "In Progress",
+      "status": "In Review",
       "milestone": "09",
-      "group": "agents"
+      "group": "owner"
     },
     {
       "id": "SOM-39",
