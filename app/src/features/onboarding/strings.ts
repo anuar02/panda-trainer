@@ -67,6 +67,8 @@ export const onboardingRu = {
     errors: {
       nameRequired: 'Введите имя — так вас увидят клиенты',
       save: 'Не удалось сохранить настройки. Попробуйте ещё раз.',
+      retryOriginal:
+        'Ответ мог потеряться. Повторим исходные настройки без создания дубликатов.',
     },
     minutesLabel: '{{value}} мин',
     hoursSummary: '{{days}} · {{from}}–{{to}} · {{duration}}',
