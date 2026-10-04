@@ -100,3 +100,14 @@ sets-order/entry/preload/sync/demo проверки остаются в полн
 - Тексты finishConfirm сверены по исходнику default prototype; visual/native
   comparison и одобрение владельца требуются. Экран, этап 5 и SOM-32 целиком
   не объявлены завершёнными или принятыми.
+
+## Coordinator integration — 04.10.2026
+
+Merged current base including correction PR #56 (`c294b2f`) into this branch.
+CHANGELOG/ROADMAP conflicts retained both records; correction controls and finish
+behavior were preserved. The two finish screen suites initially failed to load
+with missing native QuickBase64 after the correction import. They now isolate
+CorrectionPanel like the existing entry screen suite; correction behavior remains
+covered by its own independent suites. Targeted finish screen/continuation tests
+and the fresh combined-head CI provide integration evidence; no full local check
+or database checks were repeated by the coordinator.

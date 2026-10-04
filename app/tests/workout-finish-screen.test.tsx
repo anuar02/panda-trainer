@@ -12,6 +12,9 @@ jest.mock('@/features/workout-entry/use-entry', () => ({
   useWorkoutEntry: jest.fn(),
 }));
 jest.mock('@/features/workout-sync', () => ({ WorkoutSyncStatus: () => null }));
+jest.mock('../src/features/workout-corrections', () => ({
+  CorrectionPanel: () => null,
+}));
 jest.mock('@/ui/sheet', () => ({
   Sheet: ({ children, title }: { children: ReactNode; title: string }) => (
     <MockView>

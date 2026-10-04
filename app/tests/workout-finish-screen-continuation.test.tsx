@@ -23,6 +23,9 @@ import {
 import { createWorkoutPreloadReader } from '../src/features/workout-preload/service';
 import { memoryStore, session } from './workout-sync-fixtures';
 
+jest.mock('../src/features/workout-corrections', () => ({
+  CorrectionPanel: () => null,
+}));
 jest.mock('@/ui/sheet', () => ({
   Sheet: ({ children, title }: { children: ReactNode; title: string }) => (
     <MockView>
