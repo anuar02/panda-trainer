@@ -70,6 +70,15 @@ select is(public.schedule_push_v1('2099-10-04T02:59:00Z','08:00'),0,'Almaty 07:5
 select is(public.schedule_push_v1('2099-10-04T03:00:00Z','08:00'),2,'Almaty 08:00 reminder at two hours and daily summary');
 select is(public.schedule_push_v1('2099-10-04T03:00:00Z','08:00'),0,'scheduler replay does not duplicate feed');
 select is(public.schedule_push_v1('2099-10-04T04:00:00Z','08:00'),0,'late repeat does not duplicate');
+
+insert into public.client_records(id,workspace_id,display_name) values ('7a000000-0000-4000-8000-000000000002','6a000000-0000-4000-8000-000000000001','Second synthetic client');
+insert into public.bookings(id,workspace_id,client_record_id,starts_at,ends_at,status) values ('ba000000-0000-4000-8000-000000000002','6a000000-0000-4000-8000-000000000001','7a000000-0000-4000-8000-000000000002','2099-10-04T07:00:00Z','2099-10-04T08:00:00Z','confirmed');
+update public.client_records set archived_at=clock_timestamp() where id='7a000000-0000-4000-8000-000000000001';
+select ok(private.push_eligible((select id from public.notifications where kind='daily_plan' limit 1),'2099-10-04T04:00:00Z'),'archived summary anchor preserves a nonempty active day');
+select is(public.schedule_push_v1('2099-10-04T04:00:00Z','08:00'),0,'archived anchor does not duplicate the daily feed');
+update public.client_records set archived_at=null where id='7a000000-0000-4000-8000-000000000001';
+update public.bookings set status='cancelled_by_trainer' where id='ba000000-0000-4000-8000-000000000002';
+
 update public.client_records set user_id='5a000000-0000-4000-8000-000000000003' where id='7a000000-0000-4000-8000-000000000001';
 select ok(not private.push_eligible((select id from public.notifications where kind='booking_reminder' and recipient_user_id='5a000000-0000-4000-8000-000000000002'),'2099-10-04T04:00:00Z'),'recipient change invalidates old due reminder');
 select is(public.schedule_push_v1('2099-10-04T04:00:00Z','08:00'),1,'new recipient receives one distinct own reminder');

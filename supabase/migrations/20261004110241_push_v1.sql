@@ -101,7 +101,7 @@ create function private.push_eligible(p_notification uuid,p_now timestamptz)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$
  select exists(select 1 from public.notifications n join public.client_records c on c.workspace_id=n.workspace_id and c.id=n.client_record_id
  join public.trainer_workspaces w on w.id=n.workspace_id
- where n.id=p_notification and c.archived_at is null
+ where n.id=p_notification and (n.kind='daily_plan' or c.archived_at is null)
  and ((n.recipient_role='trainer' and n.recipient_user_id=w.owner_user_id) or (n.recipient_role='client' and n.recipient_user_id=c.user_id))
  and n.kind in ('booking_requested','booking_confirmed','booking_cancelled','booking_rescheduled','reschedule_requested','reschedule_declined','reschedule_withdrawn','booking_reminder','daily_plan')
  and (n.kind<>'booking_reminder' or exists(select 1 from public.bookings b where b.id=n.target_id and b.workspace_id=n.workspace_id and b.client_record_id=n.client_record_id and b.status='confirmed' and b.starts_at>p_now and n.event_key='reminder:'||b.id::text||':'||extract(epoch from b.starts_at)::text||':'||n.recipient_user_id::text))
@@ -145,6 +145,7 @@ begin
  and not exists(select 1 from private.push_deliveries x where x.notification_id=n.id and x.device_id=d.device_id)
  order by n.created_at,n.id,d.device_id limit 500
  on conflict(notification_id,device_id) do nothing;
+ now_at:=clock_timestamp();
  update private.push_deliveries set state='failed',error_code='receipt_unavailable' where state in ('pending','ticket') and attempts>=8;
  update private.push_deliveries x set state='cancelled',error_code='binding_or_target_changed'
  where x.state in ('pending','ticket') and (not private.push_eligible(x.notification_id,now_at) or not exists(select 1 from private.push_devices d join public.notifications n on n.id=x.notification_id where d.device_id=x.device_id and d.generation=x.device_generation and d.user_id=n.recipient_user_id));

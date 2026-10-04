@@ -125,3 +125,25 @@ review, not an approved prototype deviation. `PUSH_MORNING_LOCAL_TIME` has no
 default: exact time remains an operator parameter and an OPEN-QUESTIONS item.
 Private device/delivery/installation state is outside the existing account export;
 this task does not declare that export complete or change deletion behavior.
+
+
+## Coordinator CI repair — 04.10.2026
+
+Exact original head `610e268` run `37181593193`: app PASS (3m53s),
+database FAIL (2m46s) in push pgTAP tests 38/39, followed by an empty
+claim fixture JSON error. New delivery rows default due_at to insertion clock,
+after the claim function captured now_at. Refreshing the claim clock after
+materialization lets the first invocation claim its own inserted deliveries;
+the second call still verifies the active-lease exclusion. No assertion removed.
+
+Independent review also found daily summary eligibility incorrectly depended on
+the scheduler's first client remaining unarchived. Daily eligibility now checks
+current owner and the nonempty active workspace day independently of that anchor;
+client reminders retain their own active-card checks. New pgTAP regression archives
+the anchor while another confirmed active booking remains and verifies eligibility
+and one daily feed entry. Deleted/inaccessible deep-link anchors still give the
+existing honest unavailable state. No existing base migration or workflow edited.
+
+Coordinator did not repeat app checks or run local SQL; fresh CI remains required.
+The notification/push manual concurrency harnesses and installed-device/cloud
+validation remain unverified. `git diff --check`: PASS before publication.
