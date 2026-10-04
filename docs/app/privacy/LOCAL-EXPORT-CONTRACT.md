@@ -120,6 +120,10 @@ Object keys сортируются по JS code-unit order; operations — по 
 
 ## Handoff collector и файловой интеграции
 
+Отдельный внутренний SQLite API: [SCOPED-OUTBOX-SNAPSHOT](SCOPED-OUTBOX-SNAPSHOT.md).
+Он читает две локальные scoped таблицы; остальные sources и cross-source barrier
+остаются unknown, serializer/collector/file/delete integration не подключена.
+
 Текущий `pending(100)` ограничен и не читает confirmed rows. `confirmedIssues()`
 возвращает receipts без исходных операций и обеих версий; `read(entityId)` не
 перечисляет все projections. Этого недостаточно для export collector.

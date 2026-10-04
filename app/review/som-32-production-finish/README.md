@@ -97,4 +97,4 @@ ack без snapshot, logout/relogin/unmount/participant switch и correction dra
 - [ ] iOS/Android, accessibility, keyboard, large text/reduced motion.
 - [ ] Одобрение владельца.
 
-ADR: [0084](../../../docs/app/decisions/0084-production-workout-finish-outbox.md).
+ADR: [0084](../../../docs/app/decisions/0087-production-workout-finish-outbox.md).
