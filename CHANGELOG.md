@@ -9,6 +9,13 @@
 
 ## Не выпущено
 
+- [SOM-26 / draft PR #57](https://github.com/anuar02/panda-trainer/pull/57): Today/week/create и общий mutation provider сбрасывают selections,
+  callbacks и locks при relogin/logout; verified refresh сохраняет сценарий.
+  Исправлен повтор save после overlap acknowledgement; default week следует
+  workspace clock. [Проверки](app/review/som-26-schedule-production-finish/README.md),
+  [ADR 0087](docs/app/decisions/0087-schedule-presentation-session-lifecycle.md).
+  SQL/live auth/native/parity и одобрение владельца не проверены.
+
 - [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
   terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),
@@ -34,7 +41,7 @@
   журнала: owner RPC, immutable receipts/audit и tenant/revision/provenance guards;
   scoped transport, durable exact retry, просмотр/подтверждение и readback в журнале.
   [Отчёт](app/review/som-32-explicit-correction-server/README.md),
-  [ADR 0087](docs/app/decisions/0087-explicit-finished-journal-correction.md).
+  [ADR 0090](docs/app/decisions/0090-explicit-finished-journal-correction.md).
   SQL runtime — needs-local-db; native/parity и одобрение владельца открыты.
   Выборочное обновление личной программы и SOM-32 целиком не завершены.
 

@@ -22,7 +22,7 @@
 семантике новой immutable копии и точное происхождение изменений после тренировки
 (ADR 0029). Временное правило: finish и correction меняют только журнал; личная
 программа не обновляется. Пакет explicit correction не закрывает весь SOM-32.
-[ADR 0087](decisions/0087-explicit-finished-journal-correction.md).
+[ADR 0090](decisions/0090-explicit-finished-journal-correction.md).
 
 ## SOM-34: переплата по пакету
 

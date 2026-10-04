@@ -137,10 +137,10 @@ const mount = () =>
   );
 const press = (name: string) =>
   fireEvent.press(screen.getByRole('button', { name }));
+let auth: ReturnType<typeof bookingAuthFixture>;
 beforeEach(() => {
-  jest
-    .mocked(getSupabaseClient)
-    .mockReturnValue(bookingAuthFixture('user').client);
+  auth = bookingAuthFixture('user');
+  jest.mocked(getSupabaseClient).mockReturnValue(auth.client);
   mockFocused = true;
   mockUuid = 0;
   onCreated.mockReset();
@@ -214,6 +214,16 @@ test('server overlap warns, requires explicit acknowledgement and sends a new re
   await press('Создать занятие');
   await waitFor(() => expect(screen.getByRole('checkbox')).toBeTruthy());
   expect(onCreated).not.toHaveBeenCalled();
+  await waitFor(() =>
+    expect(
+      screen.getByText('Подтвердите пересечение занятий и повторите создание.'),
+    ).toBeTruthy(),
+  );
+  await waitFor(() =>
+    expect(
+      screen.getByRole('button', { name: 'Создать занятие' }),
+    ).toBeEnabled(),
+  );
   await fireEvent.press(screen.getByRole('checkbox'));
   await press('Создать занятие');
   await waitFor(() => expect(submit).toHaveBeenCalledTimes(2));
@@ -340,11 +350,147 @@ test('blurring the retained creator while shared provider survives suppresses la
   await press('Продолжить');
   await press('Продолжить');
   await press('Назначить программу позже');
-  const saving = press('Создать занятие');
+  await press('Создать занятие');
   await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
   mockFocused = false;
   await view.rerender(tree(true));
   await act(async () => resolve(created));
-  await saving;
   expect(onCreated).not.toHaveBeenCalled();
+});
+
+test.each(['success', 'error'] as const)(
+  'same-user relogin during create drops late %s and resets selection',
+  async (outcome) => {
+    let finish!: (value: CreateWorkspaceBookingResult) => void;
+    let fail!: (error: Error) => void;
+    submit.mockReturnValueOnce(
+      new Promise((yes, no) => {
+        finish = yes;
+        fail = no;
+      }),
+    );
+    await mount();
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
+    );
+    await press('Real Anna');
+    await press('Продолжить');
+    await press('Продолжить');
+    await press('Назначить программу позже');
+    await press('Создать занятие');
+    await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+    await act(async () =>
+      auth.change(
+        auth.session('user', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'),
+        'SIGNED_IN',
+      ),
+    );
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
+    );
+    expect(screen.getByRole('button', { name: 'Real Anna' })).toHaveProp(
+      'accessibilityState',
+      { selected: false, disabled: false },
+    );
+    await act(async () => {
+      if (outcome === 'success') finish(created);
+      else fail(new Error('late failure'));
+    });
+    expect(onCreated).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).toBeNull();
+  },
+);
+test('old catalogue rejection cannot replace the new login catalogue', async () => {
+  let reject!: (error: Error) => void;
+  mockClients.mockReturnValueOnce(
+    new Promise((_, no) => {
+      reject = no;
+    }),
+  );
+  await mount();
+  await waitFor(() => expect(mockClients).toHaveBeenCalledTimes(1));
+  await act(async () =>
+    auth.change(
+      auth.session('user', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'),
+      'SIGNED_IN',
+    ),
+  );
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
+  );
+  await act(async () => reject(new Error('old catalogue')));
+  expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy();
+  expect(
+    screen.queryByText(
+      'Не удалось загрузить клиентов, программы или расписание.',
+    ),
+  ).toBeNull();
+});
+
+test('blur and refocus do not authorize completion from the previous focus epoch', async () => {
+  let resolve!: (value: CreateWorkspaceBookingResult) => void;
+  submit.mockReturnValueOnce(
+    new Promise((yes) => {
+      resolve = yes;
+    }),
+  );
+  const tree = () => (
+    <WorkspaceMutationProvider userId="user" workspaceId="workspace">
+      <WorkspaceCreateSessionScreen
+        userId="user"
+        workspaceId="workspace"
+        timezone="Asia/Almaty"
+        initialDate="2030-10-02"
+        initialStart="12:15"
+        onClose={jest.fn()}
+        onCreated={onCreated}
+      />
+    </WorkspaceMutationProvider>
+  );
+  const view = await render(tree());
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
+  );
+  await press('Real Anna');
+  await press('Продолжить');
+  await press('Продолжить');
+  await press('Назначить программу позже');
+  await press('Создать занятие');
+  await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+  mockFocused = false;
+  await view.rerender(tree());
+  mockFocused = true;
+  await view.rerender(tree());
+  await act(async () => resolve(created));
+  expect(onCreated).not.toHaveBeenCalled();
+  expect(screen.queryByRole('alert')).toBeNull();
+});
+
+test('group selection preserves the exact selected template revision for every participant', async () => {
+  const templateId = '40000000-0000-4000-8000-000000000001';
+  mockTemplates.mockResolvedValue([
+    {
+      id: templateId,
+      name: 'Selected snapshot',
+      revision: 7,
+      archivedAt: null,
+      exercises: [{ exercise: { archivedAt: null } }],
+    },
+  ]);
+  await mount();
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
+  );
+  await press('Real Anna');
+  await press('Real Dana');
+  await press('Продолжить');
+  await press('Продолжить');
+  await press('Selected snapshot');
+  await press('Создать занятие');
+  await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+  expect(submit.mock.calls[0]?.[2]).toMatchObject({
+    clientRecordIds: [clientA, clientB],
+    plan: { templateId, expectedTemplateRevision: 7 },
+  });
+  expect(onCreated).toHaveBeenCalledWith('2030-10-02');
 });

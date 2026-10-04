@@ -91,8 +91,10 @@
 | [0086](0086-financial-command-session-fencing.md) | Session fence финансовых mutations и сохранение durable retry | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
 | [0084](0084-scoped-sqlite-outbox-snapshot.md) | Scoped read-only SQLite snapshot через очередь outbox | Реализовано технически; native/runtime и owner acceptance открыты | 04.10.2026 |
 
-| [0087](0087-explicit-finished-journal-correction.md) | Явное применение correction draft завершённого журнала, immutable receipt и отдельная durable команда | Техническое решение; local DB/native/owner acceptance открыты | 04.10.2026 |
+| [0090](0090-explicit-finished-journal-correction.md) | Явное применение correction draft завершённого журнала, immutable receipt и отдельная durable команда | Техническое решение; local DB/native/owner acceptance открыты | 04.10.2026 |
 
 | [0085](0085-template-mutation-session-fencing.md) | Template mutation session fence и durable pending-clear recovery | Реализовано технически; runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0087](0087-schedule-presentation-session-lifecycle.md) | Schedule presentation и provider ограничены login/caller lifecycle | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
 
 | [0088](0088-client-creation-session-fencing.md) | Client creation session/caller fence и in-memory retry | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |

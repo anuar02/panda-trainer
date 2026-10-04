@@ -1,9 +1,30 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { WorkspaceMutationProvider } from '../src/features/workspace-scheduling/mutation-provider';
+import { getSupabaseClient } from '../src/features/auth/client';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import '../src/lib/i18n';
 import { WorkspaceTodayScreen } from '../src/features/workspace-scheduling/workspace-today-screen';
 import { useWorkspaceSchedule } from '../src/features/workspace-scheduling/use-schedule';
 import type { TrainerTodayData } from '../src/features/trainer-today/trainer-today-screen';
 import type { WorkspaceSchedule } from '../src/features/workspace-scheduling/service';
+let mockRecoveryCallback: (() => void) | undefined;
+jest.mock('../src/ui/button', () => {
+  const actual =
+    jest.requireActual<typeof import('../src/ui/button')>('../src/ui/button');
+  return {
+    Button: (props: import('react').ComponentProps<typeof actual.Button>) => {
+      if (props.label === 'Повторить создание')
+        mockRecoveryCallback = props.onPress as () => void;
+      return <actual.Button {...props} />;
+    },
+  };
+});
 jest.mock('../src/ui/sheet', () => ({
   Sheet: ({
     open,
@@ -58,9 +79,10 @@ jest.mock('../src/features/workspace-scheduling/use-status-commands', () => ({
     resolve: jest.fn(),
   }),
 }));
+let mockCreationPending = false;
 jest.mock('../src/features/workspace-scheduling/use-creation', () => ({
   useWorkspaceBookingCreation: () => ({
-    pending: null,
+    pending: mockCreationPending ? {} : null,
     loading: false,
     busy: false,
     error: null,
@@ -80,9 +102,16 @@ jest.mock('../src/features/trainer-billing/use-billing', () => ({
     retry: jest.fn(),
   }),
 }));
+let mockPresentation: TrainerTodayData;
 const mockPush = jest.fn();
 let mockNow = new Date('2026-10-02T07:00:00.000Z');
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush }),
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    jest
+      .requireActual<typeof import('react')>('react')
+      .useEffect(callback, [callback]),
+}));
 jest.mock('../src/features/workspace-scheduling/use-clock', () => ({
   useWorkspaceClock: () => mockNow,
 }));
@@ -91,6 +120,7 @@ jest.mock('../src/features/workspace-scheduling/use-schedule', () => ({
 }));
 jest.mock('../src/features/trainer-today/trainer-today-screen', () => ({
   TrainerTodayScreen: ({ data }: { data: TrainerTodayData }) => {
+    mockPresentation = data;
     const { View, Text, Pressable } =
       jest.requireActual<typeof import('react-native')>('react-native');
     return (
@@ -154,8 +184,13 @@ const mount = () =>
       trainerName="Реальный тренер"
     />,
   );
+let auth: ReturnType<typeof bookingAuthFixture>;
 beforeEach(() => {
+  auth = bookingAuthFixture('user');
+  jest.mocked(getSupabaseClient).mockReturnValue(auth.client);
   mockBillingPending = null;
+  mockCreationPending = false;
+  mockRecoveryCallback = undefined;
   mockAttendanceResume.mockReset().mockResolvedValue(true);
   mockPush.mockReset();
   mockNow = new Date('2026-10-02T07:00:00.000Z');
@@ -234,4 +269,84 @@ test('pending attendance stays recoverable after midnight removes its selected s
     screen.getByRole('button', { name: 'Повторить сохранённую операцию' }),
   );
   expect(mockAttendanceResume).toHaveBeenCalledTimes(1);
+});
+
+test('refresh preserves selection; same-user relogin clears it and fences captured callbacks', async () => {
+  await mount();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Реальный клиент' }),
+  );
+  const old = mockPresentation;
+  await act(async () =>
+    auth.change(
+      auth.session('user', auth.sessionId, 'refreshed'),
+      'TOKEN_REFRESHED',
+    ),
+  );
+  expect(screen.getByText('Посещение и списание')).toBeTruthy();
+  await act(async () =>
+    auth.change(
+      auth.session('user', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'),
+      'SIGNED_IN',
+    ),
+  );
+  expect(screen.queryByText('Посещение и списание')).toBeNull();
+  await act(async () => {
+    old.onSelectSession(old.agenda.rows[0]!);
+    old.onOpenRequests();
+    old.onCreate(old.agenda.date, '14:00');
+  });
+  expect(screen.queryByText('Посещение и списание')).toBeNull();
+  expect(mockPush).not.toHaveBeenCalled();
+  await fireEvent.press(screen.getByRole('button', { name: 'Create' }));
+  await waitFor(() => expect(mockPush).toHaveBeenCalledTimes(1));
+});
+test('logout during navigation verification prevents the retained router callback', async () => {
+  await mount();
+  await act(async () => {
+    mockPresentation.onCreate(mockPresentation.agenda.date, '14:00');
+    auth.change(null, 'SIGNED_OUT');
+  });
+  expect(mockPush).not.toHaveBeenCalled();
+});
+
+test('unmounting Today while its shared provider survives invalidates navigation callbacks', async () => {
+  const tree = (visible: boolean) => (
+    <WorkspaceMutationProvider userId="user" workspaceId="workspace">
+      {visible ? (
+        <WorkspaceTodayScreen
+          userId="user"
+          workspaceId="workspace"
+          timezone="Asia/Almaty"
+          trainerName="Реальный тренер"
+        />
+      ) : null}
+    </WorkspaceMutationProvider>
+  );
+  const view = await render(tree(true));
+  const old = mockPresentation;
+  await view.rerender(tree(false));
+  await act(async () => old.onCreate(old.agenda.date, '14:00'));
+  expect(mockPush).not.toHaveBeenCalled();
+});
+
+test('captured creation recovery route cannot navigate after the Today caller unmounts', async () => {
+  mockCreationPending = true;
+  const tree = (visible: boolean) => (
+    <WorkspaceMutationProvider userId="user" workspaceId="workspace">
+      {visible ? (
+        <WorkspaceTodayScreen
+          userId="user"
+          workspaceId="workspace"
+          timezone="Asia/Almaty"
+          trainerName="Реальный тренер"
+        />
+      ) : null}
+    </WorkspaceMutationProvider>
+  );
+  const view = await render(tree(true));
+  const callback = mockRecoveryCallback!;
+  await view.rerender(tree(false));
+  await act(async () => callback());
+  expect(mockPush).not.toHaveBeenCalled();
 });

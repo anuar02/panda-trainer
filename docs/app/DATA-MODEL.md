@@ -246,5 +246,5 @@ Owner-only list/review/apply RPC сериализуется с обычным sy
 provenance, выбранные conflict snapshots и ожидаемые версии. Журнал остаётся
 finished с исходным timestamp; личная программа, booking/attendance/financial
 данные не изменяются. Прямой authenticated DML закрыт.
-[ADR 0087](decisions/0087-explicit-finished-journal-correction.md),
+[ADR 0090](decisions/0090-explicit-finished-journal-correction.md),
 [needs-local-db gate](../../app/review/som-32-explicit-correction-server/README.md).
