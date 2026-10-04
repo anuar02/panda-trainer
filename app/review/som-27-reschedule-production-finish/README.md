@@ -60,8 +60,10 @@ npm test -- --runTestsByPath tests/som-27-command-session.test.ts \
 npm run check
 ```
 
-Final results are recorded below after the final run. Earlier failures during
-fixture migration were repaired; they are not acceptance evidence.
+Final merged-base result: **`npm run check` PASS**, TypeScript strict, ESLint and
+Prettier green; **200 suites / 2580 tests passed**. Targeted command/session,
+controls, hooks and lock verification: **8 suites / 142 tests passed**.
+Earlier fixture migration failures were repaired; they are not acceptance evidence.
 
 Coverage includes both-role propose→counter→accept, decline/withdraw and cancel
 through real controls/hooks/storage/transport with scripted independent receipts;
