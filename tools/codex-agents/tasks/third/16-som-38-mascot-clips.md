@@ -18,9 +18,10 @@ Linear: https://linear.app/something-great/issue/SOM-38
 4. Higgsfield НЕ использовать: генерацию новых моментов 04.10.2026 делает Claude
    на машине владельца (ключ только там). Уже готово в
    `design-exploration/mascot-motion-2026-10-04/out/`: front-idle и listen
-   (raw mp4, keyed WebP 320 px 12 fps, 48 PNG-кадров, poster, contact). think и
-   shrug — ждут пополнения баланса; celebration — переиспользовать одобренный
-   jump 28.09. Эти файлы не перегенерировать и не перезаписывать.
+   (raw mp4, keyed WebP 320 px 12 fps, poster, contact; коммит 75a3253 в базе;
+   кадры не в git — извлечь из mp4 по README папки). Владелец решил: этого
+   достаточно, think и shrug не делать; celebration — одобренный jump 28.09.
+   Эти файлы не перегенерировать и не перезаписывать.
 
 ## Персонаж (не менять)
 
