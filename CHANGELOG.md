@@ -37,6 +37,14 @@
 
 ### Добавлено
 
+- [SOM-32 / draft PR #56](https://github.com/anuar02/panda-trainer/pull/56): отдельное явное применение сохранённого correction draft завершённого
+  журнала: owner RPC, immutable receipts/audit и tenant/revision/provenance guards;
+  scoped transport, durable exact retry, просмотр/подтверждение и readback в журнале.
+  [Отчёт](app/review/som-32-explicit-correction-server/README.md),
+  [ADR 0090](docs/app/decisions/0090-explicit-finished-journal-correction.md).
+  SQL runtime — needs-local-db; native/parity и одобрение владельца открыты.
+  Выборочное обновление личной программы и SOM-32 целиком не завершены.
+
 - [SOM-41 / draft PR #51](https://github.com/anuar02/panda-trainer/pull/51): внутренний read-only scoped SQLite outbox snapshot всех операций/receipts
   и raw entries в одной queued transaction, bounded paging и session cancellation.
   [Проверки](app/review/som-41-scoped-outbox-snapshot/README.md),

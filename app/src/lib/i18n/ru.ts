@@ -27,10 +27,12 @@ import { workspaceLibraryRu } from '@/features/workspace-library/strings';
 import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
 
 import { workoutPreloadRu } from '@/features/workout-preload/strings';
+import { workoutCorrectionsRu } from '@/features/workout-corrections/strings';
 
 export const ru = {
   accountExport: accountExportRu,
   workoutPreload: workoutPreloadRu,
+  workoutCorrections: workoutCorrectionsRu,
   trainerBilling: trainerBillingRu,
   trainerPurchases: trainerPurchasesRu,
   trainerBillingPurchase: trainerBillingPurchaseRu,
