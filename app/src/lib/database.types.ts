@@ -62,7 +62,7 @@ export type Database = {
           attendance_id: string;
           client_record_id: string;
           created_at: string;
-          created_by: string;
+          created_by: string | null;
           cycle: number;
           id: string;
           reason: string | null;
@@ -75,7 +75,7 @@ export type Database = {
           attendance_id: string;
           client_record_id: string;
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
           cycle: number;
           id?: string;
           reason?: string | null;
@@ -88,7 +88,7 @@ export type Database = {
           attendance_id?: string;
           client_record_id?: string;
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
           cycle?: number;
           id?: string;
           reason?: string | null;
@@ -491,7 +491,7 @@ export type Database = {
         Row: {
           client_record_id: string;
           created_at: string;
-          created_by: string;
+          created_by: string | null;
           currency: string;
           expires_on: string | null;
           id: string;
@@ -503,7 +503,7 @@ export type Database = {
         Insert: {
           client_record_id: string;
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
           currency?: string;
           expires_on?: string | null;
           id?: string;
@@ -515,7 +515,7 @@ export type Database = {
         Update: {
           client_record_id?: string;
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
           currency?: string;
           expires_on?: string | null;
           id?: string;
@@ -587,7 +587,7 @@ export type Database = {
           booking_id: string | null;
           client_record_id: string;
           created_at: string;
-          created_by: string;
+          created_by: string | null;
           cycle: number | null;
           id: string;
           kind: string;
@@ -602,7 +602,7 @@ export type Database = {
           booking_id?: string | null;
           client_record_id: string;
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
           cycle?: number | null;
           id?: string;
           kind: string;
@@ -617,7 +617,7 @@ export type Database = {
           booking_id?: string | null;
           client_record_id?: string;
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
           cycle?: number | null;
           id?: string;
           kind?: string;
@@ -899,7 +899,7 @@ export type Database = {
           amount_minor: number;
           client_record_id: string;
           created_at: string;
-          created_by: string;
+          created_by: string | null;
           currency: string;
           id: string;
           kind: string;
@@ -915,7 +915,7 @@ export type Database = {
           amount_minor: number;
           client_record_id: string;
           created_at?: string;
-          created_by: string;
+          created_by?: string | null;
           currency?: string;
           id?: string;
           kind: string;
@@ -931,7 +931,7 @@ export type Database = {
           amount_minor?: number;
           client_record_id?: string;
           created_at?: string;
-          created_by?: string;
+          created_by?: string | null;
           currency?: string;
           id?: string;
           kind?: string;
@@ -972,7 +972,7 @@ export type Database = {
       };
       private_notes: {
         Row: {
-          author_user_id: string;
+          author_user_id: string | null;
           client_record_id: string | null;
           created_at: string;
           created_by: string | null;
@@ -985,7 +985,7 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
-          author_user_id: string;
+          author_user_id?: string | null;
           client_record_id?: string | null;
           created_at?: string;
           created_by?: string | null;
@@ -998,7 +998,7 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
-          author_user_id?: string;
+          author_user_id?: string | null;
           client_record_id?: string | null;
           created_at?: string;
           created_by?: string | null;
@@ -1066,7 +1066,7 @@ export type Database = {
       };
       schedule_proposals: {
         Row: {
-          author_user_id: string;
+          author_user_id: string | null;
           base_revision: number;
           booking_id: string;
           created_at: string;
@@ -1080,7 +1080,7 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
-          author_user_id?: string;
+          author_user_id?: string | null;
           base_revision: number;
           booking_id: string;
           created_at?: string;
@@ -1094,7 +1094,7 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
-          author_user_id?: string;
+          author_user_id?: string | null;
           base_revision?: number;
           booking_id?: string;
           created_at?: string;
@@ -1119,7 +1119,7 @@ export type Database = {
       };
       session_notes: {
         Row: {
-          author_user_id: string;
+          author_user_id: string | null;
           created_at: string;
           created_by: string | null;
           device_id: string;
@@ -1131,7 +1131,7 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
-          author_user_id: string;
+          author_user_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           device_id: string;
@@ -1143,7 +1143,7 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
-          author_user_id?: string;
+          author_user_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           device_id?: string;
@@ -1173,7 +1173,7 @@ export type Database = {
       };
       set_results: {
         Row: {
-          author_user_id: string;
+          author_user_id: string | null;
           created_at: string;
           created_by: string | null;
           deleted_at: string | null;
@@ -1191,7 +1191,7 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
-          author_user_id: string;
+          author_user_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           deleted_at?: string | null;
@@ -1209,7 +1209,7 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
-          author_user_id?: string;
+          author_user_id?: string | null;
           created_at?: string;
           created_by?: string | null;
           deleted_at?: string | null;
@@ -1259,7 +1259,7 @@ export type Database = {
           kind: string;
           operation_id: string;
           result: NonNullable<Json>;
-          user_id: string;
+          user_id: string | null;
           workspace_id: string;
         };
         Insert: {
@@ -1273,7 +1273,7 @@ export type Database = {
           kind: string;
           operation_id: string;
           result: NonNullable<Json>;
-          user_id: string;
+          user_id?: string | null;
           workspace_id: string;
         };
         Update: {
@@ -1287,7 +1287,7 @@ export type Database = {
           kind?: string;
           operation_id?: string;
           result?: NonNullable<Json>;
-          user_id?: string;
+          user_id?: string | null;
           workspace_id?: string;
         };
         Relationships: [
@@ -1777,6 +1777,41 @@ export type Database = {
       accept_invitation: {
         Args: {
           p_token: string;
+        };
+        Returns: Json;
+      };
+      account_deletion_complete: {
+        Args: {
+          p_capability_hash: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
+      account_deletion_execute: {
+        Args: {
+          p_capability_hash: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
+      account_deletion_inspect: {
+        Args: {
+          p_user_id: string;
+        };
+        Returns: Json;
+      };
+      account_deletion_prepare: {
+        Args: {
+          p_capability_hash: string;
+          p_request_id: string;
+          p_user_id: string;
+        };
+        Returns: Json;
+      };
+      account_deletion_status: {
+        Args: {
+          p_capability_hash: string;
+          p_request_id: string;
         };
         Returns: Json;
       };

@@ -117,4 +117,5 @@
 | [0100](0100-post-workout-program-update-by-trainer.md) | Обновление личной программы после тренировки по предложению тренеру | Принято |
 | [0101](0101-account-deletion-keeps-trainer-history.md) | Удаление аккаунта клиента сохраняет историю у тренеров | Принято |
 
+| [0103](0103-durable-account-deletion-and-local-proof.md) | Durable account deletion, local file proof и scoped writer fences | Реализовано технически; SQL/native/legal/owner acceptance открыты | 04.10.2026 |
 | [0102](0102-program-update-receipts-and-sources.md) | Выборочное обновление программы из проверенного journal/booking source, immutable receipt и caller recovery | Реализовано технически; DB runtime/native/owner acceptance открыты | 04.10.2026 |

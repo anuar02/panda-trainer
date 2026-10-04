@@ -1,5 +1,35 @@
 # Карта жизненного цикла данных
 
+## Текущий deletion scope · 04.10.2026
+
+ADR 0101 заменяет старые shared/dual product gates: client Auth/profile/push/user
+links удаляются, карточки каждого тренера сохраняются «без приложения» с программами,
+занятиями/журналами/оплатами. Dual также удаляет own trainer workspace. Audit Auth
+ссылки в сохранённой истории становятся NULL; бизнес-поля остаются. Invitations
+всех отвязываемых карточек удаляются независимо от accepted_by. Прежний bearer
+не может создавать links/данные: deletion guard и удалённый Auth запрещают это.
+
+Реализация [ADR 0103](../decisions/0103-durable-account-deletion-and-local-proof.md)
+и [handoff](ACCOUNT-DELETION-HANDOFF.md) покрывают все current public/private
+workspace tables, архивы и private receipts child-first. Служебный private deletion
+receipt без FK на Auth остаётся: account/request UUID, workspace UUID, capability
+hash и стадия/времена. Нет bearer/секрета в SQL receipt или export. Срок/основание
+этой минимальной recovery-записи остаются legal gate, не выдуманный retention.
+
+Account-local inventory читает все workspace account в workout-sync.db (entries,
+outbox), workout-entry.db (drafts/resources/devices), workout-preload.db
+(context/recovery) и восемь AsyncStorage pending/draft семейств. Unknown/read failure
+блокируют deletion; malformed applied receipt не settled. Все outstanding сохраняются;
+после complete scoped API очищает только settled sensitive caches/пустые markers.
+Raw local экспорт имеет bytes/SHA-256/file outcome и acknowledgement; новая запись
+обесценивает proof. Global server/local atomicity и другие устройства неизвестны.
+Auth/invite/recovery credentials исключены; device/demo несвязанные ключи не clear.
+
+Таблицы ниже — инвентаризация исходных источников, а слова «будущий/review» в старых
+строках уточняются текущим handoff. Native/cloud/backup/log/legal и owner acceptance
+по-прежнему не подтверждены. ADR 0064 ≤7 дней — требование, не факт настройки.
+
+
 SOM-41, review draft от 03.10.2026; база 4758705. Источник истины —
 действующие migrations, а не исторический статус в DATA-MODEL.
 «Реализовано» ниже означает наличие схемы/модуля в репозитории.

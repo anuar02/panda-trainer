@@ -292,3 +292,27 @@ export const authService: AuthService = {
     }
   },
 };
+
+export async function signOutForAccountDeletion(expected: {
+  accountId: string;
+  token: string;
+}): Promise<void> {
+  const client = requireClient();
+  const verify = async () => {
+    const result = await client.auth.getSession();
+    if (
+      result.error ||
+      (result.data.session &&
+        (result.data.session.user.id !== expected.accountId ||
+          result.data.session.access_token !== expected.token))
+    )
+      throw new AuthServiceError('storage', 'Deletion session changed');
+    return result.data.session;
+  };
+  if (!(await verify())) return;
+  await detachPushBeforeLogout();
+  if (!(await verify())) return;
+  const { error } = await client.auth.signOut({ scope: 'local' });
+  if (error) throw storageError(error, 'storage');
+  if (!(await verify())) callbackResults.clear();
+}

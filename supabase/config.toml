@@ -424,3 +424,6 @@ enabled = true
 
 [functions.push-v1]
 verify_jwt = false
+
+[functions.account-deletion]
+verify_jwt = false

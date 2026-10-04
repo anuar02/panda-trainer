@@ -1,3 +1,4 @@
+import { AccountDeletionRecoveryEntry } from '@/features/account-deletion/recovery-entry';
 import { NotificationEntry } from '@/features/notifications/feed';
 import { useMemo, useRef, useState } from 'react';
 import { Redirect, router } from 'expo-router';
@@ -81,6 +82,7 @@ export default function AccountRoute() {
     <Screen title={t('auth.accountTitle')} subtitle={t('auth.accountSubtitle')}>
       <Card>
         <Text>{auth.session.user.email}</Text>
+        <AccountDeletionRecoveryEntry />
         {context.failed ? (
           <Button label={t('common.retry')} onPress={context.retry} />
         ) : (
@@ -180,6 +182,15 @@ export default function AccountRoute() {
         {failed ? (
           <Text accessibilityRole="alert">{t('auth.actionError')}</Text>
         ) : null}
+        <Button
+          label={t('accountDeletion.open')}
+          variant="secondary"
+          disabled={busy}
+          onPress={() => {
+            router.dismissAll();
+            router.replace('/auth/delete-account');
+          }}
+        />
         <Button
           label={t('auth.signOut')}
           loading={busy}

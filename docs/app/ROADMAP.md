@@ -9,13 +9,37 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 CI repair #73, попытка 2: устранены оставшиеся конфликты
+  SQL-алиасов `c`/`a` с record-переменными в trigger installation/workspace cleanup.
+  SQL execution и последующие database checks требуют повторного CI; base/pilot
+  migrations не изменены. [Отчёт](../../app/review/01-som-41-account-deletion/README.md).
+
+- 04.10.2026 — SOM-41 CI repair #73: устранён конфликт `pg_class t` с переменной
+  `t record` при установке новой deletion migration. SQL/Auth/type проверки первой
+  попытки CI были пропущены после ошибки установки; повторная проверка — в CI.
+  [Отчёт](../../app/review/01-som-41-account-deletion/README.md).
+
+- 04.10.2026 — SOM-41 deletion: [x] обе роли/dual по server identity и ADR 0101,
+  own workspace cleanup и сохранение чужой истории; [x] durable prepare/DB/Auth/
+  complete/status recovery и transactional writer interlock; [x] account-local
+  inventory, exact file outcome/ack, pending/rejected/conflict/draft blockers,
+  inflight/storage/session fences и scoped settled-cache cleanup; [x] independent
+  controller/service/UI/storage tests, server synthetic transport, full FK pgTAP
+  fixtures и extended CI Auth smoke. App check: 238 suites / 3079 tests; server
+  synthetic: 12 tests. [Отчёт](../../app/review/01-som-41-account-deletion/README.md),
+  [handoff](privacy/ACCOUNT-DELETION-HANDOFF.md),
+  [ADR 0103](decisions/0103-durable-account-deletion-and-local-proof.md).
+  [ ] needs-local-db: SQL lint/pgTAP/Auth/concurrency/type drift в CI;
+  [ ] installed native/file/SQLite/logout/reopen, два телефона, cloud apply,
+  backup/log rotation, юрист, visual/accessibility и owner acceptance.
+  Политика draft, пилот не изменён; SOM-41 целиком и экран не приняты.
 - 04.10.2026 — SOM-32 program update: [x] additive server command/receipt/provenance,
   immutable personal copy и saved-only selection; [x] реальный SOM-31 booking source,
   caller/JWT/pending/dismiss guards и readback; [x] independent synthetic regressions,
   pgTAP и assignment/correction/update races в existing CI harness.
   App check: 240 suites / 3048 tests; iOS/Android/web export PASS.
   [Отчёт](../../app/review/01-som-32-program-update/README.md),
-  [ADR 0102](decisions/0102-program-update-receipts-and-sources.md).
+  [ADR 0103](decisions/0102-program-update-receipts-and-sources.md).
   [ ] needs-local-db: SQL lint/pgTAP/concurrency/generated types CI;
   [ ] два телефона/offline/SQLite/crash/reopen, parity/accessibility и owner acceptance.
   Неоднозначность values/prev сохранена в OPEN-QUESTIONS; SOM-32/экран не приняты.

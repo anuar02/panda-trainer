@@ -1,100 +1,78 @@
-# Передача будущего пакета удаления аккаунта
+# SOM-41 · Передача удаления аккаунта
 
-SOM-41, review checklist от 03.10.2026, база 4758705.
-Это незавершённые проверки, не реализованный deletion flow и не новое продуктовое
-решение. Весь SOM-41 остаётся открытым. См. [карту](DATA-LIFECYCLE.md),
-[проект политики](PRIVACY-POLICY-DRAFT.md),
-[ADR 0064](../decisions/0064-pilot-data-region-retention-and-invites.md) и
-[ADR 0062](../decisions/0062-sqlite-journal-outbox.md).
+04.10.2026. Реализованный пакет: [ADR 0103](../decisions/0103-durable-account-deletion-and-local-proof.md),
+[отчёт](../../../app/review/01-som-41-account-deletion/README.md).
+Продуктовое правило shared/dual role принято владельцем в
+[ADR 0101](../decisions/0101-account-deletion-keeps-trainer-history.md);
+старый gate на это решение снят. Юридическое одобрение этим не подтверждено.
 
-Техническое выявление препятствий без удаления: [preflight-контракт](DELETION-PREFLIGHT-CONTRACT.md).
-Pure evaluator не авторизует delete; все незавершённые gates ниже остаются открытыми.
+## Реализовано
 
-Изолированный [local export contract](LOCAL-EXPORT-CONTRACT.md) сохраняет typed journal
-данные, но не создаёт export/ack proof; collector и реальное file result открыты.
+- Settings/account → последствия из server inspect → полный известный account-local
+  inventory → exact file outcome → acknowledgement → explicit delete → status/recovery.
+  Отмена до команды ничего не удаляет. Роль/ownership определяет сервер.
+- Проверенный getUser JWT, server-only service/Auth API, service-only SQL RPC.
+  Client отвязывается у каждого тренера; trainer удаляет own workspace; dual оба.
+  Чужие Auth/profile, карточки, программы, журналы и оплаты сохраняются.
+- Child-first SQL cleanup всех current workspace tables, архивов, snapshots,
+  bookings/groups/proposals, notes, journals/sets/conflicts/correction audit/receipts,
+  attendance/credits/payments/reversals, invitations и private receipts.
+  Audit Auth identity → NULL в сохраняемой чужой истории; business values остаются.
+  Invitations всех отвязываемых карточек удаляются, старый bearer/card user link
+  не возвращает доступ. Служебный deletion receipt сохраняется для восстановления.
+- Durable prepare/database_deleted/complete; DB/Auth раздельны. Exact request ID и
+  32-byte recovery capability сохраняются в защищённом authStorage до отправки.
+  Status/retry после Auth deletion не требуют старого bearer. Capability не входит
+  в экспорт/логи; сервер сохраняет только SHA-256. Чужой bearer отклоняется.
+- Общий transaction lock + row guards для всех current public/private write tables;
+  READ COMMITTED enforced. Scoped private transaction-context для immutable cleanup.
+  Перечень FK/данных и preservation markers — pgTAP full fixtures. Row-lock deadlock
+  может потребовать exact retry; DDL/TRUNCATE owner-процессы вне app boundary.
+- Все account/workspace local rows трёх SQLite DB, включая старые workspace;
+  account-scoped AsyncStorage pending/drafts. Неполное чтение блокирует, не означает
+  ноль. Pending/rejected/conflicts/corrections/entry drafts/preload recovery не drop.
+  Exact bytes/hash/scope/fingerprint+adapter outcome и отдельное acknowledgement.
+  Изменение данных обесценивает proof, local export остаётся доступным в recovery.
+- Root AsyncStorage inflight fence, сохранённые runner/session shutdown fences,
+  SQLite account tombstone для поздних writers и scoped settled-cache cleanup.
+  Частичная cleanup возобновляется только по исходным durable proof markers.
+  При ошибке/новой записи данные сохранены, не выполняется blanket clear.
 
-## Серверная авторизация и область удаления
+## Покрытые writers
 
-- [ ] Проверить сервером действующую сессию и личность инициатора; не доверять
-      переданному account/workspace ID или выбранной роли интерфейса. Проверить anon,
-      expired token, чужой workspace, смену пользователя и повтор.
-- [ ] Privileged Auth API и service credentials оставить на сервере, не включать
-      в app/export/ошибки/логи. Дополнительное подтверждение личности и UX должны
-      пройти review; этот документ их не выбирает.
-- [ ] Перечитать ownership на сервере. Scoped cascade — требуемый охват данных
-      целевого тренера, а не готовый SQL ON DELETE CASCADE. Построить порядок по
-      фактическим FK, triggers, immutable ledger и self-links.
-- [ ] Проверить всё из карты: архивы/soft delete, программы/снимки, bookings/groups/
-      proposals, draft/finished journals, обе категории заметок, conflicts/correction
-      drafts/sync receipts, purchases/attendance/revisions/credits/payments/reversals,
-      invitations и все private command receipts.
-- [ ] Учесть Auth ссылки owner/user/accepted_by/author/created_by/receipts.
-      profiles CASCADE и client_records.user_id SET NULL не доказывают удаления
-      данных: workspace и зависимые FK используют RESTRICT/NO ACTION. Отдельность
-      Auth и БД требует проверки частичного отказа и восстановления.
-- [ ] Доказать, что удаление workspace A не удаляет общий client account,
-      его профиль/сессию, карточки/историю у B. Fixture: клиент связан с A и B.
-      Отдельно: тренер одновременно клиент B.
-- [ ] Удаление самого общего аккаунта клиента, сохранение/отвязка trainer cards
-      и доступ к прежней истории требуют отдельного review специалиста и владельца.
-      Не выводить продуктовый ответ из SET NULL или слова «аккаунт» в ADR.
+SQL statement guard: onboarding/profile/workspace/card/invitation; exercise/template/
+program assignment; booking/status/request/proposal; journal preparation/sync/finish/
+conflict/correction; attendance/purchase/payment/reversal; notifications/push/private
+receipts — все existing public/private ordinary writes, включая service без JWT.
+Референсы Auth и workspace проверяет row guard, бизнес-правила этих RPC не заменены.
 
-## Pending, logout и повтор
+Local fence: AsyncStorage setItem/removeItem/mergeItem/multiSet/multiRemove/multiMerge
+для scoped pending booking/status/proposal/billing/assignment/correction и library
+exercise/template storage; семь SQLite journal/outbox/entry/preload tables для всех
+connections. Демо и device theme/calm не account-scoped sensitive storage и не clear.
+Auth/OTP/PKCE/invitation/recovery secrets исключены из export. Pending invitation
+глобален: не объявляется account-owned и не очищается blanket; серверные invite
+связи отвязываемых карточек удаляются. Формы уходят с route/auth lifecycle; это
+synthetic fence coverage, native shutdown/reopen ещё нужен.
 
-- [ ] Инвентаризировать локальные хранилища карты: SecureStore chunks, invitation
-      bearer token, AsyncStorage drafts/pending, SQLite projection/outbox, память,
-      web sessionStorage и копии на других устройствах.
-- [ ] Соблюсти ADR 0062: неподтверждённые операции остаются при logout, purge API
-      отсутствует; нужен отдельный проверяемый export/ack. Не вводить destructive purge,
-      auto-drop rejected/conflict или blanket AsyncStorage.clear как shortcut.
-- [ ] До logout/switch остановить runner; каждый вход получает новый sessionId.
-      Поздний ответ старой сессии не подтверждает операции новой. Проверить inflight,
-      logout, возврат в тот же account, смену workspace и storage failure.
-- [ ] Различать локальное сохранение, receipt, конфликт, rejected и correction
-      draft. Backend export не покрывает несинхронизированное. Как экспортировать
-      и явно подтвердить локальную очередь — открытая работа.
-- [ ] Проверить exact retry/idempotency после timeout/потерянного ответа и reopen;
-      не создавать новый request ID только из-за неизвестного результата.
-      Отказ между БД и Auth, concurrent commands и повтор после успешного Auth delete
-      требуют отдельного серверного контракта, без обещания атомарности этих систем.
-- [ ] Определить и проверить interlock удаления и новых/повторных mutations, чтобы
-      pending или другое устройство не восстановило удалённое. Механизм блокировки,
-      export/ack и UX должны быть reviewable в будущем пакете.
-- [ ] Не объявлять очистку потерянного/оффлайн телефона доказанной серверным ответом.
-      ADR 0064: несинхронизированное на потерянном/сломанном телефоне не восстановить.
-      Локальные копии, downloaded export и OS backup ещё требуют review.
+## Проверки и внешние gates
 
-## Экспорт, бэкапы и принятие
+Независимые controller/service/UI/storage tests и server synthetic transport;
+full pgTAP fixtures и Auth/concurrency сценарии добавлены в уже запускаемый CI
+`supabase/tests/auth_email_smoke.py`. Standalone harness autodiscovery не предполагается.
+В контейнере без Docker SQL/Auth не исполнялись. Types дополнены по SQL в формате
+генератора; actual generated drift проверяет CI. Deno/native не объявлены проверенными.
 
-- [ ] Сверить отдельный backend export с таблицей E: pagination, полнота истории,
-      scoped snapshot и роли. Этот handoff не тест экспорта. Синтетическими маркерами
-      проверить отсутствие чужого trainer/card и приватных данных в client API.
-      Trainer export может содержать его приватные заметки; юридический запрос
-      клиента о его данных — отдельное нерешённое основание выдачи.
-- [ ] Проверить отсутствие паролей/хэшей Auth, access/refresh tokens, OTP/PKCE,
-      invitation tokens/URLs/token_hash, service keys и секретов в export/логах.
-      Не выдавать receipts/envelopes через необработанный SELECT *: request/result
-      JSON может содержать токен или приватный текст.
-- [ ] Подтвердить отдельный пилотный EU Central (Франкфурт) для базы/бэкапов/логов;
-      реальные данные заблокированы до проверки профильного специалиста.
-- [ ] Доказать вывод удалённых данных из бэкапов при ротации ≤7 дней по ADR 0064:
-      настройки, сроки, восстановление и предотвращение повторного появления.
-      Free tier не имеет подтверждённых ежедневных бэкапов; SOM-52 закрыт: бесплатные тарифы и собственный ночной дамп
-      ([ADR 0067](../decisions/0067-free-tier-pilot-budget.md)); эксплуатационные настройки открыты. Не обещать SLA или удаление бэкапов на основании документа.
-- [ ] Проверить состав, доступы и очистку infrastructure logs, временных export
-      артефактов и будущих хранилищ. Monitoring/push не объявлять готовыми.
-- [ ] Выполнить SQL reset/lint/pgTAP и concurrency на синтетических аккаунтах,
-      native SQLite/logout/reopen/offline на iOS/Android, фактическое облачное удаление/
-      бэкапы и юридический review. В этом контейнере они не выполнены.
-- [ ] Получить одобрение владельца на конкретный пакет, текст политики и связанные
-      экраны, если они появятся. Публикация отдельна; кнопки/экраны здесь не добавлены
-      и не приняты.
+Claude/CI: **needs-local-db** — reset/lint/pgTAP, type drift, existing concurrency
+список и extended Auth smoke (в том числе partial DB/Auth, old JWT, two concurrent
+recovery requests, inflight mutation/prepare). Нет deployment function в пилот ради
+проверки. Installed iOS/Android: file cancel/error/share, SQLite crash/WAL/reopen,
+logout/relogin/refresh/dismiss и два телефона. Offline/lost device/OS backup cleanup
+не доказаны. Downloaded/shared exports — пользовательские копии, не scoped cache.
 
-## Незавершённые аспекты для будущего пакета
-
-Оператор, контакты, основания, юридические сроки/права; общий клиентский аккаунт
-и двойная роль; локальный export/ack и pending, offline устройства; повтор после
-Auth delete, FK/trigger cleanup и concurrent mutations; состав/сроки логов,
-доказательство 7-дневной ротации. Здесь они зафиксированы без изменения ADR или
-OPEN-QUESTIONS (эти файлы исключены границами задачи). До разрешения спорных
-аспектов нельзя объявлять deletion или policy publication готовыми.
+До реальных данных: специалист подтверждает регион/правовые основания/retention
+сохраняемых trainer records и deletion receipt, оператор/контакты, 7-day backup
+rotation/restore без возвращения удалённого, logs/access/rotation. Облачное применение,
+юрист и реальные Auth revoke остаются внешними. Политика draft, не опубликована.
+Экраны/native/accessibility/parity принимает только владелец; SOM-41 целиком и этап
+пилота не объявлены принятыми. Pure preflight не разрешает удаление.
