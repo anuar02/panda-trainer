@@ -1,8 +1,22 @@
 {
- "updated_at": "2026-10-04T00:48Z",
+ "updated_at": "2026-10-04T00:58Z",
  "updated_by": "coordinator",
- "done": 12,
+ "done": 11,
  "issues": [
+  {
+   "id": "SOM-20",
+   "title": "Подключить onboarding тренера и управление клиентами",
+   "status": "In Progress",
+   "milestone": "02",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-34",
+   "title": "Подключить ручные оплаты, долг и экран billing",
+   "status": "In Review",
+   "milestone": "06",
+   "group": "owner"
+  },
   {
    "id": "SOM-23",
    "title": "Подключить редактор шаблонов к серверу",
@@ -51,13 +65,6 @@
    "status": "In Review",
    "milestone": "03",
    "group": "owner"
-  },
-  {
-   "id": "SOM-20",
-   "title": "Подключить onboarding тренера и управление клиентами",
-   "status": "In Progress",
-   "milestone": "02",
-   "group": "agents"
   },
   {
    "id": "SOM-35",
