@@ -1,3 +1,4 @@
+import { withClientCreation, type ClientCreateScope } from './create-session';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/features/auth/client';
 import type { Database } from '@/lib/database.types';
@@ -282,15 +283,28 @@ export async function loadWorkspaceClients(
       });
   });
 }
-export async function createWorkspaceClient(name: string, requestId: string) {
-  const client = getSupabaseClient();
-  if (!client) throw new Error('Client creation is unavailable');
-  const { error } = await client.rpc('create_client_record', {
-    client_name: name.trim(),
-    client_phone: '',
-    request_id: requestId,
+export async function createWorkspaceClient(
+  name: string,
+  requestId: string,
+  scope?: ClientCreateScope,
+) {
+  if (!name.trim() || name.trim().length > 120 || !uuid(requestId))
+    throw new Error('Client creation unavailable');
+  await withClientCreation(scope, async (client, token, workspaceId, guard) => {
+    await guard();
+    const result = await client
+      .rpc('create_client_record', {
+        client_name: name.trim(),
+        client_phone: '',
+        request_id: requestId,
+      })
+      .setHeader('Authorization', `Bearer ${token}`);
+    await guard();
+    if (result.error) throw new Error('Client creation unavailable');
+    const value = record(result.data);
+    if (value.workspace_id !== workspaceId)
+      throw new Error('Client creation unavailable');
   });
-  if (error) throw new Error('Client could not be created');
 }
 
 export async function loadWorkspaceClientDetails(

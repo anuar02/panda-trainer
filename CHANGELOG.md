@@ -361,6 +361,8 @@
 
 ### Исправлено
 
+- [SOM-20 / draft PR #55](https://github.com/anuar02/panda-trainer/pull/55): создание клиента закреплено за actor/workspace/JWT session и lifetime caller; поздние RPC/sheet completion не затрагивают новый scope, explicit retry сохраняет in-memory requestId. [Отчёт](app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](docs/app/decisions/0088-client-creation-session-fencing.md). Live/native/parity и приёмка владельца открыты.
+
 - [SOM-34 / draft PR #43](https://github.com/anuar02/panda-trainer/pull/43): финансовые чтения изолированы по auth session_id; hooks сбрасывают данные
   при повторном входе, bounded exact-count paging и scoped relations отклоняют
   неполные snapshots. UI и mutations сохранены; live auth/native и приёмка открыты.

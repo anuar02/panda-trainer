@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -56,6 +56,13 @@ export function WorkspaceClientsScreen({
   const [name, setName] = useState('');
   const [addError, setAddError] = useState('');
   const [saving, setSaving] = useState(false);
+  const generation = useRef(0);
+  useLayoutEffect(
+    () => () => {
+      generation.current += 1;
+    },
+    [],
+  );
   const pending = useRef(false);
   const secondary = { color: colors.secondary };
   const selectedInk = scheme === 'dark' ? '#0b0c0e' : '#ffffff';
@@ -81,11 +88,17 @@ export function WorkspaceClientsScreen({
     setFilter('all');
   };
   const closeAdd = () => {
+    generation.current += 1;
+    pending.current = false;
+    setSaving(false);
     setAddOpen(false);
     setName('');
     setAddError('');
   };
   const openAdd = () => {
+    generation.current += 1;
+    pending.current = false;
+    setSaving(false);
     setName('');
     setAddError('');
     setAddOpen(true);
@@ -97,17 +110,21 @@ export function WorkspaceClientsScreen({
       setAddError(t('workspaceClients.nameRequired'));
       return;
     }
+    const current = generation.current;
     pending.current = true;
     setSaving(true);
     setAddError('');
     try {
       await onAdd(value);
-      closeAdd();
+      if (generation.current === current) closeAdd();
     } catch {
-      setAddError(t('workspaceClients.saveError'));
+      if (generation.current === current)
+        setAddError(t('workspaceClients.saveError'));
     } finally {
-      pending.current = false;
-      setSaving(false);
+      if (generation.current === current) {
+        pending.current = false;
+        setSaving(false);
+      }
     }
   };
   const filters = ['all', 'due', 'unscheduled'] as const;

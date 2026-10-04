@@ -1,4 +1,12 @@
-import { useCallback, useRef, useState } from 'react';
+import { getSupabaseClient } from '@/features/auth/client';
+import { clientCreationIdentity } from '@/features/workspace-clients/create-session';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { Redirect, router } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
 import { useTranslation } from 'react-i18next';
@@ -38,9 +46,38 @@ function ClientList({
     load,
   );
   const [busy, setBusy] = useState(false);
+  const lifetime = useRef(new AbortController());
+  const initialToken = useRef(token);
+  useLayoutEffect(() => {
+    const controller = lifetime.current;
+    const expected = clientCreationIdentity({
+      user: { id: userId },
+      access_token: initialToken.current,
+    });
+    const subscription = getSupabaseClient()?.auth.onAuthStateChange(
+      (event, session) => {
+        const next = clientCreationIdentity(session);
+        if (
+          event === 'SIGNED_OUT' ||
+          event === 'SIGNED_IN' ||
+          !expected ||
+          !next ||
+          expected.userId !== next.userId ||
+          expected.sessionId !== next.sessionId
+        )
+          controller.abort();
+      },
+    ).data.subscription;
+    return () => {
+      controller.abort();
+      subscription?.unsubscribe();
+    };
+  }, [userId]);
   const pending = useRef(false);
   const request = useRef<{ name: string; id: string } | null>(null);
   const onAdd = async (value: string) => {
+    if (lifetime.current.signal.aborted)
+      throw new Error('Client creation unavailable');
     if (pending.current) throw new Error('Client creation is already pending');
     pending.current = true;
     setBusy(true);
@@ -48,12 +85,21 @@ function ClientList({
     if (request.current?.name !== name)
       request.current = { name, id: randomUUID() };
     try {
-      await createWorkspaceClient(name, request.current.id);
+      await createWorkspaceClient(name, request.current.id, {
+        userId,
+        workspaceId,
+        token,
+        signal: lifetime.current.signal,
+      });
+      if (lifetime.current.signal.aborted)
+        throw new Error('Client creation unavailable');
       request.current = null;
       read.retry();
     } finally {
-      pending.current = false;
-      setBusy(false);
+      if (!lifetime.current.signal.aborted) {
+        pending.current = false;
+        setBusy(false);
+      }
     }
   };
   const rows = (read.data ?? []).map((person) => {
@@ -105,6 +151,19 @@ function ClientList({
 export default function WorkspaceClientsRoute() {
   const auth = useAuth();
   const context = useOnboardingContext();
+  const [generation, setGeneration] = useState(0);
+  useEffect(() => {
+    const subscription = getSupabaseClient()?.auth.onAuthStateChange(
+      (event, session) => {
+        if (
+          (event !== 'INITIAL_SESSION' && event !== 'TOKEN_REFRESHED') ||
+          !clientCreationIdentity(session)
+        )
+          setGeneration((value) => value + 1);
+      },
+    ).data.subscription;
+    return () => subscription?.unsubscribe();
+  }, []);
   const { t } = useTranslation();
   if (auth.loading || auth.failed) return <AuthLoadingScreen />;
   if (!auth.session) return <Redirect href="/auth/sign-in" />;
@@ -119,7 +178,7 @@ export default function WorkspaceClientsRoute() {
   if (!workspace) return <Redirect href="/auth/onboarding" />;
   return (
     <ClientList
-      key={`${auth.session.user.id}:${workspace.id}`}
+      key={`${auth.session.user.id}:${clientCreationIdentity(auth.session)?.sessionId ?? 'invalid'}:${workspace.id}:${generation}`}
       userId={auth.session.user.id}
       token={auth.session.access_token}
       workspaceId={workspace.id}
