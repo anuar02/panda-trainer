@@ -1,8 +1,15 @@
 {
- "updated_at": "2026-10-04T02:26Z",
+ "updated_at": "2026-10-04T02:35Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-73",
+   "title": "Push-уведомления v1 (ADR 0065)",
+   "status": "In Progress",
+   "milestone": "08",
+   "group": "agents"
+  },
   {
    "id": "SOM-23",
    "title": "Подключить редактор шаблонов к серверу",
@@ -93,13 +100,6 @@
    "status": "In Review",
    "milestone": "07",
    "group": "owner"
-  },
-  {
-   "id": "SOM-73",
-   "title": "Push-уведомления v1 (ADR 0065)",
-   "status": "Backlog",
-   "milestone": "08",
-   "group": "agents"
   },
   {
    "id": "SOM-64",
