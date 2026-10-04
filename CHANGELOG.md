@@ -9,6 +9,13 @@
 
 ## Не выпущено
 
+- SOM-26: Today/week/create и общий mutation provider сбрасывают selections,
+  callbacks и locks при relogin/logout; verified refresh сохраняет сценарий.
+  Исправлен повтор save после overlap acknowledgement; default week следует
+  workspace clock. [Проверки](app/review/som-26-schedule-production-finish/README.md),
+  [ADR 0087](docs/app/decisions/0087-schedule-presentation-session-lifecycle.md).
+  SQL/live auth/native/parity и одобрение владельца не проверены.
+
 - [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
   terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),

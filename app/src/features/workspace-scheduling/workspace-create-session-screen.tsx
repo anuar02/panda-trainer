@@ -1,4 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  createBookingSessionFence,
+  type BookingSessionFence,
+} from './creation-session';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useFocusEffect } from 'expo-router';
 import { View } from 'react-native';
 import { randomUUID } from 'expo-crypto';
@@ -82,7 +92,13 @@ export function WorkspaceCreateSessionScreen(props: Props) {
       workspaceId={props.workspaceId}
     >
       <WorkspaceCreateSessionContent
-        key={`${props.userId}:${props.workspaceId}:${props.timezone}`}
+        key={JSON.stringify([
+          props.userId,
+          props.workspaceId,
+          props.timezone,
+          props.initialDate,
+          props.initialStart,
+        ])}
         {...props}
       />
     </WorkspaceMutationBoundary>
@@ -100,14 +116,24 @@ function WorkspaceCreateSessionContent({
   const { t } = useTranslation();
   const today = workspaceDateKey(new Date(), timezone);
   const date = validDate(initialDate, today);
-  const completionDate = useRef(date);
   const mutations = useWorkspaceMutations();
   const creation = mutations.creation;
+  const { isCurrent, verifyCurrent } = mutations;
   const active = useRef(true);
+  const focusEpoch = useRef(0);
+  useLayoutEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+      focusEpoch.current += 1;
+    };
+  }, []);
   useFocusEffect(
     useCallback(() => {
+      focusEpoch.current += 1;
       active.current = true;
       return () => {
+        focusEpoch.current += 1;
         active.current = false;
       };
     }, []),
@@ -119,7 +145,7 @@ function WorkspaceCreateSessionContent({
     if (creation.loading || restoredDraft !== undefined) return;
     let active = true;
     void Promise.resolve().then(() => {
-      if (active)
+      if (active && isCurrent())
         setRestoredDraft(
           creation.pending
             ? draftFromPending(creation.pending, timezone)
@@ -129,7 +155,7 @@ function WorkspaceCreateSessionContent({
     return () => {
       active = false;
     };
-  }, [creation.loading, creation.pending, restoredDraft, timezone]);
+  }, [creation.loading, creation.pending, restoredDraft, timezone, isCurrent]);
   const readDate =
     restoredDraft?.date ??
     (creation.pending
@@ -149,23 +175,36 @@ function WorkspaceCreateSessionContent({
   } | null>(null);
   useEffect(() => {
     let active = true;
-    void Promise.all([
-      loadWorkspaceClients(workspaceId),
-      loadWorkspaceTemplates(workspaceId),
-    ]).then(
-      ([clients, templates]) => {
-        if (active)
+    let fence: BookingSessionFence | undefined;
+    void (async () => {
+      try {
+        if (!(await verifyCurrent()) || !active) return;
+        fence = createBookingSessionFence(userId, () => active && isCurrent());
+        await fence.assertCurrent();
+        const [clients, templates] = await Promise.all([
+          loadWorkspaceClients(workspaceId, {
+            userId,
+            token: fence.accessToken,
+          }),
+          loadWorkspaceTemplates(workspaceId, false, {
+            userId,
+            workspaceId,
+            sessionId: fence.sessionId!,
+            isCurrent: () => active && isCurrent(),
+          }),
+        ]);
+        if ((await verifyCurrent()) && active)
           setCatalogue({ attempt, clients, templates, failed: false });
-      },
-      () => {
-        if (active)
+      } catch {
+        if ((await verifyCurrent()) && active)
           setCatalogue({ attempt, clients: [], templates: [], failed: true });
-      },
-    );
+      }
+    })();
     return () => {
       active = false;
+      fence?.dispose();
     };
-  }, [attempt, workspaceId]);
+  }, [attempt, userId, workspaceId, verifyCurrent, isCurrent]);
   const current = catalogue?.attempt === attempt ? catalogue : null;
   const errorLabel =
     creation.error === 'storage'
@@ -194,18 +233,26 @@ function WorkspaceCreateSessionContent({
             label={t('workspaceScheduling.createResume')}
             loading={creation.busy}
             onPress={() => {
-              completionDate.current = workspaceDateKey(
-                new Date(creation.pending!.startsAtUtc),
+              if (!active.current || !isCurrent()) return;
+              const epoch = focusEpoch.current;
+              const pending = creation.pending!;
+              const completionDate = workspaceDateKey(
+                new Date(pending.startsAtUtc),
                 timezone,
               );
-              void creation.resume().then((result) => {
-                if (!active.current) return;
-                if (result?.created) onCreated(completionDate.current);
+              void creation.resume().then(async (result) => {
+                if (
+                  !active.current ||
+                  focusEpoch.current !== epoch ||
+                  !(await verifyCurrent()) ||
+                  !active.current ||
+                  focusEpoch.current !== epoch
+                )
+                  return;
+                if (result?.created) onCreated(completionDate);
                 if (result && !result.created)
                   setWarning({
-                    signature: signature(
-                      draftFromPending(creation.pending!, timezone),
-                    ),
+                    signature: signature(draftFromPending(pending, timezone)),
                     overlaps: result.overlaps,
                   });
               });
@@ -221,6 +268,11 @@ function WorkspaceCreateSessionContent({
       </Card>
     ) : null;
   const retry = () => {
+    if (mutations.unavailable) {
+      mutations.retrySession();
+      return;
+    }
+    if (!isCurrent()) return;
     setAttempt((value) => value + 1);
     schedule.retry();
     creation.reload();
@@ -232,7 +284,18 @@ function WorkspaceCreateSessionContent({
     creation.pending !== null ||
     creation.error === 'storage' ||
     creation.error === 'invalidPending';
+  const close = () => {
+    if (!isCurrent() || !active.current) return;
+    focusEpoch.current += 1;
+    onClose();
+  };
   const save = async (draft: SessionDraft): Promise<EditorResult> => {
+    const epoch = focusEpoch.current;
+    const currentAttempt = () =>
+      active.current && focusEpoch.current === epoch && isCurrent();
+    if (!currentAttempt() || !(await verifyCurrent()) || !currentAttempt())
+      return { ok: false, error: '' };
+
     if (!current || !schedule.schedule)
       return {
         ok: false,
@@ -247,17 +310,19 @@ function WorkspaceCreateSessionContent({
         now: new Date(),
         requestId: randomUUID(),
       });
-      completionDate.current = draft.date;
       const result = await creation.submit(command);
+      if (!currentAttempt() || !(await verifyCurrent()) || !currentAttempt())
+        return { ok: false, error: '' };
       if (!result)
         return { ok: false, error: t('workspaceScheduling.createError') };
       if (!result.created) {
         setWarning({ signature: signature(draft), overlaps: result.overlaps });
         return { ok: false, error: t('workspaceScheduling.createOverlap') };
       }
-      if (active.current) onCreated(completionDate.current);
+      if (currentAttempt()) onCreated(draft.date);
       return { ok: true };
     } catch (error) {
+      if (!currentAttempt()) return { ok: false, error: '' };
       return {
         ok: false,
         error: t(
@@ -272,21 +337,26 @@ function WorkspaceCreateSessionContent({
   return (
     <View className="flex-1 bg-canvas">
       {recovery}
-      {creation.loading ||
-      restoredDraft === undefined ||
-      !current ||
-      schedule.loading ? (
+      {mutations.unavailable ? (
+        <Screen title={t('common.error')}>
+          <Button label={t('common.retry')} onPress={retry} />
+          <Button label={t('sessionEditor.close')} onPress={close} />
+        </Screen>
+      ) : creation.loading ||
+        restoredDraft === undefined ||
+        !current ||
+        schedule.loading ? (
         <Screen title={t('common.loading')}>
-          <Button label={t('sessionEditor.close')} onPress={onClose} />
+          <Button label={t('sessionEditor.close')} onPress={close} />
         </Screen>
       ) : current.failed || schedule.failed ? (
         <Screen title={t('workspaceScheduling.createCatalogueError')}>
           <Button label={t('common.retry')} onPress={retry} />
-          <Button label={t('sessionEditor.close')} onPress={onClose} />
+          <Button label={t('sessionEditor.close')} onPress={close} />
         </Screen>
       ) : current.clients.length === 0 ? (
         <Screen title={t('workspaceScheduling.createEmpty')}>
-          <Button label={t('sessionEditor.close')} onPress={onClose} />
+          <Button label={t('sessionEditor.close')} onPress={close} />
         </Screen>
       ) : (
         <CreateSessionScreen
@@ -379,7 +449,7 @@ function WorkspaceCreateSessionContent({
               : local;
           }}
           onCreate={save}
-          onClose={onClose}
+          onClose={close}
         />
       )}
     </View>

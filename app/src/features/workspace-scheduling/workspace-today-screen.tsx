@@ -19,6 +19,7 @@ import { useWorkspaceSchedule } from './use-schedule';
 import {
   WorkspaceMutationBoundary,
   useWorkspaceMutations,
+  useWorkspaceScreenScope,
 } from './mutation-provider';
 import { WorkspaceSessionControls } from './workspace-session-controls';
 
@@ -54,6 +55,9 @@ function WorkspaceTodayContent({
   const date = workspaceDateKey(now, timezone);
   const read = useWorkspaceSchedule(userId, workspaceId, date);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const caller = useWorkspaceScreenScope(
+    JSON.stringify([date, mutations.generation, read.loading]),
+  );
   const retryRead = read.retry;
   const lastGeneration = useRef(mutations.generation);
   useEffect(() => {
@@ -86,6 +90,7 @@ function WorkspaceTodayContent({
         endTime: null,
       };
   const select = (row: TrainerTodaySessionRow) => {
+    if (!caller.isCurrent() || read.loading) return;
     setOverlap(null);
     setSelectedId(row.id);
   };
@@ -99,9 +104,15 @@ function WorkspaceTodayContent({
     `${workspaceDateKey(new Date(value), timezone)} · ${scheduleClock(workspaceMinuteOfDay(new Date(value), timezone))}`;
   return (
     <View className="flex-1 bg-canvas">
-      {read.failed ? (
+      {read.failed || mutations.unavailable ? (
         <Screen title={t('common.error')}>
-          <Button label={t('common.retry')} onPress={read.retry} />
+          <Button
+            label={t('common.retry')}
+            onPress={() => {
+              if (mutations.unavailable) mutations.retrySession();
+              else if (caller.isCurrent()) read.retry();
+            }}
+          />
         </Screen>
       ) : (
         <TrainerTodayScreen
@@ -114,14 +125,27 @@ function WorkspaceTodayContent({
             agenda,
             onSelectSession: select,
             onCreate: (selectedDate, start) => {
-              if (mutations.blocked) return;
-              router.push({
-                pathname: '/workspace/new',
-                params: { date: selectedDate, ...(start ? { start } : {}) },
+              if (
+                mutations.blocked ||
+                !caller.isCurrent() ||
+                read.loading ||
+                !read.schedule
+              )
+                return;
+              void caller.verifyCurrent().then((valid) => {
+                if (!valid || !caller.isCurrent()) return;
+                router.push({
+                  pathname: '/workspace/new',
+                  params: { date: selectedDate, ...(start ? { start } : {}) },
+                });
               });
             },
-            onOpenRequests: () => setRequestsOpen(true),
-            onOpenOverlap: setOverlap,
+            onOpenRequests: () => {
+              if (caller.isCurrent()) setRequestsOpen(true);
+            },
+            onOpenOverlap: (value) => {
+              if (caller.isCurrent()) setOverlap(value);
+            },
             createDisabled: read.loading || mutations.blocked,
           }}
         />
@@ -132,14 +156,18 @@ function WorkspaceTodayContent({
         timezone={timezone}
         schedule={read.schedule}
         selectedId={selectedId}
-        onClose={() => setSelectedId(null)}
+        onClose={() => {
+          if (caller.isCurrent()) setSelectedId(null);
+        }}
         onRetry={read.retry}
         loading={read.loading}
       />
       <Sheet
         open={requestsOpen}
         title={t('trainerInbox.title')}
-        onClose={() => setRequestsOpen(false)}
+        onClose={() => {
+          if (caller.isCurrent()) setRequestsOpen(false);
+        }}
       >
         {read.schedule?.pendingProposals
           .filter((proposal) => proposal.authorRole === 'client')
@@ -152,20 +180,24 @@ function WorkspaceTodayContent({
               <Text>{targetLabel(proposal.proposed_starts_at)}</Text>
               <Button
                 label={t('workspaceScheduling.open')}
-                onPress={() =>
-                  router.push({
-                    pathname: '/workspace/schedule',
-                    params: {
-                      date: workspaceDateKey(
-                        new Date(proposal.booking.starts_at),
-                        timezone,
-                      ),
-                      session: proposal.booking.group_session_id
-                        ? `${proposal.booking.group_session_id}:${new Date(proposal.booking.starts_at).toISOString()}:${new Date(proposal.booking.ends_at).toISOString()}`
-                        : proposal.booking.id,
-                    },
-                  })
-                }
+                onPress={() => {
+                  if (!caller.isCurrent()) return;
+                  void caller.verifyCurrent().then((valid) => {
+                    if (!valid || !caller.isCurrent()) return;
+                    router.push({
+                      pathname: '/workspace/schedule',
+                      params: {
+                        date: workspaceDateKey(
+                          new Date(proposal.booking.starts_at),
+                          timezone,
+                        ),
+                        session: proposal.booking.group_session_id
+                          ? `${proposal.booking.group_session_id}:${new Date(proposal.booking.starts_at).toISOString()}:${new Date(proposal.booking.ends_at).toISOString()}`
+                          : proposal.booking.id,
+                      },
+                    });
+                  });
+                }}
               />
             </View>
           ))}
@@ -173,7 +205,9 @@ function WorkspaceTodayContent({
       <Sheet
         open={Boolean(overlap)}
         title={t('trainerSchedule.overlap')}
-        onClose={() => setOverlap(null)}
+        onClose={() => {
+          if (caller.isCurrent()) setOverlap(null);
+        }}
       >
         {overlap
           ? agenda.rows
