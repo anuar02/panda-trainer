@@ -13,9 +13,9 @@ values ('84300000-0000-4000-8000-000000000001', '64300000-0000-4000-8000-0000000
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"54300000-0000-4000-8000-000000000001","role":"authenticated"}', true);
 select set_config('test.editor_payload', jsonb_build_array(
-  jsonb_build_object('exercise_id', (select id from public.exercises where workspace_id = '64300000-0000-4000-8000-000000000001' and source_key = 'e0'), 'planned_sets', 4, 'planned_reps', '8–12', 'planned_weight_g', 42501, 'rest_seconds', 120, 'note', 'Контроль темпа'),
-  jsonb_build_object('exercise_id', '84300000-0000-4000-8000-000000000001', 'planned_sets', 2, 'planned_seconds', '45–60', 'planned_weight_g', null, 'rest_seconds', 0, 'note', null),
-  jsonb_build_object('exercise_id', (select id from public.exercises where workspace_id = '64300000-0000-4000-8000-000000000001' and source_key = 'e1'), 'planned_sets', 1, 'planned_reps', '10', 'planned_weight_g', 0, 'rest_seconds', 0, 'note', null)
+  jsonb_build_object('exercise_id', (select id from public.exercises where workspace_id = '64300000-0000-4000-8000-000000000001' and source_key = 'e0'), 'planned_sets', 4, 'planned_reps', '8–12', 'planned_seconds', null, 'planned_weight_g', 42501, 'rest_seconds', 120, 'note', 'Контроль темпа'),
+  jsonb_build_object('exercise_id', '84300000-0000-4000-8000-000000000001', 'planned_sets', 2, 'planned_reps', null, 'planned_seconds', '45–60', 'planned_weight_g', null, 'rest_seconds', 0, 'note', null),
+  jsonb_build_object('exercise_id', (select id from public.exercises where workspace_id = '64300000-0000-4000-8000-000000000001' and source_key = 'e1'), 'planned_sets', 1, 'planned_reps', '10', 'planned_seconds', null, 'planned_weight_g', 0, 'rest_seconds', 0, 'note', null)
 )::text, true);
 select set_config('test.editor_result', public.save_workout_template(null, null, 'Низ А', 'Заметка', current_setting('test.editor_payload')::jsonb, '94300000-0000-4000-8000-000000000001')::text, true);
 select set_config('test.editor_id', current_setting('test.editor_result')::jsonb->>'id', true);

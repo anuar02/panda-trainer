@@ -83,3 +83,11 @@ crash/reopen, offline на реальном устройстве, SQL/RLS/pgTAP/
 - `gh pr edit 63 --body-file /tmp/som23-production-pr-body.md`: критерии
   размечены «сделано / не проверено / требует одобрения владельца».
 - GitHub CI ожидается после push; его прохождение не заявляется здесь.
+
+## Coordinator CI correction · 04.10.2026
+
+GitHub database job 111343911874 found pgTAP assertion 7 comparing omitted
+nullable plan keys with explicit SQL nulls. The input/expected fixture now includes
+planned_reps/planned_seconds nulls explicitly for each applicable row; the full
+ordered equality assertion remains unchanged. No server/schema behavior changed.
+Fresh GitHub app/database checks are required on the resulting commit.
