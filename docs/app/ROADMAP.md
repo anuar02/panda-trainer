@@ -9,6 +9,11 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 CI repair #73: устранён конфликт `pg_class t` с переменной
+  `t record` при установке новой deletion migration. SQL/Auth/type проверки первой
+  попытки CI были пропущены после ошибки установки; повторная проверка — в CI.
+  [Отчёт](../../app/review/01-som-41-account-deletion/README.md).
+
 - 04.10.2026 — SOM-41 deletion: [x] обе роли/dual по server identity и ADR 0101,
   own workspace cleanup и сохранение чужой истории; [x] durable prepare/DB/Auth/
   complete/status recovery и transactional writer interlock; [x] account-local

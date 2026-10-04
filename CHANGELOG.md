@@ -9,6 +9,8 @@
 
 ## Не выпущено
 
+- SOM-41 / PR #73: исправлен конфликт SQL-алиаса с PL/pgSQL record в новой, ещё не применённой deletion migration; проверки и ограничения — в [отчёте](app/review/01-som-41-account-deletion/README.md).
+
 - [SOM-41 / draft PR #73](https://github.com/anuar02/panda-trainer/pull/73): полный подтверждённый account deletion для client/trainer/dual role,
   сохранение чужих карточек/истории по ADR 0101, durable DB/Auth recovery, scoped
   local inventory/export/ack и writer fences без purge outstanding. Новая migration,

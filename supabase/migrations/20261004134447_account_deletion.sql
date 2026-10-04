@@ -130,7 +130,7 @@ begin
  end loop;
  for c in select distinct con.conrelid,att.attname from pg_constraint con
  join pg_attribute att on att.attrelid=con.conrelid and att.attnum=con.conkey[1]
- join pg_class t on t.oid=con.conrelid join pg_namespace ns on ns.oid=t.relnamespace
+ join pg_class source_table on source_table.oid=con.conrelid join pg_namespace ns on ns.oid=source_table.relnamespace
  where con.contype='f' and con.confrelid='auth.users'::regclass and array_length(con.conkey,1)=1
  and ns.nspname in ('public','private') and att.attnotnull and (att.attname in ('created_by','author_user_id','accepted_by') or (att.attname='user_id' and con.conrelid in ('public.sync_operations'::regclass,'private.workout_correction_receipts'::regclass,'private.workout_correction_audit'::regclass))) loop
   execute format('alter table %s alter column %I drop not null',c.conrelid::regclass,c.attname);

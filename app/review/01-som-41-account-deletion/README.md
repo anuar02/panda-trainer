@@ -141,3 +141,29 @@ Three clean-context agents owned SQL+pgTAP, server, independent tests; lead revi
 integrated shared types/client/docs and reran required checks. Agent focus results
 were not substituted for lead app check. No existing migration/dependencies/workflows/
 prototype/agent rules/SOM-32 business modules modified; no real data/paid services.
+
+## CI repair · 04.10.2026 · attempt 1
+
+`gh run view 37207738250 --json jobs` confirms app checks/export succeeded, while
+`supabase start --workdir .` failed at deletion migration statement 13 with
+SQLSTATE 55000 (`record "t" is not assigned yet`). SQL alias `pg_class t` collided
+with the DO block's unassigned PL/pgSQL `t record`. Rename that alias to
+`source_table`; constraint selection and cleanup semantics stay unchanged. Only
+the new, unmerged and unapplied migration of PR #73 is corrected: a later
+additive migration cannot repair an earlier migration that aborts installation.
+No base/pilot migration, test, workflow or generated SQL object signature changed.
+
+`git fetch origin fix/som-50-template-picker` and
+`git ls-tree --name-only origin/fix/som-50-template-picker supabase/migrations/`
+confirm the latest base migration remains `20261004110241_push_v1.sql`, below
+this PR's `20261004134447_account_deletion.sql`.
+
+Docker and psql remain absent (`command -v docker`, `command -v psql`); migration
+execution/pgTAP/Auth/concurrency/generated types require CI, needs-local-db. The
+first run skipped those checks after installation failed. Its earlier registry
+rate-limit message did not stop image downloads; no workflow retry workaround
+was introduced. Linear issue/project were read, no remote records changed; live
+SOM-41 status is Done, which does not establish the outstanding acceptance gates.
+
+Fresh repair validation: `cd app && npm run check` PASS (exit 0; typecheck,
+lint, formatting, 238 suites / 3079 tests). `git diff --check` PASS.
