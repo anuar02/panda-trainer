@@ -30,7 +30,7 @@ const templateId = '91000000-0000-4000-8000-000000000001';
 const requestId = 'a1000000-0000-4000-8000-000000000001';
 const userId = '51000000-0000-4000-8000-000000000001';
 const otherUserId = '51000000-0000-4000-8000-000000000002';
-const accessToken = 'test-session-access-token';
+const accessToken = `header.${btoa(JSON.stringify({ sub: userId, session_id: requestId })).replace(/=/g, '')}.signature`;
 
 const row: WorkspaceExerciseRow = {
   id: exerciseId,
@@ -86,6 +86,9 @@ const client = (parts: object, sessionUserId = userId) =>
   ({
     ...parts,
     auth: {
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
       getSession: jest.fn().mockResolvedValue({
         data: {
           session: {
@@ -487,10 +490,13 @@ describe('workspace library service operations', () => {
   });
 
   it('uses one request UUID for retrying an archive RPC', async () => {
-    const rpc = jest.fn().mockResolvedValue({
+    const response = {
       data: { id: templateId, revision: 4, replayed: false },
       error: null,
-    });
+    };
+    const rpc = jest.fn(() => ({
+      setHeader: jest.fn().mockResolvedValue(response),
+    }));
     getClient.mockReturnValue(client({ rpc }));
     const archive = archiveWorkspaceTemplateOperation(templateId, 3);
 
@@ -506,10 +512,13 @@ describe('workspace library service operations', () => {
   });
 
   it('does not expose database error details to callers', async () => {
-    const rpc = jest.fn().mockResolvedValue({
+    const response = {
       data: null,
       error: { code: '40001', message: 'internal row state' },
-    });
+    };
+    const rpc = jest.fn(() => ({
+      setHeader: jest.fn().mockResolvedValue(response),
+    }));
     getClient.mockReturnValue(client({ rpc }));
     const archive = archiveWorkspaceTemplateOperation(templateId, 3);
 
