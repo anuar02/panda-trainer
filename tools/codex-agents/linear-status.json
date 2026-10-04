@@ -1,14 +1,28 @@
 {
- "updated_at": "2026-10-04T00:33Z",
+ "updated_at": "2026-10-04T00:44Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
   {
+   "id": "SOM-22",
+   "title": "Подключить серверную библиотеку, поиск и архивирование",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "agents"
+  },
+  {
    "id": "SOM-41",
    "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
-   "status": "In Review",
+   "status": "In Progress",
    "milestone": "10",
-   "group": "owner"
+   "group": "agents"
+  },
+  {
+   "id": "SOM-23",
+   "title": "Подключить редактор шаблонов к серверу",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "agents"
   },
   {
    "id": "SOM-26",
@@ -51,13 +65,6 @@
    "status": "In Progress",
    "milestone": "06",
    "group": "agents"
-  },
-  {
-   "id": "SOM-22",
-   "title": "Подключить серверную библиотеку, поиск и архивирование",
-   "status": "In Review",
-   "milestone": "03",
-   "group": "owner"
   },
   {
    "id": "SOM-35",
@@ -135,13 +142,6 @@
    "status": "In Review",
    "milestone": "06",
    "group": "owner"
-  },
-  {
-   "id": "SOM-23",
-   "title": "Подключить редактор шаблонов к серверу",
-   "status": "In Progress",
-   "milestone": "03",
-   "group": "agents"
   },
   {
    "id": "SOM-21",

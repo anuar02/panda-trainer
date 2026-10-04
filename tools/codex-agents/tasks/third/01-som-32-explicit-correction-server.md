@@ -1,4 +1,4 @@
-# SOM-32 · Серверный контракт явного исправления завершённого журнала
+# SOM-32 · Явное исправление завершённого журнала: сервер, клиент и тесты
 
 Linear: https://linear.app/something-great/issue/SOM-32
 
@@ -38,8 +38,8 @@ finished journals и drafts уже поддерживаются влитым с�
 - [ ] Additive types и standalone typed transport нового RPC: expected auth session,
   JWT sub/session_id, explicit bearer, guards до/после result/error, verified refresh;
   immutable canonical input/requestId и validated response. Credentials не входят
-  в payload/results/errors/keys. UI/автоматический retry/durable command store
-  не подключать; transport standalone synthetic, реальные receipts проверяет DB.
+  в payload/results/errors/keys. Подключить explicit UI и durable command store согласно критериям ниже;
+  реальные receipts/concurrency проверяет DB, не transport mocks.
 - [ ] pgTAP cases anon/client/non-owner/foreign workspace, malformed draft, stale
   revisions/conflict snapshot, повтор/same ID different input/two IDs one draft,
   все supported kinds включая notes и resolve_conflict, rollback/finished visibility.
@@ -50,22 +50,50 @@ finished journals и drafts уже поддерживаются влитым с�
 ## Разделение работы
 
 До трёх субагентов по tools/codex-agents/SUBAGENTS.md; если файла нет, свежие узкие
-контексты/исключительное владение. Сервер implementation одному, standalone app
-transport второму, независимые SQL/transport tests третьему. Lead фиксирует API,
+контексты/исключительное владение. Сервер implementation одному, app transport/command/UI
+второму, независимые SQL/app tests третьему. Lead фиксирует API,
 types/docs, интеграцию и полный npm run check. Не давать двум агентам один файл.
+
+## Клиентские критерии целого пакета
+
+Это вторая крупная часть SOM-32 после текущего production-finish: весь сценарий
+явного исправления (server+client+tests), а не отдельный контракт. После finish
+той же очереди сохранить его публичное поведение. Общий SOM-32 больше дня;
+selective program update остаётся заблокированным immutable-copy/provenance
+решением, его не угадывать и весь issue не объявлять завершённым.
+
+- [ ] Тренер видит сохранённый correction draft и обе релевантные версии/изменения,
+  явно подтверждает конкретное исправление; нет auto-apply при входе/retry или
+  фиктивного applied success. Группа участников/workspace изолирована.
+- [ ] Один durable requestId/canonical payload+expected revisions на команду;
+  storage failure не success, lost response/reopen/retry не создают другую команду.
+  Reconciliation только validated receipt своего actor/workspace/draft. Conditional
+  clear не удаляет новую команду; uncertainty сохраняет старый exact replay.
+- [ ] Caller JWT sub/session_id/generation закреплены до dispatch; verified refresh
+  работает, logout/relogin/смена участника/unmount скрывают old draft/error/result,
+  не навигируют/не очищают новую команду. Explicit conflict/not-found/revision state.
+- [ ] После подтверждённого server apply перечитать finished journal/видимый статус
+  correction draft без изменения исходного finish timestamp; private/shared policy
+  и клиентская finished-only видимость сохраняются. Нет auto-debit/attendance/program update.
+- [ ] Independent service/store/hook/screen tests явного просмотра→подтверждения→
+  результата, lost response/retry/reopen seam, double tap/clear failure/late error,
+  relogin/refresh/participant switch и stale revision. SQL runtime/read-after-write
+  не объявлять доказанным mocks. SQL lint/pgTAP/concurrency/type drift — CI/local DB gate.
 
 ## Границы
 
-Только новые supabase/migrations/*, новые correction-specific supabase tests/
-concurrency harness, новая features/workout-corrections/{service,session,types}.ts
-или эквивалентный отдельный модуль, additive app/src/lib/database.types.ts signatures,
-свои tests/review/minimal docs/ADR. Существующие migration файлы НЕ менять.
-При необходимости replace существующего SQL function — только в новой migration,
-минимальный согласованный delta, сохраняющий ordinary sync behavior и regression tests.
-Не менять workout-entry/finish (third active), sync storage/snapshot/runner/transport,
-preload/entry stores/UI/routes/auth provider, clients (work), financial (personal),
-library/programs/client reads, deps/prototype/seed/config. Selective personal-program
-update исключён: immutable-copy semantics/provenance остаются отдельным gate.
+Новые correction-specific migrations/SQL tests/concurrency harness, отдельный
+features/workout-corrections модуль transport/session/types/command-store/hooks/UI,
+additive database.types.ts signatures, узкая интеграция correction controls с
+workout-entry после предыдущего finish этого же аккаунта. Свои tests/review/minimal
+ADR/docs/i18n. Existing migrations не менять; replacement SQL только новой migration
+и с сохранением ordinary sync regressions. Existing sync/preload/entry storage,
+runner/transport/save/ack protocols не менять; новый correction store отдельный.
+Не менять clients/library (work), financial/client-scheduling/invitations (personal),
+assignment/programs/client reads, auth provider, export (следующая независимая задача),
+deps/prototype/seed/config. Selective personal-program update исключён до решения
+immutable-copy semantics/provenance. Shared docs минимально. SQL PR при local DB
+gate остаётся needs-local-db, зависимости от него другим аккаунтам не ставить.
 
 ## Источники и проверки
 
@@ -82,8 +110,8 @@ Graft map/ask если доступен, иначе зафиксировать �
 
 Нет Docker/Supabase/браузера/native: SQL/pgTAP/concurrency/db lint/generated drift
 здесь НЕ исполняются. Не выдавать static review за runtime proof. Draft PR
-agent/som-32-explicit-correction-server только в fix/som-50-template-picker,
+agent/01-som-32-explicit-correction-server только в fix/som-50-template-picker,
 заголовок SOM-32; coordinator передаст needs-local-db, Claude проверит/вольёт локально.
-UI/native/приёмка не проверены. Только synthetic fixtures, без платных сервисов
+UI synthetic tests обязательны; native/приёмка не проверены. Только synthetic fixtures, без платных сервисов
 и реальных данных. Не задавать вопросов, не менять Linear/scripts/rules/main.
 SOM-32 и экраны целиком не объявлять завершёнными или принятыми.
