@@ -9,6 +9,8 @@
 
 ## Не выпущено
 
+- SOM-24: чтение личной immutable программы закреплено за actor/client/session; same-user relogin скрывает старые данные, refresh проверяется, страницы и snapshot валидируются по схеме. [Проверки](app/review/som-24-client-program-read-fencing/README.md), [ADR 0080](docs/app/decisions/0080-client-program-read-session-fencing.md).
+
 - SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
 - [SOM-31 r2 / draft PR #42](https://github.com/anuar02/panda-trainer/pull/42): provenance reconciliation возвращает серверный original после current
   receipt, убирает отвергнутую replacement и отсутствующие подходы, сохраняет pending/

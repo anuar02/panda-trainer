@@ -9,6 +9,7 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-24 client program read: [x] actor/client/session fence, explicit bearer, bounded validated lines и hook auth/retry/focus reset; [ ] SQL/RLS/live auth/native/parity/storage crash и одобрение владельца. Assignment не менялся; интеграция после invitation read. [Отчёт](../../app/review/som-24-client-program-read-fencing/README.md), [ADR 0081](decisions/0081-client-program-read-session-fencing.md). Issue и экран не приняты.
 - 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
   SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
   synthetic round-trip regressions; [ ] collector, real SQLite/SQL/file API,
