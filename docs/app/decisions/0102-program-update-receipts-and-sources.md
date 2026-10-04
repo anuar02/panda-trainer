@@ -41,7 +41,9 @@ SOM-31 `prepare_workout_journal` копирует `booking_program_exercises`, �
 ## Сериализация и история
 
 Порядок locks: workspace advisory seed 29 (correction/sync), workspace row
-(assignment), scoped request advisory. Assignment не ждёт advisory lock, а
+(assignment), scoped request advisory, затем client row перед проверкой активного клиента.
+Client lock не позволяет архивированию пересечь проверку и создание копии.
+Assignment не ждёт advisory lock, а
 correction не берёт workspace row. Цикл ожидания не добавляется. Любой новый
 assignment либо correction между просмотром и подтверждением меняет ожидаемый
 источник/ревизию; транзакция откатывается целиком.

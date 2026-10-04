@@ -114,6 +114,7 @@ begin
  perform pg_advisory_xact_lock(hashtextextended('program-update:'||p_request_id::text,29));
  select * into r from private.program_update_receipts where request_id=p_request_id;
  if found then if r.request is distinct from req then raise exception 'request_id_reused' using errcode='22023'; end if; return r.result; end if;
+ perform 1 from public.client_records where workspace_id=p_workspace_id and id=p_client_record_id for update;
  context:=private.program_update_context(p_actor_id,p_workspace_id,p_workout_id,p_client_record_id);
  if context->>'program_id' is distinct from p_program_id::text or (context->>'program_revision')::integer<>p_expected_program_revision or (context->>'workout_revision')::integer<>p_expected_workout_revision then raise exception 'stale_source' using errcode='40001'; end if;
  if exists(select 1 from unnest(p_selected_keys) x where not exists(select 1 from jsonb_array_elements(context->'options') o where o->>'key'=x)) then raise exception 'invalid_selection' using errcode='22023'; end if;
