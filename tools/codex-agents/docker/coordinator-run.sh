@@ -30,7 +30,7 @@ prompt="$(sed -e "s|{{BASE}}|$BASE_BRANCH|g" \
   /task/COORDINATOR.md)"
 
 status=0
-codex exec --dangerously-bypass-approvals-and-sandbox "$prompt" || status=$?
+timeout "${COORDINATOR_TIMEOUT:-1200}" codex exec --dangerously-bypass-approvals-and-sandbox "$prompt" || status=$?
 
 cd queue
 if [ -n "$(git status --porcelain)" ]; then
