@@ -5,6 +5,8 @@
 Исходный пакет закрытого без слияния PR #54 восстановлен из
 `origin/agent/som-32-production-finish` (`bfb7e1e`) на свежей базе `4c20e22`.
 Merge `fb06079` сохранил SOM-20/23/24/26/34/41 и finish пакет целиком.
+Implementation: `a4c4ff4`; draft [PR #59](https://github.com/anuar02/panda-trainer/pull/59),
+base `fix/som-50-template-picker`. Branch push и draft/base/title проверены через `gh pr view`.
 Конфликты merge затронули только ROADMAP и ADR index; сохранены обе стороны.
 
 Correction third уже опубликовал отдельный draft PR #56
@@ -66,6 +68,7 @@ auth provider и чужие модули не менялись. Attendance/debit
   — 4 suites / 26 tests passed (UI субагент).
 - Targeted ESLint production service/domain, hook/screen/session helper и finish tests — exit 0.
 - Финальный общий `cd app && npm run check` — exit 0; typecheck/lint/format:check зелёные, 188 suites / 2332 tests passed.
+- После финализации отчёта `cd app && npm run format:check` — exit 0.
 - `git diff --check` — passed; diff к базе не содержит SQL/storage/runner/transport/
   preload/provider/database.types/deps/routes или PNG.
 

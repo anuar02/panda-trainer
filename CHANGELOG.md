@@ -355,7 +355,7 @@
 
 ### Исправлено
 
-- SOM-32 r2: полный production finish пакет восстановлен; доказанный current resolution снимает terminal lock для продолжения ввода и нового явного завершения, сохраняя audit/outbox/drafts. Bearer исключён из React keys/state. [Отчёт r2](app/review/som-32-production-finish-r2/README.md), [ADR 0089](docs/app/decisions/0089-terminal-finish-current-recovery.md); runtime и приёмка владельца открыты.
+- [SOM-32 r2 / draft PR #59](https://github.com/anuar02/panda-trainer/pull/59): полный production finish пакет восстановлен; доказанный current resolution снимает terminal lock для продолжения ввода и нового явного завершения, сохраняя audit/outbox/drafts. Bearer исключён из React keys/state. [Отчёт r2](app/review/som-32-production-finish-r2/README.md), [ADR 0089](docs/app/decisions/0089-terminal-finish-current-recovery.md); runtime и приёмка владельца открыты.
 
 - [SOM-20 / draft PR #55](https://github.com/anuar02/panda-trainer/pull/55): создание клиента закреплено за actor/workspace/JWT session и lifetime caller; поздние RPC/sheet completion не затрагивают новый scope, explicit retry сохраняет in-memory requestId. [Отчёт](app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](docs/app/decisions/0088-client-creation-session-fencing.md). Live/native/parity и приёмка владельца открыты.
 
