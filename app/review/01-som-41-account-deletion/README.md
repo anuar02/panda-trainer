@@ -198,3 +198,14 @@ no deployment, secrets, real accounts, workflows or acceptance gates changed.
 
 Fresh repair 2 validation: `cd app && npm run check` PASS (exit 0; TypeScript,
 ESLint, Prettier, 238 suites / 3079 tests). `git diff --check` PASS.
+
+
+## Coordinator CI repair · 2026-10-04
+
+Run 37208908883 passed app and reached Auth smoke after SQL tests. The prepared
+deletion mutation assertion incorrectly required HTTP 4xx: the existing guard
+raises SQLSTATE 55000, mapped by PostgREST to HTTP 500. Preserve the guard and
+require the exact 500 / 55000 / account_deletion_in_progress response, plus a
+database assertion that the rejected client card was not persisted. HTTP error
+JSON is now retained by the synthetic request helper. No migration or business
+behavior changed. Python compilation and git diff --check pass; fresh CI required.

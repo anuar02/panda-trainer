@@ -44,7 +44,8 @@ def request(base, path, method='GET', payload=None, token=None):
             raw = response.read()
             return response.status, json.loads(raw) if raw and 'json' in response.headers.get('Content-Type', '') else {}
     except urllib.error.HTTPError as error:
-        return error.code, {}
+        raw = error.read()
+        return error.code, json.loads(raw) if raw and 'json' in error.headers.get('Content-Type', '') else {}
 
 
 def query(sql):
@@ -189,9 +190,12 @@ def account_deletion_smoke():
     digest = hashlib.sha256(command['recoveryToken'].encode()).hexdigest()
     prepare_after_inflight_mutation(aid, command['requestId'], digest)
     assert query(f"select count(*) from auth.users where id='{aid}';") == '1'
-    code, _ = request(api, '/rest/v1/rpc/create_client_record', 'POST',
+    code, rejected = request(api, '/rest/v1/rpc/create_client_record', 'POST',
                       {'client_name': 'Must not recreate', 'client_phone': None, 'request_id': str(uuid.uuid4())}, a['access_token'])
-    assert 400 <= code < 500, 'Prepared deletion must reject later workspace mutation'
+    assert code == 500 and rejected.get('code') == '55000' and rejected.get('message') == 'account_deletion_in_progress', \
+        'Prepared deletion must reject later workspace mutation with its exact SQL fence error'
+    assert query(f"select count(*) from public.client_records where workspace_id='{wa}' and display_name='Must not recreate';") == '0', \
+        'Rejected workspace mutation must not persist a client card'
     query(f"select public.account_deletion_execute('{command['requestId']}','{digest}');")
     assert query(f"select count(*) from auth.users where id='{aid}';") == '1', 'Database phase must not claim Auth deletion'
     assert query(f"select count(*) from public.trainer_workspaces where id='{wa}';") == '0'
