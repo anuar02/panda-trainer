@@ -115,3 +115,17 @@ SOM-37, base `fix/som-50-template-picker`, correct head, `OPEN` and `isDraft=tru
 Remote head was verified by `git ls-remote`. This review-only publication record
 is committed separately. CI for this PR is pending; no SQL/type-generation/real
 concurrency success is claimed, and no merge or owner acceptance is claimed.
+
+## Coordinator integration · 2026-10-04 UTC
+
+Initial CI run 37177815271 failed the export public-table inventory assertion
+when notifications was added. Notifications is explicitly excluded from the
+version 1 trainer workspace export: it stores recipient-specific delivery/read
+state, and exporting another recipient’s feed through trainer ownership is not
+authorized by that contract. The existing export remains incomplete; notification
+feed/read state is not included. Added the table to the coverage inventory and
+an assertion that the version 1 collection remains excluded. No existing
+migration or export RPC/client contract was changed. This does not establish
+full account portability or owner acceptance. Fresh CI is required; no local
+SQL runtime is available. The separate notification concurrency harness remains
+unexecuted by the standard workflow.

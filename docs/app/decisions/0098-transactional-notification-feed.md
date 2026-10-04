@@ -80,3 +80,17 @@ base migration (`20261004110100`). To preserve additive deployment order, the
 new migration uses the next second `20261004110101`; no existing migration is
 edited or renamed by this task. The upstream prerequisite renumbering was fetched
 as base commit `32b7c75`, not introduced by this branch.
+
+## Coordinator integration · 2026-10-04 UTC
+
+Initial CI run 37177815271 failed the export public-table inventory assertion
+when notifications was added. Notifications is explicitly excluded from the
+version 1 trainer workspace export: it stores recipient-specific delivery/read
+state, and exporting another recipient’s feed through trainer ownership is not
+authorized by that contract. The existing export remains incomplete; notification
+feed/read state is not included. Added the table to the coverage inventory and
+an assertion that the version 1 collection remains excluded. No existing
+migration or export RPC/client contract was changed. This does not establish
+full account portability or owner acceptance. Fresh CI is required; no local
+SQL runtime is available. The separate notification concurrency harness remains
+unexecuted by the standard workflow.
