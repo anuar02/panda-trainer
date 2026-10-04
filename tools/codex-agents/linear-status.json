@@ -1,8 +1,22 @@
 {
-  "updated_at": "2026-10-04T06:16Z",
+  "updated_at": "2026-10-04T13:10Z",
   "updated_by": "coordinator",
   "done": 11,
   "issues": [
+    {
+      "id": "SOM-41",
+      "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+      "status": "In Progress",
+      "milestone": "10",
+      "group": "agents"
+    },
+    {
+      "id": "SOM-32",
+      "title": "Завершать и исправлять журнал с обновлением программы",
+      "status": "In Progress",
+      "milestone": "05",
+      "group": "agents"
+    },
     {
       "id": "SOM-73",
       "title": "Push-уведомления v1 (ADR 0065)",
@@ -53,13 +67,6 @@
       "group": "owner"
     },
     {
-      "id": "SOM-41",
-      "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
-      "status": "In Review",
-      "milestone": "10",
-      "group": "owner"
-    },
-    {
       "id": "SOM-20",
       "title": "Подключить onboarding тренера и управление клиентами",
       "status": "In Review",
@@ -71,13 +78,6 @@
       "title": "Подключить серверную библиотеку, поиск и архивирование",
       "status": "In Review",
       "milestone": "03",
-      "group": "owner"
-    },
-    {
-      "id": "SOM-32",
-      "title": "Завершать и исправлять журнал с обновлением программы",
-      "status": "In Review",
-      "milestone": "05",
       "group": "owner"
     },
     {
