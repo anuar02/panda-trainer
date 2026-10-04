@@ -22,6 +22,7 @@ import { GradientBackground } from '@/ui/gradient-background';
 import { useTheme } from '@/ui/theme';
 import { useOptionalWorkoutDemo } from './provider';
 import { useWorkoutRuntime } from './runtime';
+import { WorkoutEffect } from '@/features/workout/workout-motion';
 import { runtimeExercise } from './runtime-state';
 
 export function WorkoutDock() {
@@ -220,7 +221,9 @@ export function WorkoutDock() {
           }}
         />
       )}
-      <View
+      <WorkoutEffect
+        kind="dock"
+        active={!!rest && !rest.done}
         style={{
           width: 42,
           height: 42,
@@ -249,7 +252,7 @@ export function WorkoutDock() {
           />
         </Svg>
         <Icon name="play" size={16} color={onDark} />
-      </View>
+      </WorkoutEffect>
       <View style={{ flex: 1, gap: 2 }}>
         <View
           style={{

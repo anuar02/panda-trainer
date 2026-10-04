@@ -1,3 +1,6 @@
+jest.mock('react-native-worklets', () => ({
+  scheduleOnRN: (callback: () => void) => callback(),
+}));
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn().mockResolvedValue(null),
   setItem: jest.fn().mockResolvedValue(undefined),

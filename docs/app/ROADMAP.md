@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-39, бриф 15 r2 после MERGED #77: [x] UI-движение тостов,
+  шторок/scrim, записи подхода, нового упражнения/заметок, steps/rest и demo dock;
+  [x] общий calm/reduce и synthetic проверки, presentation adapters voice/hold.
+  [Отчёт](../../app/review/15-som-39-motion-workout-r2/README.md).
+  [ ] voice runtime: существующего demo/hold в базе нет, disabled сохранён по SOM-54;
+  [ ] native ощущение/FPS/жесты, максимальный шрифт, screen readers, visual parity
+  и одобрение владельца. SOM-39 целиком и экраны не приняты.
+
 - 04.10.2026 — SOM-39, бриф 14: [x] общий вход вкладок/stack через focus,
   CSS stagger/tabPop/нажатия/pulse/shimmer/growX, shared calm/reduce policy,
   idle-предзагрузка вместо монтирования всех вкладок перед первым кадром.
@@ -1079,8 +1087,11 @@
   (задача 7 из `prototype-fresh/CODEX-PLAN.md`); приёмка перенесена из этапа 1.
 - [x] SOM-39, бриф 14: реализация CSS-входа экранов, tabbar/нажатий/pulse/shimmer
   через общие Reanimated-компоненты; [отчёт](../../app/review/14-som-39-motion-navigation/README.md).
+- [x] SOM-39, бриф 15 r2: реализация существующего workout/toast/sheet движения,
+  общий calm/reduce и synthetic регрессии; [отчёт](../../app/review/15-som-39-motion-workout-r2/README.md).
 - [ ] Короткие функциональные анимации Reanimated: сохранение подхода, шторки, переходы.
-  Переходы реализованы в брифе 14; native/owner acceptance и бриф 15 открыты.
+  Реализация существующих сценариев — брифы 14/15; native/owner acceptance и
+  runtime voice/hold после SOM-54 остаются открытыми.
 
 ## Этап 10. Готовность к пилоту
 

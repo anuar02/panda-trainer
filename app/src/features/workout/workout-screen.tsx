@@ -31,12 +31,17 @@ import { Sheet } from '@/ui/sheet';
 import { Text } from '@/ui/text';
 import { getWorkoutStyles } from './measurements';
 import { useCalmMode } from '@/ui/calm-mode';
-import { MotionView } from '@/ui/motion';
 import {
   WorkoutExerciseSheet,
   type ExerciseSheetState,
 } from './workout-exercise-sheet';
 import { WorkoutNotes } from './workout-notes';
+import {
+  WorkoutEffect,
+  WorkoutStep,
+  WorkoutRow,
+  useNewWorkoutExercises,
+} from './workout-motion';
 import {
   useWorkoutRuntime,
   WorkoutRestPanel,
@@ -90,6 +95,13 @@ export function WorkoutScreen({
   const [editor, setEditor] = useState<Editor | null>(null);
   const [error, setError] = useState(false);
   const scroll = useRef<ScrollView>(null);
+  const freshExercise = useNewWorkoutExercises(
+    `${sessionId}:${journal?.active ?? ''}`,
+    (journal?.plans[journal.active]?.exercises ?? []).map(
+      (exercise) => exercise.id,
+    ),
+    hydrated && journal !== null,
+  );
   const session = suppliedSession ?? getWorkoutSession(sessionId);
   const number = (value: number) =>
     new Intl.NumberFormat(i18n.language).format(value);
@@ -285,7 +297,8 @@ export function WorkoutScreen({
                   }
                 />
                 <View style={s.row}>
-                  <Pressable
+                  <WorkoutStep
+                    disabled={!interactive}
                     accessibilityRole="button"
                     accessibilityLabel={t('workout.decrease', {
                       label,
@@ -295,8 +308,9 @@ export function WorkoutScreen({
                     onPress={() => adjust(-1)}
                   >
                     <Icon name="minus" size={20} color="#f2f2f3" />
-                  </Pressable>
-                  <Pressable
+                  </WorkoutStep>
+                  <WorkoutStep
+                    disabled={!interactive}
                     accessibilityRole="button"
                     accessibilityLabel={t('workout.increase', {
                       label,
@@ -306,7 +320,7 @@ export function WorkoutScreen({
                     onPress={() => adjust(1)}
                   >
                     <Icon name="plus" size={20} color="#f2f2f3" />
-                  </Pressable>
+                  </WorkoutStep>
                 </View>
               </View>
             );
@@ -596,7 +610,12 @@ export function WorkoutScreen({
             <Text style={s.secondary}>{t('workout.inactiveHint')}</Text>
           )}
           {interactive && focus && (
-            <View style={s.focus}>
+            <WorkoutEffect
+              kind="new"
+              active={freshExercise === focus.id}
+              revision={`${sessionId}:${active}:${focus.id}`}
+              style={s.focus}
+            >
               <View style={s.eyebrow}>
                 <Text style={s.eyebrowText}>
                   {t('workout.current', {
@@ -620,7 +639,7 @@ export function WorkoutScreen({
                   </Pressable>
                 )}
               </View>
-              <MotionView style={s.exerciseHead} revision={focus.id}>
+              <View style={s.exerciseHead}>
                 <Text accessibilityRole="header" style={s.exerciseName}>
                   {focus.name}
                 </Text>
@@ -647,14 +666,14 @@ export function WorkoutScreen({
                     <Icon name="more" size={20} color="#a3a4ab" />
                   </Pressable>
                 )}
-              </MotionView>
+              </View>
               <View style={s.chips}>
                 {Array.from({ length: focus.sets }, (_, i) => {
                   const value = values(focus)[i];
                   if (focus.skipped && !value) return null;
                   return (
                     <Pressable
-                      key={i}
+                      key={`${sessionId}:${active}:${focus.id}:${i}`}
                       accessibilityRole="button"
                       accessibilityLabel={t(
                         value ? 'workout.editSet' : 'workout.recordSet',
@@ -673,7 +692,7 @@ export function WorkoutScreen({
                           {i + 1}
                         </Text>
                       </View>
-                      <MotionView
+                      <WorkoutEffect
                         style={{
                           flexDirection: 'row',
                           alignItems: 'center',
@@ -681,10 +700,8 @@ export function WorkoutScreen({
                           flexShrink: 1,
                           flexWrap: largeText ? 'wrap' : 'nowrap',
                         }}
-                        recorded
-                        revision={
-                          value ? `${value.kg}:${value.reps}` : undefined
-                        }
+                        kind="recorded"
+                        revision={value ? 1 : 0}
                       >
                         <Text style={[s.bold, i === index && s.accent]}>
                           {i === index
@@ -696,7 +713,7 @@ export function WorkoutScreen({
                         {value && (
                           <Icon name="check" size={13} color="#3ddc97" />
                         )}
-                      </MotionView>
+                      </WorkoutEffect>
                     </Pressable>
                   );
                 })}
@@ -810,7 +827,7 @@ export function WorkoutScreen({
                     )}
                 </View>
               )}
-            </View>
+            </WorkoutEffect>
           )}
           {interactive && !focus && exercises.length > 0 && (
             <View style={[s.focus, s.complete]}>
@@ -853,14 +870,12 @@ export function WorkoutScreen({
                     (value): value is WorkoutSet => value !== null,
                   );
                   return (
-                    <Pressable
+                    <WorkoutRow
+                      selected={exercise === focus}
                       key={exercise.id}
                       accessibilityRole="button"
                       accessibilityLabel={exercise.name}
-                      style={[
-                        s.exerciseRow,
-                        exercise === focus && s.exerciseActive,
-                      ]}
+                      style={[s.exerciseRow]}
                       onPress={() => {
                         setFocused(exercise.id);
                         setError(false);
@@ -906,7 +921,7 @@ export function WorkoutScreen({
                           ? t('workout.now')
                           : `${done.length}/${exercise.sets}`}
                       </Text>
-                    </Pressable>
+                    </WorkoutRow>
                   );
                 })}
               </View>
@@ -994,6 +1009,7 @@ export function WorkoutScreen({
         />
       )}
       <Sheet
+        immediate
         open={!!selectedExercise && !!editor}
         title={selectedExercise?.name ?? t('workout.title')}
         onClose={() => {

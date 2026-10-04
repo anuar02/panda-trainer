@@ -2,6 +2,10 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/ui/icons';
 import { Text } from '@/ui/text';
+import {
+  WorkoutEffect,
+  WorkoutRestFill,
+} from '@/features/workout/workout-motion';
 import { useWorkoutRuntime } from './runtime';
 
 export function WorkoutRestPanel({
@@ -43,14 +47,14 @@ export function WorkoutRestPanel({
       }}
     >
       {!rest.done && (
-        <View
+        <WorkoutRestFill
+          progress={100 - (rest.left / rest.total) * 100}
           pointerEvents="none"
           style={{
             position: 'absolute',
             top: 0,
             bottom: 0,
             left: 0,
-            width: `${Math.max(0, Math.min(100, 100 - (rest.left / rest.total) * 100))}%`,
             backgroundColor: 'rgba(111,134,255,0.16)',
           }}
         />
@@ -65,12 +69,18 @@ export function WorkoutRestPanel({
           paddingLeft: 12,
         }}
       >
-        <Icon
-          name={rest.done ? 'check' : 'clock'}
-          size={18}
-          strokeWidth={2.4}
-          color={rest.done ? '#3ddc97' : '#8c9eff'}
-        />
+        <WorkoutEffect
+          kind="rest-finished"
+          active={rest.done}
+          revision={rest.startedAt}
+        >
+          <Icon
+            name={rest.done ? 'check' : 'clock'}
+            size={18}
+            strokeWidth={2.4}
+            color={rest.done ? '#3ddc97' : '#8c9eff'}
+          />
+        </WorkoutEffect>
         <Text
           style={{
             flexGrow: 1,
