@@ -1,14 +1,14 @@
 {
- "updated_at": "2026-10-04T02:45Z",
+ "updated_at": "2026-10-04T03:05Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
   {
    "id": "SOM-34",
    "title": "Подключить ручные оплаты, долг и экран billing",
-   "status": "In Progress",
+   "status": "In Review",
    "milestone": "06",
-   "group": "agents"
+   "group": "owner"
   },
   {
    "id": "SOM-23",
