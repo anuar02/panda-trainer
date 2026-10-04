@@ -61,7 +61,7 @@ push/financial/scheduling/invitation writers и agent rules не изменен�
 - `CI=1 npm run export` — PASS: iOS, Android и web bundles, 71 web routes; dist не коммитится.
 - `command -v docker`, `command -v psql` — executable отсутствуют;
   `supabase test db`, DB lint, generated type drift и race harness **не запускались**.
-- pgTAP содержит 47 assertions; existing workflow уже запускает programme harness;
+- pgTAP содержит 49 assertions; existing workflow уже запускает programme harness;
   CI workflows не менялись. Настоящие SQL проверки обязательны перед merge.
 - Новые application files проверены на comments/`any`: отсутствуют.
   PNG, secrets, real client data и новые dependencies не добавлялись.

@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 set local search_path=public,extensions;
-select plan(47);
+select plan(49);
 insert into auth.users(id,aud,role,email) values
  ('52000000-0000-4000-8000-000000000001','authenticated','authenticated','program-update-owner@example.test'),
  ('52000000-0000-4000-8000-000000000002','authenticated','authenticated','program-update-client@example.test');
@@ -139,6 +139,17 @@ select set_config('test.replace_program',pg_temp.update_program(array['replace:5
 select is((select count(*)::integer from public.client_program_exercises where client_program_id=(current_setting('test.replace_program')::jsonb->>'program_id')::uuid),2,'replacement keeps exercise count');
 select is((select planned_sets from public.client_program_exercises where client_program_id=(current_setting('test.replace_program')::jsonb->>'program_id')::uuid and position=1),2,'replacement keeps original planned count');
 select is((select planned_reps from public.client_program_exercises where client_program_id=(current_setting('test.replace_program')::jsonb->>'program_id')::uuid and position=1),'9','replacement carries last saved reps in original position');
+reset role;
+update public.workout_exercises set skipped=true where id='52000000-0000-4000-8000-000000000034';
+insert into public.workout_exercises(id,workspace_id,workout_instance_id,exercise_id,exercise_name_snapshot,measure_snapshot,bodyweight_snapshot,muscle_group_snapshot,equipment_snapshot,instructions_snapshot,position,planned_sets,replaced_from_id)
+select '52000000-0000-4000-8000-000000000037',workspace_id,'52000000-0000-4000-8000-000000000006',id,name,measure,bodyweight,muscle_group,equipment,instructions,4,3,'52000000-0000-4000-8000-000000000034' from public.exercises where workspace_id='52000000-0000-4000-8000-000000000003' and source_key='e3';
+insert into public.set_results(id,workspace_id,workout_instance_id,workout_exercise_id,position,reps,weight_g,author_user_id,device_id)
+values('52000000-0000-4000-8000-000000000038','52000000-0000-4000-8000-000000000003','52000000-0000-4000-8000-000000000006','52000000-0000-4000-8000-000000000037',0,10,10000,'52000000-0000-4000-8000-000000000001','52000000-0000-4000-8000-000000000010');
+set local role authenticated;
+select set_config('test.source',current_setting('test.replace_program')::jsonb->>'program_id',true);
+select set_config('test.chain_program',pg_temp.update_program(array['replace:52000000-0000-4000-8000-000000000037'],gen_random_uuid(),1,2)::text,true);
+select is((select count(*)::integer from public.client_program_exercises where client_program_id=(current_setting('test.chain_program')::jsonb->>'program_id')::uuid),2,'repeated replacement targets current source ancestor without appending a duplicate');
+select is((select planned_reps from public.client_program_exercises where client_program_id=(current_setting('test.chain_program')::jsonb->>'program_id')::uuid and position=1),'10','chain replacement retains current source position');
 reset role;
 select * from finish();
 rollback;

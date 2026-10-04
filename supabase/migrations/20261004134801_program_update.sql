@@ -56,11 +56,15 @@ begin
  if i=50 then raise exception 'invalid_chain' using errcode='22023'; end if;
  end loop;
  if source_kind='personal' then
- select * into target from public.client_program_exercises where workspace_id=p_workspace_id and client_program_id=p.id and exercise_id=e.exercise_id;
- if not found then select * into target from public.client_program_exercises where workspace_id=p_workspace_id and client_program_id=p.id and exercise_id=root.exercise_id; end if;
+ with recursive lineage as (
+ select id,exercise_id,replaced_from_id,0 depth from public.workout_exercises where workspace_id=p_workspace_id and workout_instance_id=w.id and id=e.id
+ union all select x.id,x.exercise_id,x.replaced_from_id,l.depth+1 from public.workout_exercises x join lineage l on x.id=l.replaced_from_id where x.workspace_id=p_workspace_id and x.workout_instance_id=w.id and l.depth<50
+ ) select t.* into target from public.client_program_exercises t join lineage l on t.exercise_id=l.exercise_id where t.workspace_id=p_workspace_id and t.client_program_id=p.id order by l.depth limit 1;
  else
- select (jsonb_populate_record(null::public.client_program_exercises,to_jsonb(x))).* into target from public.booking_program_exercises x where x.workspace_id=p_workspace_id and x.booking_program_id=b.id and x.exercise_id=e.exercise_id;
- if not found then select (jsonb_populate_record(null::public.client_program_exercises,to_jsonb(x))).* into target from public.booking_program_exercises x where x.workspace_id=p_workspace_id and x.booking_program_id=b.id and x.exercise_id=root.exercise_id; end if;
+ with recursive lineage as (
+ select id,exercise_id,replaced_from_id,0 depth from public.workout_exercises where workspace_id=p_workspace_id and workout_instance_id=w.id and id=e.id
+ union all select x.id,x.exercise_id,x.replaced_from_id,l.depth+1 from public.workout_exercises x join lineage l on x.id=l.replaced_from_id where x.workspace_id=p_workspace_id and x.workout_instance_id=w.id and l.depth<50
+ ) select (jsonb_populate_record(null::public.client_program_exercises,to_jsonb(t))).* into target from public.booking_program_exercises t join lineage l on t.exercise_id=l.exercise_id where t.workspace_id=p_workspace_id and t.booking_program_id=b.id order by l.depth limit 1;
  end if;
  select coalesce(max(position)+1,0) into recorded from public.set_results where workspace_id=p_workspace_id and workout_exercise_id=e.id and deleted_at is null and weight_g is not null and ((e.measure_snapshot='reps' and reps>0) or (e.measure_snapshot='seconds' and seconds>0));
  select * into last_set from public.set_results where workspace_id=p_workspace_id and workout_exercise_id=e.id and deleted_at is null and weight_g is not null and ((e.measure_snapshot='reps' and reps>0) or (e.measure_snapshot='seconds' and seconds>0)) order by position desc,id desc limit 1;
