@@ -1,8 +1,22 @@
 {
- "updated_at": "2026-10-04T01:21Z",
+ "updated_at": "2026-10-04T01:32Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-26",
+   "title": "Подключить Today, неделю и создание занятия к серверу",
+   "status": "In Review",
+   "milestone": "04",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-22",
+   "title": "Подключить серверную библиотеку, поиск и архивирование",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "agents"
+  },
   {
    "id": "SOM-20",
    "title": "Подключить onboarding тренера и управление клиентами",
@@ -32,24 +46,10 @@
    "group": "agents"
   },
   {
-   "id": "SOM-22",
-   "title": "Подключить серверную библиотеку, поиск и архивирование",
-   "status": "In Progress",
-   "milestone": "03",
-   "group": "agents"
-  },
-  {
    "id": "SOM-41",
    "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
    "status": "In Progress",
    "milestone": "10",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-26",
-   "title": "Подключить Today, неделю и создание занятия к серверу",
-   "status": "In Progress",
-   "milestone": "04",
    "group": "agents"
   },
   {
