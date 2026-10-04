@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-36 r2: authenticated клиентские Home/History/Progress/Program без demo fallback;
+- [SOM-36 r2 / draft PR #66](https://github.com/anuar02/panda-trainer/pull/66): authenticated клиентские Home/History/Progress/Program без demo fallback;
   серверные точные остаток/долг и посещения, actual exercise history, JWT/caller
   fencing и повторное чтение после existing SOM-27 receipts. Additive read RPC,
   generated contract, pgTAP и независимые synthetic полные flows.

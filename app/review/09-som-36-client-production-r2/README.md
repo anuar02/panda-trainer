@@ -33,14 +33,14 @@ unchanged.
 
 ## Criteria and delivery
 
-| Criterion | Implementation and synthetic evidence | Still required |
-| --- | --- | --- |
-| Home | Real upcoming booking/status/snapshot plan and requests; exact aggregate remaining nonexpired credits, debt across all packages, finished-results excerpt; loading/error/empty/unlinked without demo fallback | SQL/live read and visual/native/owner review |
-| History/detail | Existing linked pre-registration finished journals, actual sets/units and shared notes; JWT sub/session validation, unknown columns fail closed, caller before/after awaits; fresh read reflects applied correction data | Live invitation/RLS and explicit correction apply runtime |
-| Progress | Existing weight with its own reps, four-week delta; actual per-exercise history including null/zero and seconds; week selection reads only confirmed attendance; default prototype simple lists preserved | Native picker/navigation/accessibility and owner comparison; no instrument-theme/general-strength chart |
-| Client commands | Existing SOM-27 propose/counter/reply/status commands and durable canonical request identity; success refreshes actual reads; independent lost-response/reopen/exact-retry/counter/accept/cancel and revision-conflict flow | Real storage/crash/reopen/two devices and server concurrency |
-| Lifetimes and bounds | Actor/workspace/card/JWT/caller checks; explicit bearer; auth/retry/focus/unmount reset; late success/error cannot publish or continue reads; bounded pagination, duplicate/unknown/batch relation failure | Live Auth transport/storage lifecycle |
-| API/privacy | Additive authenticated own-card aggregate RPC; no private ledger details in response; existing finished-only RLS preserved; new pgTAP invitation/financial/attendance/privacy/reversal checks | SQL/RLS runtime and generated drift in CI |
+| Criterion            | Implementation and synthetic evidence                                                                                                                                                                                       | Still required                                                                                          |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Home                 | Real upcoming booking/status/snapshot plan and requests; exact aggregate remaining nonexpired credits, debt across all packages, finished-results excerpt; loading/error/empty/unlinked without demo fallback               | SQL/live read and visual/native/owner review                                                            |
+| History/detail       | Existing linked pre-registration finished journals, actual sets/units and shared notes; JWT sub/session validation, unknown columns fail closed, caller before/after awaits; fresh read reflects applied correction data    | Live invitation/RLS and explicit correction apply runtime                                               |
+| Progress             | Existing weight with its own reps, four-week delta; actual per-exercise history including null/zero and seconds; week selection reads only confirmed attendance; default prototype simple lists preserved                   | Native picker/navigation/accessibility and owner comparison; no instrument-theme/general-strength chart |
+| Client commands      | Existing SOM-27 propose/counter/reply/status commands and durable canonical request identity; success refreshes actual reads; independent lost-response/reopen/exact-retry/counter/accept/cancel and revision-conflict flow | Real storage/crash/reopen/two devices and server concurrency                                            |
+| Lifetimes and bounds | Actor/workspace/card/JWT/caller checks; explicit bearer; auth/retry/focus/unmount reset; late success/error cannot publish or continue reads; bounded pagination, duplicate/unknown/batch relation failure                  | Live Auth transport/storage lifecycle                                                                   |
+| API/privacy          | Additive authenticated own-card aggregate RPC; no private ledger details in response; existing finished-only RLS preserved; new pgTAP invitation/financial/attendance/privacy/reversal checks                               | SQL/RLS runtime and generated drift in CI                                                               |
 
 Authenticated client Home/History/Progress/Program tab entries now resolve to
 server connection routes. A single card resolves directly; multiple or unlinked
@@ -138,3 +138,13 @@ Live SQL/RLS/Auth, pilot data, real SQLite/AsyncStorage crash/reopen, native dev
 two phones, browser/native parity/accessibility and owner acceptance remain
 unverified. Client synthetic tests do not establish those properties. No release,
 cloud/deletion/DNS/SMTP or paid-service work was performed.
+
+## Publication
+
+Implementation committed as `5314317`; `git push -u origin
+agent/09-som-36-client-production-r2` succeeded. Draft
+[PR #66](https://github.com/anuar02/panda-trainer/pull/66) was created with
+`gh pr create --base fix/som-50-template-picker --draft --fill --title ... --body-file /tmp/som36-pr-body.md`.
+Final pre-publication `npm run check` after synchronous caller cleanup passed
+220 suites / 2934 tests. CI runtime results are pending at publication; screens
+and issue remain unaccepted.
