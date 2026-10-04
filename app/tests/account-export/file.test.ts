@@ -31,9 +31,10 @@ test.each(['shared', 'cancelled'] as const)(
   async (result) => {
     const api = native();
     api.share.mockResolvedValue(result);
-    expect(await createNativeExportAdapter(api)(json, scope, guard)).toBe(
+    expect(await createNativeExportAdapter(api)(json, scope, guard)).toEqual({
       result,
-    );
+      evidence: null,
+    });
     const uri = api.write.mock.calls[0]?.[0];
     expect(uri).toContain(`${scope.userId}-${scope.workspaceId}`);
     expect(api.write).toHaveBeenCalledWith(uri, json);
@@ -60,9 +61,10 @@ test.each(['write', 'share', 'remove'] as const)(
 );
 test('Android saves only after write and keeps the user destination', async () => {
   const api = native('android');
-  expect(await createNativeExportAdapter(api)(json, scope, guard)).toBe(
-    'saved',
-  );
+  expect(await createNativeExportAdapter(api)(json, scope, guard)).toEqual({
+    result: 'saved',
+    evidence: null,
+  });
   expect(api.write).toHaveBeenCalledWith('content://chosen/export.json', json);
   expect(api.share).not.toHaveBeenCalled();
   expect(api.remove).not.toHaveBeenCalled();
@@ -70,9 +72,10 @@ test('Android saves only after write and keeps the user destination', async () =
 test('Android directory cancel creates no file', async () => {
   const api = native('android');
   api.pick.mockResolvedValue({ granted: false, directoryUri: '' });
-  expect(await createNativeExportAdapter(api)(json, scope, guard)).toBe(
-    'cancelled',
-  );
+  expect(await createNativeExportAdapter(api)(json, scope, guard)).toEqual({
+    result: 'cancelled',
+    evidence: null,
+  });
   expect(api.create).not.toHaveBeenCalled();
 });
 test.each(['create', 'write'] as const)(
@@ -96,7 +99,7 @@ test('switch after picker creates no file; switch after create removes partial f
           throw new AccountExportError('sessionChanged');
       }),
     ).rejects.toMatchObject({ code: 'sessionChanged' });
-    expect(api.remove).toHaveBeenCalledTimes(failureAt > 2 ? 1 : 0);
+    expect(api.remove).toHaveBeenCalledTimes(failureAt > 3 ? 1 : 0);
     expect(api.share).not.toHaveBeenCalled();
   }
 });
@@ -111,7 +114,10 @@ function web() {
 }
 test('web writes UTF-8 blob and reports saved only after close', async () => {
   const x = web();
-  expect(await x.save(json, scope, guard)).toBe('saved');
+  expect(await x.save(json, scope, guard)).toEqual({
+    result: 'saved',
+    evidence: null,
+  });
   const blob = x.writer.write.mock.calls[0]?.[0];
   expect(blob?.type).toBe('application/json;charset=utf-8');
   expect(await blob?.text()).toBe(json);
@@ -134,7 +140,10 @@ test('web picker abort and unsupported are distinct', async () => {
   x.picker.mockRejectedValueOnce(
     Object.assign(new Error('synthetic'), { name: 'AbortError' }),
   );
-  expect(await x.save(json, scope, guard)).toBe('cancelled');
+  expect(await x.save(json, scope, guard)).toEqual({
+    result: 'cancelled',
+    evidence: null,
+  });
   await expect(
     createWebExportAdapter()(json, scope, guard),
   ).rejects.toMatchObject({ code: 'unsupported' });

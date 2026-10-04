@@ -1,3 +1,8 @@
+import {
+  authenticatedRequest,
+  fluentRpc,
+  syntheticToken,
+} from './test-transport';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 import {
@@ -13,7 +18,7 @@ const input = {
 };
 const session: ExportSession = {
   user: { id: input.expectedUserId },
-  access_token: 'synthetic-session',
+  access_token: syntheticToken(input.expectedUserId),
 };
 function transport() {
   return {
@@ -23,7 +28,7 @@ function transport() {
         error: null as unknown,
       })),
     },
-    rpc: jest.fn(async () => ({
+    rpc: fluentRpc(async () => ({
       data: snapshot as unknown,
       error: null as { code?: string } | null,
       status: 200,
@@ -159,7 +164,9 @@ test('optional signal reaches compatible PostgREST request', async () => {
     Promise.resolve({ data: snapshot, error: null, status: 200 }),
   );
   const request = Object.assign(
-    Promise.resolve({ data: snapshot, error: null, status: 200 }),
+    authenticatedRequest(
+      Promise.resolve({ data: snapshot, error: null, status: 200 }),
+    ),
     { abortSignal },
   );
   const scoped = { ...client, rpc: () => request };
@@ -174,4 +181,53 @@ test('cancel before request prevents RPC', async () => {
     loadAccountExport(client, { ...input, signal: abort.signal }),
   ).rejects.toMatchObject({ code: 'sessionChanged' });
   expect(client.rpc).not.toHaveBeenCalled();
+});
+test('late rejected RPC rechecks identity before exposing network error', async () => {
+  const client = transport();
+  let reject!: (reason: unknown) => void;
+  const response = new Promise<{ data: unknown; error: null; status: number }>(
+    (_resolve, fail) => {
+      reject = fail;
+    },
+  );
+  client.rpc.mockImplementationOnce(() => response);
+  const reading = loadAccountExport(client, input);
+  for (let i = 0; i < 100 && !client.rpc.mock.calls.length; i += 1)
+    await Promise.resolve();
+  expect(client.rpc).toHaveBeenCalledTimes(1);
+  client.auth.getSession.mockResolvedValue({
+    data: {
+      session: {
+        ...session,
+        access_token: syntheticToken(
+          input.expectedUserId,
+          '00000000-0000-4000-8000-000000000099',
+        ),
+      },
+    },
+    error: null,
+  });
+  reject(new Error('synthetic late rejected request'));
+  await expect(reading).rejects.toMatchObject({ code: 'sessionChanged' });
+});
+test('caller mutating workspace input during auth await cannot rebind captured export request', async () => {
+  const client = transport();
+  let resolve!: (
+    value: Awaited<ReturnType<typeof client.auth.getSession>>,
+  ) => void;
+  const auth = new Promise<Awaited<ReturnType<typeof client.auth.getSession>>>(
+    (done) => {
+      resolve = done;
+    },
+  );
+  client.auth.getSession.mockImplementationOnce(() => auth);
+  const mutable = { ...input };
+  const originalWorkspace = mutable.workspaceId;
+  const reading = loadAccountExport(client, mutable);
+  mutable.workspaceId = '00000000-0000-4000-8000-000000000099';
+  resolve({ data: { session }, error: null });
+  await reading;
+  expect(client.rpc).toHaveBeenCalledWith('export_trainer_workspace', {
+    p_workspace_id: originalWorkspace,
+  });
 });

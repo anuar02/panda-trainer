@@ -9,6 +9,19 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 export: [x] пользовательский settings → prepare → coverage
+  → file flow, версия 2 с серверным snapshot, scoped SQLite raw operations/receipts,
+  валидированными local entries, server conflicts/correction context и доступными
+  pending/drafts; [x] source manifest/gaps, unknown globalAtomicity, identity fences,
+  наблюдаемые изменения при повторных чтениях и SHA-256 file outcome.
+  Полный app check: 204 suites / 2537 tests; type/lint/format зелёные.
+  [Отчёт](../../app/review/som-41-complete-export/README.md),
+  [ADR 0092](decisions/0092-account-export-source-coverage.md).
+  [ ] SQL/RLS/live Auth, real SQLite/file/share/crash/reopen, visual/native/
+  accessibility и приёмка владельца. Экспорт намеренно incomplete; отсутствие
+  промежуточных записей не доказано. Deletion/policy остаются отдельным пакетом,
+  SOM-41 целиком не закрыта.
+
 - 04.10.2026 — SOM-20 onboarding: [x] полный service → hook → route/welcome session fence,
   unknown scoped context, explicit bearer и safe atomic retry; [x] synthetic workflow
   first trainer → optional client → existing real client read → return, relogin на
