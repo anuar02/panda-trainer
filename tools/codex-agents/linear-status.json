@@ -1,21 +1,21 @@
 {
- "updated_at": "2026-10-04T02:12Z",
+ "updated_at": "2026-10-04T02:25Z",
  "updated_by": "coordinator",
- "done": 11,
+ "done": 12,
  "issues": [
-  {
-   "id": "SOM-41",
-   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
-   "status": "In Progress",
-   "milestone": "10",
-   "group": "agents"
-  },
   {
    "id": "SOM-27",
    "title": "Реализовать переносы, отмены и проверку ревизий",
-   "status": "In Progress",
+   "status": "In Review",
    "milestone": "04",
-   "group": "agents"
+   "group": "owner"
+  },
+  {
+   "id": "SOM-41",
+   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+   "status": "In Review",
+   "milestone": "10",
+   "group": "owner"
   },
   {
    "id": "SOM-20",
@@ -64,13 +64,6 @@
    "title": "Подключить ручные оплаты, долг и экран billing",
    "status": "In Progress",
    "milestone": "06",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-23",
-   "title": "Подключить редактор шаблонов к серверу",
-   "status": "In Progress",
-   "milestone": "03",
    "group": "agents"
   },
   {
