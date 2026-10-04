@@ -379,9 +379,250 @@ it.each(['current', 'incoming'] as const)(
     );
     expect(restored.draft.values[person.exercises[0]!.id]).toEqual(values);
     expect(restored.issues).toEqual([]);
-    await reopened.finish(remote);
-    expect(test.sqlite.rows).toHaveLength(3);
+    if (selection === 'current') {
+      const updated = await reopened.confirm(remote, remote.exercises[0]!.id, {
+        weightGrams: 200,
+        reps: 9,
+        seconds: null,
+      });
+      expect(updated.workout.participant.exercises[0]!.sets).toHaveLength(2);
+      await reopened.undo(
+        remote,
+        updated.workout.participant.exercises[0]!.sets[1]!.id,
+      );
+      await reopened.add(remote, remote.exercises[0]!);
+      const fresh = await reopened.finish(remote);
+      const queued = await test.outbox.pending();
+      expect(queued.map(({ operation }) => operation.kind)).toEqual([
+        'upsert_set',
+        'delete_set',
+        'add_exercise',
+        'finish_workout',
+      ]);
+      const nextFinish = queued[3]!.operation;
+      expect(nextFinish.operation_id).not.toBe(finish.operation_id);
+      expect(nextFinish.base_revision).toBe(10);
+      expect(fresh.finish?.status).toBe('saved_on_phone');
+      await test.outbox.acknowledge([
+        {
+          operation_id: resolution.operation_id,
+          entity_id: resolution.entity_id,
+          status: 'applied',
+          revision: 10,
+        },
+      ]);
+      await expect(
+        reopened.confirm(remote, remote.exercises[0]!.id, {
+          weightGrams: 250,
+          reps: 10,
+          seconds: null,
+        }),
+      ).rejects.toThrow('entry_workout_not_ready');
+      const secondReopen = new WorkoutEntryService(test.options);
+      expect((await secondReopen.read(remote)).finish?.operationId).toBe(
+        nextFinish.operation_id,
+      );
+      await secondReopen.finish(remote);
+      expect(await test.outbox.pending()).toEqual(queued);
+      expect(test.sqlite.rows).toHaveLength(7);
+    } else {
+      await expect(
+        reopened.confirm(remote, remote.exercises[0]!.id, {
+          weightGrams: 200,
+          reps: 9,
+          seconds: null,
+        }),
+      ).rejects.toThrow('entry_workout_not_ready');
+      await reopened.finish(remote);
+      expect(test.sqlite.rows).toHaveLength(3);
+      expect(await test.outbox.pending()).toEqual([]);
+    }
     expect(JSON.parse(test.sqlite.rows[1]!.operation_json)).toEqual(finish);
-    expect(await test.outbox.pending()).toEqual([]);
+    expect(JSON.parse(test.sqlite.rows[1]!.result_json!)).toEqual(conflict);
+    expect(JSON.parse(test.sqlite.rows[2]!.operation_json)).toEqual(resolution);
+  },
+);
+
+it.each([
+  'pending',
+  'stale',
+  'foreign',
+  'error',
+  'correction_draft',
+  'ambiguous',
+] as const)(
+  'keeps result entry locked for a %s current finish resolution',
+  async (outcome) => {
+    const test = await finishSetup();
+    const person = finishParticipant();
+    await test.service.finish(person);
+    const finish = (await test.outbox.pending())[0]!.operation;
+    await test.outbox.acknowledge([
+      {
+        operation_id: finish.operation_id,
+        entity_id: person.workoutId,
+        status: 'conflict',
+        revision: 9,
+        conflict_id: 'guarded-conflict',
+      },
+    ]);
+    const conflicted = { ...person, workoutRevision: 9 };
+    await test.service.resolve(
+      conflicted,
+      person.workoutId,
+      'guarded-conflict',
+      'current',
+      9,
+    );
+    const resolution = (await test.outbox.pending())[0]!.operation;
+    if (outcome === 'foreign') {
+      await expect(
+        test.outbox.acknowledge([
+          {
+            operation_id: 'unrelated-resolution',
+            entity_id: person.workoutId,
+            status: 'applied',
+            revision: 10,
+          },
+        ]),
+      ).rejects.toThrow('Unknown operation receipt');
+    }
+    if (outcome !== 'pending' && outcome !== 'foreign') {
+      await test.outbox.acknowledge([
+        {
+          operation_id: resolution.operation_id,
+          entity_id: person.workoutId,
+          status:
+            outcome === 'error' || outcome === 'correction_draft'
+              ? outcome
+              : 'applied',
+          revision: outcome === 'error' ? null : 10,
+          ...(outcome === 'error' ? { error_code: 'stale_revision' } : {}),
+          ...(outcome === 'correction_draft'
+            ? { draft_id: 'guarded-draft' }
+            : {}),
+        },
+      ]);
+    }
+    if (outcome === 'ambiguous')
+      Object.defineProperty(test.outbox, 'scopedSnapshot', {
+        value: undefined,
+      });
+    const remote = { ...person, workoutRevision: outcome === 'stale' ? 9 : 10 };
+    const reopened = new WorkoutEntryService(test.options);
+    await expect(
+      reopened.confirm(remote, remote.exercises[0]!.id, {
+        weightGrams: 200,
+        reps: 9,
+        seconds: null,
+      }),
+    ).rejects.toThrow('entry_workout_not_ready');
+    await expect(reopened.add(remote, remote.exercises[0]!)).rejects.toThrow(
+      'entry_workout_not_ready',
+    );
+    const before = test.sqlite.rows.map((row) => row.operation_json);
+    await reopened.finish(remote);
+    expect(test.sqlite.rows.map((row) => row.operation_json)).toEqual(before);
+    expect(JSON.parse(test.sqlite.rows[0]!.operation_json)).toEqual(finish);
+  },
+);
+
+it.each(['participant', 'logout'] as const)(
+  'rejects a %s change while the finish refresh reads receipts',
+  async (change) => {
+    const test = await finishSetup();
+    const person = finishParticipant();
+    await test.service.finish(person);
+    const envelopes = test.sqlite.rows.map((row) => row.operation_json);
+    let current = true;
+    const readIssues = test.outbox.confirmedIssues!.bind(test.outbox);
+    test.outbox.confirmedIssues = async () => {
+      const issues = await readIssues();
+      if (change === 'participant') current = false;
+      else test.changeSession(null);
+      return issues;
+    };
+    const reopened = new WorkoutEntryService({
+      ...test.options,
+      isParticipantCurrent: () => current,
+    });
+    await expect(reopened.read(person)).rejects.toThrow(
+      change === 'participant'
+        ? 'entry_participant_changed'
+        : 'entry_session_changed',
+    );
+    expect(test.sqlite.rows.map((row) => row.operation_json)).toEqual(
+      envelopes,
+    );
+  },
+);
+
+it.each(['participant', 'session'] as const)(
+  'fences a %s change while awaiting durable terminal resolution proof',
+  async (change) => {
+    const test = await finishSetup();
+    const person = finishParticipant();
+    await test.service.finish(person);
+    const finish = (await test.outbox.pending())[0]!.operation;
+    await test.outbox.acknowledge([
+      {
+        operation_id: finish.operation_id,
+        entity_id: person.workoutId,
+        status: 'conflict',
+        revision: 9,
+        conflict_id: 'async-proof',
+      },
+    ]);
+    await test.service.resolve(
+      { ...person, workoutRevision: 9 },
+      person.workoutId,
+      'async-proof',
+      'current',
+      9,
+    );
+    const resolution = (await test.outbox.pending())[0]!.operation;
+    await test.outbox.acknowledge([
+      {
+        operation_id: resolution.operation_id,
+        entity_id: person.workoutId,
+        status: 'applied',
+        revision: 10,
+      },
+    ]);
+    const snapshot = test.outbox.scopedSnapshot!.bind(test.outbox);
+    let arrive!: () => void;
+    let release!: () => void;
+    const arrived = new Promise<void>((resolve) => {
+      arrive = resolve;
+    });
+    const barrier = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    test.outbox.scopedSnapshot = async (request) => {
+      const actual = await snapshot(request);
+      arrive();
+      await barrier;
+      return actual;
+    };
+    let current = true;
+    const reopened = new WorkoutEntryService({
+      ...test.options,
+      isParticipantCurrent: () => current,
+    });
+    const envelopes = test.sqlite.rows.map((row) => row.operation_json);
+    const reading = reopened.read({ ...person, workoutRevision: 10 });
+    const rejected = expect(reading).rejects.toThrow(
+      change === 'participant'
+        ? 'entry_participant_changed'
+        : 'entry_session_changed',
+    );
+    await arrived;
+    if (change === 'participant') current = false;
+    else test.changeSession({ ...session, accessToken: 'changed-at-proof' });
+    release();
+    await rejected;
+    expect(test.sqlite.rows.map((row) => row.operation_json)).toEqual(
+      envelopes,
+    );
   },
 );

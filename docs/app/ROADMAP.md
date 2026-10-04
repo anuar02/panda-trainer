@@ -9,6 +9,8 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-32 finish r2: восстановлен полный пакет закрытого PR #54 на свежей базе; [x] доказательство terminal current resolution через existing scoped receipts и продолжение ввода/новый explicit finish; [x] credentials исключены из React keys/state. [Отчёт r2](../../app/review/som-32-production-finish-r2/README.md), [ADR 0089](decisions/0089-terminal-finish-current-recovery.md). Полный check: 188 suites / 2332 tests, type/lint/format зелёные; [ ] correction/program contracts, live/storage/native/parity и приёмка владельца. SOM-32 целиком не завершена.
+
 - 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
   explicit bearer/result/error/storage guards; [x] session-aware command hook,
   conditional clear/recovery и exact-ID durable retry с synthetic regressions.

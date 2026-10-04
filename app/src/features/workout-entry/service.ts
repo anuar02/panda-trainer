@@ -3,6 +3,7 @@ import {
   validateDraft,
   validateSetValues,
   workoutFinishState,
+  workoutFinishLocked,
   type EntryDraft,
   type EntryDraftStore,
   type EntryWorkout,
@@ -15,10 +16,13 @@ import type {
 } from '../../domain/workout-preload/types';
 import type {
   JsonValue,
-  JournalOperation,
   OutboxStore,
   SyncSession,
 } from '../../domain/workout-sync/types';
+import type {
+  ScopedOutboxSnapshot,
+  ScopedOutboxSnapshotRequest,
+} from '../workout-sync/snapshot-types';
 import {
   createJournalOperation,
   type TypedJournalOperation,
@@ -105,7 +109,6 @@ export class WorkoutEntryService {
     if (draft.bookingId !== participant.bookingId)
       throw new Error('entry_booking_mismatch');
     let local: EntryWorkout | null = null;
-    let finishOperation: JournalOperation | undefined;
     const localIds = draft.localEntityIds ?? [];
     for (const id of [
       ...localIds,
@@ -161,12 +164,9 @@ export class WorkoutEntryService {
             ))
         )
           throw new Error('entry_finish_projection_mismatch');
-        if (candidate.finishOperation)
-          finishOperation = candidate.finishOperation;
         if (localIds.includes(id) || !local) local = candidate;
       }
     }
-    if (local && finishOperation) local = { ...local, finishOperation };
     const pending = await this.options.outbox.pending(Number.MAX_SAFE_INTEGER);
     this.assertSession(participant);
     const allIssues = (await this.options.outbox.confirmedIssues?.()) ?? [];
@@ -189,12 +189,141 @@ export class WorkoutEntryService {
       ),
     ].filter((issue) => ids.has(issue.entity_id));
     this.assertSession(participant);
+    if (local) {
+      const { finishRelease: previousRelease, ...locked } = local;
+      void previousRelease;
+      local = locked;
+      const release = await this.finishRelease(participant, local);
+      this.assertSession(participant);
+      if (release) local = { ...local, finishRelease: release };
+    }
     const workout = reconcileWorkout(participant, local, pending, issues);
     return {
       workout,
       draft,
       issues,
       finish: workoutFinishState(workout, pending, issues),
+    };
+  }
+  private async finishRelease(
+    participant: PreloadParticipant,
+    workout: EntryWorkout,
+  ): Promise<EntryWorkout['finishRelease']> {
+    const finish = workout.finishOperation;
+    const resolution = workout.finishResolution;
+    const store = this.options.outbox;
+    if (
+      !finish ||
+      !resolution ||
+      resolution.selection !== 'current' ||
+      participant.workoutStatus !== 'in_progress' ||
+      !('scopedSnapshot' in store) ||
+      typeof store.scopedSnapshot !== 'function'
+    )
+      return undefined;
+    this.assertSession(participant);
+    let snapshot: ScopedOutboxSnapshot;
+    try {
+      snapshot = await (
+        store as OutboxStore & {
+          scopedSnapshot(
+            request: ScopedOutboxSnapshotRequest,
+          ): Promise<ScopedOutboxSnapshot>;
+        }
+      ).scopedSnapshot({
+        expectedScope: {
+          accountId: this.session.accountId,
+          workspaceId: this.session.workspaceId,
+        },
+        isCurrentSession: () => {
+          try {
+            this.assertSession(participant);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+      });
+    } catch {
+      this.assertSession(participant);
+      return undefined;
+    }
+    this.assertSession(participant);
+    if (
+      snapshot.metadata.scope.accountId !== this.session.accountId ||
+      snapshot.metadata.scope.workspaceId !== this.session.workspaceId
+    )
+      return undefined;
+    const finishRows = snapshot.operations.filter(
+      (row) => row.operationId === finish.operation_id,
+    );
+    const resolutionRows = snapshot.operations.filter(
+      (row) => row.operationId === resolution.operationId,
+    );
+    if (finishRows.length !== 1 || resolutionRows.length !== 1)
+      return undefined;
+    const original = finishRows[0]!;
+    const resolved = resolutionRows[0]!;
+    const operation = resolved.operation;
+    const receipt = resolved.result;
+    if (
+      original.confirmed !== 1 ||
+      original.operation.kind !== 'finish_workout' ||
+      original.entityId !== participant.workoutId ||
+      original.operation.entity_id !== participant.workoutId ||
+      original.operation.operation_id !== finish.operation_id ||
+      original.operation.base_revision !== finish.base_revision ||
+      original.operation.device_id !== finish.device_id ||
+      original.operation.created_at !== finish.created_at ||
+      Object.keys(original.operation.payload).length !== 0 ||
+      original.result?.operation_id !== finish.operation_id ||
+      original.result.entity_id !== participant.workoutId ||
+      original.result.status !== 'conflict' ||
+      original.result.conflict_id !== resolution.conflictId ||
+      resolved.confirmed !== 1 ||
+      resolved.sequence <= original.sequence ||
+      resolved.entityId !== participant.workoutId ||
+      operation.operation_id !== resolution.operationId ||
+      operation.entity_id !== participant.workoutId ||
+      operation.kind !== 'resolve_conflict' ||
+      operation.device_id !== finish.device_id ||
+      operation.payload.conflict_id !== resolution.conflictId ||
+      operation.payload.selected_version !== 'current' ||
+      Object.keys(operation.payload).length !== 3 ||
+      operation.payload.expected_revision !== operation.base_revision ||
+      !Number.isSafeInteger(operation.base_revision) ||
+      original.result.revision !== operation.base_revision ||
+      receipt?.operation_id !== resolution.operationId ||
+      receipt.entity_id !== participant.workoutId ||
+      receipt.status !== 'applied' ||
+      receipt.revision === null ||
+      !Number.isSafeInteger(receipt.revision) ||
+      receipt.revision <= operation.base_revision ||
+      receipt.revision <= finish.base_revision ||
+      participant.workoutRevision < receipt.revision
+    )
+      return undefined;
+    if (
+      resolution.operation &&
+      (resolution.operation.operation_id !== operation.operation_id ||
+        resolution.operation.entity_id !== operation.entity_id ||
+        resolution.operation.kind !== operation.kind ||
+        resolution.operation.base_revision !== operation.base_revision ||
+        resolution.operation.device_id !== operation.device_id ||
+        resolution.operation.created_at !== operation.created_at ||
+        resolution.operation.payload.conflict_id !==
+          operation.payload.conflict_id ||
+        resolution.operation.payload.selected_version !==
+          operation.payload.selected_version ||
+        resolution.operation.payload.expected_revision !==
+          operation.payload.expected_revision ||
+        Object.keys(resolution.operation.payload).length !== 3)
+    )
+      return undefined;
+    return {
+      operationId: finish.operation_id,
+      resolutionOperationId: resolution.operationId,
+      revision: receipt.revision,
     };
   }
   saveDraft(participant: PreloadParticipant, draft: EntryDraft): Promise<void> {
@@ -280,7 +409,10 @@ export class WorkoutEntryService {
       this.assertSession(participant);
       const state = await this.read(participant);
       this.assertSession(participant);
-      if (state.workout.finishOperation || state.finish?.status === 'applied')
+      if (
+        workoutFinishLocked(state.workout) ||
+        state.finish?.status === 'applied'
+      )
         return state;
       if (this.mutationSaveFailures.has(participant.workoutId))
         throw new Error('entry_local_save_failed');
@@ -295,9 +427,33 @@ export class WorkoutEntryService {
         kind: 'finish_workout',
         payload: {},
       });
+      const {
+        finishResolution: oldResolution,
+        finishRelease: oldRelease,
+        ...nextWorkout
+      } = state.workout;
+      void oldResolution;
+      void oldRelease;
       return this.persist(
         participant,
-        { ...state.workout, finishOperation: operation },
+        {
+          ...nextWorkout,
+          finishHistory: [
+            ...(state.workout.finishHistory ?? []),
+            ...(state.workout.finishOperation &&
+            state.workout.finishResolution &&
+            state.workout.finishRelease
+              ? [
+                  {
+                    operation: state.workout.finishOperation,
+                    resolution: state.workout.finishResolution,
+                    release: state.workout.finishRelease,
+                  },
+                ]
+              : []),
+          ],
+          finishOperation: operation,
+        },
         { ...operation, kind: 'finish_workout', payload: {} },
       );
     });
@@ -312,7 +468,7 @@ export class WorkoutEntryService {
       const state = await this.read(participant);
       if (
         state.workout.participant.workoutStatus !== 'in_progress' ||
-        state.workout.finishOperation
+        workoutFinishLocked(state.workout)
       )
         throw new Error('entry_workout_not_ready');
       const exercise = state.workout.participant.exercises.find(
@@ -370,7 +526,7 @@ export class WorkoutEntryService {
         !exercise ||
         !set ||
         state.workout.participant.workoutStatus !== 'in_progress' ||
-        state.workout.finishOperation
+        workoutFinishLocked(state.workout)
       )
         throw new Error('entry_set_unavailable');
       const next = {
@@ -408,7 +564,7 @@ export class WorkoutEntryService {
       const state = await this.read(participant);
       if (
         state.workout.participant.workoutStatus !== 'in_progress' ||
-        state.workout.finishOperation
+        workoutFinishLocked(state.workout)
       )
         throw new Error('entry_workout_not_ready');
       const original = replacedFromId
@@ -509,6 +665,7 @@ export class WorkoutEntryService {
                 operationId: operation.operation_id,
                 conflictId,
                 selection,
+                operation: createJournalOperation(operation),
               },
             }
           : state.workout,

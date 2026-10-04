@@ -1,4 +1,9 @@
-import { summarizeWorkoutFinish } from '@/domain/workout-entry';
+import {
+  summarizeWorkoutFinish,
+  reconcileWorkout,
+  workoutFinishLocked,
+  type EntryWorkout,
+} from '@/domain/workout-entry';
 import { finishParticipant } from './workout-finish-fixtures';
 
 it.each([0, 1, 3, 4])(
@@ -107,4 +112,99 @@ it('does not let extra sets on another exercise offset an unrecorded planned set
   expect(summary.plannedSets).toBe(2);
   expect(summary.unrecordedSets).toBe(1);
   expect(summary.needsConfirmation).toBe(true);
+});
+
+it.each([
+  'matching',
+  'stale',
+  'foreign_finish',
+  'foreign_resolution',
+  'incoming',
+  'finished',
+  'missing',
+  'invalid_revision',
+] as const)(
+  'requires matching durable release metadata for the %s finish state',
+  (variant) => {
+    const workout: EntryWorkout = {
+      participant: { ...finishParticipant(), workoutRevision: 10 },
+      tombstones: [],
+      finishOperation: {
+        operation_id: 'original-finish',
+        device_id: 'phone',
+        entity_id: 'finish-workout-0',
+        base_revision: 7,
+        created_at: '2026-10-04T10:00:00Z',
+        kind: 'finish_workout',
+        payload: {},
+      },
+      finishResolution: {
+        operationId: 'resolution',
+        conflictId: 'conflict',
+        selection: 'current',
+      },
+      finishRelease: {
+        operationId: 'original-finish',
+        resolutionOperationId: 'resolution',
+        revision: 10,
+      },
+    };
+    if (variant === 'stale') workout.participant.workoutRevision = 9;
+    if (variant === 'foreign_finish')
+      workout.finishRelease!.operationId = 'previous-finish';
+    if (variant === 'foreign_resolution')
+      workout.finishRelease!.resolutionOperationId = 'previous-resolution';
+    if (variant === 'incoming')
+      workout.finishResolution!.selection = 'incoming';
+    if (variant === 'finished') workout.participant.workoutStatus = 'finished';
+    if (variant === 'missing') delete workout.finishRelease;
+    if (variant === 'invalid_revision')
+      workout.finishRelease!.revision = Number.NaN;
+    expect(workoutFinishLocked(workout)).toBe(variant !== 'matching');
+  },
+);
+
+it('accepts a newer remote set revision at the released workout revision', () => {
+  const participant = { ...finishParticipant(), workoutRevision: 10 };
+  const original = {
+    id: 'same-set',
+    revision: 1,
+    position: 0,
+    weightGrams: 125,
+    reps: 8,
+    seconds: null,
+  };
+  participant.exercises[0]!.sets = [original];
+  const local: EntryWorkout = {
+    participant,
+    tombstones: [],
+    finishOperation: {
+      operation_id: 'finish',
+      device_id: 'phone',
+      entity_id: participant.workoutId,
+      base_revision: 7,
+      created_at: '2026-10-04T10:00:00Z',
+      kind: 'finish_workout',
+      payload: {},
+    },
+    finishResolution: {
+      operationId: 'resolve',
+      conflictId: 'conflict',
+      selection: 'current',
+    },
+    finishRelease: {
+      operationId: 'finish',
+      resolutionOperationId: 'resolve',
+      revision: 10,
+    },
+  };
+  const remote = structuredClone(participant);
+  remote.exercises[0]!.sets = [
+    { ...original, revision: 2, weightGrams: 200, reps: 9 },
+  ];
+  const reconciled = reconcileWorkout(remote, local, [], []);
+  expect(reconciled.participant.exercises[0]!.sets).toEqual(
+    remote.exercises[0]!.sets,
+  );
+  expect(workoutFinishLocked(reconciled)).toBe(false);
 });

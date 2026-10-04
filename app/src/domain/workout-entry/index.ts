@@ -23,7 +23,18 @@ export type EntryWorkout = {
     operationId: string;
     conflictId: string;
     selection: 'current' | 'incoming';
+    operation?: JournalOperation;
   };
+  finishRelease?: {
+    operationId: string;
+    resolutionOperationId: string;
+    revision: number;
+  };
+  finishHistory?: {
+    operation: JournalOperation;
+    resolution: NonNullable<EntryWorkout['finishResolution']>;
+    release: NonNullable<EntryWorkout['finishRelease']>;
+  }[];
 };
 export type EntryFinish = {
   status:
@@ -37,6 +48,20 @@ export type EntryFinish = {
   operationId: string | null;
   issue: OperationResult | null;
 };
+export function workoutFinishLocked(workout: EntryWorkout): boolean {
+  if (!workout.finishOperation) return false;
+  const release = workout.finishRelease;
+  return !(
+    release &&
+    Number.isSafeInteger(release.revision) &&
+    release.revision > workout.finishOperation.base_revision &&
+    release.operationId === workout.finishOperation.operation_id &&
+    release.resolutionOperationId === workout.finishResolution?.operationId &&
+    workout.finishResolution?.selection === 'current' &&
+    workout.participant.workoutStatus === 'in_progress' &&
+    workout.participant.workoutRevision >= release.revision
+  );
+}
 export function summarizeWorkoutFinish(
   participant: PreloadParticipant,
   draft?: EntryDraft,
@@ -110,15 +135,7 @@ export function workoutFinishState(
       operationId: operation?.operation_id ?? null,
       issue,
     };
-  const choseCurrent =
-    operation &&
-    workout.participant.workoutStatus === 'in_progress' &&
-    workout.finishResolution?.selection === 'current' &&
-    !pending.some(
-      (item) =>
-        item.operation.operation_id === operation.operation_id ||
-        item.operation.operation_id === workout.finishResolution?.operationId,
-    );
+  const choseCurrent = operation && !workoutFinishLocked(workout);
   return {
     status:
       workout.participant.workoutStatus === 'finished'
@@ -202,6 +219,21 @@ export function reconcileWorkout(
       protectedIds.add(exercise.id);
       for (const set of exercise.sets) protectedIds.add(set.id);
     }
+  if (
+    local.finishRelease &&
+    server.workoutStatus === 'in_progress' &&
+    server.workoutRevision <= local.finishRelease.revision
+  ) {
+    for (const exercise of local.participant.exercises) {
+      const remote = server.exercises.find((item) => item.id === exercise.id);
+      if (!remote) protectedIds.add(exercise.id);
+      for (const set of exercise.sets) {
+        const remoteSet = remote?.sets.find((item) => item.id === set.id);
+        if (!remoteSet || remoteSet.revision <= set.revision)
+          protectedIds.add(set.id);
+      }
+    }
+  }
   const retainedExerciseIds = new Set<string>();
   for (const exercise of local.participant.exercises) {
     if (protectedIds.has(exercise.id)) {
@@ -283,6 +315,8 @@ export function reconcileWorkout(
     ...(local.finishResolution
       ? { finishResolution: local.finishResolution }
       : {}),
+    ...(local.finishRelease ? { finishRelease: local.finishRelease } : {}),
+    ...(local.finishHistory ? { finishHistory: local.finishHistory } : {}),
     ...(local.tombstoneRevisions
       ? { tombstoneRevisions: local.tombstoneRevisions }
       : {}),

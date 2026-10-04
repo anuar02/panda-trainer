@@ -17,6 +17,7 @@ import { createWorkoutPreloadReader } from '@/features/workout-preload/service';
 import { openWorkoutPreloadStore } from '@/features/workout-preload/storage';
 import { registerEntryWriter } from './coordination';
 import { loadEntryResources } from './resources';
+import { entrySessionIdentity } from './session-identity';
 
 function freshestParticipant(
   current: PreloadParticipant,
@@ -41,10 +42,10 @@ function entryKey(
   participant: PreloadParticipant,
 ) {
   return JSON.stringify([
+    entrySessionIdentity(session),
     session?.accountId,
     session?.workspaceId,
     session?.sessionId,
-    session?.accessToken,
     participant.workoutId,
     participant.bookingId,
     participant.clientRecordId,
@@ -57,6 +58,7 @@ export function useWorkoutEntry(
   getSession: () => SyncSession | null,
   participant: PreloadParticipant,
 ) {
+  const lifecycle = entrySessionIdentity(session);
   const [attempt, setAttempt] = useState(0);
   const [state, setState] = useState<EntryRead | null>(null);
   const [resources, setResources] = useState<Resources>({
@@ -88,7 +90,7 @@ export function useWorkoutEntry(
     let active = true;
     const controller = new AbortController();
     let dispose: (() => Promise<void>) | undefined;
-    const captured = session;
+    const captured = session ? { ...session } : null;
     const valid = () => {
       const current = currentSession.current();
       return (
@@ -247,6 +249,7 @@ export function useWorkoutEntry(
     };
   }, [
     session,
+    lifecycle,
     participant.workoutId,
     participant.bookingId,
     participant.clientRecordId,
@@ -254,7 +257,7 @@ export function useWorkoutEntry(
   ]);
   useEffect(() => {
     const service = runtime.current?.service;
-    const captured = session;
+    const captured = session ? { ...session } : null;
     const valid = () => {
       const current = currentSession.current();
       return (
@@ -282,7 +285,7 @@ export function useWorkoutEntry(
     return () => {
       active = false;
     };
-  }, [participant, session]);
+  }, [participant, session, lifecycle]);
   async function execute(
     action: (
       service: WorkoutEntryService,
@@ -290,7 +293,7 @@ export function useWorkoutEntry(
     ) => Promise<EntryRead | void>,
     syncWrite = true,
   ) {
-    const captured = session;
+    const captured = session ? { ...session } : null;
     const instance = runtime.current;
     const selected = currentParticipant.current;
     const workoutId = selected.workoutId;

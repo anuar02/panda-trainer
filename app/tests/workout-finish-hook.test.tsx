@@ -283,3 +283,145 @@ it('does not overwrite a newer finished snapshot or its cache when an earlier de
     ),
   ).toBe(true);
 });
+
+it('continues a current-version finish resolution after server refresh and reopen with a new explicit finish', async () => {
+  const ActualService = jest.requireActual<
+    typeof import('../src/features/workout-entry/service')
+  >('../src/features/workout-entry/service').WorkoutEntryService;
+  const { openOutboxStore: openActualOutbox } = jest.requireActual<
+    typeof import('../src/features/workout-sync/storage')
+  >('../src/features/workout-sync/storage');
+  const { TransactionalFixture } = jest.requireActual<
+    typeof import('./workout-sync-sqlite-fixture')
+  >('./workout-sync-sqlite-fixture');
+  const { finishParticipant, finishSnapshotDriver } = jest.requireActual<
+    typeof import('./workout-finish-fixtures')
+  >('./workout-finish-fixtures');
+  const sqlite = new TransactionalFixture();
+  let store = await openActualOutbox(session, finishSnapshotDriver(sqlite));
+  const saved = new Map<
+    string,
+    import('../src/domain/workout-entry').EntryDraft
+  >();
+  drafts.read.mockImplementation(async (id: string) => saved.get(id) ?? null);
+  drafts.save.mockImplementation(
+    async (value: import('../src/domain/workout-entry').EntryDraft) => {
+      saved.set(value.workoutId, structuredClone(value));
+    },
+  );
+  jest.mocked(openOutboxStore).mockResolvedValue(store);
+  jest
+    .mocked(WorkoutEntryService)
+    .mockImplementation((options) => new ActualService(options));
+  const person = finishParticipant();
+  const context = (value: PreloadParticipant) => ({
+    version: 1 as const,
+    scope: session,
+    sessionKey: value.bookingId,
+    startsAt: '2026-10-04T10:00:00Z',
+    loadedAt: '2026-10-04T11:00:00Z',
+    participants: [value],
+  });
+  const values = { weightGrams: 125, reps: 8, seconds: null };
+  let view = await renderHook(() =>
+    useWorkoutEntry(current, () => current, person),
+  );
+  await waitFor(() => expect(view.result.current.state).not.toBeNull());
+  await act(async () => {
+    await view.result.current.finish();
+  });
+  const first = (await store.pending())[0]!.operation;
+  const conflict = {
+    operation_id: first.operation_id,
+    entity_id: first.entity_id,
+    status: 'conflict' as const,
+    revision: 9,
+    conflict_id: 'finish-choice',
+  };
+  await store.acknowledge([conflict]);
+  await act(async () => {
+    await view.result.current.execute((service) => service.read(person), false);
+  });
+  expect(view.result.current.state?.finish?.status).toBe('conflict');
+  const before = { ...person, workoutRevision: 9 };
+  load.mockResolvedValue(context(before));
+  await act(async () => {
+    await view.result.current.execute((service) =>
+      service.resolve(before, person.workoutId, 'finish-choice', 'current', 9),
+    );
+  });
+  const resolution = (await store.pending())[0]!.operation;
+  await store.acknowledge([
+    {
+      operation_id: resolution.operation_id,
+      entity_id: resolution.entity_id,
+      status: 'applied',
+      revision: 10,
+    },
+  ]);
+  const fresh = { ...person, workoutRevision: 10 };
+  load.mockResolvedValue(context(fresh));
+  await act(async () => {
+    await view.result.current.retryDelivery();
+  });
+  await waitFor(() =>
+    expect(view.result.current.state?.finish?.status).toBe('not_finished'),
+  );
+  await view.unmount();
+  store = await openActualOutbox(session, finishSnapshotDriver(sqlite));
+  jest.mocked(openOutboxStore).mockResolvedValue(store);
+  jest.mocked(openWorkoutPreloadStore).mockResolvedValue({
+    scope: session,
+    read: async () => context(fresh),
+    save: async () => {},
+    close: async () => {},
+  } as unknown as Awaited<ReturnType<typeof openWorkoutPreloadStore>>);
+  view = await renderHook(() =>
+    useWorkoutEntry(current, () => current, person),
+  );
+  await waitFor(() =>
+    expect(view.result.current.state?.finish?.status).toBe('not_finished'),
+  );
+  await act(async () => {
+    await view.result.current.execute((service) =>
+      service.confirm(fresh, fresh.exercises[0]!.id, values),
+    );
+  });
+  expect(
+    view.result.current.state?.workout.participant.exercises[0]?.sets,
+  ).toHaveLength(1);
+  await act(async () => {
+    await view.result.current.finish();
+  });
+  const next = (await store.pending()).find(
+    (item) => item.operation.kind === 'finish_workout',
+  )!.operation;
+  expect(next.operation_id).not.toBe(first.operation_id);
+  expect(next.base_revision).toBe(10);
+  expect(view.result.current.state?.finish?.status).toBe('saved_on_phone');
+});
+
+it('cancels late finish completion after a bearer mutates on the same session object', async () => {
+  current = { ...session };
+  const pending = deferred<EntryRead>();
+  finish.mockReturnValueOnce(pending.promise);
+  const view = await hook();
+  await waitFor(() => expect(view.result.current.state).not.toBeNull());
+  let completion!: Promise<void>;
+  await act(async () => {
+    completion = view.result.current.finish();
+  });
+  current!.accessToken = 'private-refreshed-token';
+  await view.rerender({});
+  await waitFor(() =>
+    expect(jest.mocked(WorkoutEntryService)).toHaveBeenCalledTimes(2),
+  );
+  await act(async () => {
+    pending.resolve(data());
+    await completion;
+  });
+  expect(run).not.toHaveBeenCalled();
+  expect(JSON.stringify(view.result.current.state)).not.toContain(
+    'private-refreshed-token',
+  );
+});

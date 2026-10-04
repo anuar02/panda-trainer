@@ -13,7 +13,11 @@ import { Sheet } from '@/ui/sheet';
 import { getWorkoutStyles } from '@/features/workout/measurements';
 import { WorkoutSyncStatus } from '@/features/workout-sync';
 import { useWorkoutEntry } from './use-entry';
-import { summarizeWorkoutFinish } from '@/domain/workout-entry';
+import { entrySessionIdentity } from './session-identity';
+import {
+  summarizeWorkoutFinish,
+  workoutFinishLocked,
+} from '@/domain/workout-entry';
 
 const emptyValues = (): SetValues => ({
   weightGrams: null,
@@ -27,10 +31,10 @@ export function WorkoutEntryPanel(props: {
 }) {
   const { session, participant } = props;
   const key = JSON.stringify([
+    entrySessionIdentity(session),
     session?.accountId,
     session?.workspaceId,
     session?.sessionId,
-    session?.accessToken,
     participant.workoutId,
     participant.bookingId,
     participant.clientRecordId,
@@ -76,6 +80,11 @@ function WorkoutEntryContent({
   const finished = finish?.status === 'applied';
   const finishPending = finish?.status === 'saved_on_phone';
   const notFinished = finish?.status === 'not_finished';
+  const canContinue =
+    notFinished &&
+    entry.state !== null &&
+    !workoutFinishLocked(entry.state.workout) &&
+    p.workoutStatus === 'in_progress';
   const summary = summarizeWorkoutFinish(p, {
     ...draft,
     values: { ...draft.values, ...editing },
@@ -83,8 +92,8 @@ function WorkoutEntryContent({
   const recoveryDisabled = entry.busy || !entry.state;
   const disabled =
     recoveryDisabled ||
-    Boolean(entry.state?.workout.finishOperation) ||
-    (finish !== undefined && finish.status !== 'available') ||
+    (entry.state !== null && workoutFinishLocked(entry.state.workout)) ||
+    (finish !== undefined && finish.status !== 'available' && !canContinue) ||
     p.workoutStatus !== 'in_progress';
   function change(next: SetValues, preserveRaw = false) {
     if (!preserveRaw) setRawInputs({});
@@ -284,87 +293,90 @@ function WorkoutEntryContent({
       {p.workoutStatus !== 'in_progress' && !finished && (
         <Text>{t('workoutEntry.unprepared')}</Text>
       )}
-      {focus && !finished && !finishPending && !notFinished && (
-        <View style={s.focus}>
-          <View style={s.eyebrow}>
-            <Text style={s.eyebrowText}>
-              {t('workoutEntry.now', {
-                index: exercises.indexOf(focus) + 1,
-                total: exercises.length,
-              })}
-            </Text>
-          </View>
-          <View style={s.exerciseHead}>
-            <Text style={s.exerciseName}>{focus.name}</Text>
-            <Text style={s.exerciseGoal}>
-              {t('workoutPreload.plan', {
-                sets: focus.plannedSets,
-                target:
-                  focus.plannedReps ??
-                  focus.plannedSeconds ??
-                  t('workoutPreload.unknown'),
-              })}
-            </Text>
-          </View>
-          <View style={s.chips}>
-            {focus.sets.map((set, index) => (
-              <Text key={set.id} style={s.chip}>
-                {t('workoutEntry.recordedValue', {
-                  index: index + 1,
-                  value: format(set),
+      {focus &&
+        !finished &&
+        !finishPending &&
+        (!notFinished || canContinue) && (
+          <View style={s.focus}>
+            <View style={s.eyebrow}>
+              <Text style={s.eyebrowText}>
+                {t('workoutEntry.now', {
+                  index: exercises.indexOf(focus) + 1,
+                  total: exercises.length,
                 })}
               </Text>
-            ))}
-          </View>
-          <View style={s.composer}>
-            <View style={s.composerHead}>
-              <Text style={s.bold}>
-                {t('workoutEntry.set', { index: focus.sets.length + 1 })}
+            </View>
+            <View style={s.exerciseHead}>
+              <Text style={s.exerciseName}>{focus.name}</Text>
+              <Text style={s.exerciseGoal}>
+                {t('workoutPreload.plan', {
+                  sets: focus.plannedSets,
+                  target:
+                    focus.plannedReps ??
+                    focus.plannedSeconds ??
+                    t('workoutPreload.unknown'),
+                })}
               </Text>
-              <Text style={s.secondary}>
-                {t(
-                  draft.values[focus.id] || editing[focus.id]
-                    ? 'workoutEntry.draft'
-                    : 'workoutEntry.hint',
-                )}
-              </Text>
+            </View>
+            <View style={s.chips}>
+              {focus.sets.map((set, index) => (
+                <Text key={set.id} style={s.chip}>
+                  {t('workoutEntry.recordedValue', {
+                    index: index + 1,
+                    value: format(set),
+                  })}
+                </Text>
+              ))}
+            </View>
+            <View style={s.composer}>
+              <View style={s.composerHead}>
+                <Text style={s.bold}>
+                  {t('workoutEntry.set', { index: focus.sets.length + 1 })}
+                </Text>
+                <Text style={s.secondary}>
+                  {t(
+                    draft.values[focus.id] || editing[focus.id]
+                      ? 'workoutEntry.draft'
+                      : 'workoutEntry.hint',
+                  )}
+                </Text>
+                <Button
+                  label={t('workoutEntry.edit')}
+                  variant="ghost"
+                  disabled={disabled}
+                  onPress={() => setSheet('set')}
+                />
+              </View>
+              {fields(focus)}
+              {repeat && (
+                <Button
+                  label={t('workoutEntry.repeat')}
+                  variant="soft"
+                  disabled={disabled}
+                  onPress={() =>
+                    change({
+                      weightGrams: repeat.weightGrams,
+                      reps: repeat.reps,
+                      seconds: repeat.seconds,
+                    })
+                  }
+                />
+              )}
               <Button
-                label={t('workoutEntry.edit')}
-                variant="ghost"
-                disabled={disabled}
-                onPress={() => setSheet('set')}
+                label={t('workoutEntry.save', { index: focus.sets.length + 1 })}
+                disabled={disabled || invalid}
+                onPress={save}
               />
             </View>
-            {fields(focus)}
-            {repeat && (
-              <Button
-                label={t('workoutEntry.repeat')}
-                variant="soft"
-                disabled={disabled}
-                onPress={() =>
-                  change({
-                    weightGrams: repeat.weightGrams,
-                    reps: repeat.reps,
-                    seconds: repeat.seconds,
-                  })
-                }
-              />
-            )}
             <Button
-              label={t('workoutEntry.save', { index: focus.sets.length + 1 })}
-              disabled={disabled || invalid}
-              onPress={save}
+              label={t('workoutEntry.replace')}
+              variant="ghost"
+              disabled={disabled || !entry.resources.catalog.length}
+              onPress={() => setSheet('replace')}
             />
           </View>
-          <Button
-            label={t('workoutEntry.replace')}
-            variant="ghost"
-            disabled={disabled || !entry.resources.catalog.length}
-            onPress={() => setSheet('replace')}
-          />
-        </View>
-      )}
-      {last && !finished && !finishPending && !notFinished && (
+        )}
+      {last && !finished && !finishPending && (!notFinished || canContinue) && (
         <Button
           label={t('workoutEntry.undo')}
           variant="ghost"
@@ -437,7 +449,7 @@ function WorkoutEntryContent({
           ))}
         </View>
       )}
-      {!finished && !finishPending && !notFinished && (
+      {!finished && !finishPending && (!notFinished || canContinue) && (
         <Button
           label={t('workoutEntry.finish')}
           disabled={

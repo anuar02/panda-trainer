@@ -5,6 +5,7 @@ import { WorkoutEntryPanel } from '@/features/workout-entry/screen';
 import { useWorkoutEntry } from '@/features/workout-entry/use-entry';
 import type { EntryRead } from '@/features/workout-entry/service';
 import { finishParticipant } from './workout-finish-fixtures';
+import { operation, session } from './workout-sync-fixtures';
 import '@/lib/i18n';
 
 jest.mock('@/features/workout-entry/use-entry', () => ({
@@ -26,6 +27,7 @@ function fixture(
   status: NonNullable<EntryRead['finish']>['status'] = 'available',
 ) {
   const participant = finishParticipant();
+  if (status === 'not_finished') participant.workoutRevision = 10;
   const exercise = participant.exercises[0]!;
   exercise.sets = Array.from({ length: count }, (_, index) => ({
     id: `set-${index}`,
@@ -36,7 +38,30 @@ function fixture(
     seconds: null,
   }));
   const state: EntryRead = {
-    workout: { participant, tombstones: [] },
+    workout: {
+      participant,
+      tombstones: [],
+      ...(status === 'not_finished'
+        ? {
+            finishOperation: {
+              ...operation('finish-op', participant.workoutId),
+              kind: 'finish_workout' as const,
+              base_revision: 7,
+              payload: {},
+            },
+            finishResolution: {
+              operationId: 'resolution-op',
+              conflictId: 'conflict',
+              selection: 'current' as const,
+            },
+            finishRelease: {
+              operationId: 'finish-op',
+              resolutionOperationId: 'resolution-op',
+              revision: 10,
+            },
+          }
+        : {}),
+    },
     draft: {
       workoutId: participant.workoutId,
       bookingId: participant.bookingId,
@@ -174,7 +199,7 @@ it('dismisses an old participant finish sheet when selection changes without rem
   expect(finish).not.toHaveBeenCalled();
 });
 
-it('shows current-version resolution as explicitly unfinished without offering another finish', async () => {
+it('shows proved current-version resolution and permits editing and a new explicit finish', async () => {
   const test = fixture(1, 'not_finished');
   await render(panel(test.participant));
   expect(
@@ -187,7 +212,41 @@ it('shows current-version resolution as explicitly unfinished without offering a
   expect(
     screen.queryByText('Завершение сохранено на телефоне · ожидает отправки'),
   ).toBeNull();
-  expect(screen.queryByRole('button', { name: 'Завершить' })).toBeNull();
-  expect(screen.queryByLabelText('Повторы')).toBeNull();
+  expect(screen.getByLabelText('Повторы').props.editable).toBe(true);
+  await fireEvent.press(screen.getByRole('button', { name: 'Завершить' }));
+  expect(screen.getByText('Завершить журнал?')).toBeTruthy();
   expect(finish).not.toHaveBeenCalled();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Сохранить записанное и завершить' }),
+  );
+  expect(finish).toHaveBeenCalledTimes(1);
+});
+
+it('keeps an unresolved current-version envelope locked despite an unfinished label', async () => {
+  const test = fixture(1, 'not_finished');
+  delete test.state.workout.finishRelease;
+  await render(panel(test.participant));
+  expect(screen.queryByLabelText('Повторы')).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Завершить' })).toBeNull();
+});
+
+it('keeps a finish sheet for equivalent session objects and resets it on bearer refresh without exposing credentials', async () => {
+  const test = fixture();
+  let current = { ...session };
+  const panel = () => (
+    <WorkoutEntryPanel
+      participant={test.participant}
+      session={current}
+      getSession={() => current}
+    />
+  );
+  const view = await render(panel());
+  await fireEvent.press(screen.getByRole('button', { name: 'Завершить' }));
+  current = { ...session };
+  await view.rerender(panel());
+  expect(screen.getByText('Завершить журнал?')).toBeTruthy();
+  current.accessToken = 'refreshed-private-token';
+  await view.rerender(panel());
+  expect(screen.queryByText('Завершить журнал?')).toBeNull();
+  expect(JSON.stringify(view.toJSON())).not.toContain(current.accessToken);
 });
