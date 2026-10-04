@@ -2,7 +2,9 @@
 
 Дата: 04.10.2026. Только synthetic fixtures, без реальных данных и платных сервисов.
 База: `origin/fix/som-50-template-picker`, `34d4fb38aab586387531d7d9b2923fb8ea64cb5b`.
-Ветка: `agent/som-32-production-finish`. SQL, store API, runner/transport/schema,
+Ветка: `agent/som-32-production-finish`; implementation commit `3415a62`.
+Draft [PR #54](https://github.com/anuar02/panda-trainer/pull/54), base
+`fix/som-50-template-picker`. SQL, store API, runner/transport/schema,
 preload/entry storage, demo/prototype и маршруты не менялись.
 
 ## Реализованный пакет
