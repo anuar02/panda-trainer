@@ -1,6 +1,7 @@
 # SOM-41 · Scoped SQLite outbox snapshot
 
-04.10.2026. Ветка `agent/som-41-scoped-outbox-snapshot`, база
+04.10.2026. [Draft PR #51](https://github.com/anuar02/panda-trainer/pull/51),
+implementation commit `185765d`. Ветка `agent/som-41-scoped-outbox-snapshot`, база
 `fix/som-50-template-picker` / `980e149084c1018f05dfe9e00d864b2efd2a9a44`.
 `git fetch origin fix/som-50-template-picker` подтвердил эту свежую базу;
 local serializer r2 PR #47 / `9b6d8b7` уже в ancestry. Невлитые branches

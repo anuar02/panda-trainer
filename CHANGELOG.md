@@ -19,7 +19,7 @@
 
 ### Добавлено
 
-- SOM-41: внутренний read-only scoped SQLite outbox snapshot всех операций/receipts
+- [SOM-41 / draft PR #51](https://github.com/anuar02/panda-trainer/pull/51): внутренний read-only scoped SQLite outbox snapshot всех операций/receipts
   и raw entries в одной queued transaction, bounded paging и session cancellation.
   [Проверки](app/review/som-41-scoped-outbox-snapshot/README.md),
   [handoff](docs/app/privacy/SCOPED-OUTBOX-SNAPSHOT.md). Native/runtime, collector
