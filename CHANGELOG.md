@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-21: полный invitation issue/reissue/revoke → copy/share → pending/login →
+- [SOM-21 / draft PR #65](https://github.com/anuar02/panda-trainer/pull/65): полный invitation issue/reissue/revoke → copy/share → pending/login →
   explicit accept закреплён за caller actor/session/workspace/card; exact in-memory
   retry и conditional generation/token clear защищают новый intent и новый login.
   Invitation read validation и default origin по ADR 0064; SQL/RLS и shared

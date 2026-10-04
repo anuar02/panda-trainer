@@ -1,6 +1,7 @@
 # SOM-21 · Invitations production finish r2
 
 Date: 2026-10-04. Branch: `agent/05-som-21-invitations-production-finish-r2`.
+Draft [PR #65](https://github.com/anuar02/panda-trainer/pull/65).
 PR target: `fix/som-50-template-picker`. Owner acceptance remains open.
 
 ## Baseline and scope
