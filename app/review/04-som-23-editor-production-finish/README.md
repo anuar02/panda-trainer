@@ -72,3 +72,14 @@ crash/reopen, offline на реальном устройстве, SQL/RLS/pgTAP/
 прочитаны как эталон. Геометрия/цвета/типографика/native picker SOM-50 не менялись.
 Темы/keyboard/large text/VoiceOver/TalkBack/reduced motion и пары native/parity не
 проверены. Требуется одобрение владельца; screen и SOM-23 не объявлены принятыми.
+
+
+## Публикация
+
+- Implementation commit: `0623d4c`.
+- `git push -u origin agent/04-som-23-editor-production-finish`: exit 0.
+- `gh pr create --base fix/som-50-template-picker --draft --fill`: exit 0,
+  [draft PR #63](https://github.com/anuar02/panda-trainer/pull/63).
+- `gh pr edit 63 --body-file /tmp/som23-production-pr-body.md`: критерии
+  размечены «сделано / не проверено / требует одобрения владельца».
+- GitHub CI ожидается после push; его прохождение не заявляется здесь.
