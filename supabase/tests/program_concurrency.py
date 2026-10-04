@@ -97,11 +97,16 @@ try:
         return (f"select public.update_client_program('{owner}','{workspace}','{client}','{workout}',"
                 f"'{source}',1,{revision},array['values:{workout_exercise}'],'{request}');")
 
-    def blocked_race(first_sql, second_sql, second_ok=True):
-        holding = connect('begin; ' + identity() + first_sql + ' select pg_sleep(2); commit;')
-        value = result_from(holding.stdout.readline())
+    def blocked_race(first_sql, second_sql, second_ok=True, early_second=False):
         application = 'program-update-race-' + str(uuid.uuid4())
-        waiting = connect(f"set application_name='{application}'; begin; " + identity() + second_sql + ' commit;')
+        if early_second:
+            waiting = connect(f"set application_name='{application}'; begin; " + identity() +
+                              " select jsonb_build_object('transaction_started',true); select pg_sleep(1); " + second_sql + ' commit;')
+            assert result_from(waiting.stdout.readline())['transaction_started']
+        holding = connect('begin; ' + identity() + first_sql + ' select pg_sleep(3); commit;')
+        value = result_from(holding.stdout.readline())
+        if not early_second:
+            waiting = connect(f"set application_name='{application}'; begin; " + identity() + second_sql + ' commit;')
         for _ in range(30):
             if query(f"select count(*) from pg_stat_activity where application_name='{application}' and wait_event_type='Lock';") == '1':
                 break
@@ -163,10 +168,11 @@ try:
       commit;""")
     fresh_assignment = (f"select public.assign_client_program('{client}','{initial['id']}',"
                         f"{initial['revision']},'{uuid.uuid4()}');")
-    _, assigned_output, _ = blocked_race(update_sql(assigned['id'],1,str(uuid.uuid4())),fresh_assignment)
+    updated, assigned_output, _ = blocked_race(update_sql(assigned['id'],1,str(uuid.uuid4())),fresh_assignment,early_second=True)
     latest_assignment = result_from(assigned_output)
     assert query(f"select id from public.client_programs where workspace_id='{workspace}' order by created_at desc,id desc limit 1;") == latest_assignment['id']
-    print('PASS: waiting assignment after program update becomes current by lock-ordered creation time')
+    assert query(f"select (updated_at < (select created_at from public.client_programs where id='{updated['program_id']}'))::text from public.client_programs where id='{latest_assignment['id']}';") == 'true', 'Assignment transaction must actually predate the update copy'
+    print('PASS: waiting assignment begun before program update becomes current by lock-ordered creation time')
 finally:
     for process in processes:
         if process.poll() is None:
