@@ -1,3 +1,4 @@
+import { programSessionId } from '../client-program/program-read-session';
 import { getSupabaseClient } from '@/features/auth/client';
 import type { ClientScheduleContext } from '../client-scheduling/service';
 
@@ -95,6 +96,7 @@ export type ClientHistorySession = {
 type SessionState = {
   userId: string;
   token: string | null;
+  sessionId: string | null;
   active: boolean;
   client: NonNullable<ReturnType<typeof getSupabaseClient>>;
 };
@@ -108,6 +110,7 @@ export function openClientHistorySession(
   const state: SessionState = {
     userId: userId.toLowerCase(),
     token: null,
+    sessionId: null,
     active: true,
     client,
   };
@@ -128,8 +131,18 @@ export function openClientHistorySession(
       return;
     }
     if (
+      (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') &&
+      state.token === null
+    ) {
+      invalidate();
+      return;
+    }
+    if (
       !session?.access_token ||
-      session.user.id.toLowerCase() !== state.userId
+      session.user.id.toLowerCase() !== state.userId ||
+      !programSessionId(session) ||
+      (state.sessionId !== null &&
+        programSessionId(session) !== state.sessionId)
     ) {
       invalidate();
       return;
@@ -143,6 +156,7 @@ export function openClientHistorySession(
       return;
     }
     state.token = session.access_token;
+    state.sessionId = programSessionId(session);
   }).data.subscription;
   const fence: ClientHistorySession = {
     valid: () => state.active,
@@ -169,16 +183,21 @@ async function historyToken(
     current.error ||
     !session?.access_token ||
     session.user.id.toLowerCase() !== state.userId ||
+    !programSessionId(session) ||
+    (state.sessionId !== null &&
+      programSessionId(session) !== state.sessionId) ||
     (state.token !== null && session.access_token !== state.token)
   ) {
     state.active = false;
     throw new ClientHistoryError('unavailable');
   }
   state.token = session.access_token;
+  state.sessionId = programSessionId(session);
   return state.token;
 }
 export async function loadClientHistory(input: {
   expectedUserId: string;
+  isCurrent?: () => boolean;
   session?: ClientHistorySession;
   workspaceId?: string;
   clientRecordId: string;
@@ -208,13 +227,21 @@ export async function loadClientHistory(input: {
   if (!client) throw new ClientHistoryError('configuration');
   const fence = input.session ?? openClientHistorySession(input.expectedUserId);
   try {
-    let token = await historyToken(fence, input.expectedUserId);
+    const checkedToken = async () => {
+      if (input.isCurrent && !input.isCurrent())
+        throw new ClientHistoryError('unavailable');
+      const token = await historyToken(fence, input.expectedUserId);
+      if (input.isCurrent && !input.isCurrent())
+        throw new ClientHistoryError('unavailable');
+      return token;
+    };
+    let token = await checkedToken();
     const result = await client
       .rpc('get_my_client_schedule_context', {
         p_client_record_id: input.clientRecordId.toLowerCase(),
       })
       .setHeader('Authorization', `Bearer ${token}`);
-    token = await historyToken(fence, input.expectedUserId);
+    token = await checkedToken();
     const row: unknown = result.data;
     if (result.error) throw new ClientHistoryError('unavailable');
     if (
@@ -263,7 +290,7 @@ export async function loadClientHistory(input: {
       .order('finished_at', { ascending: false })
       .order('id')
       .range(offset, offset + limit);
-    await historyToken(fence, input.expectedUserId);
+    await checkedToken();
     if (
       instances.error ||
       !Array.isArray(instances.data) ||
@@ -275,6 +302,8 @@ export async function loadClientHistory(input: {
     for (const item of all) {
       if (
         !object(item) ||
+        Object.keys(item).sort().join(',') !==
+          columns.workout_instances.split(',').sort().join(',') ||
         !uuid(item.id) ||
         journals.has(item.id) ||
         item.workspace_id !== context.workspaceId ||
@@ -316,7 +345,7 @@ export async function loadClientHistory(input: {
       if (!selectedIds.length) return [];
       const rows: Record<string, unknown>[] = [];
       for (let start = 0; start < 10000; start += 500) {
-        const childToken = await historyToken(fence, input.expectedUserId);
+        const childToken = await checkedToken();
         let request = query(table)
           .setHeader('Authorization', `Bearer ${childToken}`)
           .in('workout_instance_id', selectedIds)
@@ -324,7 +353,7 @@ export async function loadClientHistory(input: {
           .range(start, start + 499);
         if (table === 'set_results') request = request.is('deleted_at', null);
         const response = await request;
-        await historyToken(fence, input.expectedUserId);
+        await checkedToken();
         if (
           response.error ||
           !Array.isArray(response.data) ||
@@ -334,6 +363,8 @@ export async function loadClientHistory(input: {
         for (const value of response.data as unknown[]) {
           if (
             !object(value) ||
+            Object.keys(value).sort().join(',') !==
+              columns[table].split(',').sort().join(',') ||
             value.workspace_id !== context.workspaceId ||
             !uuid(value.id) ||
             !uuid(value.workout_instance_id) ||
@@ -474,9 +505,16 @@ export async function loadClientHistory(input: {
           a.id.localeCompare(b.id),
       );
     }
-    await historyToken(fence, input.expectedUserId);
+    await checkedToken();
     return { context, journals: selected, nextOffset };
   } catch (error: unknown) {
+    if (input.isCurrent && !input.isCurrent())
+      throw new ClientHistoryError('unavailable');
+    try {
+      await historyToken(fence, input.expectedUserId);
+    } catch {
+      throw new ClientHistoryError('unavailable');
+    }
     if (error instanceof ClientHistoryError) throw error;
     throw new ClientHistoryError('request');
   } finally {

@@ -1,3 +1,4 @@
+import { clientReadToken } from './client-read-auth-fixture';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/features/auth/client';
 import { loadClientHistory } from '@/features/client-history/service';
@@ -102,7 +103,7 @@ function setup(
   const getSession = jest.fn(async () => ({
     data: {
       session: {
-        access_token: 'pinned-token',
+        access_token: clientReadToken(user),
         user: { id: options.users?.[authCall++] ?? user },
       },
     },
@@ -206,7 +207,10 @@ test('reads pre-link finished snapshots, zero values and public notes with pinne
   expect(result.journals[0]!.notes[0]!.text).toBe(note.text);
   expect(result.nextOffset).toBeNull();
   for (const call of calls) {
-    expect(call.header).toEqual(['Authorization', 'Bearer pinned-token']);
+    expect(call.header).toEqual([
+      'Authorization',
+      `Bearer ${clientReadToken(user)}`,
+    ]);
     expect(call.filters).toContainEqual(['workspace_id', workspace]);
     expect(call.columns).not.toMatch(/author_user_id|device_id|created_by|\*/);
   }
@@ -218,19 +222,15 @@ test('reads pre-link finished snapshots, zero values and public notes with pinne
     null,
   ]);
 });
-test('strips unexpected audit and private response fields', async () => {
-  setup({
-    data: {
-      workout_instances: [{ ...instance, created_by: user }],
-      workout_exercises: [{ ...exercise, note: 'private?', created_by: user }],
-      set_results: [{ ...set, author_user_id: user, device_id: user }],
-      session_notes: [{ ...note, author_user_id: user }],
-    },
+test('rejects unexpected audit and private response fields', async () => {
+  setup({ data: { workout_instances: [{ ...instance, created_by: user }] } });
+  await expect(loadClientHistory(input)).rejects.toMatchObject({
+    code: 'request',
   });
-  const json = JSON.stringify(await loadClientHistory(input));
-  expect(json).not.toContain(user);
-  expect(json).not.toContain('private?');
-  expect(json).not.toContain('author');
+  setup({ data: { workout_exercises: [{ ...exercise, note: 'private?' }] } });
+  await expect(loadClientHistory(input)).rejects.toMatchObject({
+    code: 'request',
+  });
 });
 test('uses bounded lookahead page and only fetches selected child journals', async () => {
   const second = {

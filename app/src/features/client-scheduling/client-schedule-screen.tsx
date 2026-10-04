@@ -1,3 +1,4 @@
+import { ClientHomeFacts } from '../client-home/client-home-facts';
 import { ClientSchedulingCommandBoundary } from './command-coordinator';
 import type { ClientBookingStatusStore } from './use-status';
 import { useLayoutEffect, useRef, useState } from 'react';
@@ -46,6 +47,7 @@ function ClientScheduleContent(props: Props) {
   const read = useClientSchedule({
     userId: props.userId,
     clientRecordId: props.clientRecordId,
+    workspaceId: props.workspaceId,
   });
   const status = useClientBookingStatus({
     userId: props.userId,
@@ -53,21 +55,38 @@ function ClientScheduleContent(props: Props) {
     onChanged: read.retry,
     clientRecordId: props.clientRecordId,
   });
-  const generation = useRef<string | null>(status.scopeKey);
+  const screenKey = JSON.stringify([
+    status.scopeKey,
+    read.generation,
+    read.loading,
+    read.failed,
+  ]);
+  const generation = useRef<string | null>(screenKey);
   useLayoutEffect(() => {
-    generation.current = status.scopeKey;
+    generation.current = screenKey;
     return () => {
       generation.current = null;
     };
-  }, [status.scopeKey]);
-  const isCurrent = () => generation.current === status.scopeKey;
+  }, [screenKey]);
+  const isCurrent = () =>
+    generation.current === screenKey && !read.loading && !read.failed;
   const [selection, setSelection] = useState<{
     id: string | null;
     scope: string;
+    readGeneration: string;
   } | null>(null);
-  const selectedId = selection?.scope === status.scopeKey ? selection.id : null;
+  const selectedId =
+    selection?.scope === status.scopeKey &&
+    selection.readGeneration === read.generation
+      ? selection.id
+      : null;
   const setSelectedId = (id: string | null) => {
-    if (isCurrent()) setSelection({ id, scope: status.scopeKey });
+    if (isCurrent())
+      setSelection({
+        id,
+        scope: status.scopeKey,
+        readGeneration: read.generation,
+      });
   };
   const home = read.schedule ? clientScheduleHome(read.schedule, now) : null;
   const context = read.schedule?.context;
@@ -156,6 +175,23 @@ function ClientScheduleContent(props: Props) {
                           })
                         : t('clientHome.onsite'),
                     })),
+                    facts: context ? (
+                      <ClientHomeFacts
+                        key={read.generation}
+                        userId={props.userId}
+                        workspaceId={props.workspaceId}
+                        clientRecordId={props.clientRecordId}
+                        timezone={context.timezone}
+                        now={now}
+                        onOpenProgress={() => {
+                          if (isCurrent())
+                            router.push({
+                              pathname: '/connection/[clientRecordId]/progress',
+                              params: { clientRecordId: props.clientRecordId },
+                            });
+                        }}
+                      />
+                    ) : null,
                     onSelectBooking: (row) => setSelectedId(row.id),
                     onProgramPreview: () => {
                       if (!isCurrent()) return;

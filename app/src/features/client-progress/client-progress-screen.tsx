@@ -31,6 +31,7 @@ export type ClientProgressData = {
   results: readonly ClientProgressResult[];
   loading?: boolean;
   footer?: ReactNode;
+  onSelectResult?: (result: ClientProgressResult) => void;
 };
 export function ClientProgressScreen({
   scenario = 'normal',
@@ -175,9 +176,20 @@ export function ClientProgressScreen({
                       key={`${result.name}:${result.unit}`}
                       style={s.resultCard}
                     >
-                      <Text accessibilityRole="header" style={s.resultTitle}>
-                        {result.name}
-                      </Text>
+                      <Pressable
+                        className="min-h-11 justify-center"
+                        accessibilityRole="button"
+                        disabled={!data?.onSelectResult}
+                        accessibilityLabel={t(
+                          'clientProgress.exerciseHistory',
+                          { name: result.name },
+                        )}
+                        onPress={() => data?.onSelectResult?.(result)}
+                      >
+                        <Text accessibilityRole="header" style={s.resultTitle}>
+                          {result.name}
+                        </Text>
+                      </Pressable>
                       <Text style={s.best}>
                         {t(
                           `clientProgress.${result.best.kg ? 'weightedBest' : 'unweightedBest'}`,

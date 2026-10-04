@@ -1,3 +1,4 @@
+import { clientReadToken } from './client-read-auth-fixture';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/features/auth/client';
 import { loadClientSchedule } from '@/features/client-scheduling/service';
@@ -148,11 +149,14 @@ function setup({
   });
   jest.mocked(getSupabaseClient).mockReturnValue({
     auth: {
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      }),
       getSession: jest.fn().mockResolvedValue({
         data: {
           session: {
             user: { id: sessionUser },
-            access_token: 'pinned-token',
+            access_token: clientReadToken(user),
           },
         },
         error: null,
@@ -176,7 +180,10 @@ test('loads own bookings through safe context and pins every request without tra
   });
   expect(result.bookings[0]).toMatchObject({ id: bookingId, program: null });
   for (const call of calls) {
-    expect(call.header).toEqual(['Authorization', 'Bearer pinned-token']);
+    expect(call.header).toEqual([
+      'Authorization',
+      `Bearer ${clientReadToken(user)}`,
+    ]);
     expect(call.columns).not.toContain('*');
     expect(call.columns).not.toContain('created_by');
     expect(call.filters).toContainEqual(['workspace_id', workspace]);
@@ -187,7 +194,10 @@ test('loads own bookings through safe context and pins every request without tra
   expect(calls.map((call) => call.table)).not.toContain('trainer_workspaces');
   expect(calls.map((call) => call.table)).not.toContain('schedule_proposals');
   for (const call of rpcCalls)
-    expect(call.header).toEqual(['Authorization', 'Bearer pinned-token']);
+    expect(call.header).toEqual([
+      'Authorization',
+      `Bearer ${clientReadToken(user)}`,
+    ]);
 });
 test('joins outside-window proposal booking and immutable plan snapshots', async () => {
   const program = {
@@ -214,7 +224,6 @@ test('joins outside-window proposal booking and immutable plan snapshots', async
     planned_weight_g: 15000,
     rest_seconds: 90,
     note: null,
-    created_by: user,
   };
   setup({
     proposals: [proposal],
@@ -391,7 +400,10 @@ test('all-upcoming mode has no date horizon and retains far-future own bookings'
     expect.stringMatching(/T.*Z$/),
   );
   expect(call?.range).toEqual([0, 499]);
-  expect(call?.header).toEqual(['Authorization', 'Bearer pinned-token']);
+  expect(call?.header).toEqual([
+    'Authorization',
+    `Bearer ${clientReadToken(user)}`,
+  ]);
 });
 test.each([{ startsAtUtc: input.startsAtUtc }, { endsAtUtc: input.endsAtUtc }])(
   'rejects one supplied window bound %p',

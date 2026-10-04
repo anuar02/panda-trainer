@@ -9,6 +9,14 @@
 
 ## Не выпущено
 
+- SOM-36 r2: authenticated клиентские Home/History/Progress/Program без demo fallback;
+  серверные точные остаток/долг и посещения, actual exercise history, JWT/caller
+  fencing и повторное чтение после existing SOM-27 receipts. Additive read RPC,
+  generated contract, pgTAP и независимые synthetic полные flows.
+  [Отчёт](app/review/09-som-36-client-production-r2/README.md),
+  [ADR 0097](docs/app/decisions/0097-client-overview-and-read-lifetimes.md).
+  SQL/CI, live/native/parity и приёмка владельца остаются открытыми.
+
 - [SOM-21 / draft PR #65](https://github.com/anuar02/panda-trainer/pull/65): полный invitation issue/reissue/revoke → copy/share → pending/login →
   explicit accept закреплён за caller actor/session/workspace/card; exact in-memory
   retry и conditional generation/token clear защищают новый intent и новый login.

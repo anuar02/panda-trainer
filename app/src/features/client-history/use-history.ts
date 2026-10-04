@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
+import { useClientReadInvalidation } from '../client-home/use-read-invalidation';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
   ClientHistoryError,
@@ -45,6 +46,14 @@ export function useClientHistory({
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const control = useRef<Control | null>(null);
   const latest = useRef<Loaded | null>(null);
+  const invalidate = useCallback(() => {
+    if (control.current) control.current.active = false;
+    control.current?.session?.dispose();
+    latest.current = null;
+    setLoaded(null);
+    setAttempt((value) => value + 1);
+  }, []);
+  useClientReadInvalidation(invalidate);
   const key = JSON.stringify([
     userId,
     clientRecordId,
@@ -54,6 +63,13 @@ export function useClientHistory({
     limit,
     attempt,
   ]);
+  useLayoutEffect(() => {
+    if (control.current?.key !== key && control.current) {
+      control.current.active = false;
+      control.current.session?.dispose();
+      latest.current = null;
+    }
+  }, [key]);
   useFocusEffect(
     useCallback(() => {
       const token: Control = { active: true, key, locked: false };
@@ -91,6 +107,7 @@ export function useClientHistory({
       }
       void loadClientHistory({
         expectedUserId: userId,
+        isCurrent: () => token.active && control.current === token,
         session: token.session,
         workspaceId,
         clientRecordId,
@@ -155,6 +172,7 @@ export function useClientHistory({
     try {
       const page = await loadClientHistory({
         expectedUserId: userId,
+        isCurrent: () => token.active && control.current === token,
         session: token.session,
         workspaceId,
         clientRecordId,
@@ -216,7 +234,7 @@ export function useClientHistory({
     loadingMore: current?.loadingMore ?? false,
     moreError: current?.moreError ?? null,
     hasMore: current?.history?.nextOffset != null,
-    retry: useCallback(() => setAttempt((value) => value + 1), []),
+    retry: invalidate,
     loadMore,
     retryMore: loadMore,
   };

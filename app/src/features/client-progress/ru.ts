@@ -1,4 +1,11 @@
 export const clientProgress = {
+  previousWeek: 'Предыдущая неделя',
+  nextWeek: 'Следующая неделя',
+  period: '{{start}}–{{end}}',
+  visitDay: '{{date}}: посещений {{count}}',
+  confirmedVisits:
+    'Зелёным отмечены подтверждённые посещения. Отмена и неявка не учитываются.',
+  exerciseHistory: 'История упражнения: {{name}}',
   title: 'Прогресс',
   trainerLabel: 'Ваш тренер',
   trainer: 'Данияр',

@@ -43,6 +43,7 @@ export type ClientHomeData = {
   bookings: readonly ClientHomeBookingRow[];
   loading?: boolean;
   requests?: ReactNode;
+  facts?: ReactNode;
   onSelectBooking: (booking: ClientHomeBookingRow) => void;
   onProgramPreview?: (booking: ClientHomeBookingRow) => void;
   onOpenHistory?: () => void;
@@ -877,6 +878,7 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
                   </Card>
                 </View>
                 {data.requests}
+                {data.facts}
                 {data.bookings.length > 1 && (
                   <View style={s.section}>
                     <Text style={s.sectionTitle}>{tx('upcoming')}</Text>
@@ -920,6 +922,7 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
           </>
         )}
         {(data.loading || !next) && data.requests}
+        {!data.loading && !next && data.facts}
         {data.onOpenHistory && !data.loading && (
           <View style={s.history}>
             <Button

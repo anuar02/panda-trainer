@@ -1,6 +1,4 @@
-import { ClientProgressScreen } from '@/features/client-progress/client-progress-screen';
-import { useDemoScenario } from '@/features/demo/use-demo-scenario';
-
-export default function Route() {
-  return <ClientProgressScreen scenario={useDemoScenario()} />;
+import { ClientEntryRoute } from '@/features/client-home/client-entry-route';
+export default function Screen() {
+  return <ClientEntryRoute page="progress" />;
 }

@@ -134,6 +134,7 @@ const scheduleRead = jest.mocked(useClientSchedule),
   personalRetry = jest.fn();
 const uiData = () => ui.mock.calls.at(-1)![0].data!;
 const scheduleState = () => ({
+  generation: 'read-1',
   schedule,
   loading: false,
   failed: false,

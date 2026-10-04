@@ -64,6 +64,8 @@ beforeEach(() => {
 test('passes exact UTC bounds and account scope without implicit local date conversion', async () => {
   const hook = await mount();
   expect(load).toHaveBeenCalledWith({
+    workspaceId: undefined,
+    isCurrent: expect.any(Function),
     clientRecordId: props.clientRecordId,
     expectedUserId: props.userId,
     startsAtUtc: props.startsAtUtc,
@@ -173,6 +175,8 @@ test('no-window scope loads all upcoming and switching modes rejects stale range
     clientRecordId: props.clientRecordId,
   });
   expect(load).toHaveBeenLastCalledWith({
+    workspaceId: undefined,
+    isCurrent: expect.any(Function),
     expectedUserId: props.userId,
     clientRecordId: props.clientRecordId,
     startsAtUtc: undefined,

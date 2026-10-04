@@ -1,3 +1,4 @@
+import { clientReadToken } from './client-read-auth-fixture';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 import { getSupabaseClient } from '@/features/auth/client';
@@ -44,8 +45,13 @@ beforeEach(() => {
   load.mockReset();
   jest.mocked(getSupabaseClient).mockReturnValue({
     auth: {
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      }),
       getSession: jest.fn(async () => ({
-        data: { session: { access_token: 'token', user: { id: user } } },
+        data: {
+          session: { access_token: clientReadToken(user), user: { id: user } },
+        },
         error: null,
       })),
     },
@@ -119,8 +125,13 @@ test('final account check rejects account switch after last page', async () => {
   load.mockResolvedValue(page(['a'], null));
   jest.mocked(getSupabaseClient).mockReturnValue({
     auth: {
+      onAuthStateChange: () => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      }),
       getSession: jest.fn(async () => ({
-        data: { session: { access_token: 'token', user: { id: card } } },
+        data: {
+          session: { access_token: clientReadToken(user), user: { id: card } },
+        },
         error: null,
       })),
     },
