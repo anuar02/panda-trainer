@@ -77,6 +77,7 @@ finally:
       delete from public.notifications where workspace_id='{workspace}';
       delete from public.bookings where workspace_id='{workspace}';
       delete from public.client_records where workspace_id='{workspace}';
+      delete from public.exercises where workspace_id='{workspace}';
       delete from public.trainer_workspaces where id='{workspace}';
       delete from auth.users where id in ('{owner}','{user}');
       commit;""")
