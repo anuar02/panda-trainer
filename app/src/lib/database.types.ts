@@ -1781,15 +1781,23 @@ export type Database = {
         Returns: Json;
       };
       account_deletion_complete: {
-        Args: { p_capability_hash: string; p_request_id: string };
+        Args: {
+          p_capability_hash: string;
+          p_request_id: string;
+        };
         Returns: Json;
       };
       account_deletion_execute: {
-        Args: { p_capability_hash: string; p_request_id: string };
+        Args: {
+          p_capability_hash: string;
+          p_request_id: string;
+        };
         Returns: Json;
       };
       account_deletion_inspect: {
-        Args: { p_user_id: string };
+        Args: {
+          p_user_id: string;
+        };
         Returns: Json;
       };
       account_deletion_prepare: {
@@ -1801,7 +1809,10 @@ export type Database = {
         Returns: Json;
       };
       account_deletion_status: {
-        Args: { p_capability_hash: string; p_request_id: string };
+        Args: {
+          p_capability_hash: string;
+          p_request_id: string;
+        };
         Returns: Json;
       };
       apply_operations: {
