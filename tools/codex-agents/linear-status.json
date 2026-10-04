@@ -1,8 +1,29 @@
 {
- "updated_at": "2026-10-04T01:32Z",
+ "updated_at": "2026-10-04T01:48Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-37",
+   "title": "Реализовать уведомления, непрочитанное и Realtime",
+   "status": "In Progress",
+   "milestone": "08",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-36",
+   "title": "Подключить клиентские экраны и действия к серверным данным",
+   "status": "In Progress",
+   "milestone": "07",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-32",
+   "title": "Завершать и исправлять журнал с обновлением программы",
+   "status": "In Review",
+   "milestone": "05",
+   "group": "owner"
+  },
   {
    "id": "SOM-26",
    "title": "Подключить Today, неделю и создание занятия к серверу",
@@ -22,13 +43,6 @@
    "title": "Подключить onboarding тренера и управление клиентами",
    "status": "In Progress",
    "milestone": "02",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-32",
-   "title": "Завершать и исправлять журнал с обновлением программы",
-   "status": "In Progress",
-   "milestone": "05",
    "group": "agents"
   },
   {
@@ -72,13 +86,6 @@
    "status": "In Review",
    "milestone": "07",
    "group": "owner"
-  },
-  {
-   "id": "SOM-37",
-   "title": "Реализовать уведомления, непрочитанное и Realtime",
-   "status": "Backlog",
-   "milestone": "08",
-   "group": "agents"
   },
   {
    "id": "SOM-73",
@@ -247,13 +254,6 @@
    "status": "Backlog",
    "milestone": "02",
    "group": "acceptance"
-  },
-  {
-   "id": "SOM-36",
-   "title": "Подключить клиентские экраны и действия к серверным данным",
-   "status": "Backlog",
-   "milestone": "07",
-   "group": "agents"
   },
   {
    "id": "SOM-63",
