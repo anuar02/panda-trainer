@@ -259,7 +259,12 @@ export function TrainerInboxScreen({
                 { backgroundColor: colors.surface, borderColor: colors.border },
               ]}
             >
-              <Mascot pose="sit" size={76} style={{ height: 84 }} />
+              <Mascot
+                pose="sit"
+                clipPlace="inbox-clear"
+                size={76}
+                style={{ height: 84 }}
+              />
               <View style={s.flex}>
                 <Text style={s.emptyTitle}>{t('trainerInbox.clear')}</Text>
                 <Text style={[s.emptyHint, { color: colors.secondary }]}>

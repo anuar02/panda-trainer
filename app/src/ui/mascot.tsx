@@ -4,6 +4,8 @@ import { lazy, Suspense } from 'react';
 import { useCalmMode } from './calm-mode';
 import { useSystemReduceMotion } from './motion';
 import { mascotPolicy, motionForPose } from './mascot/keyframes';
+import { ClipImage } from './mascot/clip-image';
+import { clipForPlace, mascotClips, type ClipPlace } from './mascot/clips';
 import { PngMotion } from './mascot/png-motion';
 
 const RiveMascot = lazy(() => import('./mascot/rive-mascot'));
@@ -17,6 +19,7 @@ const poses = {
   jump: require('../../assets/mascot/jump.png'),
   thumbs: require('../../assets/mascot/thumbs.png'),
   stretch: require('../../assets/mascot/stretch.png'),
+  listen: mascotClips.listen.poster,
   side: require('../../assets/mascot/side.png'),
   back: require('../../assets/mascot/back.png'),
   'three-quarter': require('../../assets/mascot/three-quarter.png'),
@@ -34,6 +37,7 @@ type Props = Omit<ImageProps, 'source'> & {
   pose: keyof typeof poses;
   size: number;
   hidden?: boolean;
+  clipPlace?: ClipPlace;
   context?: 'empty' | 'onboarding' | 'hero' | 'inline' | 'celebration';
 };
 
@@ -43,12 +47,25 @@ export function Mascot({
   style,
   hidden = false,
   context,
+  clipPlace,
   ...props
 }: Props) {
   const calmMode = useCalmMode();
   const reducedMotion = useSystemReduceMotion();
   const policy = mascotPolicy(pose, calmMode, reducedMotion, context);
   if (hidden || !policy.visible) return null;
+  const clip = clipForPlace(pose, clipPlace, calmMode, reducedMotion);
+  if (clip)
+    return (
+      <ClipImage
+        key={pose}
+        {...props}
+        source={clip.source}
+        poster={clip.poster}
+        size={size}
+        style={style}
+      />
+    );
   const poster = (
     <Image
       contentFit="contain"

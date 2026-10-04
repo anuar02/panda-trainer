@@ -9,6 +9,12 @@
 
 ## Не выпущено
 
+- SOM-38: выбранные WebP-клипы панды через expo-image в местах прототипа,
+  постер при загрузке/ошибке, отключение при calm/reduce и уходе с экрана.
+  stretch/listen без места; clipboard/front остаются PNG. Шесть клипов ≤300 КБ,
+  wave 445 248 байт — документированное исключение.
+  [Отчёт](app/review/17-som-38-mascot-clips-integration/README.md).
+
 - [SOM-39 / draft PR #78](https://github.com/anuar02/panda-trainer/pull/78), бриф 15 r2: Reanimated-тосты/лицо, общий calm/reduce для шторок и scrim,
   immediate-редакторы подхода, прерываемые шаги, запись только нового подхода,
   выделение нового упражнения, заметки, отдых и pulse demo dock. Voice/hold

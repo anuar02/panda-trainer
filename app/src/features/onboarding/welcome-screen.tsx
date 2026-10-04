@@ -459,7 +459,12 @@ export function WelcomeScreen({
             contentContainerStyle={styles.introContent}
             keyboardShouldPersistTaps="handled"
           >
-            <Mascot pose="wave" size={220} style={styles.introMascot} />
+            <Mascot
+              pose="wave"
+              clipPlace="onboarding"
+              size={220}
+              style={styles.introMascot}
+            />
             <Text style={[styles.kicker, { color: colors.accent }]}>
               {text('intro.kicker')}
             </Text>
@@ -666,7 +671,12 @@ export function WelcomeScreen({
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.doneIntro}>
-            <Mascot pose="thumbs" size={160} style={styles.doneMascot} />
+            <Mascot
+              pose="thumbs"
+              clipPlace="onboarding"
+              size={160}
+              style={styles.doneMascot}
+            />
             {title(textWithName('done.title', draft.name.trim()), true)}
             {description(text('done.text'), true)}
           </View>

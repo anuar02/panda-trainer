@@ -83,6 +83,7 @@ function CelebrationMotion() {
       <Animated.View style={[styles.panda, panda.style]}>
         <Mascot
           pose="jump"
+          clipPlace="celebration"
           size={170}
           context="celebration"
           style={{ height: 200 }}

@@ -363,6 +363,7 @@ export function ClientInvitationScreen({
               </View>
             ) : (
               <Mascot
+                clipPlace="invitation"
                 pose={accepted ? 'thumbs' : 'wave'}
                 size={216}
                 style={s.clientMascot}

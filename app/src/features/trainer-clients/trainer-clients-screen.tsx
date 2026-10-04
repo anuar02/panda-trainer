@@ -337,7 +337,7 @@ export function TrainerClientsScreen({
                     },
                   ]}
                 />
-                <Mascot pose="sit" size={170} />
+                <Mascot pose="sit" clipPlace="empty" size={170} />
               </View>
             </View>
             <Text style={s.emptyTitle}>
