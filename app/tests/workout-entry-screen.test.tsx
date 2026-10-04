@@ -14,6 +14,9 @@ import { CorrectionPanel } from '../src/features/workout-corrections';
 import type { SyncSession } from '../src/domain/workout-sync/types';
 import '../src/lib/i18n';
 
+jest.mock('@/features/program-update/panel', () => ({
+  ProgramUpdatePanel: jest.fn(() => null),
+}));
 jest.mock('../src/features/workout-entry/use-entry', () => ({
   useWorkoutEntry: jest.fn(),
 }));

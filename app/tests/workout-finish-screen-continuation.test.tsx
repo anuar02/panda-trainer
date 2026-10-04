@@ -23,6 +23,9 @@ import {
 import { createWorkoutPreloadReader } from '../src/features/workout-preload/service';
 import { memoryStore, session } from './workout-sync-fixtures';
 
+jest.mock('@/features/program-update/panel', () => ({
+  ProgramUpdatePanel: jest.fn(() => null),
+}));
 jest.mock('../src/features/workout-corrections', () => ({
   CorrectionPanel: () => null,
 }));

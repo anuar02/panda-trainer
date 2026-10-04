@@ -8,6 +8,9 @@ import { finishParticipant } from './workout-finish-fixtures';
 import { operation, session } from './workout-sync-fixtures';
 import '@/lib/i18n';
 
+jest.mock('@/features/program-update/panel', () => ({
+  ProgramUpdatePanel: jest.fn(() => null),
+}));
 jest.mock('@/features/workout-entry/use-entry', () => ({
   useWorkoutEntry: jest.fn(),
 }));
