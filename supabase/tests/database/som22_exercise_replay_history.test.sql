@@ -37,9 +37,9 @@ select set_config('test.som22.template',public.save_workout_template(null,null,'
 select set_config('test.som22.program',public.assign_client_program('00000006-0000-4000-8000-000000000022',
 (current_setting('test.som22.template')::jsonb->>'id')::uuid,(current_setting('test.som22.template')::jsonb->>'revision')::integer,
 '00000010-0000-4000-8000-000000000022')::text,true);
+reset role;
 select set_config('test.som22.program_before',(select to_jsonb(p)::text from public.client_program_exercises p where client_program_id=(current_setting('test.som22.program')::jsonb->>'id')::uuid),true);
 select set_config('test.som22.line_before',(select to_jsonb(t)::text from public.template_exercises t where template_id=(current_setting('test.som22.template')::jsonb->>'id')::uuid),true);
-reset role;
 
 insert into public.bookings(id,workspace_id,client_record_id,starts_at,ends_at,status) values
 ('00000011-0000-4000-8000-000000000022','00000004-0000-4000-8000-000000000022','00000006-0000-4000-8000-000000000022',now()+interval '20 days',now()+interval '20 days 1 hour','confirmed');
@@ -58,9 +58,11 @@ select lives_ok($$update public.exercises set archived_at=now() where workspace_
 select is((select count(*)::integer from public.search_exercises('елка')),0,'archived exercise is absent from selectable search');
 select is((select to_jsonb(t)::text from public.template_exercises t where template_id=(current_setting('test.som22.template')::jsonb->>'id')::uuid),current_setting('test.som22.line_before'),'archive does not rewrite existing template line or revision');
 select is((select e.name from public.template_exercises t join public.exercises e on e.id=t.exercise_id and e.workspace_id=t.workspace_id where t.template_id=(current_setting('test.som22.template')::jsonb->>'id')::uuid),'Моя Ёлка','old template still resolves original name');
+reset role;
 select is((select to_jsonb(p)::text from public.client_program_exercises p where client_program_id=(current_setting('test.som22.program')::jsonb->>'id')::uuid),current_setting('test.som22.program_before'),'entire immutable client program row is unchanged');
 select is((select to_jsonb(w)::text from public.workout_exercises w where id='00000013-0000-4000-8000-000000000022'),current_setting('test.som22.history_before'),'entire finished history exercise snapshot is unchanged');
 select is((select to_jsonb(r)::text from public.set_results r where id='00000014-0000-4000-8000-000000000022'),current_setting('test.som22.result_before'),'archive does not rewrite recorded result');
+set local role authenticated;
 select set_config('test.som22.archive_before',(select archived_at::text || '|' || revision::text from public.exercises where id='00000007-0000-4000-8000-000000000022'),true);
 update public.exercises set archived_at=now()+interval '1 hour' where workspace_id='00000004-0000-4000-8000-000000000022' and id='00000007-0000-4000-8000-000000000022' and archived_at is null;
 select is((select archived_at::text || '|' || revision::text from public.exercises where id='00000007-0000-4000-8000-000000000022'),current_setting('test.som22.archive_before'),'conditional archive retry preserves original date and revision');
