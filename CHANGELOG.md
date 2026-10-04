@@ -9,6 +9,15 @@
 
 ## Не выпущено
 
+- SOM-41: единый settings → coverage → JSON UTF-8 v2 flow объединяет серверный
+  снимок, scoped SQLite операции/receipts и распознанные локальные данные,
+  конфликты/correction context и доступные pending/drafts. Явные gaps и
+  `globalAtomicity: unknown` сохраняют статус incomplete; session guards,
+  повторные сравнения и SHA-256 связывают file outcome с конкретным содержимым.
+  [Проверки](app/review/som-41-complete-export/README.md),
+  [ADR 0092](docs/app/decisions/0092-account-export-source-coverage.md).
+  Runtime, визуальная приёмка, удаление и публикация политики остаются открытыми.
+
 - [SOM-22 / draft PR #58](https://github.com/anuar02/panda-trainer/pull/58): create/archive упражнений закреплены за actor/workspace/login; durable input/UUID replay, validated mutation rows и provider/route lifecycle guards защищают от дублей и поздних результатов. Additive grant INSERT(id), SQL archive/history regressions и concurrency handoff; [отчёт](app/review/som-22-library-production-finish/README.md), [ADR 0091](docs/app/decisions/0091-exercise-mutation-session-and-replay.md). SQL/runtime/native и приёмка владельца открыты.
 
 - [SOM-26 / draft PR #57](https://github.com/anuar02/panda-trainer/pull/57): Today/week/create и общий mutation provider сбрасывают selections,

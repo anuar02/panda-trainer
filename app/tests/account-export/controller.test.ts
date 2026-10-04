@@ -1,15 +1,23 @@
+import { createAccountExportCollector } from '@/features/account-export/collector';
+import { AccountExportError } from '@/features/account-export/service';
+import { fluentRpc, syntheticToken } from './test-transport';
 import snapshot from './snapshot.json';
 import {
   createExportController,
   type ExportStatus,
+  type AccountExportCollector,
 } from '@/features/account-export/controller';
-import { ExportFileError } from '@/features/account-export/file-contract';
+import {
+  exportFileOutcome,
+  type ExportDelivery,
+  ExportFileError,
+} from '@/features/account-export/file-contract';
 const scope = {
   userId: snapshot.owner_user_id,
   workspaceId: snapshot.workspace_id,
-  token: 'synthetic',
+  token: syntheticToken(snapshot.owner_user_id),
 };
-function setup() {
+function setup(collect?: AccountExportCollector) {
   const session = { user: { id: scope.userId }, access_token: scope.token };
   const transport = {
     auth: {
@@ -18,7 +26,7 @@ function setup() {
         error: null as unknown,
       })),
     },
-    rpc: jest.fn(async () => ({
+    rpc: fluentRpc(async () => ({
       data: snapshot as unknown,
       error: null,
       status: 200,
@@ -26,9 +34,14 @@ function setup() {
   };
   const statuses: ExportStatus[] = [];
   const file = jest.fn(
-    async (_json: string, _scope: unknown, guard: () => Promise<void>) => {
+    async (
+      _json: string,
+      _scope: unknown,
+      guard: () => Promise<void>,
+      delivery?: ExportDelivery,
+    ) => {
       await guard();
-      return 'saved' as const;
+      return exportFileOutcome('saved', _json, scope, delivery);
     },
   );
   let current = true;
@@ -38,6 +51,7 @@ function setup() {
     file,
     (status) => statuses.push(status),
     () => current,
+    collect,
   );
   return {
     controller,
@@ -63,9 +77,14 @@ test('prepare is separate from user save and preserves every exact JSON value/or
   const x = setup();
   await x.controller.prepare();
   expect(x.file).not.toHaveBeenCalled();
-  expect(x.statuses).toEqual(['loading', 'ready']);
+  expect(x.statuses).toEqual(['loading', 'readyIncomplete']);
   await x.controller.save();
-  expect(x.file.mock.calls[0]?.[0]).toBe(JSON.stringify(snapshot));
+  expect(JSON.parse(x.file.mock.calls[0]?.[0] ?? '{}')).toMatchObject({
+    version: 2,
+    status: 'incomplete',
+    server: snapshot,
+    globalAtomicity: 'unknown',
+  });
   expect(x.statuses.at(-1)).toBe('saved');
   await x.controller.save();
   expect(x.file).toHaveBeenCalledTimes(1);
@@ -155,12 +174,12 @@ test('transport rejection stays a localized network code', async () => {
 });
 test('cancel during file API prevents stale success', async () => {
   const x = setup();
-  const pending = deferred<'saved'>();
+  const pending = deferred<{ result: 'saved'; evidence: null }>();
   x.file.mockImplementationOnce(async () => pending.promise);
   await x.controller.prepare();
   const save = x.controller.save();
   x.controller.cancel();
-  pending.resolve('saved');
+  pending.resolve({ result: 'saved', evidence: null });
   await save;
   expect(x.statuses.at(-1)).toBe('cancelled');
   expect(x.statuses).not.toContain('saved');
@@ -168,7 +187,7 @@ test('cancel during file API prevents stale success', async () => {
 
 test('cleanup failure during cancellation remains visible', async () => {
   const x = setup();
-  const pending = deferred<'saved'>();
+  const pending = deferred<{ result: 'saved'; evidence: null }>();
   x.file.mockImplementationOnce(async () => pending.promise);
   await x.controller.prepare();
   const save = x.controller.save();
@@ -191,7 +210,7 @@ test('bounded read times out without publishing later response', async () => {
     expect(x.statuses.at(-1)).toBe('network');
     pending.resolve({ data: snapshot, error: null, status: 200 });
     await Promise.resolve();
-    expect(x.statuses).not.toContain('ready');
+    expect(x.statuses).not.toContain('readyIncomplete');
     expect(x.file).not.toHaveBeenCalled();
   } finally {
     jest.useRealTimers();
@@ -216,4 +235,123 @@ test('initial auth read is also bounded and cannot request after timeout', async
   } finally {
     jest.useRealTimers();
   }
+});
+test('wrong file snapshot evidence cannot publish saved success', async () => {
+  const x = setup();
+  x.file.mockImplementationOnce(async (json, _scope, guard, delivery) => {
+    await guard();
+    const outcome = await exportFileOutcome('saved', json, scope, delivery);
+    if (!outcome.evidence) throw new Error('missing fixture evidence');
+    return {
+      ...outcome,
+      evidence: { ...outcome.evidence, snapshotId: 'foreign-snapshot' },
+    };
+  });
+  await x.controller.prepare();
+  await x.controller.save();
+  expect(x.statuses.at(-1)).toBe('storage');
+  expect(x.statuses).not.toContain('saved');
+});
+test('server writer change between prepare and file guard prevents delivery', async () => {
+  const x = setup();
+  await x.controller.prepare();
+  x.transport.rpc.mockResolvedValueOnce({
+    data: {
+      ...snapshot,
+      collections: {
+        ...snapshot.collections,
+        profiles: snapshot.collections.profiles.map((profile) => ({
+          ...profile,
+          display_name: 'Changed synthetic profile',
+        })),
+      },
+    },
+    error: null,
+    status: 200,
+  });
+  await x.controller.save();
+  expect(x.statuses.at(-1)).toBe('stale');
+  expect(x.statuses).not.toContain('saved');
+});
+test('unmount suppresses late cleanup error as well as success', async () => {
+  const x = setup();
+  const pending = deferred<{ result: 'saved'; evidence: null }>();
+  x.file.mockImplementationOnce(async () => pending.promise);
+  await x.controller.prepare();
+  const save = x.controller.save();
+  x.controller.stop();
+  const statuses = [...x.statuses];
+  pending.reject(new ExportFileError('cleanup'));
+  await save;
+  expect(x.statuses).toEqual(statuses);
+});
+test('local acknowledgement during file guard blocks saved outcome', async () => {
+  let acknowledged = false;
+  const collect: AccountExportCollector = async (...argumentsList) => {
+    const collected = await createAccountExportCollector({ local: null })(
+      ...argumentsList,
+    );
+    return {
+      ...collected,
+      validate: async () => {
+        if (acknowledged) throw new AccountExportError('stale');
+        await collected.validate();
+      },
+    };
+  };
+  const x = setup(collect);
+  await x.controller.prepare();
+  x.file.mockImplementationOnce(async (json, _scope, guard, delivery) => {
+    acknowledged = true;
+    await guard();
+    return exportFileOutcome('saved', json, scope, delivery);
+  });
+  await x.controller.save();
+  expect(x.statuses.at(-1)).toBe('stale');
+  expect(x.statuses).not.toContain('saved');
+});
+test('late RPC rejection after silent session change cannot publish old network error', async () => {
+  const x = setup();
+  const pending = deferred<{ data: unknown; error: null; status: number }>();
+  x.transport.rpc.mockImplementationOnce(() => pending.promise);
+  const prepare = x.controller.prepare();
+  for (let i = 0; i < 100 && !x.transport.rpc.mock.calls.length; i += 1)
+    await Promise.resolve();
+  expect(x.transport.rpc).toHaveBeenCalledTimes(1);
+  x.session.access_token = syntheticToken(
+    scope.userId,
+    '00000000-0000-4000-8000-000000000099',
+  );
+  pending.reject(new Error('synthetic late network failure'));
+  await prepare;
+  expect(x.statuses).not.toContain('network');
+  expect(x.statuses).not.toContain('readyIncomplete');
+  expect(x.file).not.toHaveBeenCalled();
+});
+test('caller token mutation during auth await cannot bind original controller to a new session', async () => {
+  const x = setup();
+  const mutableScope = { ...scope };
+  const statuses: ExportStatus[] = [];
+  const pending =
+    deferred<Awaited<ReturnType<typeof x.transport.auth.getSession>>>();
+  x.transport.auth.getSession.mockImplementationOnce(() => pending.promise);
+  const controller = createExportController(
+    x.transport,
+    mutableScope,
+    x.file,
+    (status) => statuses.push(status),
+  );
+  const prepare = controller.prepare();
+  mutableScope.token = syntheticToken(
+    scope.userId,
+    '00000000-0000-4000-8000-000000000099',
+  );
+  x.session.access_token = mutableScope.token;
+  pending.resolve({ data: { session: x.session }, error: null });
+  await prepare;
+  await controller.save();
+  expect(statuses).not.toContain('readyIncomplete');
+  expect(statuses).not.toContain('saved');
+  expect(x.transport.rpc).not.toHaveBeenCalled();
+  expect(x.file).not.toHaveBeenCalled();
 });

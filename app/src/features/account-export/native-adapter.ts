@@ -1,4 +1,9 @@
-import { ExportFileError, type ExportFileAdapter } from './file-contract';
+import {
+  ExportFileError,
+  boundedExportCleanup,
+  exportFileOutcome,
+  type ExportFileAdapter,
+} from './file-contract';
 import { AccountExportError } from './service';
 
 export type NativeFileApi = {
@@ -14,7 +19,7 @@ export type NativeFileApi = {
 export function createNativeExportAdapter(
   api: NativeFileApi,
 ): ExportFileAdapter {
-  return async (json, scope, guard) => {
+  return async (json, scope, guard, delivery) => {
     if (!['ios', 'android'].includes(api.platform))
       throw new ExportFileError('unsupported');
     let uri: string | null = null;
@@ -22,11 +27,19 @@ export function createNativeExportAdapter(
     let phase: 'storage' | 'share' = 'storage';
     try {
       await guard();
-      const name = `trainer-export-v1-${api.id()}.json`;
+      const savedOutcome = await exportFileOutcome(
+        'saved',
+        json,
+        scope,
+        delivery,
+      );
+      await guard();
+      const name = `trainer-export-v2-${api.id()}.json`;
       if (api.platform === 'android') {
         const permission = await api.pick();
-        if (!permission.granted || !permission.directoryUri) return 'cancelled';
         await guard();
+        if (!permission.granted || !permission.directoryUri)
+          return exportFileOutcome('cancelled', json, scope, delivery);
         uri = await api.create(permission.directoryUri, name);
       } else {
         if (!api.cache) throw new ExportFileError('unsupported');
@@ -37,10 +50,19 @@ export function createNativeExportAdapter(
       await guard();
       if (api.platform === 'android') {
         saved = true;
-        return 'saved';
+        return savedOutcome;
       }
       phase = 'share';
-      return await api.share(uri);
+      const result = await api.share(uri);
+      await guard();
+      return result === 'cancelled'
+        ? { result, evidence: null }
+        : {
+            result,
+            evidence: savedOutcome.evidence
+              ? { ...savedOutcome.evidence, disposition: 'shared' }
+              : null,
+          };
     } catch (error: unknown) {
       if (
         error instanceof AccountExportError ||
@@ -51,7 +73,7 @@ export function createNativeExportAdapter(
     } finally {
       if (uri && !saved) {
         try {
-          await api.remove(uri);
+          await boundedExportCleanup(api.remove(uri));
         } catch {
           throw new ExportFileError('cleanup');
         }

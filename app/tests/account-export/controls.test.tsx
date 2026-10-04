@@ -1,3 +1,5 @@
+import { fluentRpc, syntheticToken } from './test-transport';
+import { exportFileOutcome } from '@/features/account-export/file-contract';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import '@/lib/i18n';
@@ -13,14 +15,20 @@ jest.mock('@/features/account-export/file', () => ({
 const scope = {
   userId: snapshot.owner_user_id,
   workspaceId: snapshot.workspace_id,
-  token: 'synthetic',
+  token: syntheticToken(snapshot.owner_user_id),
 };
 let listener: (event: AuthChangeEvent, session: Session | null) => void;
 const unsubscribe = jest.fn();
 let response: unknown = snapshot;
 beforeEach(() => {
   response = snapshot;
-  jest.mocked(saveExportFile).mockReset().mockResolvedValue('shared');
+  jest
+    .mocked(saveExportFile)
+    .mockReset()
+    .mockImplementation(async (json, currentScope, guard, delivery) => {
+      await guard();
+      return exportFileOutcome('shared', json, currentScope, delivery);
+    });
   const client = {
     auth: {
       getSession: async () => ({
@@ -34,7 +42,7 @@ beforeEach(() => {
         return { data: { subscription: { unsubscribe } } };
       },
     },
-    rpc: async () => ({ data: response, error: null, status: 200 }),
+    rpc: fluentRpc(async () => ({ data: response, error: null, status: 200 })),
   };
   jest
     .mocked(getSupabaseClient)
@@ -42,7 +50,9 @@ beforeEach(() => {
 });
 test('localized two-step controls show pending limitation and truthful share result', async () => {
   await render(<AccountExportControls scope={scope} />);
-  expect(screen.getByText(/Несинхронизированные записи/)).toBeTruthy();
+  expect(
+    screen.getByText(/Экспорт неполный и не разрешает удаление аккаунта/),
+  ).toBeTruthy();
   await fireEvent.press(
     screen.getByRole('button', { name: 'Получить экспорт' }),
   );
@@ -53,9 +63,13 @@ test('localized two-step controls show pending limitation and truthful share res
     screen.getByText(/Сохранение получателем не подтверждено/),
   ).toBeTruthy();
   expect(saveExportFile).toHaveBeenCalledWith(
-    JSON.stringify(snapshot),
+    expect.any(String),
     scope,
     expect.any(Function),
+    expect.objectContaining({
+      sessionId: expect.any(String),
+      sha256: expect.any(String),
+    }),
   );
 });
 test('malformed payload has localized retry and cannot save', async () => {

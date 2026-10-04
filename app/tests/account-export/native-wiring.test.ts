@@ -6,7 +6,11 @@ import {
 } from 'expo-file-system/legacy';
 import { saveExportFile } from '@/features/account-export/file.native';
 import snapshot from './snapshot.json';
-jest.mock('expo-crypto', () => ({ randomUUID: () => 'synthetic-file' }));
+jest.mock('expo-crypto', () => ({
+  randomUUID: () => 'synthetic-file',
+  CryptoDigestAlgorithm: { SHA256: 'SHA256' },
+  digestStringAsync: jest.fn(async () => 'synthetic-digest'),
+}));
 jest.mock('expo-file-system/legacy', () => ({
   cacheDirectory: 'file:///cache/',
   EncodingType: { UTF8: 'utf8' },
@@ -28,9 +32,10 @@ test('iOS wiring writes exact JSON as UTF-8, passes file URL and cleans on dismi
     userId: snapshot.owner_user_id,
     workspaceId: snapshot.workspace_id,
   };
-  expect(await saveExportFile(json, scope, async () => undefined)).toBe(
-    'cancelled',
-  );
+  expect(await saveExportFile(json, scope, async () => undefined)).toEqual({
+    result: 'cancelled',
+    evidence: null,
+  });
   const uri = jest.mocked(writeAsStringAsync).mock.calls[0]?.[0];
   expect(writeAsStringAsync).toHaveBeenCalledWith(uri, json, {
     encoding: EncodingType.UTF8,

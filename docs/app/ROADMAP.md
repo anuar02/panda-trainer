@@ -9,6 +9,19 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 export: [x] пользовательский settings → prepare → coverage
+  → file flow, версия 2 с серверным snapshot, scoped SQLite raw operations/receipts,
+  валидированными local entries, server conflicts/correction context и доступными
+  pending/drafts; [x] source manifest/gaps, unknown globalAtomicity, identity fences,
+  наблюдаемые изменения при повторных чтениях и SHA-256 file outcome.
+  Полный app check: 204 suites / 2537 tests; type/lint/format зелёные.
+  [Отчёт](../../app/review/som-41-complete-export/README.md),
+  [ADR 0092](decisions/0092-account-export-source-coverage.md).
+  [ ] SQL/RLS/live Auth, real SQLite/file/share/crash/reopen, visual/native/
+  accessibility и приёмка владельца. Экспорт намеренно incomplete; отсутствие
+  промежуточных записей не доказано. Deletion/policy остаются отдельным пакетом,
+  SOM-41 целиком не закрыта.
+
 - 04.10.2026 — SOM-22: [x] exercise create/archive session fence, durable exact input/UUID replay, shared owned provider lock и route unmount/scope guards; [x] independent synthetic service/provider/route regressions; полный app check 2347 tests / 186 suites, type/lint/format зелёные. [Отчёт](../../app/review/som-22-library-production-finish/README.md), [ADR 0091](decisions/0091-exercise-mutation-session-and-replay.md). [ ] needs-local-db: additive INSERT(id) grant, pgTAP/concurrency; live Auth/storage/crash/reopen/native/parity и одобрение владельца.
 - 04.10.2026 — SOM-32 finish r2: восстановлен полный пакет закрытого PR #54 на свежей базе; [x] доказательство terminal current resolution через existing scoped receipts и продолжение ввода/новый explicit finish; [x] credentials исключены из React keys/state. [Отчёт r2](../../app/review/som-32-production-finish-r2/README.md), [ADR 0089](decisions/0089-terminal-finish-current-recovery.md). Полный check: 188 suites / 2332 tests, type/lint/format зелёные; [ ] correction/program contracts, live/storage/native/parity и приёмка владельца. SOM-32 целиком не завершена.
 
