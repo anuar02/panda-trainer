@@ -11,6 +11,17 @@
 
 - 04.10.2026 — SOM-32 finish r2: восстановлен полный пакет закрытого PR #54 на свежей базе; [x] доказательство terminal current resolution через existing scoped receipts и продолжение ввода/новый explicit finish; [x] credentials исключены из React keys/state. [Отчёт r2](../../app/review/som-32-production-finish-r2/README.md), [ADR 0089](decisions/0089-terminal-finish-current-recovery.md). Полный check: 188 suites / 2332 tests, type/lint/format зелёные; [ ] correction/program contracts, live/storage/native/parity и приёмка владельца. SOM-32 целиком не завершена.
 
+- 04.10.2026 — SOM-32 explicit correction: [x] отдельная новая migration,
+  owner list/review/apply, immutable receipt/audit и serialized revision/provenance
+  validation; [x] typed session-fenced transport, отдельный durable command store,
+  явный просмотр/подтверждение и finished journal readback; [x] synthetic tests.
+  Полный app check: 182 suites / 2178 tests, type/lint/format зелёные.
+  [ ] needs-local-db: SQL lint/pgTAP/concurrency/type drift; [ ] real auth/storage,
+  native/parity и одобрение владельца. Personal-program update остаётся
+  заблокированным immutable-copy/provenance решением; SOM-32 целиком не закрыта.
+  [Отчёт](../../app/review/som-32-explicit-correction-server/README.md),
+  [ADR 0090](decisions/0090-explicit-finished-journal-correction.md).
+
 - 04.10.2026 — SOM-26 presentation/lifecycle: [x] Today/week/create caller scope,
   same-user relogin reset, owned provider lock/result/finally и verified refresh;
   [x] overlap acknowledgement/save, exact durable group-plan retry и server-only
