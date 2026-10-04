@@ -1,6 +1,8 @@
 # SOM-32 · Явное исправление завершённого журнала
 
 Дата: 04.10.2026. Ветка: `agent/01-som-32-explicit-correction-server`.
+Draft PR: [#56](https://github.com/anuar02/panda-trainer/pull/56), base
+`fix/som-50-template-picker`. Implementation commit: `c07e427`.
 База при начале: `origin/fix/som-50-template-picker`, `290106e`.
 Пакет реализует explicit correction; весь SOM-32 и экран не приняты.
 Статус SQL: **needs-local-db**.

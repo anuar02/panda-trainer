@@ -23,7 +23,7 @@
 
 ### Добавлено
 
-- SOM-32: отдельное явное применение сохранённого correction draft завершённого
+- [SOM-32 / draft PR #56](https://github.com/anuar02/panda-trainer/pull/56): отдельное явное применение сохранённого correction draft завершённого
   журнала: owner RPC, immutable receipts/audit и tenant/revision/provenance guards;
   scoped transport, durable exact retry, просмотр/подтверждение и readback в журнале.
   [Отчёт](app/review/som-32-explicit-correction-server/README.md),
