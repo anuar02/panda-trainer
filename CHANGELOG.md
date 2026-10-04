@@ -9,6 +9,8 @@
 
 ## Не выпущено
 
+- CI: в database job добавлены семь ранее не запускавшихся concurrency-скриптов (payment, SOM-22, notifications, push, workout sync, SOM-31, corrections); `push_concurrency.py` теперь удаляет стартовые упражнения workspace перед очисткой.
+
 - SOM-73: первая выборка push включает созданные delivery; утренняя сводка сохраняется при архивировании клиента, если в дне остаются активные занятия.
 
 - [SOM-73 r3 / draft PR #69](https://github.com/anuar02/panda-trainer/pull/69): Expo SDK 57 native device lifecycle и системное разрешение, logout/
