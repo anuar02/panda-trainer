@@ -1,5 +1,11 @@
+import {
+  MotionHeader,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { useState, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { Database } from '@/lib/database.types';
@@ -165,7 +171,7 @@ export function WorkspaceClientDetailsScreen({
     </Card>
   );
   const toolbar = (
-    <View style={s.topbar}>
+    <MotionHeader style={s.topbar}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={text('back')}
@@ -182,7 +188,7 @@ export function WorkspaceClientDetailsScreen({
           onPress={onInvite}
         />
       )}
-    </View>
+    </MotionHeader>
   );
 
   if (loading)
@@ -232,7 +238,7 @@ export function WorkspaceClientDetailsScreen({
     >
       {toolbar}
       <ScrollView contentContainerStyle={s.body}>
-        <View style={s.header}>
+        <MotionHeader style={s.header}>
           <View style={s.identity}>
             <View style={s.avatar}>
               <GradientBackground
@@ -276,7 +282,7 @@ export function WorkspaceClientDetailsScreen({
               </Card>
             </View>
           )}
-        </View>
+        </MotionHeader>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -287,6 +293,7 @@ export function WorkspaceClientDetailsScreen({
             const selected = tab === value;
             return (
               <Pressable
+                motionKind="chip"
                 key={value}
                 accessibilityRole="tab"
                 accessibilityState={{ selected }}
@@ -322,7 +329,7 @@ export function WorkspaceClientDetailsScreen({
         <View style={[s.content, s.stack]}>
           {tab === 'sessions' &&
             (data.bookings.length ? (
-              <Card flush style={s.rows}>
+              <Card rows flush style={s.rows}>
                 {data.bookings.map((booking, index) => {
                   const status = bookingStatus(booking.status);
                   const startsAt = new Date(booking.starts_at);
@@ -390,7 +397,7 @@ export function WorkspaceClientDetailsScreen({
                     })}
                   </Text>
                 </View>
-                <Card flush style={s.rows}>
+                <Card rows flush style={s.rows}>
                   {orderedItems.map((exercise, index) => {
                     const prescription =
                       exercise.planned_reps ?? exercise.planned_seconds ?? '—';

@@ -1,6 +1,6 @@
+import { MotionPressable } from './motion';
 import {
   ActivityIndicator,
-  Pressable,
   StyleSheet,
   View,
   type PressableProps,
@@ -41,7 +41,8 @@ export function Button({
   const blocked = disabled || loading;
   const primary = variant === 'primary';
   return (
-    <Pressable
+    <MotionPressable
+      motionKind="button"
       {...props}
       accessibilityRole="button"
       accessibilityState={{ disabled: blocked, busy: loading }}
@@ -99,6 +100,6 @@ export function Button({
       >
         {label}
       </Text>
-    </Pressable>
+    </MotionPressable>
   );
 }

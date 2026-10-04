@@ -1,5 +1,11 @@
+import {
+  MotionHeader,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { Fragment, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { RescheduleRequest, SchedulingAction } from '@/domain/scheduling';
@@ -81,7 +87,7 @@ export function TrainerInboxScreen({
       style={s.root}
       testID={`trainer-inbox-${scenario}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader style={s.topbar}>
         <Pressable
           onPress={onBack}
           accessibilityRole="button"
@@ -94,8 +100,8 @@ export function TrainerInboxScreen({
           {t('trainerInbox.title')}
         </Text>
         <View style={s.back} />
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
+      </MotionHeader>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
         {(error || demo.storageStatus === 'error') && (
           <Text accessibilityRole="alert" style={{ color: colors.danger }}>
             {error || t('schedulingDemo.errors.storage')}
@@ -144,6 +150,7 @@ export function TrainerInboxScreen({
                         )}
                         tone={awaitingMe ? 'warning' : 'neutral'}
                         dot={awaitingMe}
+                        pulse={awaitingMe}
                       />
                     </View>
                   </View>

@@ -1,11 +1,9 @@
-import { AccountDeletionRecoveryEntry } from '@/features/account-deletion/recovery-entry';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  View,
-} from 'react-native';
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+import { AccountDeletionRecoveryEntry } from '@/features/account-deletion/recovery-entry';
+import { KeyboardAvoidingView, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/ui/button';

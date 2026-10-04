@@ -1,6 +1,10 @@
+import {
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
 import type { Template } from '@/domain/templates';
 import { useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
@@ -96,7 +100,7 @@ export function TemplateScreen({
       {feedback}
       {template ? (
         <>
-          <ScrollView contentContainerStyle={s.body}>
+          <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
             <Text
               style={[
                 s.eyebrow,

@@ -1,6 +1,13 @@
+import {
+  MotionHeader,
+  Shimmer,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { useState, type ReactNode } from 'react';
 import { Sheet } from '@/ui/sheet';
-import { Pressable, ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
@@ -107,7 +114,7 @@ function DemoClientHistoryScreen({
       style={s.root}
       testID={`client-history-${scenario}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader motionKey={scenario} style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <GradientBackground
@@ -135,8 +142,8 @@ function DemoClientHistoryScreen({
         >
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
+      </MotionHeader>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
         {scenario === 'loading' || (demo && !demo.hydrated) ? (
           <View
             style={s.page}
@@ -144,7 +151,7 @@ function DemoClientHistoryScreen({
             accessibilityRole="progressbar"
             accessibilityLabel={tx('loading')}
           >
-            <Card flush style={s.rowsCard}>
+            <Card rows flush style={s.rowsCard}>
               {[0, 1, 2, 3].map((row) => (
                 <View
                   key={row}
@@ -153,20 +160,20 @@ function DemoClientHistoryScreen({
                     row > 0 && { borderTopWidth: 1, borderTopColor: hair },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.rowMain}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },
@@ -283,7 +290,7 @@ function DemoClientHistoryScreen({
                 {empty ? (
                   quietEmpty('Charges')
                 ) : (
-                  <Card flush style={s.rowsCard}>
+                  <Card rows flush style={s.rowsCard}>
                     {(['chargeDateRecent', 'chargeDateEarlier'] as const).map(
                       (date, index) => (
                         <View
@@ -365,7 +372,7 @@ function ControlledClientHistory({ data }: { data: ClientHistoryData }) {
       style={s.root}
       testID={`client-history-${data.loading ? 'loading' : data.rows.length ? 'normal' : 'empty'}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <GradientBackground
@@ -393,7 +400,7 @@ function ControlledClientHistory({ data }: { data: ClientHistoryData }) {
         >
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
-      </View>
+      </MotionHeader>
       <ScrollView contentContainerStyle={s.body}>
         {data.loading ? (
           <View
@@ -402,7 +409,7 @@ function ControlledClientHistory({ data }: { data: ClientHistoryData }) {
             accessibilityRole="progressbar"
             accessibilityLabel={tx('loading')}
           >
-            <Card flush style={s.rowsCard}>
+            <Card rows flush style={s.rowsCard}>
               {[0, 1, 2, 3].map((row) => (
                 <View
                   key={row}
@@ -411,20 +418,20 @@ function ControlledClientHistory({ data }: { data: ClientHistoryData }) {
                     row > 0 && { borderTopWidth: 1, borderTopColor: hair },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.rowMain}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },

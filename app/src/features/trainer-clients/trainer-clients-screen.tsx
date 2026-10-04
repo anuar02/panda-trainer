@@ -1,12 +1,13 @@
+import {
+  MotionHeader,
+  Shimmer,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { type DemoScenario } from '@/features/demo/use-demo-scenario';
@@ -51,7 +52,7 @@ export function TrainerClientsScreen({
       style={s.root}
       testID={`trainer-clients-${scenario}`}
     >
-      <View style={s.header}>
+      <MotionHeader motionKey={scenario} style={s.header}>
         <View>
           <Text style={s.title}>{tx('title')}</Text>
           <Text style={[s.small, secondary, s.subtitle]}>
@@ -69,7 +70,7 @@ export function TrainerClientsScreen({
         >
           <Icon name="plus" size={22} color={selectedInk} />
         </Pressable>
-      </View>
+      </MotionHeader>
       <View style={s.controls}>
         <View
           style={[
@@ -100,6 +101,7 @@ export function TrainerClientsScreen({
         <View style={s.filters} accessibilityLabel={tx('filters')}>
           {filters.map((value) => (
             <Pressable
+              motionKind="chip"
               key={value}
               onPress={() => setFilter(value)}
               accessibilityRole="button"
@@ -148,6 +150,7 @@ export function TrainerClientsScreen({
         </View>
       </View>
       <ScrollView
+        motionKey={scenario}
         contentContainerStyle={s.body}
         keyboardShouldPersistTaps="handled"
       >
@@ -185,17 +188,17 @@ export function TrainerClientsScreen({
                   },
                 ]}
               >
-                <View
+                <Shimmer
                   style={[s.skeletonAvatar, { backgroundColor: colors.sunken }]}
                 />
                 <View style={s.skeletonMain}>
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonTitle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
-                  <View
+                  <Shimmer
                     style={[s.skeletonText, { backgroundColor: colors.sunken }]}
                   />
                 </View>
@@ -203,7 +206,7 @@ export function TrainerClientsScreen({
             ))}
           </Card>
         ) : list.length ? (
-          <Card flush style={s.list}>
+          <Card rows flush style={s.list}>
             {list.map((person, index) => (
               <Pressable
                 onPress={() =>

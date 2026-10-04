@@ -1,10 +1,11 @@
 import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+  MotionHeader,
+  MotionGroup,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/ui/button';
@@ -128,7 +129,7 @@ export function TrainerInvitationScreen({
       edges={['top', 'left', 'right', 'bottom']}
       style={[s.root, { backgroundColor: colors.canvas }]}
     >
-      <View style={s.topbar}>
+      <MotionHeader style={s.topbar}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t('invitations.trainer.back')}
@@ -144,7 +145,7 @@ export function TrainerInvitationScreen({
           {t('invitations.trainer.screenTitle')}
         </Text>
         <View style={s.back} />
-      </View>
+      </MotionHeader>
       <ScrollView contentContainerStyle={s.body}>
         <Text
           accessibilityRole="header"
@@ -155,7 +156,11 @@ export function TrainerInvitationScreen({
         <Text style={[s.bodyText, s.intro, { color: colors.secondary }]}>
           {t('invitations.trainer.description')}
         </Text>
-        <Card flush style={[s.inviteCard, { borderColor: colors.border }]}>
+        <Card
+          entrance="invite"
+          flush
+          style={[s.inviteCard, { borderColor: colors.border }]}
+        >
           <View style={[s.seal, { backgroundColor: colors.sunken }]}>
             <Icon name={sealIcon} size={28} color={colors.ink} />
           </View>
@@ -181,6 +186,7 @@ export function TrainerInvitationScreen({
             label={status.label}
             tone={status.tone}
             dot={state === 'active'}
+            pulse={state === 'active'}
             style={s.status}
           />
           {state === 'active' && Boolean(link) && (
@@ -350,7 +356,7 @@ export function ClientInvitationScreen({
         {loading ? (
           <LoadingState label={t('invitations.client.loading')} />
         ) : (
-          <View style={s.clientCard}>
+          <MotionGroup kind="invite" style={s.clientCard}>
             {unavailable ? (
               <View style={[s.seal, { backgroundColor: colors.sunken }]}>
                 <Icon name={sealIcon} size={28} color={colors.ink} />
@@ -386,11 +392,12 @@ export function ClientInvitationScreen({
                     : t('invitations.client.linkActive')
                 }
                 tone={accepted ? 'success' : 'neutral'}
-                dot={false}
+                dot={!accepted}
+                pulse={!accepted}
                 style={s.status}
               />
             )}
-          </View>
+          </MotionGroup>
         )}
         {!loading && Boolean(error) ? (
           <View style={[s.error, { backgroundColor: colors.sunken }]}>

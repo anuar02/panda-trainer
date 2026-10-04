@@ -66,7 +66,7 @@ export function ClientProgressVisits(props: {
       ) : read.loading ? (
         <Text accessibilityRole="progressbar">{t('common.loading')}</Text>
       ) : (
-        <Card flush style={s.visitsCard}>
+        <Card rows flush style={s.visitsCard}>
           <View style={s.week}>
             {week.days.map((date) => {
               const count =

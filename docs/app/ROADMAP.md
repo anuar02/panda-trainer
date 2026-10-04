@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-39, бриф 14: [x] общий вход вкладок/stack через focus,
+  CSS stagger/tabPop/нажатия/pulse/shimmer/growX, shared calm/reduce policy,
+  idle-предзагрузка вместо монтирования всех вкладок перед первым кадром.
+  [Отчёт](../../app/review/14-som-39-motion-navigation/README.md),
+  [ADR 0105](decisions/0105-navigation-motion-policy.md).
+  Native iPhone 14 Pro/Android, визуальный паритет и приёмка владельца открыты;
+  журнал/тосты/шторки — бриф 15, маскот — SOM-38. SOM-39 целиком не закрыт.
+
 - 04.10.2026 — SOM-38: [x] точные CSS-кейфреймы PNG-поз через Reanimated,
   shadow/glow/sleep z, вход/poke, fxPanda/fxFade/confetti/spark 2200 мс;
   [x] reduce motion/calm gates, статичные лица, отмена циклов при уходе/размонтировании;
@@ -1069,7 +1077,10 @@
   компонентов перенесена из этапа 1.
 - [ ] Крупный текст: системный масштаб шрифта не ломает экраны журнала и «Сегодня»
   (задача 7 из `prototype-fresh/CODEX-PLAN.md`); приёмка перенесена из этапа 1.
+- [x] SOM-39, бриф 14: реализация CSS-входа экранов, tabbar/нажатий/pulse/shimmer
+  через общие Reanimated-компоненты; [отчёт](../../app/review/14-som-39-motion-navigation/README.md).
 - [ ] Короткие функциональные анимации Reanimated: сохранение подхода, шторки, переходы.
+  Переходы реализованы в брифе 14; native/owner acceptance и бриф 15 открыты.
 
 ## Этап 10. Готовность к пилоту
 

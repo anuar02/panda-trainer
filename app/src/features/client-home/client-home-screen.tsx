@@ -1,3 +1,11 @@
+import {
+  MotionHeader,
+  Shimmer,
+  GrowX,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { DemoNotificationEntry } from '@/features/notifications/demo';
 import {
   schedulingToday,
@@ -8,7 +16,7 @@ import { workoutClients, workoutExercises } from '@/domain/workout/fixtures';
 import { useOptionalSchedulingDemo } from '@/features/scheduling-demo/provider';
 import { SchedulingSessionSheet } from '@/features/scheduling-demo/session-sheet';
 import { useState, type ReactNode } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -249,7 +257,7 @@ function DemoClientHomeScreen({
       style={s.root}
       testID={`client-home-${scenario}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader motionKey={scenario} style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <Text style={s.initials}>{tx('initials')}</Text>
@@ -264,8 +272,8 @@ function DemoClientHomeScreen({
           </View>
         </View>
         <DemoNotificationEntry />
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
+      </MotionHeader>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
         {actionError ? (
           <Text accessibilityRole="alert">{actionError}</Text>
         ) : null}
@@ -297,20 +305,20 @@ function DemoClientHomeScreen({
                     row > 0 && { borderTopWidth: 1, borderTopColor: hair },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.skeletonMain}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },
@@ -519,7 +527,7 @@ function DemoClientHomeScreen({
                     </Text>
                   </View>
                   <View style={[s.meter, { backgroundColor: colors.sunken }]}>
-                    <View
+                    <GrowX
                       style={[
                         s.meterFill,
                         {
@@ -678,7 +686,7 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
       style={s.root}
       testID={`client-home-${data.loading ? 'loading' : next ? 'normal' : 'empty'}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <Text style={s.initials}>{initials}</Text>
@@ -703,7 +711,7 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
             <Icon name="bell" color={colors.ink} size={22} />
           </Pressable>
         )}
-      </View>
+      </MotionHeader>
       <ScrollView contentContainerStyle={s.body}>
         {data.loading ? (
           <View
@@ -721,20 +729,20 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
                     row > 0 && { borderTopWidth: 1, borderTopColor: hair },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.skeletonMain}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },

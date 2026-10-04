@@ -9,6 +9,11 @@
 
 ## Не выпущено
 
+- [SOM-39 / draft PR #77](https://github.com/anuar02/panda-trainer/pull/77): общий Reanimated-вход экранов, tabPop/индикаторы вкладок, прерываемый
+  отклик кнопок/строк/чипов, pulse/shimmer/growX и idle-предзагрузка вкладок.
+  Calm/reduce motion показывают контент сразу; native и одобрение владельца открыты.
+  [Отчёт](app/review/14-som-39-motion-navigation/README.md).
+
 - [SOM-38 / draft PR #76](https://github.com/anuar02/panda-trainer/pull/76): PNG-панда движется через Reanimated по кейфреймам prototype-fresh:
   семь режимов, тень/glow, sleep z, вход/poke и празднование 2200 мс с confetti/spark.
   Reduce motion и calm отключают движение; неизвестный calm-контекст сохраняет

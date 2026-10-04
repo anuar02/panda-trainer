@@ -1,5 +1,6 @@
+import { TabMotion, useScreenEntrance } from '@/ui/motion';
 import { Tabs } from 'expo-router';
-import type { ComponentProps } from 'react';
+import { useEffect, useRef, type ComponentProps } from 'react';
 import { Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/ui/theme';
@@ -33,6 +34,51 @@ export function FloatingTabBar({
   const { t } = useTranslation();
   const { scheme, colors } = useTheme();
   const { fontScale } = useWindowDimensions();
+  const entry = useScreenEntrance();
+  const params = state.routes[state.index]?.params;
+  const scenario =
+    params && 'scenario' in params && typeof params.scenario === 'string'
+      ? params.scenario
+      : '';
+  const entryRevision = `${entry.revision}:${scenario}`;
+  const warmed = useRef(new Set<string>());
+  useEffect(() => {
+    const pending = state.routes.filter(
+      (route) =>
+        route.key !== state.routes[state.index]?.key &&
+        !warmed.current.has(route.key),
+    );
+    let cancelled = false;
+    if (typeof navigation.preload !== 'function') return;
+    let cancel = () => {};
+    const schedule = (callback: () => void) => {
+      if (typeof requestIdleCallback === 'function') {
+        const handle = requestIdleCallback(callback);
+        return () => cancelIdleCallback(handle);
+      }
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      const frame = requestAnimationFrame(() => {
+        timeout = setTimeout(callback, 0);
+      });
+      return () => {
+        cancelAnimationFrame(frame);
+        if (timeout !== undefined) clearTimeout(timeout);
+      };
+    };
+    const warm = () => {
+      if (cancelled) return;
+      const route = pending.shift();
+      if (!route) return;
+      warmed.current.add(route.key);
+      navigation.preload(route.name, route.params);
+      cancel = schedule(warm);
+    };
+    cancel = schedule(warm);
+    return () => {
+      cancelled = true;
+      cancel();
+    };
+  }, [navigation, state.routes, state.index]);
   const dark = scheme === 'dark';
   const fontSize = role === 'trainer' ? 10 : 12;
   const accent = dark ? '#6f86ff' : '#2b48d6';
@@ -96,8 +142,11 @@ export function FloatingTabBar({
                 borderRadius: 20,
               }}
             >
-              {selected && (
-                <View
+              {
+                <TabMotion
+                  indicator
+                  selected={selected}
+                  revision={entryRevision}
                   pointerEvents="none"
                   style={{
                     position: 'absolute',
@@ -111,13 +160,26 @@ export function FloatingTabBar({
                       : 'rgba(43,72,214,0.1)',
                   }}
                 />
-              )}
-              <Icon
-                name={item.icon}
-                size={22}
-                strokeWidth={selected ? 2.3 : 1.8}
-                color={selected ? accent : secondary}
-              />
+              }
+              <TabMotion
+                selected={selected}
+                revision={entryRevision}
+                inactive={
+                  <Icon
+                    name={item.icon}
+                    size={22}
+                    strokeWidth={1.8}
+                    color={secondary}
+                  />
+                }
+              >
+                <Icon
+                  name={item.icon}
+                  size={22}
+                  strokeWidth={selected ? 2.3 : 1.8}
+                  color={accent}
+                />
+              </TabMotion>
               <Text
                 style={{
                   fontFamily: selected ? 'Inter_700Bold' : 'Inter_600SemiBold',

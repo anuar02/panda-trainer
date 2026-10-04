@@ -1,5 +1,12 @@
+import {
+  MotionHeader,
+  Shimmer,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { useState } from 'react';
-import { Image, Linking, Pressable, ScrollView, View } from 'react-native';
+import { Image, Linking, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -92,7 +99,7 @@ function DemoClientProgramScreen({
       style={s.root}
       testID={`client-program-${scenario}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader motionKey={scenario} style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <GradientBackground start="#262b45" end="#141726" radius={16} />
@@ -116,8 +123,8 @@ function DemoClientProgramScreen({
         >
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
+      </MotionHeader>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
         {scenario === 'loading' ? (
           <View
             style={s.page}
@@ -125,7 +132,7 @@ function DemoClientProgramScreen({
             accessibilityRole="progressbar"
             accessibilityLabel={tx('loading')}
           >
-            <Card flush style={s.rows}>
+            <Card rows flush style={s.rows}>
               {[0, 1, 2, 3].map((index) => (
                 <View
                   key={index}
@@ -134,20 +141,20 @@ function DemoClientProgramScreen({
                     index > 0 && { borderTopWidth: 1, borderTopColor: hair },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.main}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },
@@ -213,7 +220,7 @@ function DemoClientProgramScreen({
                       {tx('date')}
                     </Text>
                   </View>
-                  <Card flush style={s.rows}>
+                  <Card rows flush style={s.rows}>
                     {programExercises.map((exercise, index) => (
                       <Pressable
                         key={exercise.id}
@@ -372,7 +379,7 @@ function ControlledClientProgram({ data }: { data: ClientProgramData }) {
       style={s.root}
       testID={`client-program-${data.loading ? 'loading' : data.exercises.length ? 'normal' : 'empty'}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <GradientBackground start="#262b45" end="#141726" radius={16} />
@@ -396,7 +403,7 @@ function ControlledClientProgram({ data }: { data: ClientProgramData }) {
         >
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
-      </View>
+      </MotionHeader>
       <ScrollView contentContainerStyle={s.body}>
         {data.loading ? (
           <View
@@ -405,7 +412,7 @@ function ControlledClientProgram({ data }: { data: ClientProgramData }) {
             accessibilityRole="progressbar"
             accessibilityLabel={tx('loading')}
           >
-            <Card flush style={s.rows}>
+            <Card rows flush style={s.rows}>
               {[0, 1, 2, 3].map((index) => (
                 <View
                   key={index}
@@ -414,20 +421,20 @@ function ControlledClientProgram({ data }: { data: ClientProgramData }) {
                     index > 0 && { borderTopWidth: 1, borderTopColor: hair },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.main}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },
@@ -481,7 +488,7 @@ function ControlledClientProgram({ data }: { data: ClientProgramData }) {
                       {data.sessionLabel ?? tx('currentPlan')}
                     </Text>
                   </View>
-                  <Card flush style={s.rows}>
+                  <Card rows flush style={s.rows}>
                     {data.exercises.map((row, index) => (
                       <Pressable
                         key={row.id}

@@ -1,4 +1,10 @@
 import {
+  MotionHeader,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
+import {
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -11,8 +17,6 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -255,7 +259,7 @@ function TemplateEditorForm({
         style={s.root}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={s.topbar}>
+        <MotionHeader style={s.topbar}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('trainerLibrary.back')}
@@ -270,7 +274,7 @@ function TemplateEditorForm({
           {iconButton('trash', t('templateEditor.discard'), () =>
             setSheet('discard'),
           )}
-        </View>
+        </MotionHeader>
         <ScrollView
           contentContainerStyle={s.body}
           keyboardShouldPersistTaps="handled"
@@ -619,6 +623,7 @@ function TemplateEditorForm({
           const selected = draft.exercises.some((x) => x.id === e.id);
           return (
             <Pressable
+              motionKind="chip"
               key={e.id}
               accessibilityRole="button"
               accessibilityLabel={e.name}

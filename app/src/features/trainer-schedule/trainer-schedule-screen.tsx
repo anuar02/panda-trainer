@@ -1,9 +1,16 @@
+import {
+  Shimmer,
+  MotionHeader,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { router } from 'expo-router';
 import { useOptionalSchedulingDemo } from '@/features/scheduling-demo/provider';
 import { scheduleRows } from '@/features/scheduling-demo/adapters';
 import { SchedulingSessionSheet } from '@/features/scheduling-demo/session-sheet';
 import { Fragment, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
@@ -268,7 +275,7 @@ export function TrainerScheduleScreen({
       testID={`trainer-schedule-${scenario}`}
       style={[s.root, { backgroundColor: colors.canvas }]}
     >
-      <View style={s.header}>
+      <MotionHeader motionKey={scenario} style={s.header}>
         <Text accessibilityRole="header" style={s.title}>
           {t('trainerSchedule.title')}
         </Text>
@@ -281,8 +288,8 @@ export function TrainerScheduleScreen({
         >
           <Icon name="plus" color={selectedInk} />
         </Pressable>
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
+      </MotionHeader>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
         {demo?.storageStatus === 'error' && (
           <View>
             <Text accessibilityRole="alert">
@@ -456,28 +463,28 @@ export function TrainerScheduleScreen({
                     { borderTopColor: hair },
                   ]}
                 >
-                  <View style={s.skeletonAvatar}>
+                  <Shimmer style={s.skeletonAvatar}>
                     <GradientBackground
                       start={colors.sunken}
                       end={hair}
                       radius={21}
                     />
-                  </View>
+                  </Shimmer>
                   <View style={s.main}>
-                    <View style={s.skeletonLine}>
+                    <Shimmer style={s.skeletonLine}>
                       <GradientBackground
                         start={colors.sunken}
                         end={hair}
                         radius={10}
                       />
-                    </View>
-                    <View style={s.skeletonSubline}>
+                    </Shimmer>
+                    <Shimmer style={s.skeletonSubline}>
                       <GradientBackground
                         start={colors.sunken}
                         end={hair}
                         radius={10}
                       />
-                    </View>
+                    </Shimmer>
                   </View>
                 </View>
               ))}

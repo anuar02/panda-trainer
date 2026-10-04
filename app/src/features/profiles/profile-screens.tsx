@@ -1,4 +1,11 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import {
+  GrowX,
+  Shimmer,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -177,7 +184,7 @@ export function TrainerProfileScreen({
       <View style={s.trainerHeader}>
         <Text style={s.trainerTitle}>{tx('title')}</Text>
       </View>
-      <ScrollView contentContainerStyle={s.trainerBody}>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.trainerBody}>
         <View style={s.trainerPerson}>
           <Lead trainer>{tx('trainerInitials')}</Lead>
           <View style={s.personText}>
@@ -203,7 +210,7 @@ export function TrainerProfileScreen({
             </Card>
           ))}
         </View>
-        <Card flush style={s.rows}>
+        <Card rows flush style={s.rows}>
           {rows.map((row, index) => (
             <Pressable
               key={row.title}
@@ -286,7 +293,7 @@ export function ClientProfileScreen({
           <Icon name="bell" size={22} color={colors.ink} />
         </Pressable>
       </View>
-      <ScrollView contentContainerStyle={s.body}>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
         {scenario === 'loading' ? (
           <View
             style={s.clientContent}
@@ -308,7 +315,7 @@ export function ClientProfileScreen({
                 >
                   <View style={[s.lead, { backgroundColor: colors.sunken }]} />
                   <View style={s.skeletonLines}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonLine,
                         { backgroundColor: colors.sunken },
@@ -391,13 +398,13 @@ export function ClientProfileScreen({
                       </Text>
                     </View>
                     <View style={[s.meter, { backgroundColor: colors.sunken }]}>
-                      <View style={s.meterValue}>
+                      <GrowX style={s.meterValue}>
                         <GradientBackground
                           start="#7b8ff5"
                           end="#2b48d6"
                           radius={4}
                         />
-                      </View>
+                      </GrowX>
                     </View>
                     <View style={[s.payment, { borderTopColor: hair }]}>
                       <Text style={[s.detailLabel, secondary]}>

@@ -1,5 +1,11 @@
+import {
+  MotionHeader,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { WorkoutSession, WorkoutState } from '@/domain/workout';
@@ -93,7 +99,7 @@ function Details({
     </View>
   );
   const toolbar = (
-    <View style={s.topbar}>
+    <MotionHeader style={s.topbar}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={t('clientDetails.back')}
@@ -110,7 +116,7 @@ function Details({
           {...disabled}
         />
       )}
-    </View>
+    </MotionHeader>
   );
   if (!person)
     return (
@@ -166,8 +172,8 @@ function Details({
           style={s.loading}
         />
       ) : (
-        <ScrollView contentContainerStyle={s.body}>
-          <View style={s.header}>
+        <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
+          <MotionHeader style={s.header}>
             <View style={s.identity}>
               <View style={s.avatar}>
                 <GradientBackground
@@ -220,7 +226,7 @@ function Details({
                 </Text>
               </Card>
             </View>
-          </View>
+          </MotionHeader>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -229,6 +235,7 @@ function Details({
           >
             {tabs.map((value) => (
               <Pressable
+                motionKind="chip"
                 key={value}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: tab === value }}
@@ -264,7 +271,7 @@ function Details({
             {tab === 'sessions' && (
               <View style={s.stack}>
                 {own.length ? (
-                  <Card flush style={s.rows}>
+                  <Card rows flush style={s.rows}>
                     {own.map((session, index) => (
                       <Pressable
                         key={session.id}
@@ -372,7 +379,7 @@ function Details({
                   </View>
                 )}
                 {exercises.length ? (
-                  <Card flush style={s.rows}>
+                  <Card rows flush style={s.rows}>
                     {exercises.map((exercise, index) => (
                       <View
                         key={exercise.id}

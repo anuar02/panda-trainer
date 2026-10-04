@@ -1,7 +1,11 @@
+import {
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
 import type { Template, TemplateDraft } from '@/domain/templates';
 import { useState, type ReactNode } from 'react';
 import { ExerciseDetailsSheet } from './exercise-details-sheet';
-import { Image, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Image, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Svg, { Path } from 'react-native-svg';
@@ -155,6 +159,7 @@ export function TrainerLibraryScreen({
     >
       {header}
       <ScrollView
+        motionKey={scenario}
         contentContainerStyle={s.body}
         keyboardShouldPersistTaps="handled"
       >
@@ -291,6 +296,7 @@ export function TrainerLibraryScreen({
             </ScrollView>
             <View style={[s.filters, { borderColor: colors.border }]}>
               <Pressable
+                motionKind="chip"
                 style={[s.filter, { width: 122 }]}
                 accessibilityRole="button"
                 onPress={() => setEquipmentOpen(true)}
@@ -302,6 +308,7 @@ export function TrainerLibraryScreen({
                 <Icon name="chevD" size={12} color={colors.secondary} />
               </Pressable>
               <Pressable
+                motionKind="chip"
                 accessibilityRole="button"
                 accessibilityState={{ selected: onlyFavorites }}
                 onPress={() => setOnlyFavorites(!onlyFavorites)}
@@ -322,6 +329,7 @@ export function TrainerLibraryScreen({
                 </Text>
               </Pressable>
               <Pressable
+                motionKind="chip"
                 style={s.filter}
                 accessibilityRole="button"
                 accessibilityState={{ selected: demos }}

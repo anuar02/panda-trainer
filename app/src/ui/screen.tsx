@@ -1,5 +1,6 @@
+import { MotionScrollView } from './motion';
 import type { PropsWithChildren } from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from './text';
 export function Screen({
@@ -9,7 +10,7 @@ export function Screen({
 }: PropsWithChildren<{ title: string; subtitle?: string }>) {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-canvas">
-      <ScrollView
+      <MotionScrollView
         contentContainerClassName="grow gap-section px-page pb-section pt-page"
         keyboardShouldPersistTaps="handled"
       >
@@ -20,7 +21,7 @@ export function Screen({
           {subtitle && <Text className="text-secondary">{subtitle}</Text>}
         </View>
         {children}
-      </ScrollView>
+      </MotionScrollView>
     </SafeAreaView>
   );
 }

@@ -1,11 +1,12 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+  MotionHeader,
+  Shimmer,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/ui/button';
@@ -145,7 +146,7 @@ export function WorkspaceClientsScreen({
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={s.root}>
-      <View style={s.header}>
+      <MotionHeader style={s.header}>
         <Pressable
           onPress={onBack}
           accessibilityRole="button"
@@ -178,7 +179,7 @@ export function WorkspaceClientsScreen({
         >
           <Icon name="plus" size={22} color={selectedInk} />
         </Pressable>
-      </View>
+      </MotionHeader>
       <View style={s.controls}>
         <View
           style={[
@@ -221,6 +222,7 @@ export function WorkspaceClientsScreen({
                   : rows.filter((row) => !row.nextLabel).length;
             return (
               <Pressable
+                motionKind="chip"
                 key={value}
                 onPress={() => {
                   if (!disabled) setFilter(value);
@@ -311,17 +313,17 @@ export function WorkspaceClientsScreen({
                   },
                 ]}
               >
-                <View
+                <Shimmer
                   style={[s.skeletonAvatar, { backgroundColor: colors.sunken }]}
                 />
                 <View style={s.skeletonMain}>
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonTitle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
-                  <View
+                  <Shimmer
                     style={[s.skeletonText, { backgroundColor: colors.sunken }]}
                   />
                 </View>
@@ -329,7 +331,7 @@ export function WorkspaceClientsScreen({
             ))}
           </Card>
         ) : list.length ? (
-          <Card flush style={s.list}>
+          <Card rows flush style={s.list}>
             {list.map((row, index) => {
               const initials = row.name
                 .trim()
