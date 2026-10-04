@@ -1,0 +1,13 @@
+Нет открытых agent PR, активных рабочих задач и допустимых целых задач без внешних gates.
+
+SOM-19: Apple/Google credentials, live provider flow, Keychain и два телефона.
+SOM-29/30/31/32/35/36: installed iOS/Android, offline/SQLite/crash/reopen и два устройства; код влит, приёмка открыта.
+SOM-38/39/50: Rive, native picker, VoiceOver/TalkBack, крупный текст, reduced motion и визуальная приёмка.
+SOM-17/43/44/45/46/47/48/49: приёмка каркаса и экранов только владельцем.
+SOM-40: облако EU, DNS/SMTP/secrets, восстановление и backup/log retention; оператор/специалист.
+SOM-41: код удаления влит (#73); cloud migration/function/Auth revoke, native storage/export/logout, offline/backup copies и юридическая проверка до реальных данных.
+SOM-73: deploy/secrets/cron и EAS/APNs/FCM/Expo на установленных телефонах — Claude/владелец; 07:00 уже решено.
+SOM-42: сборки, устройства, приёмка и полевой пилот.
+SOM-63: интервью и тренировка с людьми.
+SOM-64: результаты пилота; SOM-54: решение о голосе вне v1.
+Закрытые решения SOM-51…62 не переоткрывать; новых решений для кода SOM-32/41 не требуется.
