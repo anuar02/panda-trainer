@@ -52,10 +52,10 @@ claimed.
 
 ## Scheduling and delivery guarantees
 
-`PUSH_MORNING_LOCAL_TIME` is an obligatory `HH:mm` server parameter; no owner
-choice of exact morning time exists in the sources. There is no implicit default
-and missing configuration fails closed. Operators must select and record the
-pilot value before enabling a schedule. No user configuration UI is introduced.
+`PUSH_MORNING_LOCAL_TIME` is an obligatory `HH:mm` server parameter. The owner chose
+**07:00** (workspace timezone) on 04.10.2026; set `PUSH_MORNING_LOCAL_TIME=07:00` for
+the pilot. There is no implicit default and missing configuration fails closed.
+No user configuration UI is introduced.
 
 Each run evaluates current confirmed bookings, active relationships and workspace
 timezone, then inserts due feed records atomically with unique recipient/workspace/

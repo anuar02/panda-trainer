@@ -52,5 +52,19 @@
 - Security advisors: +1 INFO (новая private таблица квитанций, deny-all) и +1 WARN
   (новая командная RPC) — ожидаемо; других изменений нет.
 
+## 04.10.2026 · Migrations 20261004100000 … 20261004110241
+
+- UTC: `2026-10-04T11:45Z`. Commit `3b59d02` (PR #56, #58, #66, #67, #69; CI зелёный;
+  DB-PR #56/#58/#64 дополнительно локально; все 18 concurrency-скриптов в CI с #70).
+  Dry-run: ровно 5 migrations (`explicit_workout_correction`, `exercise_replay_identity`,
+  `client_overview_reads`, `notification_feed`, `push_v1`), `seeds: []`, `roles: []`;
+  затем `db push --linked --skip-vault`. Разрешение владельца.
+- MCP: 31 migrations, последняя `20261004110241`; RLS на всех таблицах `public`/`private`;
+  ни одна security definer функция `public` не исполняется `anon`; у всех закреплён
+  `search_path`; функции с `p_actor_id` сверяют его с `auth.uid()`; `auth.users` 0.
+- Security advisors: 15 INFO (private deny-all), 47 WARN (командные RPC) — рост
+  соответствует новым private таблицам и RPC; других классов замечаний нет.
+- Edge Function `push-v1`, её secrets и расписание **не** развёрнуты.
+
 Не подтверждено: Auth/SMTP/OAuth, Pages/DNS, регионы логов и
 бэкапов, monitoring, smoke и приёмка пилота. SOM-40 остаётся открытым.

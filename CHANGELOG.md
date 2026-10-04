@@ -9,6 +9,8 @@
 
 ## Не выпущено
 
+- Решения владельца 04.10.2026: SOM-32 обновление программы по предложению тренеру ([ADR 0100](docs/app/decisions/0100-post-workout-program-update-by-trainer.md)), SOM-41 удаление аккаунта сохраняет историю у тренеров ([ADR 0101](docs/app/decisions/0101-account-deletion-keeps-trainer-history.md)), утренняя push-сводка в 07:00; пилот получил migrations до `20261004110241` ([evidence](docs/app/pilot/EVIDENCE.md)).
+
 - CI: в database job добавлены семь ранее не запускавшихся concurrency-скриптов (payment, SOM-22, notifications, push, workout sync, SOM-31, corrections); `push_concurrency.py` теперь удаляет стартовые упражнения workspace перед очисткой.
 
 - SOM-73: первая выборка push включает созданные delivery; утренняя сводка сохраняется при архивировании клиента, если в дне остаются активные занятия.
