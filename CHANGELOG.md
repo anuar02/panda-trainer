@@ -9,6 +9,11 @@
 
 ## Не выпущено
 
+- SOM-38: PNG-панда движется через Reanimated по кейфреймам prototype-fresh:
+  семь режимов, тень/glow, sleep z, вход/poke и празднование 2200 мс с confetti/spark.
+  Reduce motion и calm отключают движение; неизвестный calm-контекст сохраняет
+  скрытие. Rive-флаг сохранён. [Отчёт](app/review/13-som-38-mascot-motion/README.md).
+
 - SOM-41 / PR #73: интеграция с SOM-32 сохраняет pending обновления программы в inventory/export и блокирует удаление до разрешения; exact SQL fence smoke, ADR 0103 и новая migration после актуальной базы.
 
 - SOM-41 / PR #73: исправлены оставшиеся конфликты алиасов `c`/`a` при установке triggers и cleanup; миграции base/pilot не изменены.

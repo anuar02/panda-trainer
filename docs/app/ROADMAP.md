@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-38: [x] точные CSS-кейфреймы PNG-поз через Reanimated,
+  shadow/glow/sleep z, вход/poke, fxPanda/fxFade/confetti/spark 2200 мс;
+  [x] reduce motion/calm gates, статичные лица, отмена циклов при уходе/размонтировании;
+  [x] тесты против CSS и жизненного цикла. [ ] Native FPS/Release и визуальная
+  приёмка владельца; [ ] карта calm-контекстов существующих вызовов — OPEN-QUESTIONS.
+  [Отчёт](../../app/review/13-som-38-mascot-motion/README.md),
+  [ADR 0104](decisions/0104-prototype-panda-reanimated-motion.md).
+
 - 04.10.2026 — SOM-41 CI repair #73, попытка 2: устранены оставшиеся конфликты
   SQL-алиасов `c`/`a` с record-переменными в trigger installation/workspace cleanup.
   SQL execution и последующие database checks требуют повторного CI; base/pilot
