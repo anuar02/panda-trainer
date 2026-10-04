@@ -43,6 +43,11 @@ if (process.argv.includes('--check')) {
   const current = await readFile(target, 'utf8').catch(() => '');
   if (current !== output) {
     process.stderr.write('Database types are stale. Run npm run db:types.\n');
+    const difference = spawnSync('diff', ['-u', target, '-'], {
+      input: output,
+      encoding: 'utf8',
+    });
+    process.stderr.write(difference.stdout || 'Type diff unavailable.\n');
     process.exit(1);
   }
   process.stdout.write('Database types match the local schema.\n');

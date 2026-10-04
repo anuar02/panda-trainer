@@ -129,3 +129,12 @@ migration or export RPC/client contract was changed. This does not establish
 full account portability or owner acceptance. Fresh CI is required; no local
 SQL runtime is available. The separate notification concurrency harness remains
 unexecuted by the standard workflow.
+
+## Coordinator diagnostic — 2026-10-04
+
+CI run 37178008907 passed application, pgTAP and the standard concurrency checks,
+but failed generated-type comparison without displaying the mismatch. Docker and
+Postgres are unavailable in this container. The checker now prints a unified diff
+against the actual generator output on mismatch. This preserves the failing gate
+and allows an exact correction from CI evidence; it does not certify types or the
+separate notification concurrency harness.
