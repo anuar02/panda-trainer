@@ -216,25 +216,44 @@ describe('workspace library service operations', () => {
     const exerciseBuilder = {
       insert: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
-      single: jest.fn().mockResolvedValue({
-        data: null,
-        error: { code: '23505', message: 'private database detail' },
-      }),
+      single: jest.fn().mockReturnValue(
+        postgrestResponse({
+          data: null,
+          error: { code: '23505' },
+        }),
+      ),
       eq: jest.fn().mockReturnThis(),
       is: jest.fn().mockReturnThis(),
-      maybeSingle: jest.fn().mockResolvedValue({
-        data: {
-          ...row,
-          name: 'Жим ЛЁЖА',
-          name_normalized: 'жим лежа',
-          archived_at: null,
-          source_key: null,
-        },
-        error: null,
-      }),
+      maybeSingle: jest
+        .fn()
+        .mockReturnValueOnce(postgrestResponse({ data: null, error: null }))
+        .mockReturnValue(
+          postgrestResponse({
+            data: {
+              ...row,
+              name: 'Жим ЛЁЖА',
+              name_normalized: 'жим лежа',
+              archived_at: null,
+              source_key: null,
+            },
+            error: null,
+          }),
+        ),
     };
     const supabase = client({
-      from: jest.fn().mockReturnValue(exerciseBuilder),
+      from: jest.fn((table) =>
+        table === 'exercises'
+          ? exerciseBuilder
+          : {
+              select: jest.fn().mockReturnThis(),
+              eq: jest.fn().mockReturnThis(),
+              maybeSingle: () =>
+                postgrestResponse({
+                  data: { id: workspaceId, owner_user_id: userId },
+                  error: null,
+                }),
+            },
+      ),
     });
     getClient.mockReturnValue(supabase);
     const operation = createWorkspaceExerciseOperation(workspaceId, {
@@ -252,6 +271,7 @@ describe('workspace library service operations', () => {
       existing: true,
     });
     expect(exerciseBuilder.insert).toHaveBeenCalledWith({
+      id: requestId,
       workspace_id: workspaceId,
       name: 'Жим ЛЁЖА',
       muscle_group: 'Ноги',

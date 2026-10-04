@@ -1,3 +1,5 @@
+import { getSupabaseClient } from '../src/features/auth/client';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import { useTrainerBilling } from '../src/features/trainer-billing/use-billing';
 import { useTrainerBillingCommands } from '../src/features/trainer-billing/use-commands';
 import type { TrainerBillingCommand } from '../src/features/trainer-billing/commands';
@@ -75,8 +77,19 @@ jest.mock('../src/features/workspace-scheduling/use-proposal', () => ({
     resolve: jest.fn(),
   }),
 }));
+let mockPresentation: TrainerScheduleData;
 const mockPush = jest.fn();
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: mockPush }),
+  useFocusEffect: (callback: () => void | (() => void)) =>
+    jest
+      .requireActual<typeof import('react')>('react')
+      .useEffect(callback, [callback]),
+}));
+let mockNow = new Date('2026-10-02T07:00:00Z');
+jest.mock('../src/features/workspace-scheduling/use-clock', () => ({
+  useWorkspaceClock: () => mockNow,
+}));
 jest.mock('expo-crypto', () => ({
   randomUUID: () => '30000000-0000-4000-8000-000000000002',
 }));
@@ -95,6 +108,7 @@ jest.mock('../src/features/workspace-scheduling/status-submission', () => ({
 }));
 jest.mock('../src/features/trainer-schedule/trainer-schedule-screen', () => ({
   TrainerScheduleScreen: ({ data }: { data: TrainerScheduleData }) => {
+    mockPresentation = data;
     const { View, Text, Pressable } =
       jest.requireActual<typeof import('react-native')>('react-native');
     return (
@@ -197,7 +211,10 @@ const mount = () =>
 const open = async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Мини-группа' }));
 };
+let auth: ReturnType<typeof bookingAuthFixture>;
 beforeEach(() => {
+  auth = bookingAuthFixture('user-a');
+  jest.mocked(getSupabaseClient).mockReturnValue(auth.client);
   load.mockReset().mockResolvedValue(null);
   billingRetry.mockReset();
   attendanceSubmit.mockReset().mockResolvedValue(true);
@@ -218,6 +235,7 @@ beforeEach(() => {
   }));
   retry.mockReset();
   mockPush.mockReset();
+  mockNow = new Date('2026-10-02T07:00:00Z');
   mockProposalBusy = false;
   mockProposalPending = false;
   read.mockReturnValue({ schedule, loading: false, failed: false, retry });
@@ -494,4 +512,68 @@ test('billing read failure does not display unmarked state or enable attendance'
     screen.getByRole('button', { name: 'Попробовать снова' }),
   );
   expect(billingRetry).toHaveBeenCalledTimes(1);
+});
+
+test('same-user relogin clears selection and old date/create/select callbacks', async () => {
+  await mount();
+  await open();
+  const old = mockPresentation;
+  await act(async () =>
+    auth.change(
+      auth.session('user-a', auth.sessionId, 'refresh'),
+      'TOKEN_REFRESHED',
+    ),
+  );
+  expect(screen.getByText('Server a')).toBeTruthy();
+  await act(async () =>
+    auth.change(
+      auth.session('user-a', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'),
+      'SIGNED_IN',
+    ),
+  );
+  expect(screen.queryByText('Server a')).toBeNull();
+  await act(async () => {
+    old.onSelect(old.sessions[0]!);
+    old.onDateChange('2030-01-01');
+    old.onCreate(old.date);
+  });
+  expect(screen.queryByText('Server a')).toBeNull();
+  expect(mockPush).not.toHaveBeenCalled();
+  expect(mockPresentation.date).not.toBe('2030-01-01');
+});
+test('the default selected day and plus follow the workspace week rollover', async () => {
+  mockNow = new Date('2026-10-04T18:59:00Z');
+  const view = await mount();
+  expect(mockPresentation.date).toBe('2026-10-04');
+  mockNow = new Date('2026-10-04T19:01:00Z');
+  await view.rerender(
+    <WorkspaceScheduleScreen
+      userId="user-a"
+      workspaceId="workspace-a"
+      timezone="Asia/Almaty"
+    />,
+  );
+  expect(read).toHaveBeenLastCalledWith('user-a', 'workspace-a', '2026-10-05');
+  await act(async () => mockPresentation.onCreate(mockPresentation.date));
+  expect(mockPush).toHaveBeenCalledWith({
+    pathname: '/workspace/new',
+    params: { date: '2026-10-05' },
+  });
+});
+
+test('a second Today link for the same date applies its new selected session', async () => {
+  const first = `${schedule.bookings[0]!.group_session_id}:${new Date(schedule.bookings[0]!.starts_at).toISOString()}:${new Date(schedule.bookings[0]!.ends_at).toISOString()}`;
+  const tree = (session: string) => (
+    <WorkspaceScheduleScreen
+      userId="user-a"
+      workspaceId="workspace-a"
+      timezone="Asia/Almaty"
+      initialDate="2026-10-02"
+      initialSelectedId={session}
+    />
+  );
+  const view = await render(tree(first));
+  expect(screen.getByText('Server a')).toBeTruthy();
+  await view.rerender(tree('no-longer-selected'));
+  expect(screen.queryByText('Server a')).toBeNull();
 });

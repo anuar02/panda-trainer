@@ -27,10 +27,12 @@ import { workspaceLibraryRu } from '@/features/workspace-library/strings';
 import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
 
 import { workoutPreloadRu } from '@/features/workout-preload/strings';
+import { workoutCorrectionsRu } from '@/features/workout-corrections/strings';
 
 export const ru = {
   accountExport: accountExportRu,
   workoutPreload: workoutPreloadRu,
+  workoutCorrections: workoutCorrectionsRu,
   trainerBilling: trainerBillingRu,
   trainerPurchases: trainerPurchasesRu,
   trainerBillingPurchase: trainerBillingPurchaseRu,
@@ -56,6 +58,20 @@ export const ru = {
   templateEditor,
   profiles,
   workoutEntry: {
+    finishTitle: 'Завершить журнал?',
+    finishHint:
+      'Сохраним только подтверждённые результаты. Пустые подходы и черновики не считаются выполненными. Посещение и списание не изменятся.',
+    finishSummary: '{{done}} из {{total}} записано · {{missing}} без записи',
+    finishEmpty: 'Упражнений нет · подходы не записаны',
+    finishConfirm: 'Сохранить записанное и завершить',
+    continueInput: 'Продолжить ввод',
+    finish: 'Завершить',
+    finishLocal: 'Завершение сохранено на телефоне · ожидает отправки',
+    finishApplied: 'Журнал завершён · подтверждено сервером',
+    finishNotFinished: 'Сохранена текущая версия · журнал не завершён',
+    finishError: 'Не удалось завершить журнал',
+    finishResults: 'Записанные результаты',
+    finishDrafts: 'Черновиков: {{count}}',
     minus: '−',
     plus: '+',
     count: '{{done}}/{{total}}',
