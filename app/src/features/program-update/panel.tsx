@@ -103,7 +103,7 @@ export function ProgramUpdatePanel({
         {state?.error && (
           <Text accessibilityRole="alert">
             {t(
-              `programUpdate.${state.error === 'update_conflict' || state.error === 'update_invalid' || state.error === 'update_unavailable' || state.error === 'update_read_error' ? state.error : 'update_unknown'}`,
+              `programUpdate.${state.error === 'update_conflict' || state.error === 'update_invalid' || state.error === 'update_unavailable' || state.error === 'update_read_error' || state.error === 'update_confirmed_pending' ? state.error : 'update_unknown'}`,
             )}
           </Text>
         )}

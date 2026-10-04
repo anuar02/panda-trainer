@@ -1107,3 +1107,5 @@ Push входит в v1 этапа 8 по ADR 0065; после пилота — 
 | 29.09.2026 | План приложения и журнал решений | [#16](https://github.com/anuar02/panda-trainer/pull/16) |
 | 29.09.2026 | Технический каркас Expo, локальная база, CI; паритет не принят | [#17](https://github.com/anuar02/panda-trainer/pull/17) |
 | 29.09.2026 | Зафиксирован обязательный паритет с prototype-fresh | [#19](https://github.com/anuar02/panda-trainer/pull/19) |
+
+- 04.10.2026 — SOM-32: [x] GitHub CI 37209153635: app, SQL lint, pgTAP, concurrency и types; [x] confirmed-save/readback recovery отделён от unknown dispatch. Native/parity/owner acceptance открыты.
