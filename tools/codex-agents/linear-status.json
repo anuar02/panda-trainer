@@ -1,8 +1,15 @@
 {
- "updated_at": "2026-10-04T03:05Z",
+ "updated_at": "2026-10-04T03:15Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-21",
+   "title": "Реализовать одноразовые приглашения и deep links",
+   "status": "In Review",
+   "milestone": "02",
+   "group": "owner"
+  },
   {
    "id": "SOM-34",
    "title": "Подключить ручные оплаты, долг и экран billing",
@@ -156,13 +163,6 @@
    "status": "In Review",
    "milestone": "06",
    "group": "owner"
-  },
-  {
-   "id": "SOM-21",
-   "title": "Реализовать одноразовые приглашения и deep links",
-   "status": "In Progress",
-   "milestone": "02",
-   "group": "agents"
   },
   {
    "id": "SOM-19",
