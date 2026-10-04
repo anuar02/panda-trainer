@@ -1,3 +1,5 @@
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
+import { getSupabaseClient } from '../src/features/auth/client';
 import type { PropsWithChildren } from 'react';
 import {
   act,
@@ -120,6 +122,9 @@ const mount = (
     </WorkspaceProposalProvider>,
   );
 beforeEach(() => {
+  jest
+    .mocked(getSupabaseClient)
+    .mockReturnValue(bookingAuthFixture('user').client);
   load.mockReset().mockResolvedValue(null);
   submit.mockReset().mockResolvedValue(result);
   changed.mockReset();
@@ -133,6 +138,7 @@ test('detached portal controls use the explicit store to dispatch a selected boo
     externalBlocked: false,
     externalBusy: false,
     pending: null,
+    scopeKey: 'fixture-scope',
     loading: false,
     busy: false,
     error: null,
@@ -176,14 +182,20 @@ test.each([
     );
     await fireEvent.press(screen.getByRole('button', { name: label }));
     await waitFor(() =>
-      expect(submit).toHaveBeenCalledWith('user', 'workspace', {
-        action,
-        bookingId,
-        expectedBookingRevision: 3,
-        requestId: '30000000-0000-4000-8000-000000000001',
-        proposalId,
-        expectedProposalRevision: 5,
-      }),
+      expect(submit).toHaveBeenCalledWith(
+        'user',
+        'workspace',
+        {
+          action,
+          bookingId,
+          expectedBookingRevision: 3,
+          requestId: '30000000-0000-4000-8000-000000000001',
+          proposalId,
+          expectedProposalRevision: 5,
+        },
+        expect.any(Function),
+        undefined,
+      ),
     );
     expect(changed).toHaveBeenCalledTimes(1);
   },
@@ -237,7 +249,13 @@ test('pending recovery exists without any selected booking and external busy blo
     screen.getByRole('button', { name: 'Повторить перенос' }),
   );
   await waitFor(() =>
-    expect(submit).toHaveBeenCalledWith('user', 'workspace', pending),
+    expect(submit).toHaveBeenCalledWith(
+      'user',
+      'workspace',
+      pending,
+      expect.any(Function),
+      undefined,
+    ),
   );
 });
 test('external status pending blocks new proposal responses while saved proposal remains resumable', async () => {
@@ -318,6 +336,8 @@ test.each([
           expectedBookingRevision: 3,
           proposedStartsAtUtc: '2030-10-03T06:15:00.000Z',
         }),
+        expect.any(Function),
+        undefined,
       ),
     );
     if (action === 'counter')

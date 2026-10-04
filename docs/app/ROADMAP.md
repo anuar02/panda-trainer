@@ -9,6 +9,16 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-27: [x] обе роли status/propose/counter/accept/decline/withdraw,
+  actor/workspace/client/session fencing, exact durable replay/resolution и
+  UI/provider generations; [x] synthetic transport/store/hooks/controls regressions,
+  additive pgTAP и cancellation-penalty concurrency scenarios.
+  Полный check на свежей базе: 200 suites / 2580 tests, type/lint/format зелёные.
+  [Отчёт](../../app/review/som-27-reschedule-production-finish/README.md),
+  [ADR 0093](decisions/0093-booking-command-session-and-recovery.md).
+  [ ] needs-local-db: SQL/RLS/Auth/concurrency/types; real storage/crash/reopen,
+  два телефона, native/parity/accessibility и одобрение владельца. Не принята.
+
 - 04.10.2026 — SOM-41 export: [x] пользовательский settings → prepare → coverage
   → file flow, версия 2 с серверным snapshot, scoped SQLite raw operations/receipts,
   валидированными local entries, server conflicts/correction context и доступными

@@ -60,6 +60,7 @@ const decode = (raw: string): PendingWorkspaceBookingStatus => {
     throw new PendingWorkspaceBookingStatusError('invalid');
   return snapshot(value);
 };
+const recovery = new Map<string, string>();
 let operations = Promise.resolve();
 const serialize = async <T>(operation: () => Promise<T>): Promise<T> => {
   const previous = operations;
@@ -81,10 +82,16 @@ const serialize = async <T>(operation: () => Promise<T>): Promise<T> => {
 export const loadPendingWorkspaceBookingStatus = (
   userId: string,
   workspaceId: string,
+  guard: () => void = () => {},
 ): Promise<PendingWorkspaceBookingStatus | null> => {
   const key = keyFor(userId, workspaceId);
   return serialize(async () => {
-    const raw = await AsyncStorage.getItem(key);
+    guard();
+    const stored = await AsyncStorage.getItem(key);
+    guard();
+    if (stored !== null && recovery.has(key) && stored !== recovery.get(key))
+      recovery.delete(key);
+    const raw = stored ?? recovery.get(key) ?? null;
     return raw === null ? null : decode(raw);
   });
 };
@@ -93,18 +100,26 @@ export const savePendingWorkspaceBookingStatus = (
   userId: string,
   workspaceId: string,
   value: PendingWorkspaceBookingStatus,
+  guard: () => void = () => {},
 ): Promise<void> => {
   const key = keyFor(userId, workspaceId);
   if (!isPendingStatus(value))
     throw new PendingWorkspaceBookingStatusError('invalid');
   const saved = snapshot(value);
   return serialize(async () => {
-    const raw = await AsyncStorage.getItem(key);
+    guard();
+    const stored = await AsyncStorage.getItem(key);
+    guard();
+    const raw = stored ?? recovery.get(key) ?? null;
     if (raw !== null) {
-      if (JSON.stringify(decode(raw)) === JSON.stringify(saved)) return;
-      throw new PendingWorkspaceBookingStatusError('unresolved');
+      if (JSON.stringify(decode(raw)) === JSON.stringify(saved)) {
+        if (stored !== null) return;
+      } else throw new PendingWorkspaceBookingStatusError('unresolved');
     }
+    guard();
     await AsyncStorage.setItem(key, JSON.stringify(saved));
+    recovery.delete(key);
+    guard();
   });
 };
 
@@ -112,18 +127,53 @@ export const clearPendingWorkspaceBookingStatus = (
   userId: string,
   workspaceId: string,
   expectedRequestId: string,
+  guard: () => void = () => {},
+  expectedCommand?: PendingWorkspaceBookingStatus,
 ): Promise<boolean> => {
   const key = keyFor(userId, workspaceId);
   if (!validUuid(expectedRequestId))
     throw new PendingWorkspaceBookingStatusError('invalid');
   return serialize(async () => {
-    const raw = await AsyncStorage.getItem(key);
+    guard();
+    const stored = await AsyncStorage.getItem(key);
+    const raw = stored ?? recovery.get(key) ?? null;
+    guard();
     if (
       raw === null ||
       decode(raw).requestId !== expectedRequestId.toLowerCase()
     )
       return false;
+    guard();
+    if (
+      expectedCommand &&
+      JSON.stringify(snapshot(decode(raw))) !==
+        JSON.stringify(snapshot(expectedCommand))
+    )
+      return false;
     await AsyncStorage.removeItem(key);
+    recovery.delete(key);
     return true;
   });
 };
+
+export function retainPendingWorkspaceBookingStatus(
+  userId: string,
+  workspaceId: string,
+  command: PendingWorkspaceBookingStatus,
+): Promise<void> {
+  const key = keyFor(userId, workspaceId);
+  if (!isPendingStatus(command))
+    throw new PendingWorkspaceBookingStatusError('invalid');
+  const raw = JSON.stringify(snapshot(command));
+  recovery.set(key, raw);
+  return serialize(async () => {
+    const stored = await AsyncStorage.getItem(key);
+    if (stored === null) {
+      await AsyncStorage.setItem(key, raw);
+    } else if (stored !== raw) {
+      recovery.delete(key);
+      return;
+    }
+    recovery.delete(key);
+  });
+}

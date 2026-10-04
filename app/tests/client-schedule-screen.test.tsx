@@ -141,6 +141,7 @@ const homeData = () => home.mock.calls.at(-1)![0].data!;
 beforeEach(() => {
   jest.clearAllMocks();
   status = {
+    scopeKey: 'fixture-scope',
     pending: null,
     loading: false,
     busy: false,
@@ -184,8 +185,15 @@ test('real data maps immutable program preview and selecting own booking supplie
   expect(controls.mock.calls.at(-1)![0]).toEqual(
     expect.objectContaining({
       booking: schedule.bookings[0],
-      proposalStore: mockProposal,
-      statusStore: status,
+      proposalStore: expect.objectContaining({
+        workspaceId: mockProposal.workspaceId,
+        scopeKey: mockProposal.scopeKey,
+        submit: expect.any(Function),
+      }),
+      statusStore: expect.objectContaining({
+        scopeKey: status.scopeKey,
+        submit: expect.any(Function),
+      }),
       clientRecordId: 'client',
     }),
   );
@@ -319,7 +327,11 @@ test('proposal outside upcoming slice renders request-only controls for its orig
   expect(controls.mock.calls.at(-1)![0]).toEqual(
     expect.objectContaining({
       booking: past,
-      proposalStore: mockProposal,
+      proposalStore: expect.objectContaining({
+        workspaceId: mockProposal.workspaceId,
+        scopeKey: mockProposal.scopeKey,
+        submit: expect.any(Function),
+      }),
       proposalOnly: true,
     }),
   );

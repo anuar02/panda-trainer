@@ -22,9 +22,9 @@ def query(sql):
     return result.stdout.strip()
 
 
-def identity():
+def identity(actor=owner):
     return ("set local statement_timeout = '10s'; set local role authenticated; "
-            f"set local request.jwt.claims = '{{\"sub\":\"{owner}\",\"role\":\"authenticated\"}}'; ")
+            f"set local request.jwt.claims = '{{\"sub\":\"{actor}\",\"role\":\"authenticated\"}}'; ")
 
 
 def result_from(output):
@@ -168,6 +168,30 @@ try:
     assert balance(package['purchase_id']) == 0
     assert query(f"select status||'|'||cycle::text from public.attendance_records where id='{bound['attendance_id']}';") == f"present|{new_cycle['cycle']}"
     print('PASS: historical mark and undo receipts do not mutate a newer attendance cycle')
+    for actor, label in ((member, 'client'), (owner, 'trainer')):
+        cancelled_booking = booking()
+        cancel_sql = f"select public.cancel_booking('{cancelled_booking}',1,'{uuid.uuid4()}');"
+        cancelled = result_from(query('begin; ' + identity(actor) + cancel_sql + ' commit;'))
+        assert cancelled['status'] == 'cancelled_by_' + label and cancelled['revision'] == 2
+        assert query(f"select count(*) from public.credit_entries where booking_id='{cancelled_booking}';") == '0'
+        cancellation_package = invoke(purchase_sql())
+        penalty_request = str(uuid.uuid4())
+
+        def penalty(request_id):
+            return (f"select public.charge_late_cancellation('{cancelled_booking}',2,"
+                    f"'Synthetic {label} late cancellation','{request_id}',"
+                    f"'{cancellation_package['purchase_id']}');")
+
+        charged, replay = race(penalty(penalty_request), penalty(penalty_request))
+        assert charged['charged'] and replay['replayed']
+        assert charged['credit_entry_id'] == replay['credit_entry_id']
+        assert balance(cancellation_package['purchase_id']) == 0
+        race(penalty(penalty_request), penalty(str(uuid.uuid4())), '55000')
+        assert query(f"select count(*) from public.credit_entries where booking_id='{cancelled_booking}' and kind='charge_late_cancel';") == '1'
+        assert query(f"select count(*) from public.attendance_records where booking_id='{cancelled_booking}';") == '0'
+        assert query(f"select revision from public.bookings where id='{cancelled_booking}';") == '2'
+        print(f'PASS: {label} cancellation has no automatic debit; concurrent explicit penalty retries charge once')
+
 finally:
     for process in processes:
         if process.poll() is None:
@@ -175,6 +199,7 @@ finally:
             process.communicate()
     query(f"""begin;
       set local session_replication_role = replica;
+      delete from private.booking_status_command_receipts where workspace_id='{workspace}';
       delete from private.billing_command_receipts where workspace_id='{workspace}';
       delete from public.credit_entries where workspace_id='{workspace}';
       delete from public.attendance_revisions where workspace_id='{workspace}';

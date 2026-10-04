@@ -165,6 +165,8 @@ test('legacy pending in two domains allows owned replay but refuses new commands
     financialId(1),
     financialId(2),
     statusCommand,
+    expect.any(Function),
+    undefined,
   );
   expect(today.billing.pending).toEqual(command);
   expect(today.generation).toBe(1);
@@ -214,6 +216,40 @@ test('account change isolates delayed completion and invalidates captured callba
   expect(today.generation).toBe(0);
   expect(today.status.pending).toBeNull();
   await act(async () => expect(await old.billing.submit(command)).toBe(false));
+});
+
+test('same-user relogin creates an independent lock and old completion cannot change its generation', async () => {
+  const response =
+    deferred<Awaited<ReturnType<typeof submitWorkspaceBookingStatus>>>();
+  jest
+    .mocked(submitWorkspaceBookingStatus)
+    .mockReturnValueOnce(response.promise);
+  const view = await render(<Tree />);
+  await waitFor(() => expect(today.blocked).toBe(false));
+  let oldResult!: Promise<boolean>;
+  await act(async () => {
+    oldResult = today.status.submit(statusCommand);
+  });
+  expect(today.busy).toBe(true);
+  await act(async () =>
+    auth.emit('SIGNED_IN', auth.session(financialId(1), financialId(9))),
+  );
+  await waitFor(() => expect(today.blocked).toBe(false));
+  const receipt = {
+    bookingId: statusCommand.bookingId,
+    revision: 2,
+    status: 'cancelled_by_trainer' as const,
+    replayed: false,
+  };
+  jest.mocked(submitWorkspaceBookingStatus).mockResolvedValueOnce(receipt);
+  await act(async () =>
+    expect(await today.status.submit(statusCommand)).toBe(true),
+  );
+  expect(today.generation).toBe(1);
+  await act(async () => response.resolve(receipt));
+  expect(await oldResult).toBe(false);
+  expect(today.generation).toBe(1);
+  await view.unmount();
 });
 
 test('same-user login invalidates captured results and cannot unlock a new submit', async () => {

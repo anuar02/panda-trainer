@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import type { PropsWithChildren } from 'react';
 import '../src/lib/i18n';
 import {
@@ -52,6 +52,7 @@ const proposal: ClientScheduleProposal = {
 const statusSubmit = jest.fn().mockResolvedValue(null),
   proposalSubmit = jest.fn().mockResolvedValue(null);
 const status: ClientBookingStatusStore = {
+  scopeKey: 'fixture-scope',
   loading: false,
   busy: false,
   error: null,
@@ -277,4 +278,52 @@ test('client recovery explicitly resolves pending request and blocks competing p
     }),
   );
   expect(resolve).toHaveBeenCalledTimes(1);
+});
+
+test('late cancellation cannot close a new sheet for the same booking after session generation changes', async () => {
+  let finish!: (
+    value: Awaited<ReturnType<ClientBookingStatusStore['submit']>>,
+  ) => void;
+  statusSubmit.mockReturnValueOnce(
+    new Promise((resolve) => {
+      finish = resolve;
+    }),
+  );
+  const tree = await mount([]);
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Отменить запись' }),
+  );
+  await fireEvent.press(
+    screen.getAllByRole('button', { name: 'Отменить запись' })[1]!,
+  );
+  await tree.rerender(
+    <ClientBookingControls
+      userId="user"
+      workspaceId="workspace"
+      clientRecordId="client"
+      clientName="Own client"
+      timezone="Asia/Almaty"
+      booking={booking}
+      proposals={[]}
+      statusStore={{ ...status, scopeKey: 'new-login' }}
+      proposalStore={{ ...store, scopeKey: 'new-login' }}
+    />,
+  );
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Отменить запись' }),
+  );
+  await act(async () =>
+    finish({
+      bookingId: booking.id,
+      revision: 4,
+      status: 'cancelled_by_client',
+      replayed: false,
+    }),
+  );
+  expect(
+    screen.getAllByRole('button', { name: 'Отменить запись' }),
+  ).toHaveLength(2);
+  expect(
+    screen.getByRole('button', { name: 'Оставить занятие' }),
+  ).toBeEnabled();
 });

@@ -9,6 +9,14 @@
 
 ## Не выпущено
 
+- SOM-27: переносы и отмены обеих ролей закреплены за login/workspace/client,
+  durable recovery проверяет exact payload/requestId, UI callbacks и общий lock
+  не пересекают поколения. Дополнены synthetic workflow/regression, pgTAP и
+  concurrency проверки отдельного списания с причиной; серверная policy и
+  billing implementation сохранены. [Отчёт](app/review/som-27-reschedule-production-finish/README.md),
+  [ADR 0093](docs/app/decisions/0093-booking-command-session-and-recovery.md).
+  SQL/native/parity и приёмка владельца открыты.
+
 - [SOM-41 / draft PR #61](https://github.com/anuar02/panda-trainer/pull/61): единый settings → coverage → JSON UTF-8 v2 flow объединяет серверный
   снимок, scoped SQLite операции/receipts и распознанные локальные данные,
   конфликты/correction context и доступные pending/drafts. Явные gaps и

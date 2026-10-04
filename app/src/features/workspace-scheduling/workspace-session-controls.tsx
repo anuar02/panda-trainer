@@ -1,5 +1,5 @@
 import { useOptionalWorkoutPreload } from '@/features/workout-preload/provider';
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
@@ -49,12 +49,18 @@ export function WorkspaceSessionControls({
   const caller = useWorkspaceScreenScope(JSON.stringify([selectedId, loading]));
   const preload = useOptionalWorkoutPreload();
   const sheetEpoch = useRef(0);
-  useEffect(() => {
+  useLayoutEffect(() => {
     sheetEpoch.current += 1;
     return () => {
       sheetEpoch.current += 1;
     };
-  }, [userId, workspaceId, selectedId]);
+  }, [
+    userId,
+    workspaceId,
+    selectedId,
+    mutations.status.scopeKey,
+    mutations.proposal.scopeKey,
+  ]);
   const read = useTrainerBilling(userId, workspaceId);
   const retryBilling = read.retry;
   const generation = useRef(mutations.generation);

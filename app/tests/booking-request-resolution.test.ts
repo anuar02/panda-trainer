@@ -1,3 +1,5 @@
+import { schedulingAuthFixture } from './scheduling-command-auth-fixture';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 import { getSupabaseClient } from '@/features/auth/client';
@@ -114,11 +116,17 @@ function setup(data: unknown) {
   const header = jest.fn().mockResolvedValue({ data, error: null });
   const rpc = jest.fn().mockReturnValue({ setHeader: header });
   const getSession = jest.fn().mockResolvedValue({
-    data: { session: { user: { id: user }, access_token: 'test-token' } },
+    data: {
+      session: {
+        user: { id: user },
+        access_token: bookingAuthFixture(user).session().access_token,
+      },
+    },
     error: null,
   });
   jest.mocked(getSupabaseClient).mockReturnValue({
-    auth: { getSession },
+    auth: { ...bookingAuthFixture(user).auth, getSession },
+    from: schedulingAuthFixture(user, workspace).from,
     rpc,
   } as unknown as SupabaseClient<Database>);
   return { header, rpc, getSession };
@@ -141,11 +149,21 @@ test.each([false, true])(
       p_expected_revision: 3,
       p_request_id: request,
     });
-    expect(header).toHaveBeenCalledWith('Authorization', 'Bearer test-token');
+    expect(header).toHaveBeenCalledWith(
+      'Authorization',
+      `Bearer ${bookingAuthFixture(user).session().access_token}`,
+    );
     expect(clearPendingWorkspaceBookingStatus).toHaveBeenCalledWith(
       user,
       workspace,
       request,
+      expect.any(Function),
+      {
+        action: status.action,
+        bookingId: status.bookingId,
+        expectedRevision: status.expectedRevision,
+        requestId: status.requestId,
+      },
     );
   },
 );
@@ -283,7 +301,7 @@ test('storage clear failure is surfaced after verified response and permits safe
     .mockRejectedValueOnce(new Error('storage'));
   await expect(
     resolvePendingWorkspaceBookingStatus(user, workspace),
-  ).rejects.toThrow('storage');
+  ).rejects.toMatchObject({ code: 'request' });
   expect(
     (await resolvePendingWorkspaceBookingStatus(user, workspace))?.outcome,
   ).toBe('abandoned');

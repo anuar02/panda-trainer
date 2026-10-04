@@ -1,3 +1,5 @@
+import { schedulingAuthFixture } from './scheduling-command-auth-fixture';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
@@ -68,11 +70,18 @@ beforeEach(async () => {
   header.mockResolvedValue({ data: result, error: null });
   jest.mocked(getSupabaseClient).mockReturnValue({
     auth: {
+      ...bookingAuthFixture(user).auth,
       getSession: jest.fn().mockResolvedValue({
-        data: { session: { user: { id: user }, access_token: 'token' } },
+        data: {
+          session: {
+            user: { id: user },
+            access_token: bookingAuthFixture(user).session().access_token,
+          },
+        },
         error: null,
       }),
     },
+    from: schedulingAuthFixture(user, workspace).from,
     rpc,
   } as unknown as SupabaseClient<Database>);
 });
@@ -131,8 +140,8 @@ test('persists before sending and clears known success', async () => {
       }),
   );
   const sent = submitWorkspaceProposal(user, workspace, command());
-  await Promise.resolve();
-  await Promise.resolve();
+  while (jest.mocked(AsyncStorage.setItem).mock.calls.length === 0)
+    await Promise.resolve();
   expect(rpc).not.toHaveBeenCalled();
   release();
   await expect(sent).resolves.toMatchObject({ proposalStatus: 'accepted' });
