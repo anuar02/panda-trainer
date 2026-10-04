@@ -1,3 +1,4 @@
+import { NotificationEntry } from '@/features/notifications/feed';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -118,6 +119,13 @@ function WorkspaceTodayContent({
         <TrainerTodayScreen
           scenario={read.loading ? 'loading' : 'normal'}
           data={{
+            notificationAction: (
+              <NotificationEntry
+                userId={userId}
+                workspaceId={workspaceId}
+                role="trainer"
+              />
+            ),
             trainerName,
             timezone,
             dateLabel,

@@ -8,7 +8,10 @@ import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 
 export default function ClientConnectionHistoryRoute() {
-  const { clientRecordId } = useLocalSearchParams<{ clientRecordId: string }>();
+  const { clientRecordId, workout } = useLocalSearchParams<{
+    clientRecordId: string;
+    workout?: string;
+  }>();
   const auth = useAuth();
   const context = useOnboardingContext();
   const { t } = useTranslation();
@@ -27,6 +30,7 @@ export default function ClientConnectionHistoryRoute() {
   if (!connection) return <Redirect href="/auth/account" />;
   return (
     <ClientConnectedHistoryScreen
+      initialSelectedId={workout}
       userId={auth.session.user.id}
       workspaceId={connection.workspace_id}
       clientRecordId={connection.client_record_id}

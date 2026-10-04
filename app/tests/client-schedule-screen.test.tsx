@@ -350,3 +350,20 @@ test('history navigation pins the exact connected card', async () => {
     params: { clientRecordId: 'client' },
   });
 });
+
+test('notification booking target opens only a booking from the current own read', async () => {
+  const view = await render(
+    <ClientScheduleScreen {...props} initialBookingId="own-1" />,
+  );
+  expect(screen.getByText('own controls')).toBeTruthy();
+  expect(controls.mock.calls.at(-1)?.[0].booking.id).toBe('own-1');
+  await view.rerender(
+    <ClientScheduleScreen
+      {...props}
+      userId="other"
+      clientRecordId="other-card"
+      initialBookingId="foreign"
+    />,
+  );
+  expect(screen.queryByText('own controls')).toBeNull();
+});

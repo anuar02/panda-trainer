@@ -834,6 +834,66 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          client_record_id: string;
+          created_at: string;
+          event_key: string;
+          id: string;
+          kind: string;
+          payload: Json;
+          read_at: string | null;
+          recipient_role: string;
+          recipient_user_id: string;
+          target_id: string;
+          target_type: string;
+          workspace_id: string;
+        };
+        Insert: {
+          client_record_id: string;
+          created_at?: string;
+          event_key: string;
+          id?: string;
+          kind: string;
+          payload: Json;
+          read_at?: string | null;
+          recipient_role: string;
+          recipient_user_id: string;
+          target_id: string;
+          target_type: string;
+          workspace_id: string;
+        };
+        Update: {
+          client_record_id?: string;
+          created_at?: string;
+          event_key?: string;
+          id?: string;
+          kind?: string;
+          payload?: Json;
+          read_at?: string | null;
+          recipient_role?: string;
+          recipient_user_id?: string;
+          target_id?: string;
+          target_type?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_workspace_id_client_record_id_fkey';
+            columns: ['workspace_id', 'client_record_id'];
+            isOneToOne: false;
+            referencedRelation: 'client_records';
+            referencedColumns: ['workspace_id', 'id'];
+          },
+          {
+            foreignKeyName: 'notifications_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'trainer_workspaces';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       payment_entries: {
         Row: {
           amount_minor: number;
@@ -1991,6 +2051,13 @@ export type Database = {
         };
         Returns: Json;
       };
+      mark_notification_read: {
+        Args: {
+          p_notification_id: string;
+          p_workspace_id: string;
+        };
+        Returns: Json;
+      };
       my_client_record_ids: {
         Args: Record<PropertyKey, never>;
         Returns: string[];
@@ -2000,6 +2067,23 @@ export type Database = {
           input_name: string;
         };
         Returns: string;
+      };
+      notification_feed: {
+        Args: {
+          p_before_at?: string;
+          p_before_id?: string;
+          p_client_record_id?: string;
+          p_limit?: number;
+          p_workspace_id: string;
+        };
+        Returns: Json;
+      };
+      notification_target: {
+        Args: {
+          p_notification_id: string;
+          p_workspace_id: string;
+        };
+        Returns: Json;
       };
       prepare_workout_journal: {
         Args: {

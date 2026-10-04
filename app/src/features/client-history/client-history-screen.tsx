@@ -40,6 +40,7 @@ export type ClientHistoryRow = {
   notes: readonly { id: string; text: string }[];
 };
 export type ClientHistoryData = {
+  initialSelectedId?: string;
   trainerName: string;
   timezone: string;
   rows: readonly ClientHistoryRow[];
@@ -327,7 +328,9 @@ function DemoClientHistoryScreen({
 function ControlledClientHistory({ data }: { data: ClientHistoryData }) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    data.initialSelectedId ?? null,
+  );
   const selected = data.loading
     ? undefined
     : data.rows.find((row) => row.id === selectedId);

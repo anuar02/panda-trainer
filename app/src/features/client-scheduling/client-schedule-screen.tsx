@@ -1,3 +1,4 @@
+import { NotificationEntry } from '@/features/notifications/feed';
 import { ClientHomeFacts } from '../client-home/client-home-facts';
 import { ClientSchedulingCommandBoundary } from './command-coordinator';
 import type { ClientBookingStatusStore } from './use-status';
@@ -31,6 +32,7 @@ type Props = {
   clientRecordId: string;
   clientName: string;
   trainerName: string;
+  initialBookingId?: string;
 };
 export function ClientScheduleScreen(props: Props) {
   return (
@@ -79,7 +81,9 @@ function ClientScheduleContent(props: Props) {
     selection?.scope === status.scopeKey &&
     selection.readGeneration === read.generation
       ? selection.id
-      : null;
+      : selection
+        ? null
+        : (props.initialBookingId ?? null);
   const setSelectedId = (id: string | null) => {
     if (isCurrent())
       setSelection({
@@ -152,6 +156,14 @@ function ClientScheduleContent(props: Props) {
               ) : (
                 <ClientHomeScreen
                   data={{
+                    notificationAction: (
+                      <NotificationEntry
+                        userId={props.userId}
+                        workspaceId={props.workspaceId}
+                        clientRecordId={props.clientRecordId}
+                        role="client"
+                      />
+                    ),
                     clientName: context?.clientName ?? props.clientName,
                     trainerName: context?.trainerName ?? props.trainerName,
                     timezone: context?.timezone ?? 'UTC',

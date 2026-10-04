@@ -1,3 +1,4 @@
+import { DemoNotificationEntry } from '@/features/notifications/demo';
 import {
   schedulingToday,
   schedulingNow,
@@ -43,6 +44,7 @@ export type ClientHomeData = {
   bookings: readonly ClientHomeBookingRow[];
   loading?: boolean;
   requests?: ReactNode;
+  notificationAction?: ReactNode;
   facts?: ReactNode;
   onSelectBooking: (booking: ClientHomeBookingRow) => void;
   onProgramPreview?: (booking: ClientHomeBookingRow) => void;
@@ -261,15 +263,7 @@ function DemoClientHomeScreen({
             </Text>
           </View>
         </View>
-        <Pressable
-          disabled
-          accessibilityRole="button"
-          accessibilityLabel={tx('notifications')}
-          accessibilityState={{ disabled: true }}
-          style={s.iconButton}
-        >
-          <Icon name="bell" color={colors.ink} size={22} />
-        </Pressable>
+        <DemoNotificationEntry />
       </View>
       <ScrollView contentContainerStyle={s.body}>
         {actionError ? (
@@ -698,15 +692,17 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
             </Text>
           </View>
         </View>
-        <Pressable
-          disabled
-          accessibilityRole="button"
-          accessibilityLabel={tx('notifications')}
-          accessibilityState={{ disabled: true }}
-          style={s.iconButton}
-        >
-          <Icon name="bell" color={colors.ink} size={22} />
-        </Pressable>
+        {data.notificationAction ?? (
+          <Pressable
+            disabled
+            accessibilityRole="button"
+            accessibilityLabel={tx('notifications')}
+            accessibilityState={{ disabled: true }}
+            style={s.iconButton}
+          >
+            <Icon name="bell" color={colors.ink} size={22} />
+          </Pressable>
+        )}
       </View>
       <ScrollView contentContainerStyle={s.body}>
         {data.loading ? (

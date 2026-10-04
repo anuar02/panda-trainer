@@ -9,6 +9,13 @@
 
 ## Не выпущено
 
+- SOM-37 r2: server-owned in-app уведомления обеих ролей, точный unread count,
+  явная отметка прочитанного, pagination и own-object переходы; additive atomic
+  event triggers и scoped Realtime с JWT/caller/read race fences. SQL/app тесты,
+  безопасный контракт для SOM-73, без push transport. [Отчёт](app/review/10-som-37-notification-feed-r2/README.md),
+  [ADR 0098](docs/app/decisions/0098-transactional-notification-feed.md).
+  SQL/real Realtime/native/parity и одобрение владельца остаются открытыми.
+
 - [SOM-36 r2 / draft PR #66](https://github.com/anuar02/panda-trainer/pull/66): authenticated клиентские Home/History/Progress/Program без demo fallback;
   серверные точные остаток/долг и посещения, actual exercise history, JWT/caller
   fencing и повторное чтение после existing SOM-27 receipts. Additive read RPC,

@@ -8,7 +8,10 @@ import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 
 export default function ClientConnectionRoute() {
-  const { clientRecordId } = useLocalSearchParams<{ clientRecordId: string }>();
+  const { clientRecordId, booking } = useLocalSearchParams<{
+    clientRecordId: string;
+    booking?: string;
+  }>();
   const auth = useAuth();
   const context = useOnboardingContext();
   const { t } = useTranslation();
@@ -27,6 +30,7 @@ export default function ClientConnectionRoute() {
   if (!connection) return <Redirect href="/auth/account" />;
   return (
     <ClientScheduleScreen
+      initialBookingId={booking}
       userId={auth.session.user.id}
       workspaceId={connection.workspace_id}
       clientRecordId={connection.client_record_id}

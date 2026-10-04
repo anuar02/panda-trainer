@@ -111,3 +111,5 @@
 | [0096](0096-invitation-caller-session-and-intent.md) | Caller session и поколение pending приглашения | Реализовано технически; runtime и приёмка открыты | 04.10.2026 |
 
 | [0097](0097-client-overview-and-read-lifetimes.md) | Client overview aggregates и read lifetimes | Реализовано технически; SQL/runtime/owner acceptance открыты | 04.10.2026 |
+
+| [0098](0098-transactional-notification-feed.md) | Transactional notification feed and scoped Realtime | Implemented; verification pending | 04.10.2026 |

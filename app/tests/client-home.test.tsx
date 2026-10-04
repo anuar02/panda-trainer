@@ -71,7 +71,9 @@ test('matches prototype-fresh offline local withdrawal while unavailable actions
   expect(
     screen.getByRole('button', { name: 'Предложить перенос' }),
   ).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Уведомления' })).toBeDisabled();
+  expect(
+    screen.getByRole('button', { name: 'Уведомления' }),
+  ).not.toBeDisabled();
   await fireEvent.press(
     screen.getByRole('button', { name: 'Отозвать запрос' }),
   );
