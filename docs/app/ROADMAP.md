@@ -9,6 +9,8 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-26 creation: [x] login/scope/lifecycle fence и durable retry с conditional clear; [x] synthetic regressions relogin/refresh/storage/cache/overlap/plan; [ ] live auth, SQL/RLS, native/parity, реальный storage crash и приёмка владельца. [Отчёт](../../app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0080](decisions/0080-booking-creation-session-fencing-and-durable-retry.md). Issue и экраны не приняты.
+
 - 03.10.2026 — SOM-20 reads: [x] owner/auth fencing, bounded deterministic pagination,
   unknown-row validation и read lifecycle списка/карточки; [ ] SQL/RLS/live auth,
   native/parity и одобрение владельца. Issue и экраны не приняты.
