@@ -148,3 +148,11 @@ agent/09-som-36-client-production-r2` succeeded. Draft
 Final pre-publication `npm run check` after synchronous caller cleanup passed
 220 suites / 2934 tests. CI runtime results are pending at publication; screens
 and issue remain unaccepted.
+
+## Coordinator CI repair — 4 October 2026
+
+CI run `37175058383` failed in the new pgTAP fixture at line 28: the
+`private_notes.id` column requires an explicit UUID. Added a synthetic note ID;
+the privacy assertions and production migration are unchanged. `git diff --check`
+passed. No local application or SQL checks were repeated; fresh PR CI must verify
+this repair and all database gates before merge.

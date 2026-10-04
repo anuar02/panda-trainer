@@ -24,8 +24,8 @@ insert into public.workout_instances(id,workspace_id,booking_id,client_record_id
 insert into public.session_notes(id,workspace_id,workout_instance_id,text,author_user_id,device_id) values
  ('f0360000-0000-4000-8000-000000000050','f0360000-0000-4000-8000-000000000010','f0360000-0000-4000-8000-000000000040','Shared finished','f0360000-0000-4000-8000-000000000001','f0360000-0000-4000-8000-000000000090'),
  ('f0360000-0000-4000-8000-000000000051','f0360000-0000-4000-8000-000000000010','f0360000-0000-4000-8000-000000000041','Draft shared','f0360000-0000-4000-8000-000000000001','f0360000-0000-4000-8000-000000000090');
-insert into public.private_notes(workspace_id,workout_instance_id,text,author_user_id,device_id) values
- ('f0360000-0000-4000-8000-000000000010','f0360000-0000-4000-8000-000000000040','Private finished','f0360000-0000-4000-8000-000000000001','f0360000-0000-4000-8000-000000000090');
+insert into public.private_notes(id,workspace_id,workout_instance_id,text,author_user_id,device_id) values
+ ('f0360000-0000-4000-8000-000000000052','f0360000-0000-4000-8000-000000000010','f0360000-0000-4000-8000-000000000040','Private finished','f0360000-0000-4000-8000-000000000001','f0360000-0000-4000-8000-000000000090');
 insert into public.attendance_records(workspace_id,client_record_id,booking_id,service_date,status)
 select workspace_id,client_record_id,id,starts_at::date,case when id='f0360000-0000-4000-8000-000000000030'::uuid then 'present' when id='f0360000-0000-4000-8000-000000000031'::uuid then 'noshow' else 'undone' end from public.bookings where workspace_id='f0360000-0000-4000-8000-000000000010';
 create temporary table results(name text primary key, result jsonb);
