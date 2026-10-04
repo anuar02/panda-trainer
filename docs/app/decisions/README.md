@@ -87,3 +87,5 @@
 | [0080](0080-pure-local-export-envelope.md) | Pure local export и SQL conflict/correction relations r2 | Технический контракт; collector/runtime/owner acceptance открыты | 03.10.2026 |
 
 | [0078](0078-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+
+| [0084](0084-financial-command-session-fencing.md) | Session fence финансовых mutations и сохранение durable retry | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |

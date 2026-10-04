@@ -1,6 +1,6 @@
 # План разработки приложения
 
-Обновлено: 3 октября 2026.
+Обновлено: 4 октября 2026.
 
 Стек: React Native (Expo) + Supabase ([ADR 0001](decisions/0001-react-native-expo.md),
 [ADR 0002](decisions/0002-supabase.md)). Цель первой версии — пилот с 3–5 настоящими
@@ -8,6 +8,15 @@
 только с отдельного согласия владельца.
 
 ## Где остановились
+
+- 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
+  explicit bearer/result/error/storage guards; [x] session-aware command hook,
+  conditional clear/recovery и exact-ID durable retry с synthetic regressions.
+  Полный app check: 178 suites / 2107 tests, type/lint/format зелёные.
+  [Отчёт](../../app/review/som-34-financial-command-session-fencing/README.md),
+  [ADR 0084](decisions/0084-financial-command-session-fencing.md).
+  [ ] SQL/RLS/live auth/real storage/reopen/crash/native/parity и owner acceptance;
+  issue и экраны не приняты.
 
 - 03.10.2026 — SOM-26 creation: [x] login/scope/lifecycle fence и durable retry с conditional clear; [x] synthetic regressions relogin/refresh/storage/cache/overlap/plan; [ ] live auth, SQL/RLS, native/parity, реальный storage crash и приёмка владельца. [Отчёт](../../app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0083](decisions/0083-booking-creation-session-fencing-and-durable-retry.md). Issue и экраны не приняты.
 - 03.10.2026 — SOM-24 r2: восстановлен полный пакет PR #46 без слияния;

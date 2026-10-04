@@ -9,6 +9,12 @@
 
 ## Не выпущено
 
+- SOM-34: financial mutation session fence, защита pending/clear и hook callbacks
+  при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
+  terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),
+  [ADR 0084](docs/app/decisions/0084-financial-command-session-fencing.md).
+  SQL/live auth/real storage/native/parity и приёмка владельца открыты.
+
 - [SOM-26 / draft PR #50](https://github.com/anuar02/panda-trainer/pull/50): создание занятия закреплено за login и workspace; поздние ответы и кэш успеха проверяют сессию, durable retry сохраняет requestId/план, conditional clear защищает pending. [Отчёт](app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0080](docs/app/decisions/0080-booking-creation-session-fencing-and-durable-retry.md). Runtime и приёмка владельца открыты.
 - [SOM-24 r2 / draft PR #49](https://github.com/anuar02/panda-trainer/pull/49): восстановлен полный пакет закрытого без слияния PR #46; refresh проверяет JWT sub/session_id, поздние RPC/storage и cached success закрываются при смене identity, durable retry сохраняет requestId. [Текущий отчёт](app/review/som-24-assignment-session-fencing-r2/README.md), [ADR 0080](docs/app/decisions/0080-program-assignment-session-fencing.md). Live/native и приёмка владельца открыты.
 - SOM-24: чтение личной immutable программы закреплено за actor/client/session; same-user relogin скрывает старые данные, refresh проверяется, страницы и snapshot валидируются по схеме. [Проверки](app/review/som-24-client-program-read-fencing/README.md), [ADR 0080](docs/app/decisions/0080-client-program-read-session-fencing.md).
