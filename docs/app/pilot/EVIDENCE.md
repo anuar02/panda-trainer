@@ -66,5 +66,18 @@
   соответствует новым private таблицам и RPC; других классов замечаний нет.
 - Edge Function `push-v1`, её secrets и расписание **не** развёрнуты.
 
+## 04.10.2026 · Migrations 20261004134801, 20261004143210
+
+- UTC: `2026-10-04T15:05Z`. Commit `4c70931` (PR #72 SOM-32 автомерж агента при зелёном
+  CI; PR #73 SOM-41 влит координатором при зелёном CI). Dry-run: ровно
+  `program_update` и `account_deletion`, `seeds: []`, `roles: []`; затем
+  `db push --linked --skip-vault`. Разрешение владельца.
+- MCP: 33 migrations, последняя `20261004143210`; RLS на всех таблицах; security definer
+  без `search_path` — 0; `anon` не исполняет ни одну security definer функцию `public`.
+  Пять `public.account_deletion_*` функций исполняет только `service_role`
+  (не `anon`/`authenticated`); `auth.users` 0.
+- Удаление аккаунта в пилоте не запускалось; юридическая проверка (ADR 0101) — gate
+  до реальных данных.
+
 Не подтверждено: Auth/SMTP/OAuth, Pages/DNS, регионы логов и
 бэкапов, monitoring, smoke и приёмка пилота. SOM-40 остаётся открытым.
