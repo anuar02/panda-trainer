@@ -1879,6 +1879,14 @@ export type Database = {
         };
         Returns: Json;
       };
+      get_my_client_overview: {
+        Args: {
+          p_client_record_id: string;
+          p_ends_on: string;
+          p_starts_on: string;
+        };
+        Returns: Json;
+      };
       get_my_client_schedule_context: {
         Args: {
           p_client_record_id: string;

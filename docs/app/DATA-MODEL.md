@@ -248,3 +248,15 @@ finished с исходным timestamp; личная программа, booking
 данные не изменяются. Прямой authenticated DML закрыт.
 [ADR 0090](decisions/0090-explicit-finished-journal-correction.md),
 [needs-local-db gate](../../app/review/som-32-explicit-correction-server/README.md).
+
+## SOM-36: клиентский overview read
+
+`get_my_client_overview(client_record_id, starts_on, ends_on)` возвращает только
+active linkage context, сегодняшний день в workspace timezone, decimal-string
+remaining/active units и due minor, а также date/count для подтверждённых
+посещений в полуоткрытом периоде до 366 дней. Остаток включает неистёкшие пакеты,
+долг — все, включая истёкшие, с учётом payment reversal. Полные ledger rows,
+приватные причины/receipts, draft journals и чужие карточки не входят в RPC.
+Это stable read; он не изменяет bookings, attendance, credits или payments.
+Migration: `20261005033548_client_overview_reads.sql`; runtime/type drift pending CI.
+[ADR 0097](decisions/0097-client-overview-and-read-lifetimes.md).

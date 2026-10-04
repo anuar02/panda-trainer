@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useClientSchedule } from '@/features/client-scheduling/use-schedule';
@@ -34,11 +35,26 @@ function ClientConnectedProgramContent(props: Props) {
   const schedule = useClientSchedule({
     userId: props.userId,
     clientRecordId: props.clientRecordId,
+    workspaceId: props.workspaceId,
   });
   const personal = useClientProgram({
     userId: props.userId,
     clientRecordId: props.clientRecordId,
   });
+  const callerKey = JSON.stringify([
+    props.userId,
+    props.workspaceId,
+    props.clientRecordId,
+    schedule.generation,
+    schedule.loading,
+  ]);
+  const caller = useRef<string | null>(callerKey);
+  useLayoutEffect(() => {
+    caller.current = callerKey;
+    return () => {
+      caller.current = null;
+    };
+  }, [callerKey]);
   const selected = schedule.schedule
     ? clientProgramSelection(
         schedule.schedule,
@@ -112,11 +128,18 @@ function ClientConnectedProgramContent(props: Props) {
               start: time(onSite.starts_at),
             })
           : undefined,
-        onOpenSchedule: () =>
+        onOpenSchedule: () => {
+          if (
+            caller.current !== callerKey ||
+            schedule.loading ||
+            schedule.failed
+          )
+            return;
           router.replace({
             pathname: '/connection/[clientRecordId]',
             params: { clientRecordId: props.clientRecordId },
-          }),
+          });
+        },
       }}
     />
   );

@@ -1,3 +1,4 @@
+import { createProgramReadFence } from '../client-program/program-read-session';
 import { getSupabaseClient } from '@/features/auth/client';
 import {
   ClientHistoryError,
@@ -19,14 +20,27 @@ export class ClientProgressError extends Error {
 export async function loadClientProgressHistory(input: {
   expectedUserId: string;
   clientRecordId: string;
+  workspaceId?: string;
+  isCurrent?: () => boolean;
 }): Promise<ClientProgressHistory> {
+  const client = getSupabaseClient();
+  if (!client) throw new ClientProgressError('configuration');
+  const fence = await createProgramReadFence(
+    client.auth,
+    { userId: input.expectedUserId },
+    input.isCurrent,
+  ).catch(() => {
+    throw new ClientProgressError('unavailable');
+  });
   try {
     let offset = 0;
     let context: ClientHistory['context'] | null = null;
     const journals: ClientHistory['journals'] = [];
     const ids = new Set<string>();
     for (;;) {
+      await fence.assertCurrent();
       const page = await loadClientHistory({ ...input, offset, limit: 100 });
+      await fence.assertCurrent();
       if (
         page.context.clientRecordId !== input.clientRecordId.toLowerCase() ||
         (context !== null &&
@@ -51,16 +65,7 @@ export async function loadClientProgressHistory(input: {
       if (offset >= 100000) throw new ClientProgressError('request');
       offset = page.nextOffset;
     }
-    const client = getSupabaseClient();
-    if (!client) throw new ClientProgressError('configuration');
-    const session = await client.auth.getSession();
-    if (
-      session.error ||
-      !session.data.session?.access_token ||
-      session.data.session.user.id.toLowerCase() !==
-        input.expectedUserId.toLowerCase()
-    )
-      throw new ClientProgressError('unavailable');
+    await fence.assertCurrent();
     return {
       context,
       journals: journals.sort(
@@ -71,9 +76,20 @@ export async function loadClientProgressHistory(input: {
       nextOffset: null,
     };
   } catch (error: unknown) {
+    try {
+      await fence.assertCurrent();
+    } catch {
+      throw new ClientProgressError('unavailable');
+    }
     if (error instanceof ClientProgressError) throw error;
     if (error instanceof ClientHistoryError)
       throw new ClientProgressError(error.code);
-    throw new ClientProgressError('request');
+    throw new ClientProgressError(
+      error instanceof Error && error.name === 'ClientProgramSessionError'
+        ? 'unavailable'
+        : 'request',
+    );
+  } finally {
+    fence.dispose();
   }
 }

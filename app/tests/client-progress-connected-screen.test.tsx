@@ -3,6 +3,21 @@ import '../src/lib/i18n';
 import { ClientConnectedProgressScreen } from '../src/features/client-progress/client-connected-progress-screen';
 import { useClientProgress } from '../src/features/client-progress/use-progress';
 import type { ClientProgressHistory } from '../src/features/client-progress/service';
+jest.mock('expo-router', () => ({
+  useFocusEffect: (effect: () => void | (() => void)) => {
+    const { useEffect } = jest.requireActual<typeof import('react')>('react');
+    useEffect(effect, [effect]);
+  },
+}));
+jest.mock('../src/features/client-home/use-overview', () => ({
+  useClientOverview: () => ({
+    data: null,
+    loading: true,
+    error: null,
+    retry: jest.fn(),
+  }),
+}));
+jest.mock('../src/ui/sheet', () => ({ Sheet: () => null }));
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
@@ -114,12 +129,16 @@ test('complete own history derives actual best and four-week delta without fake 
   expect(screen.getByText('Own immutable squat')).toBeTruthy();
   expect(screen.getByText('25,5 кг × 5 повт')).toBeTruthy();
   expect(screen.getByText('+5,5 кг за 4 недели')).toBeTruthy();
-  expect(screen.queryByText('Посещения за неделю')).toBeNull();
+  expect(screen.getByText('Посещения за неделю')).toBeTruthy();
   expect(screen.queryByText('99 кг')).toBeNull();
   expect(
     screen.queryByRole('button', { name: 'Own immutable squat' }),
   ).toBeNull();
-  expect(read).toHaveBeenCalledWith({ userId: 'user', clientRecordId: 'card' });
+  expect(read).toHaveBeenCalledWith({
+    userId: 'user',
+    clientRecordId: 'card',
+    workspaceId: 'workspace',
+  });
 });
 test('loading hides historical cached metrics and never falls back to demo', async () => {
   read.mockReturnValue({ ...state(), loading: true });
@@ -181,5 +200,6 @@ test('account and selected card changes hide prior account results and pin new h
   expect(read).toHaveBeenLastCalledWith({
     userId: 'other',
     clientRecordId: 'other-card',
+    workspaceId: 'workspace',
   });
 });

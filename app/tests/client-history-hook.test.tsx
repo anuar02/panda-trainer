@@ -82,6 +82,7 @@ test('loads scoped first page and serializes pagination while preserving visible
   const hook = await mount();
   await waitFor(() => expect(hook.result.current.history).toEqual(first));
   expect(load).toHaveBeenCalledWith({
+    isCurrent: expect.any(Function),
     expectedUserId: scope.userId,
     session: expect.objectContaining({ valid: expect.any(Function) }),
     workspaceId: undefined,

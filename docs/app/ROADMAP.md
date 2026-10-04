@@ -9,6 +9,17 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-36 r2 на свежей базе `9e0328c`: [x] authenticated client entry,
+  Home с server schedule/plan/request/aggregate balance и finished progress;
+  [x] History/detail, Progress/week/exercise history и JWT/caller/reset guards;
+  [x] existing SOM-27 durable request/reply/reschedule/cancel с server readback;
+  [x] независимые synthetic service/hook/screen flows и additive read RPC/types/pgTAP.
+  [Отчёт](../../app/review/09-som-36-client-production-r2/README.md),
+  [ADR 0097](decisions/0097-client-overview-and-read-lifetimes.md).
+  [ ] SQL/RLS/Auth/concurrency/type drift в CI; [ ] real storage/crash/reopen,
+  два телефона, native/accessibility/parity и одобрение владельца. Этап 7/SOM-48
+  не приняты; selective program update и финансовые commands не менялись.
+
 - 04.10.2026 — SOM-21 r2: [x] invitation mutations и own-card reads с expected
   caller JWT session/explicit bearer; [x] live-operation exact retry, route lifetime
   и conditional pending generation/token clear; [x] synthetic transport/pending/

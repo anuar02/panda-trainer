@@ -1,3 +1,4 @@
+import { clientReadToken } from './client-read-auth-fixture';
 import type {
   AuthChangeEvent,
   Session,
@@ -36,7 +37,10 @@ const scope = {
   limit: 1,
 };
 const session = (token: string, actor = user) =>
-  ({ access_token: token, user: { id: actor } }) as Session;
+  ({
+    access_token: clientReadToken(actor, undefined, token),
+    user: { id: actor },
+  }) as Session;
 function setup() {
   let current: Session | null = session('synthetic-a');
   const listeners = new Set<
@@ -205,7 +209,9 @@ test('refresh continues one fence and subsequent child pages use refreshed beare
   const result = await loadClientHistory(input);
   expect(result.journals[0]?.notes).toHaveLength(501);
   expect(result.journals[0]?.finishedAtUtc).toBe('2020-01-01T11:00:00.000Z');
-  expect(api.calls.at(-1)?.header).toBe('Bearer synthetic-refresh');
+  expect(api.calls.at(-1)?.header).toBe(
+    `Bearer ${clientReadToken(user, undefined, 'synthetic-refresh')}`,
+  );
   expect(JSON.stringify(result)).not.toContain('synthetic-refresh');
 });
 test('foreign actor refresh and workspace mismatch cannot authorize history', async () => {
@@ -255,7 +261,7 @@ test('loaded history and pending loadMore are discarded on same-user login; retr
   await hook.unmount();
   expect(api.listeners.size).toBe(0);
 });
-test('logout clears shown history, login restores first page, refresh preserves history', async () => {
+test('logout clears shown history, login restores first page, refresh rereads history', async () => {
   const api = setup();
   const hook = await renderHook(useClientHistory, { initialProps: scope });
   await waitFor(() => expect(hook.result.current.history).not.toBeNull());
@@ -263,7 +269,8 @@ test('logout clears shown history, login restores first page, refresh preserves 
   await act(async () =>
     api.emit('TOKEN_REFRESHED', session('synthetic-refresh')),
   );
-  expect(hook.result.current.history).toBe(before);
+  expect(hook.result.current.history).toEqual(before);
+  expect(hook.result.current.history).not.toBe(before);
   await act(async () => api.emit('SIGNED_OUT', null));
   await waitFor(() => expect(hook.result.current.error).toBe('unavailable'));
   expect(hook.result.current.history).toBeNull();
@@ -335,7 +342,7 @@ test('loadMore detects a missed same-user auth event and drops previously shown 
   await hook.unmount();
 });
 
-test('refresh before loadMore and retryMore keeps pages in the original fence', async () => {
+test('refresh before loadMore and retryMore rereads with a fresh fence', async () => {
   const api = setup();
   const hook = await renderHook(useClientHistory, { initialProps: scope });
   await waitFor(() =>
@@ -354,7 +361,9 @@ test('refresh before loadMore and retryMore keeps pages in the original fence', 
   await act(async () => hook.result.current.retryMore());
   expect(hook.result.current.history?.journals).toHaveLength(2);
   expect(hook.result.current.moreError).toBeNull();
-  expect(hook.result.current.generation).toBe(0);
-  expect(api.calls.at(-1)?.header).toBe('Bearer synthetic-refresh');
+  expect(hook.result.current.generation).toBe(1);
+  expect(api.calls.at(-1)?.header).toBe(
+    `Bearer ${clientReadToken(user, undefined, 'synthetic-refresh')}`,
+  );
   await hook.unmount();
 });

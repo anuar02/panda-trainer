@@ -163,6 +163,7 @@ beforeEach(() => {
     externalBlocked: false,
   };
   read.mockReturnValue({
+    generation: 'read-1',
     schedule,
     loading: false,
     failed: false,
@@ -203,6 +204,7 @@ test('real data maps immutable program preview and selecting own booking supplie
 });
 test('loading supplies empty controlled home data and original profile names', async () => {
   read.mockReturnValue({
+    generation: 'read-1',
     schedule: null,
     loading: true,
     failed: false,
@@ -222,6 +224,7 @@ test('loading supplies empty controlled home data and original profile names', a
 });
 test('mismatched workspace blocks rendering and keeps both global recovery surfaces', async () => {
   read.mockReturnValue({
+    generation: 'read-1',
     schedule: {
       ...schedule,
       context: { ...schedule.context, workspaceId: 'foreign' },
@@ -239,6 +242,7 @@ test('mismatched workspace blocks rendering and keeps both global recovery surfa
 });
 test('read failure retains both durable recovery controls and retry', async () => {
   read.mockReturnValue({
+    generation: 'read-1',
     schedule: null,
     loading: false,
     failed: true,
@@ -303,6 +307,7 @@ test('proposal outside upcoming slice renders request-only controls for its orig
     ends_at: '2030-09-28T08:00:00Z',
   };
   read.mockReturnValue({
+    generation: 'read-1',
     schedule: {
       ...schedule,
       pendingProposals: [
