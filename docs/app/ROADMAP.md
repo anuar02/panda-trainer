@@ -9,6 +9,15 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 scoped SQLite snapshot: [x] additive read-only API всех
+  scoped outbox rows и raw entries, одна queued transaction, runtime validation
+  и session/close/cancellation fencing; [x] synthetic driver/seam regressions.
+  Полный app check: 173 suites / 2007 tests, type/lint/format зелёные.
+  [ ] Native SQLite/connections/crash/reopen, cross-source collector/barrier,
+  file/export/ack proof, deletion и приёмка владельца. SOM-41 не закрыта.
+  [Отчёт](../../app/review/som-41-scoped-outbox-snapshot/README.md),
+  [ADR 0081](decisions/0081-scoped-sqlite-outbox-snapshot.md).
+
 - 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
   SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
   synthetic round-trip regressions; [ ] collector, real SQLite/SQL/file API,
