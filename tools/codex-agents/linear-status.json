@@ -1,12 +1,12 @@
 {
- "updated_at": "2026-10-04T00:58Z",
+ "updated_at": "2026-10-04T01:02Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
   {
    "id": "SOM-20",
    "title": "Подключить onboarding тренера и управление клиентами",
-   "status": "In Progress",
+   "status": "In Review",
    "milestone": "02",
    "group": "agents"
   },
