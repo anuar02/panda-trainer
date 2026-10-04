@@ -25,7 +25,8 @@
       "expo-web-browser",
       "react-native-quick-crypto",
       "expo-image",
-      "expo-asset"
+      "expo-asset",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true

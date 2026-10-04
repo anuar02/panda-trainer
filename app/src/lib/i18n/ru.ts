@@ -31,6 +31,7 @@ import { workoutPreloadRu } from '@/features/workout-preload/strings';
 import { workoutCorrectionsRu } from '@/features/workout-corrections/strings';
 
 export const ru = {
+  push: { signIn: 'Войдите, чтобы открыть уведомление' },
   notifications: notificationsRu,
   accountExport: accountExportRu,
   workoutPreload: workoutPreloadRu,

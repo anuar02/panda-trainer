@@ -1,3 +1,4 @@
+import { detachPushBeforeLogout } from '@/features/push/logout';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 import type { AuthError, Session, SupabaseClient } from '@supabase/supabase-js';
@@ -282,6 +283,7 @@ export const authService: AuthService = {
   },
   signOut: async () => {
     try {
+      await detachPushBeforeLogout();
       const { error } = await requireClient().auth.signOut({ scope: 'local' });
       if (error) throw error;
       callbackResults.clear();

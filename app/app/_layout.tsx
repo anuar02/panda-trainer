@@ -1,3 +1,4 @@
+import { PushObserver } from '@/features/push/observer';
 import { bootstrapErrorMonitoring } from '@/features/error-monitoring';
 import { TemplateProvider } from '@/features/template-editor/provider';
 import '../global.css';
@@ -108,6 +109,7 @@ export default function RootLayout() {
                 </SafeAreaView>
               ) : (
                 <AuthProvider>
+                  <PushObserver />
                   <TemplateProvider>
                     <SchedulingDemoProvider waitForWorkout>
                       <ConnectedNavigation />
