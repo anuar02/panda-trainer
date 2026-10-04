@@ -26,7 +26,9 @@ create function pg_temp.update_program(keys text[],request uuid default '5200000
  select public.update_client_program('52000000-0000-4000-8000-000000000001','52000000-0000-4000-8000-000000000003','52000000-0000-4000-8000-000000000004','52000000-0000-4000-8000-000000000006',current_setting('test.source')::uuid,pr,wr,keys,request);
 $$;
 set local role authenticated;
+reset role;
 select ok(not has_table_privilege('authenticated','private.program_update_receipts','SELECT'),'receipts private');
+set local role authenticated;
 select ok(not has_function_privilege('anon','public.update_client_program(uuid,uuid,uuid,uuid,uuid,integer,integer,text[],uuid)','EXECUTE'),'anon denied');
 select is(jsonb_array_length(public.get_program_update('52000000-0000-4000-8000-000000000001','52000000-0000-4000-8000-000000000003','52000000-0000-4000-8000-000000000006','52000000-0000-4000-8000-000000000004')->'options'),1,'partial finished journal offers saved values');
 select throws_ok($$select pg_temp.update_program(array[]::text[])$$,'22023',null,'empty choice rejected');

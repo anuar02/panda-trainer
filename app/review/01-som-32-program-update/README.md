@@ -103,3 +103,9 @@ Run [37207761045](https://github.com/anuar02/panda-trainer/actions/runs/37207761
 SQL lint PASS; new pgTAP fixture stopped before assertions because it assumed
 template revision 1. Fixture now uses revision returned by save_workout_template
 for assignment and booking; production code unchanged. Repeat runtime pending.
+
+Run [37208372644](https://github.com/anuar02/panda-trainer/actions/runs/37208372644):
+app check/Expo/export PASS; DB lint PASS. pgTAP fixture's private-table privilege
+inspection required reset role because authenticated cannot resolve private schema.
+The privilege assertion now runs as postgres while checking authenticated rights;
+no grants were broadened. Repeat runtime pending.
