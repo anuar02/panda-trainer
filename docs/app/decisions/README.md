@@ -87,3 +87,5 @@
 | [0080](0080-pure-local-export-envelope.md) | Pure local export и SQL conflict/correction relations r2 | Технический контракт; collector/runtime/owner acceptance открыты | 03.10.2026 |
 
 | [0078](0078-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+
+| [0084](0084-production-workout-finish-outbox.md) | Production finish через существующий outbox и подтверждённый snapshot | Runtime и приёмка владельца открыты | 04.10.2026 |

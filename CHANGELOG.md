@@ -23,6 +23,8 @@
 
 ### Добавлено
 
+- SOM-32: production finish конкретного журнала через durable outbox, сводка сохранённых подходов и явное partial/empty подтверждение; local save отделён от server finish, draft/conflict не выдают applied исправление. [Отчёт](app/review/som-32-production-finish/README.md), [ADR 0084](docs/app/decisions/0084-production-workout-finish-outbox.md). Correction/program contracts, runtime и приёмка владельца открыты.
+
 - [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
   add/replace/conflict selection; owner RPC создаёт журнал из booking assignment snapshot.
   [Отчёт](app/review/som-31-workout-entry/README.md),

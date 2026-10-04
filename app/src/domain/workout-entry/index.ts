@@ -3,6 +3,7 @@ import type {
   PendingOperation,
   OperationResult,
   SyncScope,
+  JournalOperation,
 } from '../workout-sync/types';
 
 export type SetValues = Pick<PreloadSet, 'weightGrams' | 'reps' | 'seconds'>;
@@ -17,7 +18,120 @@ export type EntryWorkout = {
   participant: PreloadParticipant;
   tombstones: string[];
   tombstoneRevisions?: Record<string, number>;
+  finishOperation?: JournalOperation;
+  finishResolution?: {
+    operationId: string;
+    conflictId: string;
+    selection: 'current' | 'incoming';
+  };
 };
+export type EntryFinish = {
+  status:
+    | 'available'
+    | 'saved_on_phone'
+    | 'applied'
+    | 'not_finished'
+    | 'error'
+    | 'conflict'
+    | 'correction_draft';
+  operationId: string | null;
+  issue: OperationResult | null;
+};
+export function summarizeWorkoutFinish(
+  participant: PreloadParticipant,
+  draft?: EntryDraft,
+) {
+  let recordedSets = 0;
+  let plannedSets = 0;
+  let unrecordedSets = 0;
+  for (const exercise of participant.exercises) {
+    const recorded = exercise.sets.filter(
+      (set) =>
+        !set.deletedAt &&
+        (exercise.measure === 'reps'
+          ? set.reps !== null && set.seconds === null
+          : set.seconds !== null && set.reps === null),
+    ).length;
+    recordedSets += recorded;
+    plannedSets += exercise.skipped ? recorded : exercise.plannedSets;
+    if (!exercise.skipped)
+      unrecordedSets += Math.max(0, exercise.plannedSets - recorded);
+  }
+  const draftCount = Object.entries(draft?.values ?? {}).filter(
+    ([id, values]) =>
+      participant.exercises.some((exercise) => exercise.id === id) &&
+      Object.values(values).some((value) => value !== null),
+  ).length;
+  const assigned = new Set(
+    participant.assignedExercises.map((exercise) => exercise.exerciseId),
+  );
+  return {
+    recordedSets,
+    plannedSets,
+    unrecordedSets,
+    draftCount,
+    needsConfirmation:
+      plannedSets === 0 || unrecordedSets > 0 || draftCount > 0,
+    addedExerciseIds: participant.exercises
+      .filter(
+        (exercise) =>
+          !exercise.skipped &&
+          !exercise.replacedFromId &&
+          !assigned.has(exercise.exerciseId),
+      )
+      .map((exercise) => exercise.id),
+    replacedExerciseIds: participant.exercises
+      .filter((exercise) => !exercise.skipped && exercise.replacedFromId)
+      .map((exercise) => exercise.id),
+  };
+}
+export function workoutFinishState(
+  workout: EntryWorkout,
+  pending: PendingOperation[],
+  issues: OperationResult[],
+): EntryFinish {
+  const operation = workout.finishOperation;
+  const issue =
+    issues.find((item) => item.operation_id === operation?.operation_id) ??
+    pending.find(
+      (item) => item.operation.operation_id === operation?.operation_id,
+    )?.result ??
+    pending.find(
+      (item) =>
+        item.operation.operation_id === workout.finishResolution?.operationId,
+    )?.result ??
+    (operation || workout.participant.workoutStatus === 'finished'
+      ? issues.find((item) => item.status !== 'applied')
+      : null) ??
+    null;
+  if (issue && issue.status !== 'applied')
+    return {
+      status: issue.status,
+      operationId: operation?.operation_id ?? null,
+      issue,
+    };
+  const choseCurrent =
+    operation &&
+    workout.participant.workoutStatus === 'in_progress' &&
+    workout.finishResolution?.selection === 'current' &&
+    !pending.some(
+      (item) =>
+        item.operation.operation_id === operation.operation_id ||
+        item.operation.operation_id === workout.finishResolution?.operationId,
+    );
+  return {
+    status:
+      workout.participant.workoutStatus === 'finished'
+        ? 'applied'
+        : choseCurrent
+          ? 'not_finished'
+          : operation
+            ? 'saved_on_phone'
+            : 'available',
+    operationId: operation?.operation_id ?? null,
+    issue: null,
+  };
+}
 export interface EntryDraftStore {
   readonly scope: SyncScope;
   read(workoutId: string): Promise<EntryDraft | null>;
@@ -79,6 +193,15 @@ export function reconcileWorkout(
       .filter((item) => item.status !== 'applied')
       .map((item) => item.entity_id),
   ]);
+  if (
+    local.finishOperation &&
+    server.workoutStatus !== 'finished' &&
+    server.workoutRevision <= local.finishOperation.base_revision
+  )
+    for (const exercise of local.participant.exercises) {
+      protectedIds.add(exercise.id);
+      for (const set of exercise.sets) protectedIds.add(set.id);
+    }
   const retainedExerciseIds = new Set<string>();
   for (const exercise of local.participant.exercises) {
     if (protectedIds.has(exercise.id)) {
@@ -96,7 +219,6 @@ export function reconcileWorkout(
     if (item.result?.status !== 'applied' && typeof parentId === 'string')
       retainedExerciseIds.add(parentId);
   }
-  const protectedWorkout = protectedIds.has(server.workoutId);
   const exercises = server.exercises.map((exercise) => {
     const previous = local.participant.exercises.find(
       (item) => item.id === exercise.id,
@@ -153,11 +275,14 @@ export function reconcileWorkout(
   return {
     participant: {
       ...server,
-      ...(protectedWorkout
-        ? { workoutRevision: local.participant.workoutRevision }
-        : {}),
       exercises,
     },
+    ...(local.finishOperation
+      ? { finishOperation: local.finishOperation }
+      : {}),
+    ...(local.finishResolution
+      ? { finishResolution: local.finishResolution }
+      : {}),
     ...(local.tombstoneRevisions
       ? { tombstoneRevisions: local.tombstoneRevisions }
       : {}),

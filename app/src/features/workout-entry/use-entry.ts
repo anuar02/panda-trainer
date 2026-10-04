@@ -18,6 +18,39 @@ import { openWorkoutPreloadStore } from '@/features/workout-preload/storage';
 import { registerEntryWriter } from './coordination';
 import { loadEntryResources } from './resources';
 
+function freshestParticipant(
+  current: PreloadParticipant,
+  candidate?: PreloadParticipant,
+) {
+  if (
+    !candidate ||
+    candidate.workoutId !== current.workoutId ||
+    candidate.bookingId !== current.bookingId ||
+    candidate.clientRecordId !== current.clientRecordId ||
+    candidate.workoutRevision < current.workoutRevision ||
+    (candidate.workoutRevision === current.workoutRevision &&
+      current.workoutStatus === 'finished' &&
+      candidate.workoutStatus !== 'finished')
+  )
+    return current;
+  return candidate;
+}
+
+function entryKey(
+  session: SyncSession | null,
+  participant: PreloadParticipant,
+) {
+  return JSON.stringify([
+    session?.accountId,
+    session?.workspaceId,
+    session?.sessionId,
+    session?.accessToken,
+    participant.workoutId,
+    participant.bookingId,
+    participant.clientRecordId,
+  ]);
+}
+
 type Resources = Awaited<ReturnType<typeof loadEntryResources>>;
 export function useWorkoutEntry(
   session: SyncSession | null,
@@ -36,19 +69,22 @@ export function useWorkoutEntry(
   const [busy, setBusy] = useState(false);
   const runtime = useRef<{
     service: WorkoutEntryService;
+    actions: number;
     run: () => Promise<void>;
     cache: (value: Resources) => Promise<void>;
   } | null>(null);
   const currentParticipant = useRef(participant);
+  const finishInFlight = useRef(false);
 
   const currentSession = useRef(getSession);
   useLayoutEffect(() => {
     currentParticipant.current = participant;
-  }, [participant]);
+  }, [participant, session]);
   useLayoutEffect(() => {
     currentSession.current = getSession;
   }, [getSession]);
   useEffect(() => {
+    const selected = currentParticipant.current;
     let active = true;
     const controller = new AbortController();
     let dispose: (() => Promise<void>) | undefined;
@@ -57,6 +93,9 @@ export function useWorkoutEntry(
       const current = currentSession.current();
       return (
         active &&
+        currentParticipant.current.workoutId === selected.workoutId &&
+        currentParticipant.current.bookingId === selected.bookingId &&
+        currentParticipant.current.clientRecordId === selected.clientRecordId &&
         captured !== null &&
         current?.accountId === captured.accountId &&
         current.workspaceId === captured.workspaceId &&
@@ -105,14 +144,17 @@ export function useWorkoutEntry(
         try {
           const cache = await openWorkoutPreloadStore(captured);
           try {
-            const context = await cache.read(participant.bookingId);
+            const context = await cache.read(selected.bookingId);
             if (!valid()) return;
             const saved = context?.participants.find(
               (value) =>
-                value.workoutId === participant.workoutId &&
-                value.bookingId === participant.bookingId,
+                value.workoutId === selected.workoutId &&
+                value.bookingId === selected.bookingId,
             );
-            if (saved) currentParticipant.current = saved;
+            currentParticipant.current = freshestParticipant(
+              currentParticipant.current,
+              saved,
+            );
           } finally {
             await cache.close();
           }
@@ -121,6 +163,11 @@ export function useWorkoutEntry(
         }
         const service = new WorkoutEntryService({
           session: captured,
+          isParticipantCurrent: (value) =>
+            valid() &&
+            value.workoutId === currentParticipant.current.workoutId &&
+            value.bookingId === currentParticipant.current.bookingId &&
+            value.clientRecordId === currentParticipant.current.clientRecordId,
           getSession: () => (valid() ? captured : null),
           outbox,
           drafts,
@@ -136,12 +183,14 @@ export function useWorkoutEntry(
           await drafts.close();
           await outbox.close();
         };
+        if (!valid()) return;
         runtime.current = {
           service,
+          actions: 0,
           cache: async (value) => {
             if (valid())
               await drafts.saveResources(
-                participant.workoutId,
+                selected.workoutId,
                 value as unknown as JsonValue,
               );
           },
@@ -150,14 +199,14 @@ export function useWorkoutEntry(
           },
         };
         if (valid()) {
-          setLoadedKey(`${captured.sessionId}:${participant.workoutId}`);
+          setLoadedKey(entryKey(captured, selected));
           setState(null);
           setError(cacheError);
           setBusy(false);
           setSync(null);
           setResources({ catalog: [], conflicts: [] });
         }
-        const cached = await drafts.readResources(participant.workoutId);
+        const cached = await drafts.readResources(selected.workoutId);
         if (
           valid() &&
           cached &&
@@ -172,12 +221,12 @@ export function useWorkoutEntry(
         try {
           const loaded = await loadEntryResources(
             captured,
-            participant.workoutId,
+            selected.workoutId,
             controller.signal,
           );
           if (valid()) {
             await drafts.saveResources(
-              participant.workoutId,
+              selected.workoutId,
               loaded as unknown as JsonValue,
             );
             if (valid()) setResources(loaded);
@@ -185,7 +234,7 @@ export function useWorkoutEntry(
         } catch {}
       })().catch(() => {
         if (valid()) {
-          setLoadedKey(`${captured.sessionId}:${participant.workoutId}`);
+          setLoadedKey(entryKey(captured, selected));
           setError(true);
         }
       });
@@ -193,32 +242,58 @@ export function useWorkoutEntry(
       active = false;
       controller.abort();
       runtime.current = null;
+      finishInFlight.current = false;
       void dispose?.().catch(() => {});
     };
-  }, [session, participant.workoutId, participant.bookingId, attempt]);
+  }, [
+    session,
+    participant.workoutId,
+    participant.bookingId,
+    participant.clientRecordId,
+    attempt,
+  ]);
   useEffect(() => {
     const service = runtime.current?.service;
+    const captured = session;
+    const valid = () => {
+      const current = currentSession.current();
+      return (
+        active &&
+        runtime.current?.service === service &&
+        current?.accountId === captured?.accountId &&
+        current?.workspaceId === captured?.workspaceId &&
+        current?.sessionId === captured?.sessionId &&
+        current?.accessToken === captured?.accessToken &&
+        currentParticipant.current.workoutId === participant.workoutId &&
+        currentParticipant.current.bookingId === participant.bookingId &&
+        currentParticipant.current.clientRecordId === participant.clientRecordId
+      );
+    };
     let active = true;
     if (service)
       void service
         .read(participant)
         .then((next) => {
-          if (active && runtime.current?.service === service) setState(next);
+          if (valid()) setState(next);
         })
         .catch(() => {
-          if (active && runtime.current?.service === service) setError(true);
+          if (valid()) setError(true);
         });
     return () => {
       active = false;
     };
-  }, [participant]);
+  }, [participant, session]);
   async function execute(
-    action: (service: WorkoutEntryService) => Promise<EntryRead | void>,
+    action: (
+      service: WorkoutEntryService,
+      isCurrent?: () => boolean,
+    ) => Promise<EntryRead | void>,
     syncWrite = true,
   ) {
     const captured = session;
     const instance = runtime.current;
-    const workoutId = currentParticipant.current.workoutId;
+    const selected = currentParticipant.current;
+    const workoutId = selected.workoutId;
     const valid = () =>
       captured !== null &&
       currentSession.current()?.accountId === captured.accountId &&
@@ -226,12 +301,15 @@ export function useWorkoutEntry(
       currentSession.current()?.accessToken === captured.accessToken &&
       currentSession.current()?.sessionId === captured.sessionId &&
       runtime.current === instance &&
-      currentParticipant.current.workoutId === workoutId;
+      currentParticipant.current.workoutId === workoutId &&
+      currentParticipant.current.bookingId === selected.bookingId &&
+      currentParticipant.current.clientRecordId === selected.clientRecordId;
     if (!instance || !valid()) return;
+    instance.actions += 1;
     setBusy(true);
     setError(false);
     try {
-      const next = await action(instance.service);
+      const next = await action(instance.service, valid);
       if (!valid()) return;
       if (next) setState(next);
       else {
@@ -257,15 +335,33 @@ export function useWorkoutEntry(
                 new AbortController().signal,
               );
               if (!valid()) return;
-              refreshed =
+              refreshed = freshestParticipant(
+                currentParticipant.current,
                 context.participants.find(
-                  (value) => value.bookingId === refreshed.bookingId,
-                ) ?? refreshed;
+                  (value) =>
+                    value.bookingId === selected.bookingId &&
+                    value.workoutId === workoutId &&
+                    value.clientRecordId === selected.clientRecordId,
+                ),
+              );
               currentParticipant.current = refreshed;
               const cache = await openWorkoutPreloadStore(captured);
               try {
                 if (!valid()) return;
-                await cache.save(context);
+                refreshed = freshestParticipant(
+                  currentParticipant.current,
+                  refreshed,
+                );
+                await cache.save({
+                  ...context,
+                  participants: context.participants.map((value) =>
+                    value.workoutId === refreshed.workoutId &&
+                    value.bookingId === refreshed.bookingId &&
+                    value.clientRecordId === refreshed.clientRecordId
+                      ? refreshed
+                      : value,
+                  ),
+                });
                 if (!valid()) return;
               } catch {
                 if (valid()) setError(true);
@@ -294,11 +390,11 @@ export function useWorkoutEntry(
     } catch {
       if (valid()) setError(true);
     } finally {
-      if (valid()) setBusy(false);
+      instance.actions -= 1;
+      if (valid()) setBusy(instance.actions > 0);
     }
   }
-  const visible =
-    loadedKey === `${session?.sessionId}:${participant.workoutId}`;
+  const visible = loadedKey === entryKey(session, participant);
   return {
     state: visible ? state : null,
     resources: visible ? resources : { catalog: [], conflicts: [] },
@@ -306,6 +402,16 @@ export function useWorkoutEntry(
     error: visible && error,
     busy: visible && busy,
     execute,
+    finish: async () => {
+      if (finishInFlight.current) return;
+      const instance = runtime.current;
+      finishInFlight.current = true;
+      try {
+        await execute((service) => service.finish(currentParticipant.current));
+      } finally {
+        if (runtime.current === instance) finishInFlight.current = false;
+      }
+    },
     retry: () => setAttempt((value) => value + 1),
     retryDelivery: () =>
       execute((service) => service.read(currentParticipant.current)),

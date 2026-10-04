@@ -87,6 +87,7 @@ function fixture(p = participant(), values: SetValues = blank) {
     busy: false,
     retry: jest.fn(),
     retryDelivery: jest.fn(),
+    finish: jest.fn(async () => {}),
     execute: jest.fn(async (action) => {
       await action(service as unknown as WorkoutEntryService);
     }),
