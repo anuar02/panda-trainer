@@ -9,6 +9,11 @@
 
 ## Не выпущено
 
+- SOM-39: общий Reanimated-вход экранов, tabPop/индикаторы вкладок, прерываемый
+  отклик кнопок/строк/чипов, pulse/shimmer/growX и idle-предзагрузка вкладок.
+  Calm/reduce motion показывают контент сразу; native и одобрение владельца открыты.
+  [Отчёт](app/review/14-som-39-motion-navigation/README.md).
+
 - SOM-41 / PR #73: интеграция с SOM-32 сохраняет pending обновления программы в inventory/export и блокирует удаление до разрешения; exact SQL fence smoke, ADR 0103 и новая migration после актуальной базы.
 
 - SOM-41 / PR #73: исправлены оставшиеся конфликты алиасов `c`/`a` при установке triggers и cleanup; миграции base/pilot не изменены.

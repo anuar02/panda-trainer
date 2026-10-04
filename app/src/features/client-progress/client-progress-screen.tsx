@@ -1,5 +1,12 @@
+import {
+  MotionHeader,
+  Shimmer,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
@@ -60,7 +67,7 @@ export function ClientProgressScreen({
       style={s.root}
       testID={`client-progress-${scenario}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader motionKey={scenario} style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <GradientBackground
@@ -98,8 +105,8 @@ export function ClientProgressScreen({
         >
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
+      </MotionHeader>
+      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
         {(
           data
             ? data.loading
@@ -111,7 +118,7 @@ export function ClientProgressScreen({
             accessibilityRole="progressbar"
             accessibilityLabel={tx('loading')}
           >
-            <Card flush style={s.rowsCard}>
+            <Card rows flush style={s.rowsCard}>
               {[0, 1, 2, 3].map((row) => (
                 <View
                   key={row}
@@ -124,20 +131,20 @@ export function ClientProgressScreen({
                     },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.rowMain}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },
@@ -294,7 +301,7 @@ export function ClientProgressScreen({
                 <Text accessibilityRole="header" style={s.sectionTitle}>
                   {tx('visitsTitle')}
                 </Text>
-                <Card flush style={s.visitsCard}>
+                <Card rows flush style={s.visitsCard}>
                   <View style={s.week}>
                     {progressWeek.map(({ weekday, day }) => (
                       <View key={weekday} style={s.column}>

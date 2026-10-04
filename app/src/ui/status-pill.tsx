@@ -1,3 +1,4 @@
+import { PulseDot } from './motion';
 import { View, type ViewProps } from 'react-native';
 import { Text } from './text';
 import { useTheme } from './theme';
@@ -7,12 +8,14 @@ type Props = ViewProps & {
   label: string;
   tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'accent';
   dot?: boolean;
+  pulse?: boolean;
 };
 
 export function StatusPill({
   label,
   tone = 'neutral',
   dot = false,
+  pulse = false,
   style,
   className = '',
   ...props
@@ -25,12 +28,7 @@ export function StatusPill({
       className={`flex-row self-start items-center gap-[7px] rounded-full py-[6px] ${dot ? 'pl-[11px] pr-3' : 'px-[13px]'} ${className}`}
       style={[{ backgroundColor: colors.backgroundColor }, style]}
     >
-      {dot && (
-        <View
-          className="h-2 w-2 rounded-full"
-          style={{ backgroundColor: colors.color }}
-        />
-      )}
+      {dot && <PulseDot color={colors.color} pulse={pulse} />}
       <Text
         className="font-bold text-[14px] leading-[20.3px] tracking-[0.1px]"
         style={{ color: colors.color }}

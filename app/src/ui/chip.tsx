@@ -1,4 +1,4 @@
-import { Pressable } from 'react-native';
+import { MotionPressable } from './motion';
 import { Text } from './text';
 export function Chip({
   label,
@@ -10,7 +10,8 @@ export function Chip({
   onPress: () => void;
 }) {
   return (
-    <Pressable
+    <MotionPressable
+      motionKind="chip"
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected }}
@@ -19,6 +20,6 @@ export function Chip({
       <Text className={selected ? 'font-medium text-canvas' : 'text-secondary'}>
         {label}
       </Text>
-    </Pressable>
+    </MotionPressable>
   );
 }

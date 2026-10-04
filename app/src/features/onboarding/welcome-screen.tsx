@@ -1,7 +1,7 @@
+import { MotionScrollView as ScrollView } from '@/ui/motion';
 import { useEffect, useRef, useState } from 'react';
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -671,7 +671,7 @@ export function WelcomeScreen({
             {description(text('done.text'), true)}
           </View>
           <View style={styles.doneRows}>
-            <Card flush style={styles.rowsCard}>
+            <Card rows flush style={styles.rowsCard}>
               {row(
                 'user',
                 text('done.profile'),

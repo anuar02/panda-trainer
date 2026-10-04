@@ -1,3 +1,11 @@
+import {
+  GrowX,
+  AgendaMotion,
+  Shimmer,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
 import { Mascot } from '@/ui/mascot';
 import { useState, type ReactNode } from 'react';
 import type {
@@ -6,13 +14,7 @@ import type {
   TrainerTodayAgendaItem,
 } from '@/features/workspace-scheduling/today-adapter';
 import { router } from 'expo-router';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { GradientBackground } from '@/ui/gradient-background';
@@ -30,7 +32,6 @@ import {
 } from './demo';
 import { getTodayStyles } from './measurements';
 import { useCalmMode } from '@/ui/calm-mode';
-import { MotionView } from '@/ui/motion';
 import { StatusPill } from '@/ui/status-pill';
 import { useJournalLabels } from '@/features/workout-demo';
 import {
@@ -696,6 +697,7 @@ export function TrainerTodayScreen({
 
   const iconButton = (name: IconName, label: string, primary = false) => (
     <Pressable
+      motionKind="inbox"
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{
@@ -750,23 +752,28 @@ export function TrainerTodayScreen({
             accessibilityLabel={t('common.loading')}
           >
             <View>
-              <View
+              <Shimmer
                 style={[s.skeletonTitle, { backgroundColor: colors.sunken }]}
               />
-              <View
+              <Shimmer
                 style={[s.skeletonSubtitle, { backgroundColor: colors.sunken }]}
               />
             </View>
-            <View
+            <Shimmer
               style={[s.skeletonAction, { backgroundColor: colors.sunken }]}
             />
           </View>
-          <View style={[s.skeletonLabel, { backgroundColor: colors.sunken }]} />
-          <View style={[s.skeletonCard, { backgroundColor: colors.sunken }]} />
+          <Shimmer
+            style={[s.skeletonLabel, { backgroundColor: colors.sunken }]}
+          />
+          <Shimmer
+            style={[s.skeletonCard, { backgroundColor: colors.sunken }]}
+          />
         </>
       ) : (
         <>
           <ScreenHeader
+            motionKey={scenario}
             greeting={
               data
                 ? t(
@@ -801,6 +808,7 @@ export function TrainerTodayScreen({
             }
           />
           <ScrollView
+            motionKey={scenario}
             contentContainerStyle={s.body}
             showsVerticalScrollIndicator={false}
           >
@@ -857,7 +865,7 @@ export function TrainerTodayScreen({
               </View>
             ) : (
               <>
-                <MotionView
+                <View
                   style={s.buddy}
                   accessibilityLabel={t('trainerToday.summary')}
                 >
@@ -923,7 +931,7 @@ export function TrainerTodayScreen({
                           : t('trainerToday.progress')
                       }
                     >
-                      <View
+                      <GrowX
                         style={[
                           s.progress,
                           changed && {
@@ -937,7 +945,7 @@ export function TrainerTodayScreen({
                           start="#a5b4fc"
                           end="#5b74f0"
                         />
-                      </View>
+                      </GrowX>
                     </View>
                     <View style={s.stats}>
                       {(
@@ -953,6 +961,7 @@ export function TrainerTodayScreen({
                         </Text>
                       ))}
                       <Pressable
+                        motionKind="request"
                         accessibilityRole="button"
                         onPress={openRequests}
                         style={s.requests}
@@ -967,7 +976,7 @@ export function TrainerTodayScreen({
                       </Pressable>
                     </View>
                   </View>
-                </MotionView>
+                </View>
                 <View style={s.section}>
                   <View style={s.sectionHead}>
                     <Text style={[s.small, s.strong]}>
@@ -981,7 +990,7 @@ export function TrainerTodayScreen({
                         : t('trainerToday.count')}
                     </Text>
                   </View>
-                  <View
+                  <AgendaMotion
                     style={[
                       s.agenda,
                       {
@@ -1173,7 +1182,7 @@ export function TrainerTodayScreen({
                         {sessionEntry(demoLastSession)}
                       </>
                     )}
-                  </View>
+                  </AgendaMotion>
                   {(!data || data.agenda.endTime !== null) && (
                     <Text style={[s.dayEnd, secondary]}>
                       {changed
