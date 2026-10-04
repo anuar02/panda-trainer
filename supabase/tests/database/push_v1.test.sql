@@ -70,9 +70,15 @@ select is(public.schedule_push_v1('2099-10-04T02:59:00Z','08:00'),0,'Almaty 07:5
 select is(public.schedule_push_v1('2099-10-04T03:00:00Z','08:00'),2,'Almaty 08:00 reminder at two hours and daily summary');
 select is(public.schedule_push_v1('2099-10-04T03:00:00Z','08:00'),0,'scheduler replay does not duplicate feed');
 select is(public.schedule_push_v1('2099-10-04T04:00:00Z','08:00'),0,'late repeat does not duplicate');
+update public.client_records set user_id='5a000000-0000-4000-8000-000000000003' where id='7a000000-0000-4000-8000-000000000001';
+select ok(not private.push_eligible((select id from public.notifications where kind='booking_reminder' and recipient_user_id='5a000000-0000-4000-8000-000000000002'),'2099-10-04T04:00:00Z'),'recipient change invalidates old due reminder');
+select is(public.schedule_push_v1('2099-10-04T04:00:00Z','08:00'),1,'new recipient receives one distinct own reminder');
+select is(public.schedule_push_v1('2099-10-04T04:00:00Z','08:00'),0,'new recipient scheduler replay remains idempotent');
+update public.client_records set user_id='5a000000-0000-4000-8000-000000000002' where id='7a000000-0000-4000-8000-000000000001';
+
 select is(public.schedule_push_v1('2099-10-05T03:00:00Z','08:00'),0,'empty day does not emit summary');
 update public.bookings set starts_at='2099-10-04T09:00:00Z',ends_at='2099-10-04T10:00:00Z' where id='ba000000-0000-4000-8000-000000000001';
-select ok(not private.push_eligible((select id from public.notifications where kind='booking_reminder'),'2099-10-04T03:00:00Z'),'reschedule invalidates old reminder');
+select ok(not private.push_eligible((select id from public.notifications where kind='booking_reminder' and recipient_user_id='5a000000-0000-4000-8000-000000000002'),'2099-10-04T03:00:00Z'),'reschedule invalidates old reminder');
 select is(public.schedule_push_v1('2099-10-04T07:00:00Z','08:00'),1,'new time creates exactly one new reminder');
 update public.bookings set status='cancelled_by_trainer' where id='ba000000-0000-4000-8000-000000000001';
 select is(public.schedule_push_v1('2099-10-04T08:00:00Z','08:00'),0,'cancelled booking not scheduled');
