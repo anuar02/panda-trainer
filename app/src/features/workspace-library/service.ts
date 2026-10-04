@@ -1,3 +1,4 @@
+import { createWorkspaceExerciseFence } from './exercise-session';
 import {
   templateMutation,
   type TemplateMutationScope,
@@ -71,6 +72,13 @@ export class WorkspaceLibraryError extends Error {
   }
 }
 
+export class WorkspaceExerciseOutcomeError extends WorkspaceLibraryError {
+  constructor(code: 'duplicate' | 'unavailable') {
+    super(code);
+    this.name = 'WorkspaceExerciseOutcomeError';
+  }
+}
+
 export type WorkspaceLibraryOperation<T> = {
   execute: () => Promise<T>;
   dispose?: () => void;
@@ -124,21 +132,6 @@ const exerciseMatchesInput = (
   row.bodyweight === input.bodyweight &&
   JSON.stringify(row.aliases) === JSON.stringify(input.aliases ?? []) &&
   JSON.stringify(row.instructions) === JSON.stringify(input.instructions ?? []);
-
-const operation = <T>(run: () => Promise<T>): WorkspaceLibraryOperation<T> => {
-  let result: Promise<T> | null = null;
-  return {
-    execute: () => {
-      if (result) return result;
-      result = run().catch((error: unknown) => {
-        result = null;
-        if (error instanceof WorkspaceLibraryError) throw error;
-        throw new WorkspaceLibraryError('request');
-      });
-      return result;
-    },
-  };
-};
 
 const requireClient = () => {
   const client = getSupabaseClient();
@@ -426,91 +419,260 @@ export async function loadWorkspaceLibrary(
   });
 }
 
-export const createWorkspaceExerciseOperation = (
+export type WorkspaceExerciseMutationScope = WorkspaceLibraryReadScope;
+
+const exerciseMutation = <T>(
   workspaceId: string,
-  rawInput: WorkspaceExerciseInput,
-): WorkspaceLibraryOperation<{
-  exercise: WorkspaceLibraryExercise;
-  existing: boolean;
-}> => {
-  const input = canonicalInput(rawInput);
+  scope: WorkspaceExerciseMutationScope | undefined,
+  run: (client: ReadClient, fence: ReadFence) => Promise<T>,
+): WorkspaceLibraryOperation<T> => {
   if (
-    !validUuid(workspaceId) ||
+    scope &&
+    (scope.workspaceId !== workspaceId ||
+      !validUuid(scope.userId) ||
+      (scope.sessionId !== undefined && !validUuid(scope.sessionId)))
+  )
+    throw new WorkspaceLibraryError('invalidInput');
+  const client = requireClient();
+  const captured = createWorkspaceExerciseFence(
+    client.auth,
+    scope,
+    scope?.isCurrent,
+  ).then(
+    (fence) => ({ fence }),
+    () => ({ fence: null }),
+  );
+  let disposed = false;
+  let completed = false;
+  let cached: T;
+  let pending: Promise<T> | null = null;
+  const verify = async (fence: ReadFence) => {
+    if (disposed) throw new WorkspaceLibrarySessionError();
+    await fence.assertCurrent();
+    if (disposed) throw new WorkspaceLibrarySessionError();
+  };
+  return {
+    dispose: () => {
+      disposed = true;
+      void captured.then(({ fence }) => fence?.dispose());
+    },
+    execute: async () => {
+      const { fence } = await captured;
+      if (!fence) throw new WorkspaceLibrarySessionError();
+      await verify(fence);
+      if (!completed && !pending) {
+        pending = (async () => {
+          try {
+            const owner = await authorizeRead(
+              client
+                .from('trainer_workspaces')
+                .select('id,owner_user_id')
+                .eq('id', workspaceId)
+                .maybeSingle(),
+              fence,
+            );
+            await verify(fence);
+            if (
+              owner.error ||
+              !isWorkspaceLibraryOwner(owner.data, workspaceId, fence.userId)
+            )
+              throw new WorkspaceLibraryError('unavailable');
+            const result = await run(client, fence);
+            await verify(fence);
+            cached = result;
+            completed = true;
+            return result;
+          } catch (error) {
+            await verify(fence);
+            if (
+              error instanceof WorkspaceLibraryError ||
+              error instanceof WorkspaceLibrarySessionError
+            )
+              throw error;
+            throw new WorkspaceLibraryError('request');
+          } finally {
+            pending = null;
+          }
+        })();
+      }
+      const result = completed ? cached! : await pending!;
+      await verify(fence);
+      return result;
+    },
+  };
+};
+
+export const canonicalWorkspaceExerciseInput = (
+  raw: WorkspaceExerciseInput,
+) => {
+  if (
+    !isRecord(raw) ||
+    typeof raw.name !== 'string' ||
+    typeof raw.muscleGroup !== 'string' ||
+    typeof raw.equipment !== 'string' ||
+    !['reps', 'seconds'].includes(raw.measure) ||
+    typeof raw.bodyweight !== 'boolean' ||
+    [raw.aliases, raw.instructions].some(
+      (values) =>
+        values !== undefined &&
+        (!Array.isArray(values) ||
+          !Array.from(values).every(
+            (value: unknown) => typeof value === 'string',
+          )),
+    )
+  )
+    throw new WorkspaceLibraryError('invalidInput');
+  const input = canonicalInput(raw);
+  if (
     !input.name ||
     input.name.length > 120 ||
     !input.muscleGroup ||
     !input.equipment
   )
     throw new WorkspaceLibraryError('invalidInput');
-  return operation(async () => {
-    const client = requireClient();
-    const { data, error } = await client
-      .from('exercises')
-      .insert({
-        workspace_id: workspaceId,
-        name: input.name,
-        muscle_group: input.muscleGroup,
-        equipment: input.equipment,
-        measure: input.measure,
-        bodyweight: input.bodyweight,
-        aliases: input.aliases ?? [],
-        instructions: input.instructions ?? [],
-      })
-      .select('*')
-      .single();
-    if (!error) return { exercise: toLibraryExercise(data), existing: false };
-    if (error.code !== '23505') throw requestError(error.code);
+  return input;
+};
 
-    const duplicate = await client
-      .from('exercises')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .eq('name_normalized', normalizeName(input.name))
-      .is('archived_at', null)
-      .maybeSingle();
+export const createWorkspaceExerciseOperation = (
+  workspaceId: string,
+  rawInput: WorkspaceExerciseInput,
+  scope?: WorkspaceExerciseMutationScope,
+  exerciseId = Crypto.randomUUID(),
+): WorkspaceLibraryOperation<{
+  exercise: WorkspaceLibraryExercise;
+  existing: boolean;
+}> => {
+  const input = canonicalWorkspaceExerciseInput(rawInput);
+  if (!validUuid(workspaceId) || !validUuid(exerciseId))
+    throw new WorkspaceLibraryError('invalidInput');
+  const validate = (value: unknown, reconciliation = false) => {
+    if (
+      !isWorkspaceExerciseRead(value, workspaceId) ||
+      value.name_normalized !== normalizeName(value.name)
+    )
+      throw new WorkspaceLibraryError('request');
+    if (!exerciseMatchesInput(value, input)) {
+      if (reconciliation) throw new WorkspaceExerciseOutcomeError('duplicate');
+      throw new WorkspaceLibraryError('request');
+    }
+    return value;
+  };
+  return exerciseMutation(workspaceId, scope, async (client, fence) => {
+    await fence.assertCurrent();
+    const inserted = await authorizeRead(
+      client
+        .from('exercises')
+        .insert({
+          id: exerciseId,
+          workspace_id: workspaceId,
+          name: input.name,
+          muscle_group: input.muscleGroup,
+          equipment: input.equipment,
+          measure: input.measure,
+          bodyweight: input.bodyweight,
+          aliases: input.aliases ?? [],
+          instructions: input.instructions ?? [],
+        })
+        .select('*')
+        .single(),
+      fence,
+    );
+    await fence.assertCurrent();
+    if (!inserted.error) {
+      const row = validate(inserted.data);
+      if (
+        row.id !== exerciseId ||
+        row.archived_at !== null ||
+        row.created_by !== fence.userId
+      )
+        throw new WorkspaceLibraryError('request');
+      return { exercise: toLibraryExercise(row), existing: false };
+    }
+    if (inserted.error.code !== '23505')
+      throw requestError(inserted.error.code);
+    const replay = await authorizeRead(
+      client
+        .from('exercises')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .eq('id', exerciseId)
+        .maybeSingle(),
+      fence,
+    );
+    await fence.assertCurrent();
+    if (replay.error) throw requestError(replay.error.code);
+    if (replay.data !== null) {
+      const row = validate(replay.data, true);
+      if (row.id !== exerciseId || row.created_by !== fence.userId)
+        throw new WorkspaceLibraryError('request');
+      if (row.archived_at !== null)
+        throw new WorkspaceExerciseOutcomeError('unavailable');
+      return { exercise: toLibraryExercise(row), existing: true };
+    }
+    const duplicate = await authorizeRead(
+      client
+        .from('exercises')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .eq('name_normalized', normalizeName(input.name))
+        .is('archived_at', null)
+        .maybeSingle(),
+      fence,
+    );
+    await fence.assertCurrent();
     if (duplicate.error) throw requestError(duplicate.error.code);
-    if (!duplicate.data || !exerciseMatchesInput(duplicate.data, input))
-      throw new WorkspaceLibraryError('duplicate');
-    return { exercise: toLibraryExercise(duplicate.data), existing: true };
+    const row = validate(duplicate.data, true);
+    if (row.archived_at !== null)
+      throw new WorkspaceExerciseOutcomeError('duplicate');
+    return { exercise: toLibraryExercise(row), existing: true };
   });
 };
 
 export const archiveWorkspaceExerciseOperation = (
   workspaceId: string,
   exerciseId: string,
+  scope?: WorkspaceExerciseMutationScope,
 ): WorkspaceLibraryOperation<{ exerciseId: string; archivedAt: string }> => {
   if (!validUuid(workspaceId) || !validUuid(exerciseId))
     throw new WorkspaceLibraryError('invalidInput');
   const archivedAt = new Date().toISOString();
-  return operation(async () => {
-    const client = requireClient();
-    const updated = await client
-      .from('exercises')
-      .update({ archived_at: archivedAt })
-      .eq('workspace_id', workspaceId)
-      .eq('id', exerciseId)
-      .is('archived_at', null)
-      .select('id,archived_at')
-      .maybeSingle();
-    if (updated.error) throw requestError(updated.error.code);
-    if (updated.data?.archived_at)
-      return {
-        exerciseId: updated.data.id,
-        archivedAt: updated.data.archived_at,
-      };
-    const existing = await client
-      .from('exercises')
-      .select('id,archived_at')
-      .eq('workspace_id', workspaceId)
-      .eq('id', exerciseId)
-      .maybeSingle();
-    if (existing.error) throw requestError(existing.error.code);
-    if (!existing.data?.archived_at)
+  const validate = (value: unknown) => {
+    if (
+      !isWorkspaceExerciseRead(value, workspaceId) ||
+      value.id !== exerciseId ||
+      !value.archived_at
+    )
       throw new WorkspaceLibraryError('unavailable');
-    return {
-      exerciseId: existing.data.id,
-      archivedAt: existing.data.archived_at,
-    };
+    return { exerciseId: value.id, archivedAt: value.archived_at };
+  };
+  return exerciseMutation(workspaceId, scope, async (client, fence) => {
+    await fence.assertCurrent();
+    const updated = await authorizeRead(
+      client
+        .from('exercises')
+        .update({ archived_at: archivedAt })
+        .eq('workspace_id', workspaceId)
+        .eq('id', exerciseId)
+        .is('archived_at', null)
+        .select('*')
+        .maybeSingle(),
+      fence,
+    );
+    await fence.assertCurrent();
+    if (updated.error) throw requestError(updated.error.code);
+    if (updated.data !== null) return validate(updated.data);
+    const existing = await authorizeRead(
+      client
+        .from('exercises')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .eq('id', exerciseId)
+        .maybeSingle(),
+      fence,
+    );
+    await fence.assertCurrent();
+    if (existing.error) throw requestError(existing.error.code);
+    return validate(existing.data);
   });
 };
 

@@ -9,6 +9,7 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-22: [x] exercise create/archive session fence, durable exact input/UUID replay, shared owned provider lock и route unmount/scope guards; [x] independent synthetic service/provider/route regressions; полный app check 2347 tests / 186 suites, type/lint/format зелёные. [Отчёт](../../app/review/som-22-library-production-finish/README.md), [ADR 0091](decisions/0091-exercise-mutation-session-and-replay.md). [ ] needs-local-db: additive INSERT(id) grant, pgTAP/concurrency; live Auth/storage/crash/reopen/native/parity и одобрение владельца.
 - 04.10.2026 — SOM-32 finish r2: восстановлен полный пакет закрытого PR #54 на свежей базе; [x] доказательство terminal current resolution через existing scoped receipts и продолжение ввода/новый explicit finish; [x] credentials исключены из React keys/state. [Отчёт r2](../../app/review/som-32-production-finish-r2/README.md), [ADR 0089](decisions/0089-terminal-finish-current-recovery.md). Полный check: 188 suites / 2332 tests, type/lint/format зелёные; [ ] correction/program contracts, live/storage/native/parity и приёмка владельца. SOM-32 целиком не завершена.
 
 - 04.10.2026 — SOM-32 explicit correction: [x] отдельная новая migration,

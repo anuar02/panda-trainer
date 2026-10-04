@@ -100,4 +100,5 @@
 
 | [0088](0088-client-creation-session-fencing.md) | Client creation session/caller fence и in-memory retry | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
 
+| [0091](0091-exercise-mutation-session-and-replay.md) | Exercise mutation session fence и durable UUID replay | Реализовано технически; SQL/runtime/owner acceptance открыты | 04.10.2026 |
 | [0089](0089-terminal-finish-current-recovery.md) | Продолжение ввода после доказанного current finish resolution | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |

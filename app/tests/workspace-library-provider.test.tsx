@@ -8,6 +8,8 @@ import {
   useWorkspaceLibrary,
 } from '../src/features/workspace-library/provider';
 import {
+  createWorkspaceExerciseOperation,
+  archiveWorkspaceExerciseOperation,
   loadWorkspaceLibrary,
   saveWorkspaceTemplateOperation,
   type WorkspaceLibrary,
@@ -21,6 +23,8 @@ import type {
 
 jest.mock('../src/features/workspace-library/service', () => ({
   ...jest.requireActual('../src/features/workspace-library/service'),
+  createWorkspaceExerciseOperation: jest.fn(),
+  archiveWorkspaceExerciseOperation: jest.fn(),
   loadWorkspaceLibrary: jest.fn(),
   saveWorkspaceTemplateOperation: jest.fn(),
 }));
@@ -782,4 +786,156 @@ test('normal token refresh while clear awaits permits success and leaves no reco
   const reopened = await mount();
   await waitFor(() => expect(reopened.result.current.editor.ready).toBe(true));
   expect(reopened.result.current.editor.draft).toBeNull();
+});
+
+test('exercise create attaches to a template draft and archive preserves existing template details', async () => {
+  const created = {
+    ...exercise,
+    id: '81000000-0000-4000-8000-000000000002',
+    sourceKey: null,
+    name: 'Моя Ёлка',
+  };
+  const attached = {
+    ...template,
+    exercises: [
+      {
+        ...template.exercises[0]!,
+        id: created.id,
+        name: created.name,
+        exercise: created,
+      },
+    ],
+  };
+  save.mockReturnValue({
+    execute: jest.fn(async () => {
+      data = { ...data, templates: [attached] };
+      return { id: template.id, revision: 4, replayed: false };
+    }),
+  });
+  jest.mocked(createWorkspaceExerciseOperation).mockReturnValue({
+    execute: jest.fn(async () => {
+      data = { ...data, exercises: [created] };
+      return { exercise: created, existing: false };
+    }),
+  });
+  jest.mocked(archiveWorkspaceExerciseOperation).mockReturnValue({
+    execute: jest.fn(async () => {
+      data = {
+        exercises: [],
+        templates: [
+          {
+            ...template,
+            exercises: [
+              {
+                ...attached.exercises[0]!,
+                exercise: { ...created, archivedAt: '2026-10-04T12:00:00Z' },
+                name: created.name,
+              },
+            ],
+          },
+        ],
+      };
+      return { exerciseId: created.id, archivedAt: '2026-10-04T12:00:00Z' };
+    }),
+  });
+  const hook = await mount();
+  await waitFor(() =>
+    expect(hook.result.current.exerciseCommands.ready).toBe(true),
+  );
+  await act(async () => {
+    expect(
+      await hook.result.current.exerciseCommands.create({
+        name: created.name,
+        muscleGroup: created.group,
+        equipment: created.equipment,
+        measure: created.measure,
+        bodyweight: created.bodyweight,
+      }),
+    ).toBe(true);
+  });
+  expect(hook.result.current.library.exercises[0]?.name).toBe(created.name);
+  await act(() => {
+    hook.result.current.editor.begin(template.id);
+  });
+  await act(() => {
+    const draft = hook.result.current.editor.draft!;
+    hook.result.current.editor.update({
+      ...draft,
+      exercises: draft.exercises.map((line) => ({
+        ...line,
+        id: created.id,
+        name: created.name,
+      })),
+    });
+  });
+  await waitFor(() => expect(hook.result.current.editor.status).toBe('saved'));
+  await act(async () => {
+    expect((await hook.result.current.editor.save()).ok).toBe(true);
+  });
+  expect(save.mock.calls[0]?.[0].exercises[0]).toMatchObject({
+    id: created.id,
+    name: created.name,
+  });
+  await act(() => {
+    hook.result.current.editor.begin(template.id);
+  });
+  const before = hook.result.current.editor.draft;
+  await act(async () => {
+    expect(await hook.result.current.exerciseCommands.archive(created.id)).toBe(
+      true,
+    );
+  });
+  expect(hook.result.current.library.exercises).toEqual([]);
+  expect(hook.result.current.library.templates[0]?.exercises[0]).toMatchObject({
+    name: created.name,
+    plannedWeightG: 5000,
+    note: 'Темп',
+    exercise: { archivedAt: '2026-10-04T12:00:00Z' },
+  });
+  expect(hook.result.current.editor.draft).toEqual(before);
+});
+
+test('exercise command owns shared provider lock and late completion cannot publish after logout', async () => {
+  let resolve: (value: {
+    exercise: WorkspaceLibraryExercise;
+    existing: boolean;
+  }) => void = () => undefined;
+  const execute = jest.fn(
+    () =>
+      new Promise<{ exercise: WorkspaceLibraryExercise; existing: boolean }>(
+        (done) => {
+          resolve = done;
+        },
+      ),
+  );
+  jest
+    .mocked(createWorkspaceExerciseOperation)
+    .mockReturnValue({ execute, dispose: jest.fn() });
+  const hook = await mount();
+  await waitFor(() =>
+    expect(hook.result.current.exerciseCommands.ready).toBe(true),
+  );
+  let promise: Promise<boolean> = Promise.resolve(false);
+  await act(async () => {
+    promise = hook.result.current.exerciseCommands.create({
+      name: 'Свое',
+      muscleGroup: 'Ноги',
+      equipment: 'штанга',
+      measure: 'reps',
+      bodyweight: false,
+    });
+  });
+  await waitFor(() => expect(execute).toHaveBeenCalledTimes(1));
+  await act(() => {
+    expect(hook.result.current.editor.begin(template.id)).toBe(false);
+  });
+  await act(() => {
+    emit('SIGNED_OUT', null);
+  });
+  await act(async () => {
+    resolve({ exercise, existing: false });
+    expect(await promise).toBe(false);
+  });
+  expect(hook.result.current.library.exercises).toEqual([]);
+  expect(hook.result.current.editor.ready).toBe(false);
 });
