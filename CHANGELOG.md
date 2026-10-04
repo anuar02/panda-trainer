@@ -14,7 +14,7 @@
   не пересекают поколения. Дополнены synthetic workflow/regression, pgTAP и
   concurrency проверки отдельного списания с причиной; серверная policy и
   billing implementation сохранены. [Отчёт](app/review/som-27-reschedule-production-finish/README.md),
-  [ADR 0092](docs/app/decisions/0092-booking-command-session-and-recovery.md).
+  [ADR 0093](docs/app/decisions/0093-booking-command-session-and-recovery.md).
   SQL/native/parity и приёмка владельца открыты.
 
 - [SOM-20 / draft PR #60](https://github.com/anuar02/panda-trainer/pull/60): production onboarding теперь валидирует actor/workspace/connections,

@@ -15,7 +15,7 @@
   additive pgTAP и cancellation-penalty concurrency scenarios.
   Полный check на свежей базе: 200 suites / 2580 tests, type/lint/format зелёные.
   [Отчёт](../../app/review/som-27-reschedule-production-finish/README.md),
-  [ADR 0092](decisions/0092-booking-command-session-and-recovery.md).
+  [ADR 0093](decisions/0093-booking-command-session-and-recovery.md).
   [ ] needs-local-db: SQL/RLS/Auth/concurrency/types; real storage/crash/reopen,
   два телефона, native/parity/accessibility и одобрение владельца. Не принята.
 
