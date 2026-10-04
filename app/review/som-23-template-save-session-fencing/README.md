@@ -56,3 +56,11 @@ editor/create→assign regression suites проверяются полным che
 - Описание PR обновлено через `gh pr edit 52 --body-file /tmp/som23-pr-body.md`:
   сделано / не проверено / требует владельца. CI выполняется после публикации;
   его результат не заявлен как локально проверенный.
+
+## Coordinator integration · 04.10.2026
+
+Fresh base `290106e` integrated; CHANGELOG/ROADMAP retained both branches.
+ADR renumbered 0085 and indexed. No SQL/dependencies/UI changes; app comments,
+type any, new PNG and credential literals absent in the reviewed diff.
+CI app + Supabase lint/pgTAP/concurrency/types are the merge gate; coordinator
+did not rerun npm run check or claim native/live/owner acceptance.
