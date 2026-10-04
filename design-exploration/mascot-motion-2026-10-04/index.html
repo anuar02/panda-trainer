@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Панда · сравнение движения · SOM-38</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#25252b;background:#f3f2ef;--size:170px;--height:170px;--ease-standard:cubic-bezier(.2,.8,.2,1)}*{box-sizing:border-box}body{margin:0;padding:28px;max-width:1500px;margin-inline:auto}h1{font-size:28px;margin-bottom:8px}p{line-height:1.5}a{color:#405bc1}button,select{font:inherit;min-height:44px;padding:8px 14px;border:1px solid #bbb;border-radius:10px;background:white;color:#25252b}label{display:inline-flex;align-items:center;gap:8px}input{width:20px;height:20px}header{margin-bottom:24px}.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;position:sticky;top:0;background:#f3f2ef;padding:12px 0;z-index:2}.status{font-size:14px}.pose{background:white;border:1px solid #ddd;border-radius:18px;padding:20px;margin:20px 0}.pose h2{margin:0 0 16px;font-size:20px}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.sample{margin:0;min-width:0}.stage{height:280px;display:flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden;background:#f7f7f5;border:1px solid #e3e3df}.dark{background:#17181d;border-color:#17181d}.stage img{width:var(--size);height:var(--height);object-fit:contain;display:block}.panda{width:var(--size);height:var(--height)}.panda__body{position:relative;display:flex;align-items:flex-end;justify-content:center;width:100%;height:100%;transform-origin:50% 100%}.panda__img{width:auto!important;height:100%!important;max-width:100%;object-fit:contain;object-position:50% 100%;transform-origin:50% 100%;filter:drop-shadow(0 6px 10px rgba(90,40,10,.12))}figcaption{font-size:13px;padding:8px 0;line-height:1.4}.meta{font:12px/1.6 ui-monospace,monospace;overflow-wrap:anywhere}.links{display:flex;flex-wrap:wrap;gap:14px;font-size:14px}.paused .panda__body{animation-play-state:paused!important}.reduced .panda__body{animation:none!important}.sources{font-size:13px;line-height:1.7}.missing{color:#a32d21}@media(max-width:850px){body{padding:16px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.grid{grid-template-columns:1fr}.stage{height:250px}.pose{padding:12px}}@media(prefers-reduced-motion:reduce){.panda__body{animation:none!important}}
+.panda[data-motion="idle"] .panda__body { animation: pandaIdle 3.4s ease-in-out infinite; }
+.panda[data-motion="idle"] .panda__shadow { animation: shadowIdle 3.4s ease-in-out infinite; }
+.panda[data-motion="breathe"] .panda__body { animation: pandaBreathe 3s ease-in-out infinite; }
+.panda[data-motion="wave"] .panda__body { animation: pandaWave 2.4s ease-in-out infinite; }
+.panda[data-motion="nod"] .panda__body { animation: pandaNod 2.6s var(--ease-standard) infinite; }
+.panda[data-motion="hop"] .panda__body { animation: pandaHop 1.3s cubic-bezier(.3, 0, .5, 1) infinite; }
+.panda[data-motion="hop"] .panda__shadow { animation: shadowHop 1.3s cubic-bezier(.3, 0, .5, 1) infinite; }
+.panda[data-motion="sway"] .panda__body { animation: pandaSway 3.2s ease-in-out infinite; }
+.panda[data-motion="sleep"] .panda__body { animation: pandaSleep 4s ease-in-out infinite; }
+@keyframes pandaIdle {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-5px) scale(1.01, .995); }
+}
+@keyframes shadowIdle {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  50% { transform: translateX(-50%) scale(.86); opacity: .75; }
+}
+@keyframes pandaBreathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.015, 1.03); }
+}
+@keyframes pandaWave {
+  0%, 100% { transform: rotate(0deg); }
+  15% { transform: rotate(-4deg); }
+  30% { transform: rotate(3deg); }
+  45% { transform: rotate(-3deg); }
+  60% { transform: rotate(2deg); }
+  75% { transform: rotate(0deg) translateY(-3px); }
+}
+@keyframes pandaNod {
+  0%, 60%, 100% { transform: translateY(0) scale(1); }
+  70% { transform: translateY(2px) scale(1.03, .96); }
+  82% { transform: translateY(-8px) scale(.98, 1.03); }
+  92% { transform: translateY(0) scale(1.01, .99); }
+}
+@keyframes pandaHop {
+  0%, 100% { transform: translateY(0) scale(1.06, .92); }
+  15% { transform: translateY(0) scale(.96, 1.05); }
+  50% { transform: translateY(-22px) scale(.98, 1.03); }
+  85% { transform: translateY(0) scale(1.04, .95); }
+}
+@keyframes shadowHop {
+  0%, 15%, 85%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  50% { transform: translateX(-50%) scale(.6); opacity: .45; }
+}
+@keyframes pandaSway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes pandaSleep {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.02, 1.05); }
+}
+@keyframes pandaListen {
+  0%, 100% { transform: rotate(-5deg) translateY(0); }
+  25% { transform: rotate(-7deg) translateY(-3px) scale(1.01); }
+  50% { transform: rotate(4deg) translateY(0); }
+  75% { transform: rotate(6deg) translateY(-2px); }
+}
+.panda[data-motion="listen"] .panda__body{animation:pandaListen 2.2s ease-in-out infinite}
+</style>
+<header><h1>Панда: сравнение движения</h1><p>Девять локальных кандидатов для SOM-38. На каждой строке: анимированный WebP на светлом и тёмном фоне, исходный PNG и движение всего PNG из прототипа. Это исследование, приёмка и интеграция в приложение остаются отдельными шагами.</p>
+<div class="controls"><label>Размер <select id="size"><option value="56,49">56 × 49 · лицо</option><option value="76,84">76 × 84 · inbox</option><option value="92,124">92 × 124 · hero</option><option value="160,176">160 × 176 · onboarding</option><option value="170,170" selected>170 × 170 · empty</option><option value="216,216">216 × 216 · invite</option><option value="220,240">220 × 240 · welcome</option></select> px</label><button id="pause">Пауза</button><button id="replay">Заново</button><label><input id="reduce" type="checkbox">Уменьшить движение</label></div><p id="status" class="status" aria-live="polite"></p>
+<details class="sources"><summary>Размеры и точные источники</summary><p>Пресеты повторяют размеры контейнеров из приложения, включая переопределения высоты. Все четыре варианта в строке используют один выбранный контейнер. 56 × 49 (size=58) — контрольный размер лица, остальные — полноразмерная панда.</p><ul>
+<li>size=58 — app/src/features/trainer-today/trainer-today-screen.tsx:890 (лицо calm); app/src/features/trainer-today/measurements.ts:71 переопределяет контейнер до 56 × 49.</li><li>76 px — app/src/features/trainer-inbox/trainer-inbox-screen.tsx:255 (sit; высота экрана 84).</li><li>92 px — app/src/features/client-home/client-home-screen.tsx:396 (wave / clipboard), app/src/features/client-home/styles.ts:72 (92 × 124).</li><li>160 px — app/src/features/onboarding/welcome-screen.tsx:669 (thumbs; высота экрана 176).</li><li>170 px — app/src/features/client-program/client-program-screen.tsx:186 (clipboard), app/src/features/client-progress/client-progress-screen.tsx:281 (front).</li><li>216 px — app/src/features/invitations/screens.tsx:361 (wave / thumbs).</li><li>220 px — app/src/features/onboarding/welcome-screen.tsx:462 (wave; высота экрана 240).</li></ul><p>Базовый контейнер: app/src/ui/mascot.tsx:48. CSS reference: prototype-fresh/css/fresh.css:577–595, 604–612, 637–680, 1265–1270; easing:74. Выбор motion: prototype-fresh/js/mascot.js:3–13. front-idle и listen используют front.png. Для listen взято движение состояния listening, без UI микрофона. Декоративные glow / shadow / z не входят в сравнение персонажа.</p></details></header>
+<main id="poses"></main><script src="manifest.js"></script><script>
+'use strict';
+const poses=['wave','thumbs','jump','clipboard','sit','sleep','stretch','front-idle','listen'];
+const motion={wave:'wave',thumbs:'nod',jump:'hop',clipboard:'idle',sit:'breathe',sleep:'sleep',stretch:'sway','front-idle':'idle',listen:'listen'};
+const labels={wave:'Приветствие',thumbs:'Одобрение',jump:'Прыжок',clipboard:'Программа',sit:'Ожидание',sleep:'Сон',stretch:'Растяжка','front-idle':'Спокойное ожидание',listen:'Слушает'};
+const media=matchMedia('(prefers-reduced-motion: reduce)');
+const reduce=document.getElementById('reduce'),pause=document.getElementById('pause');
+let paused=false;
+let candidates=window.MASCOT_CANDIDATES||[];
+if(!Array.isArray(candidates)) candidates=candidates.candidates||[];
+function escape(value){return String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+for(const pose of poses){
+ const base='candidates/'+pose+'/',source='../../prototype-fresh/assets/mascot/'+(['front-idle','listen'].includes(pose)?'front':pose)+'.png';
+ const item=candidates.find(x=>x.pose===pose);
+ const provenance=['front-idle','listen'].includes(pose)?'Новый момент · кандидат 04.10':'Одобренный ролик 28.09 · производные кандидаты';
+ const meta=item?`${provenance} · ${item.width} × ${item.height} · ${item.fps} fps · ${item.frameCount} кадров · ${Number(item.bytes).toLocaleString('ru-RU')} байт · ${item.strategy} · loop ${item.loop} · качество ${item.quality} · seam MAE ${item.seamMae} · источник ${item.source}`:'Метаданные отсутствуют: manifest.js не загружен.';
+ const article=document.createElement('article');article.className='pose';
+ article.innerHTML=`<h2>${escape(labels[pose])} <small>· ${pose}</small></h2><div class="grid">${['Светлый фон','Тёмный фон'].map((name,i)=>`<figure class="sample"><div class="stage ${i?'dark':''}"><img class="candidate" data-animation="${base}animation.webp" data-poster="${base}poster.png" src="${base}poster.png" alt="${escape(labels[pose])}: кандидат"></div><figcaption>WebP · ${name}</figcaption></figure>`).join('')}<figure class="sample"><div class="stage"><img src="${source}" alt="${escape(labels[pose])}: исходный PNG"></div><figcaption>Исходный PNG прототипа</figcaption></figure><figure class="sample"><div class="stage"><div class="panda" data-motion="${motion[pose]}"><span class="panda__body"><img class="panda__img" src="${source}" alt="${escape(labels[pose])}: CSS reference"></span></div></div><figcaption>CSS reference · ${motion[pose]}</figcaption></figure></div><p class="meta">${escape(meta)}</p><div class="links"><a href="${base}contact.webp">Выборка кадров</a><a href="${base}seam.webp">Стык петли</a><a href="${base}poster.png">Постер</a><a href="${base}animation.webp">WebP</a><a href="${base}sprite.webp">Sprite</a><a href="${base}sprite.json">Sprite JSON</a></div>`;
+ document.getElementById('poses').append(article);
+}
+function update(restart=false){const reduced=reduce.checked||media.matches;document.body.classList.toggle('reduced',reduced);document.body.classList.toggle('paused',paused);for(const img of document.querySelectorAll('.candidate')){const src=reduced||paused?img.dataset.poster:img.dataset.animation;if(restart&&!reduced&&!paused){img.removeAttribute('src');}img.src=src;}pause.textContent=paused?'Продолжить':'Пауза';pause.setAttribute('aria-pressed',String(paused));document.getElementById('status').textContent=reduced?'Уменьшение движения: кандидаты заменены статичными постерами, CSS остановлен.':paused?'Пауза: WebP заменены постерами; CSS заморожен.':'WebP и CSS воспроизводятся. Пауза WebP показывает постер, а не текущий кадр.';}
+pause.addEventListener('click',()=>{paused=!paused;update();});reduce.addEventListener('change',()=>update());media.addEventListener('change',()=>update());document.getElementById('size').addEventListener('change',e=>{const [width,height]=e.target.value.split(',');document.documentElement.style.setProperty('--size',width+'px');document.documentElement.style.setProperty('--height',height+'px');});
+document.getElementById('replay').addEventListener('click',()=>{paused=false;for(const el of document.querySelectorAll('.panda__body')){el.style.animation='none';void el.offsetWidth;el.style.animation='';}update(true);});
+for(const img of document.querySelectorAll('img')) img.addEventListener('error',()=>{img.closest('figure').querySelector('figcaption').classList.add('missing');});
+update();
+</script></html>
