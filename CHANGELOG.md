@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-38: PNG-панда движется через Reanimated по кейфреймам prototype-fresh:
+- [SOM-38 / draft PR #76](https://github.com/anuar02/panda-trainer/pull/76): PNG-панда движется через Reanimated по кейфреймам prototype-fresh:
   семь режимов, тень/glow, sleep z, вход/poke и празднование 2200 мс с confetti/spark.
   Reduce motion и calm отключают движение; неизвестный calm-контекст сохраняет
   скрытие. Rive-флаг сохранён. [Отчёт](app/review/13-som-38-mascot-motion/README.md).
