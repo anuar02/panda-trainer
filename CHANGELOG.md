@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-23: session fence save/archive шаблонов, guarded cached success, recovery прежнего pending requestId и owned provider lock. [Отчёт](app/review/som-23-template-save-session-fencing/README.md), [ADR 0081](docs/app/decisions/0081-template-mutation-session-fencing.md). Live auth/storage/native и приёмка владельца открыты.
+- [SOM-23 / draft PR #52](https://github.com/anuar02/panda-trainer/pull/52): session fence save/archive шаблонов, guarded cached success, recovery прежнего pending requestId и owned provider lock. [Отчёт](app/review/som-23-template-save-session-fencing/README.md), [ADR 0081](docs/app/decisions/0081-template-mutation-session-fencing.md). Live auth/storage/native и приёмка владельца открыты.
 
 - SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
 - [SOM-31 r2 / draft PR #42](https://github.com/anuar02/panda-trainer/pull/42): provenance reconciliation возвращает серверный original после current

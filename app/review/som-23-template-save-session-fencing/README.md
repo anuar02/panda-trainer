@@ -46,3 +46,13 @@ acceptance не проверены. Только synthetic fixtures, без ре
 не проверены: AsyncStorage не имеет атомарного CAS. Экраны и весь SOM-23 принимает владелец.
 Creation-session-fencing из брифа не использовано из невлитой ветки; существующие
 editor/create→assign regression suites проверяются полным check.
+
+## Публикация
+
+- Code commit: `9921440`.
+- `git push -u origin agent/som-23-template-save-session-fencing`: exit 0.
+- `gh pr create --base fix/som-50-template-picker --draft --fill`: exit 0,
+  [draft PR #52](https://github.com/anuar02/panda-trainer/pull/52).
+- Описание PR обновлено через `gh pr edit 52 --body-file /tmp/som23-pr-body.md`:
+  сделано / не проверено / требует владельца. CI выполняется после публикации;
+  его результат не заявлен как локально проверенный.
