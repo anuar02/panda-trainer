@@ -53,7 +53,7 @@ begin
  else rev:=wi.revision; end if;
  if cf.kind in ('upsert_set','delete_set') and (
  cf.current_version->'sets' is distinct from (select coalesce(jsonb_agg(to_jsonb(s) order by s.position,s.device_id,s.id),'[]'::jsonb) from public.set_results s where s.workspace_id=p_workspace_id and s.workout_exercise_id=(cf.incoming_operation->'payload'->>'workout_exercise_id')::uuid)
- or (cf.current_version->'exercise'-'last_correction_request_id') is distinct from (select to_jsonb(e)-'last_correction_request_id' from public.workout_exercises e where e.workspace_id=p_workspace_id and e.id=(cf.incoming_operation->'payload'->>'workout_exercise_id')::uuid)
+ or ((cf.current_version->'exercise')-'last_correction_request_id') is distinct from (select to_jsonb(e)-'last_correction_request_id' from public.workout_exercises e where e.workspace_id=p_workspace_id and e.id=(cf.incoming_operation->'payload'->>'workout_exercise_id')::uuid)
  ) then raise exception 'stale_conflict' using errcode='22023'; end if;
  if cf.kind='replace_exercise' and (cf.current_version-'sets'-'last_correction_request_id') is distinct from (select to_jsonb(e)-'last_correction_request_id' from public.workout_exercises e where e.workspace_id=p_workspace_id and e.id=(cf.incoming_operation->'payload'->>'replaced_from_id')::uuid) then raise exception 'stale_conflict' using errcode='22023'; end if;
  if cf.kind='set_note' and (jsonb_typeof(cf.current_version->'shared') is distinct from 'boolean' or jsonb_typeof(cf.current_version->'text') is distinct from 'string') then raise exception 'invalid_payload' using errcode='22023'; end if;

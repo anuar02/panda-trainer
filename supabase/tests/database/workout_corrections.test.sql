@@ -72,8 +72,8 @@ select is(current_setting('test.review')::jsonb->'operation'->'payload'->>'reps'
 select is(current_setting('test.review')::jsonb->'operation'->'payload'->'seconds','null'::jsonb,'review preserves null');
 select is(pg_temp.error(format('select public.apply_workout_correction(auth.uid(),%L,%L,%L,gen_random_uuid(),null,1,2)','68000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',current_setting('test.draft'))),'invalid_request','null workout token rejected');
 select is(pg_temp.error(format('select public.apply_workout_correction(auth.uid(),%L,%L,%L,gen_random_uuid(),999,1,2)','68000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',current_setting('test.draft'))),'stale_correction','stale workout token rejected');
-select is(pg_temp.error(format('select public.apply_workout_correction(auth.uid(),%L,%L,%L,gen_random_uuid(),%s,99,%s)','68000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',current_setting('test.draft'),current_setting('test.review')::jsonb->>'workout_revision',current_setting('test.review')::jsonb->>'exercise_revision'))),'stale_correction','stale entity token rejected');
-select is(pg_temp.error(format('select public.apply_workout_correction(auth.uid(),%L,%L,%L,gen_random_uuid(),%s,1,999)','68000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',current_setting('test.draft'),current_setting('test.review')::jsonb->>'workout_revision'))),'stale_correction','stale parent token rejected');
+select is(pg_temp.error(format('select public.apply_workout_correction(auth.uid(),%L,%L,%L,gen_random_uuid(),%s,99,%s)','68000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',current_setting('test.draft'),current_setting('test.review')::jsonb->>'workout_revision',current_setting('test.review')::jsonb->>'exercise_revision')),'stale_correction','stale entity token rejected');
+select is(pg_temp.error(format('select public.apply_workout_correction(auth.uid(),%L,%L,%L,gen_random_uuid(),%s,1,999)','68000000-0000-4000-8000-000000000001','b8000000-0000-4000-8000-000000000001',current_setting('test.draft'),current_setting('test.review')::jsonb->>'workout_revision')),'stale_correction','stale parent token rejected');
 select set_config('test.request',gen_random_uuid()::text,true);
 select set_config('test.result',pg_temp.confirm(current_setting('test.draft')::uuid,current_setting('test.request')::uuid)::text,true);
 select is(current_setting('test.result')::jsonb->>'status','applied','explicit confirmation commits');
@@ -203,8 +203,8 @@ select pg_temp.corrupt(current_setting('test.bad')::uuid,current_setting('test.b
 select set_config('test.rollback',pg_temp.draft('upsert_set','d8000000-0000-4000-8000-000000000098',0,current_setting('test.set_payload')::jsonb)::text,true);
 select set_config('test.rollback_revision',(select revision::text from public.workout_instances where id='b8000000-0000-4000-8000-000000000001'),true);
 select set_config('test.rollback_exercise_revision',(select revision::text from public.workout_exercises where id='c8000000-0000-4000-8000-000000000001'),true);
-select set_config('test.rollback_metadata',(select last_correction_request_id::text from public.workout_instances where id='b8000000-0000-4000-8000-000000000001'),true);
 reset role;
+select set_config('test.rollback_metadata',(select last_correction_request_id::text from public.workout_instances where id='b8000000-0000-4000-8000-000000000001'),true);
 create function pg_temp.fail_correction_audit() returns trigger language plpgsql as $$ begin
  if new.draft_id::text=current_setting('test.rollback',true) then raise exception 'rollback_probe' using errcode='P0001'; end if;
  return new;
@@ -214,10 +214,10 @@ set local role authenticated;
 select is(pg_temp.error(format('select pg_temp.confirm(%L)',current_setting('test.rollback'))),'rollback_probe','late audit failure aborts correction transaction after result write');
 select is((select count(*)::integer from public.set_results where id='d8000000-0000-4000-8000-000000000098'),0,'late failure rolls back inserted result');
 select is((select revision::text from public.workout_instances where id='b8000000-0000-4000-8000-000000000001'),current_setting('test.rollback_revision'),'late failure rolls back workout revision');
-select is((select last_correction_request_id::text from public.workout_instances where id='b8000000-0000-4000-8000-000000000001'),current_setting('test.rollback_metadata'),'late failure rolls back workout correction provenance');
 select is((select revision::text from public.workout_exercises where id='c8000000-0000-4000-8000-000000000001'),current_setting('test.rollback_exercise_revision'),'late failure rolls back parent revision');
 select ok((select applied_at is null and applied_request_id is null from public.workout_correction_drafts where id=current_setting('test.rollback')::uuid),'late failure leaves draft unconsumed');
 reset role;
+select is((select last_correction_request_id::text from public.workout_instances where id='b8000000-0000-4000-8000-000000000001'),current_setting('test.rollback_metadata'),'late failure rolls back workout correction provenance');
 drop trigger correction_test_rollback on private.workout_correction_audit;
 select is((select count(*)::integer from private.workout_correction_receipts where draft_id=current_setting('test.rollback')::uuid),0,'late failure rolls back receipt already inserted');
 select is((select count(*)::integer from private.workout_correction_audit where draft_id=current_setting('test.rollback')::uuid),0,'late failure leaves no audit');
