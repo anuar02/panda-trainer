@@ -223,3 +223,10 @@ update pending keys to local inventory/export and extended own/foreign pending
 regression so unresolved intent blocks cleanup. Global pending storage fence
 already covers this namespace. No existing migration or program API changed.
 Fresh combined CI is required; standalone green checks do not validate integration.
+
+
+Integrated CI 37209663145: SQL lint, pgTAP, all concurrency including live
+synthetic Auth/deletion smoke PASS. Generated public type comparison failed
+only because account_deletion Functions were placed before accept_* instead
+of generator alphabetic order. Reordered those declarations; no signatures or
+SQL changed. Fresh CI must confirm types and application before merge.

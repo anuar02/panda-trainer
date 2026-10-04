@@ -1765,6 +1765,21 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_booking_reschedule: {
+        Args: {
+          p_expected_booking_revision: number;
+          p_expected_proposal_revision: number;
+          p_proposal_id: string;
+          p_request_id: string;
+        };
+        Returns: Json;
+      };
+      accept_invitation: {
+        Args: {
+          p_token: string;
+        };
+        Returns: Json;
+      };
       account_deletion_complete: {
         Args: { p_capability_hash: string; p_request_id: string };
         Returns: Json;
@@ -1787,21 +1802,6 @@ export type Database = {
       };
       account_deletion_status: {
         Args: { p_capability_hash: string; p_request_id: string };
-        Returns: Json;
-      };
-      accept_booking_reschedule: {
-        Args: {
-          p_expected_booking_revision: number;
-          p_expected_proposal_revision: number;
-          p_proposal_id: string;
-          p_request_id: string;
-        };
-        Returns: Json;
-      };
-      accept_invitation: {
-        Args: {
-          p_token: string;
-        };
         Returns: Json;
       };
       apply_operations: {
