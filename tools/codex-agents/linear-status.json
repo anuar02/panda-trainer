@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-04T20:19Z",
+  "updated_at": "2026-10-04T21:11Z",
   "updated_by": "coordinator",
   "done": 11,
   "groups": {
@@ -10,15 +10,15 @@
   },
   "issues": [
     {
-      "id": "SOM-39",
-      "title": "Принять крупный текст, спокойный интерфейс и движение",
-      "status": "In Review",
-      "milestone": "09",
-      "group": "owner"
-    },
-    {
       "id": "SOM-38",
       "title": "Интегрировать утверждённую панду и принять Rive",
+      "status": "In Progress",
+      "milestone": "09",
+      "group": "agents"
+    },
+    {
+      "id": "SOM-39",
+      "title": "Принять крупный текст, спокойный интерфейс и движение",
       "status": "In Review",
       "milestone": "09",
       "group": "owner"
