@@ -9,6 +9,14 @@
 
 ## Не выпущено
 
+- SOM-34: production карточка показывает реальный остаток и долг, включая
+  истёкшие покупки; purchase/payment/reversal формы сбрасываются по login/caller/
+  generation, закрытие немедленно блокирует поздние результаты. Переплата — под
+  полем суммы после refresh; durable API/requestId/terminal policy сохранены.
+  [Проверки](app/review/05-som-34-billing-production-finish/README.md),
+  [ADR 0095](docs/app/decisions/0095-financial-presentation-and-client-totals.md).
+  SQL needs-local-db, real Auth/storage/native/parity и приёмка владельца открыты.
+
 - SOM-27: переносы и отмены обеих ролей закреплены за login/workspace/client,
   durable recovery проверяет exact payload/requestId, UI callbacks и общий lock
   не пересекают поколения. Дополнены synthetic workflow/regression, pgTAP и

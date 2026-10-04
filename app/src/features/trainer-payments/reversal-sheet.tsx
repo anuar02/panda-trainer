@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../ui/button';
@@ -6,17 +6,34 @@ import { Field } from '../../ui/field';
 import { Sheet } from '../../ui/sheet';
 import { Text } from '../../ui/text';
 import { formatPurchaseMoney } from '../../domain/purchases';
+import { useFinancialFormLifecycle } from '../trainer-billing/use-form-lifecycle';
 import type { PaymentEntry } from './types';
 
 type Props = {
   payment: PaymentEntry;
   disabled: boolean;
+  isCurrent?: () => boolean;
   onClose: () => void;
   onConfirm: (reason: string) => Promise<boolean>;
 };
-export function PaymentReversalSheet({
+export function PaymentReversalSheet(props: Props) {
+  const lifecycle = useFinancialFormLifecycle(
+    props.isCurrent,
+    props.payment.id,
+  );
+  return (
+    <PaymentReversalForm
+      key={JSON.stringify([props.payment.id, lifecycle.version])}
+      {...props}
+      isCurrent={lifecycle.isCurrent}
+      onClose={() => lifecycle.close(props.onClose)}
+    />
+  );
+}
+function PaymentReversalForm({
   payment,
   disabled,
+  isCurrent = () => true,
   onClose,
   onConfirm,
 }: Props) {
@@ -26,7 +43,7 @@ export function PaymentReversalSheet({
   const [failed, setFailed] = useState(false);
   const locked = useRef(false);
   const active = useRef(true);
-  useEffect(() => {
+  useLayoutEffect(() => {
     active.current = true;
     return () => {
       active.current = false;
@@ -35,6 +52,7 @@ export function PaymentReversalSheet({
   const confirm = async () => {
     if (
       !active.current ||
+      !isCurrent() ||
       disabled ||
       locked.current ||
       !reason.trim() ||
@@ -46,14 +64,14 @@ export function PaymentReversalSheet({
     setFailed(false);
     try {
       const success = await onConfirm(reason.trim());
-      if (active.current) {
+      if (active.current && isCurrent()) {
         if (success) onClose();
         else setFailed(true);
       }
     } catch {
-      if (active.current) setFailed(true);
+      if (active.current && isCurrent()) setFailed(true);
     } finally {
-      if (active.current) {
+      if (active.current && isCurrent()) {
         locked.current = false;
         setBusy(false);
       }
@@ -64,9 +82,7 @@ export function PaymentReversalSheet({
       open
       title={t('trainerPayments.reverseTitle')}
       closeLabel={t('trainerPayments.cancel')}
-      onClose={() => {
-        if (!busy) onClose();
-      }}
+      onClose={onClose}
     >
       <Text className="text-secondary">
         {t('trainerPayments.reverseNotice', {
@@ -98,7 +114,6 @@ export function PaymentReversalSheet({
         <Button
           label={t('trainerPayments.cancel')}
           variant="ghost"
-          disabled={busy}
           onPress={onClose}
         />
       </View>

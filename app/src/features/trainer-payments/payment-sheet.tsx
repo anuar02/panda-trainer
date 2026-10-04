@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../../ui/sheet';
@@ -6,6 +6,7 @@ import { Button } from '../../ui/button';
 import { Text } from '../../ui/text';
 import { useTheme } from '../../ui/theme';
 import { Icon } from '../../ui/icons';
+import { useFinancialFormLifecycle } from '../trainer-billing/use-form-lifecycle';
 import { date, minorMoney } from '../trainer-billing/validation';
 import { formatPurchaseMoney } from '../../domain/purchases';
 import type { PaymentEntry } from './types';
@@ -19,11 +20,13 @@ type Props = {
   open: boolean;
   clientName: string;
   purchaseTitle: string;
+  purchaseId?: string;
   dueMinor: string;
   today: string;
   busy?: boolean;
   disabled?: boolean;
   error?: string | null;
+  isCurrent?: () => boolean;
   onClose: () => void;
   onSubmit: (input: PaymentSheetInput) => Promise<boolean>;
 };
@@ -45,14 +48,26 @@ const initialAmount = (minor: string) => {
 };
 export function PaymentSheet(props: Props) {
   const { t } = useTranslation();
+  const lifecycle = useFinancialFormLifecycle(
+    props.isCurrent,
+    props.purchaseId,
+  );
+  const close = () => lifecycle.close(props.onClose);
   return (
     <Sheet
       open={props.open}
       title={t('trainerPayments.title')}
-      onClose={props.onClose}
+      onClose={close}
       closeLabel={t('trainerPayments.cancel')}
     >
-      {props.open && <PaymentForm key={props.purchaseTitle} {...props} />}
+      {props.open && (
+        <PaymentForm
+          key={JSON.stringify([props.purchaseId, lifecycle.version])}
+          {...props}
+          isCurrent={lifecycle.isCurrent}
+          onClose={close}
+        />
+      )}
     </Sheet>
   );
 }
@@ -63,6 +78,7 @@ function PaymentForm({
   busy = false,
   disabled = false,
   error,
+  isCurrent = () => true,
   onClose,
   onSubmit,
 }: Props) {
@@ -76,7 +92,7 @@ function PaymentForm({
   const [failed, setFailed] = useState(false);
   const active = useRef(true);
   const locked = useRef(false);
-  useEffect(() => {
+  useLayoutEffect(() => {
     active.current = true;
     return () => {
       active.current = false;
@@ -95,7 +111,7 @@ function PaymentForm({
     !paidOnValid ||
     dueMinor === '0';
   const submit = async () => {
-    if (blocked || locked.current) return;
+    if (!active.current || !isCurrent() || blocked || locked.current) return;
     setAttempted(true);
     if (amountMinor === null || overDebt || !paidOnValid) return;
     locked.current = true;
@@ -107,15 +123,15 @@ function PaymentForm({
         paidOn: paidOn.trim(),
         method,
       });
-      if (active.current) {
+      if (active.current && isCurrent()) {
         if (saved) onClose();
         else setFailed(true);
       }
     } catch {
-      if (active.current) setFailed(true);
+      if (active.current && isCurrent()) setFailed(true);
     } finally {
       locked.current = false;
-      if (active.current) setSubmitting(false);
+      if (active.current && isCurrent()) setSubmitting(false);
     }
   };
   return (
@@ -158,13 +174,14 @@ function PaymentForm({
             color: colors.ink,
           }}
         />
-        {attempted && (amountMinor === null || overDebt) ? (
+        {error || (attempted && (amountMinor === null || overDebt)) ? (
           <Text accessibilityRole="alert" className="text-danger">
-            {amountMinor === null
-              ? t('trainerPayments.invalidAmount')
-              : t('trainerPayments.overDebt', {
-                  amount: formatPurchaseMoney(dueMinor, i18n.language),
-                })}
+            {error ||
+              (amountMinor === null
+                ? t('trainerPayments.invalidAmount')
+                : t('trainerPayments.overDebt', {
+                    amount: formatPurchaseMoney(dueMinor, i18n.language),
+                  }))}
           </Text>
         ) : null}
       </View>
@@ -225,9 +242,9 @@ function PaymentForm({
           ))}
         </View>
       </View>
-      {error || failed ? (
+      {failed && !error ? (
         <Text accessibilityRole="alert" className="text-danger">
-          {error || t('trainerPayments.submitError')}
+          {t('trainerPayments.submitError')}
         </Text>
       ) : null}
       {!paidOnValid ? (

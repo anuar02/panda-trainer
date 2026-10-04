@@ -86,6 +86,7 @@ type Props = {
   onAssignProgram?: () => void;
   onRetryAssignmentRead?: () => void;
   billingContent?: ReactNode;
+  financialContent?: ReactNode;
 };
 
 type Tab = keyof typeof workspaceClientDetailsRu.tabs;
@@ -135,6 +136,7 @@ export function WorkspaceClientDetailsScreen({
   onAssignProgram,
   onRetryAssignmentRead,
   billingContent,
+  financialContent,
 }: Props) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
@@ -254,24 +256,26 @@ export function WorkspaceClientDetailsScreen({
               </Text>
             </View>
           </View>
-          <View style={s.metrics}>
-            <Card flush style={s.metric}>
-              <Text style={[s.label, s.metricLabel, secondary]}>
-                {text('balance')}
-              </Text>
-              <Text style={s.balance} accessibilityLabel={text('unknown')}>
-                {text('unknown')}
-              </Text>
-            </Card>
-            <Card flush style={s.metric}>
-              <Text style={[s.label, s.metricLabel, secondary]}>
-                {text('due')}
-              </Text>
-              <Text style={s.due} accessibilityLabel={text('unknown')}>
-                {text('unknown')}
-              </Text>
-            </Card>
-          </View>
+          {financialContent ?? (
+            <View style={s.metrics}>
+              <Card flush style={s.metric}>
+                <Text style={[s.label, s.metricLabel, secondary]}>
+                  {text('balance')}
+                </Text>
+                <Text style={s.balance} accessibilityLabel={text('unknown')}>
+                  {text('unknown')}
+                </Text>
+              </Card>
+              <Card flush style={s.metric}>
+                <Text style={[s.label, s.metricLabel, secondary]}>
+                  {text('due')}
+                </Text>
+                <Text style={s.due} accessibilityLabel={text('unknown')}>
+                  {text('unknown')}
+                </Text>
+              </Card>
+            </View>
+          )}
         </View>
         <ScrollView
           horizontal
