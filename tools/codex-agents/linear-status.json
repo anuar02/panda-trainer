@@ -1,8 +1,22 @@
 {
-  "updated_at": "2026-10-04T14:50Z",
+  "updated_at": "2026-10-04T18:38Z",
   "updated_by": "coordinator",
   "done": 11,
   "issues": [
+    {
+      "id": "SOM-39",
+      "title": "Принять крупный текст, спокойный интерфейс и движение",
+      "status": "In Progress",
+      "milestone": "09",
+      "group": "agents"
+    },
+    {
+      "id": "SOM-38",
+      "title": "Интегрировать утверждённую панду и принять Rive",
+      "status": "In Progress",
+      "milestone": "09",
+      "group": "agents"
+    },
     {
       "id": "SOM-41",
       "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
@@ -141,20 +155,6 @@
       "title": "Реализовать SQLite outbox и идемпотентную синхронизацию",
       "status": "In Review",
       "milestone": "05",
-      "group": "owner"
-    },
-    {
-      "id": "SOM-39",
-      "title": "Принять крупный текст, спокойный интерфейс и движение",
-      "status": "In Review",
-      "milestone": "09",
-      "group": "acceptance"
-    },
-    {
-      "id": "SOM-38",
-      "title": "Интегрировать утверждённую панду и принять Rive",
-      "status": "In Review",
-      "milestone": "09",
       "group": "owner"
     },
     {
