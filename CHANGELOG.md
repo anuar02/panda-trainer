@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-32: явный выбор изменений завершённого журнала создаёт новую личную копию;
+- [SOM-32 / draft PR #72](https://github.com/anuar02/panda-trainer/pull/72): явный выбор изменений завершённого журнала создаёт новую личную копию;
   immutable provenance/receipt, exact durable retry, stale assignment/correction
   guards и readback. Existing finish/correction сохранены; добавлены pgTAP и races
   в CI program harness. [Отчёт](app/review/01-som-32-program-update/README.md),

@@ -2,6 +2,8 @@
 
 Дата: 04.10.2026. Ветка: `agent/01-som-32-program-update`.
 Base: `fix/som-50-template-picker`, `8ca8fc0` (#71), перепроверена через fetch.
+Implementation commit: `9025953`; [draft PR #72](https://github.com/anuar02/panda-trainer/pull/72),
+head/base/draft и branch push проверены через `gh pr view`.
 Только synthetic данные. Статус: реализация для review; **needs-local-db**;
 SOM-32, экран и этап не объявлены принятыми.
 
@@ -88,3 +90,8 @@ UI использует existing Sheet/Button/Text/theme/prototype icons. Эта
 установленные iOS/Android, gesture/safe-area/font-scale/screen-reader проверки,
 dark/light/default 390×844 parity и одобрение владельца. Только owner принимает
 экран; synthetic tests/export не закрывают эти gates.
+
+## GitHub CI
+
+App/database workflow запущен на PR #72. Runtime результат будет добавлен после
+завершения; текущая публикация не утверждает green SQL или принятие экрана.
