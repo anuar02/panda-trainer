@@ -1,8 +1,15 @@
 {
- "updated_at": "2026-10-04T00:29Z",
+ "updated_at": "2026-10-04T00:33Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-41",
+   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+   "status": "In Review",
+   "milestone": "10",
+   "group": "owner"
+  },
   {
    "id": "SOM-26",
    "title": "Подключить Today, неделю и создание занятия к серверу",
@@ -36,13 +43,6 @@
    "title": "Подключить onboarding тренера и управление клиентами",
    "status": "In Progress",
    "milestone": "02",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-41",
-   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
-   "status": "In Progress",
-   "milestone": "10",
    "group": "agents"
   },
   {
