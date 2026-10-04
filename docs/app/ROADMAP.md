@@ -9,6 +9,15 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-21 r2: [x] invitation mutations и own-card reads с expected
+  caller JWT session/explicit bearer; [x] live-operation exact retry, route lifetime
+  и conditional pending generation/token clear; [x] synthetic transport/pending/
+  hook/route/screen regressions полного сценария; check: 217 suites / 2905 tests,
+  type/lint/format зелёные. [Отчёт](../../app/review/05-som-21-invitations-production-finish-r2/README.md),
+  [ADR 0096](decisions/0096-invitation-caller-session-and-intent.md).
+  [ ] SQL/pgTAP/concurrency в CI, live Auth/storage/share/crash/reopen,
+  cold/warm native links, visual/accessibility и одобрение владельца; экраны не приняты.
+
 - 04.10.2026 — SOM-34 production flow: [x] реальные header totals и billing,
   частичная/полная оплата, debt и one-row reversal history; [x] session/caller/
   generation/dismiss fencing форм и own-client durable recovery; [x] synthetic

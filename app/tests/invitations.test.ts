@@ -1,6 +1,5 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
 import * as Crypto from 'expo-crypto';
-import type { Database } from '../src/lib/database.types';
+import { harness, scope } from './invitation-harness';
 import { getSupabaseClient } from '../src/features/auth/client';
 import {
   acceptInvitation,
@@ -33,8 +32,7 @@ const issuedResult = {
   replayed: false,
 };
 
-const createMockClient = (rpc: jest.Mock) =>
-  ({ rpc }) as unknown as SupabaseClient<Database>;
+const createMockClient = (rpc: jest.Mock) => harness(rpc).client;
 
 describe('invitation service', () => {
   beforeEach(() => {
@@ -50,6 +48,7 @@ describe('invitation service', () => {
     const operation = await createIssueClientInvitationOperation(
       clientRecordId,
       'https://invite.example.test',
+      scope,
     );
 
     const invitation = await operation.execute();
@@ -72,6 +71,7 @@ describe('invitation service', () => {
     const operation = await createIssueClientInvitationOperation(
       clientRecordId,
       'http://localhost:8087',
+      scope,
     );
 
     await expect(operation.execute()).rejects.toMatchObject({
@@ -96,10 +96,13 @@ describe('invitation service', () => {
     const operation = await createIssueClientInvitationOperation(
       clientRecordId,
       'http://127.0.0.1:8087',
+      scope,
     );
 
     const first = operation.execute();
     const second = operation.execute();
+    while (!rpc.mock.calls.length)
+      await new Promise((resolve) => setImmediate(resolve));
     finish({ data: issuedResult, error: null });
 
     await expect(Promise.all([first, second])).resolves.toHaveLength(2);
@@ -129,6 +132,7 @@ describe('invitation service', () => {
       createIssueClientInvitationOperation(
         'bad-id',
         'https://invite.example.test',
+        scope,
       ),
     ).rejects.toMatchObject({ code: 'invalidInput' });
   });
@@ -142,7 +146,7 @@ describe('invitation service', () => {
 
     let caught: unknown;
     try {
-      await acceptInvitation(token);
+      await acceptInvitation(token, scope);
     } catch (error) {
       caught = error;
     }
@@ -159,7 +163,7 @@ describe('invitation service', () => {
     });
     getClient.mockReturnValue(createMockClient(rpc));
 
-    await expect(acceptInvitation(token)).rejects.toMatchObject({
+    await expect(acceptInvitation(token, scope)).rejects.toMatchObject({
       code: 'request',
       message: 'Invitation request could not be completed',
     });
@@ -178,7 +182,7 @@ describe('invitation service', () => {
     });
     getClient.mockReturnValue(createMockClient(rpc));
 
-    await expect(acceptInvitation(token)).resolves.toEqual({
+    await expect(acceptInvitation(token, scope)).resolves.toEqual({
       clientRecordId,
       trainerName: 'Тренер А',
       acceptedAt: '2026-10-01T12:00:00.000Z',
@@ -195,7 +199,10 @@ describe('invitation service', () => {
       error: null,
     });
     getClient.mockReturnValue(createMockClient(rpc));
-    const operation = createRevokeClientInvitationOperation(invitationId);
+    const operation = createRevokeClientInvitationOperation(
+      invitationId,
+      scope,
+    );
 
     await expect(operation.execute()).resolves.toEqual({
       invitationId,

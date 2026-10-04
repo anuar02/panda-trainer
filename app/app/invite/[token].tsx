@@ -4,6 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/features/auth/provider';
 import { AuthLoadingScreen } from '@/features/auth/loading-screen';
 import { ClientInvitationScreen } from '@/features/invitations/screens';
+import { useInvitationLifecycle } from '@/features/invitations/use-invitation-lifecycle';
+import {
+  createInvitationFence,
+  InvitationSessionError,
+} from '@/features/invitations/session';
 import { pendingInvitationToken } from '@/features/invitations/pending';
 import {
   acceptInvitation,
@@ -15,12 +20,15 @@ import {
 function Invitation({
   token,
   authenticated,
+  lifecycle,
 }: {
   token: string;
   authenticated: boolean;
+  lifecycle: ReturnType<typeof useInvitationLifecycle>;
 }) {
   const { t } = useTranslation();
   const valid = isInvitationToken(token);
+  const { isCurrent } = lifecycle;
   const [stored, setStored] = useState<{
     attempt: number;
     failed: boolean;
@@ -43,49 +51,71 @@ function Invitation({
   useEffect(() => {
     if (!valid) return;
     let active = true;
-    void pendingInvitationToken.set(token).then(
+    void pendingInvitationToken.set(token, isCurrent).then(
       () => {
-        if (active) setStored({ attempt, failed: false });
+        if (active && isCurrent()) setStored({ attempt, failed: false });
       },
       () => {
-        if (active) setStored({ attempt, failed: true });
+        if (active && isCurrent()) setStored({ attempt, failed: true });
       },
     );
     return () => {
       active = false;
     };
-  }, [token, valid, attempt]);
+  }, [token, valid, attempt, isCurrent]);
   const run = async (operation: () => Promise<void>) => {
-    if (pending.current) return;
+    if (pending.current || !lifecycle.isCurrent()) return;
     pending.current = true;
     setBusy(true);
     setError(null);
     try {
       await operation();
-    } catch {
-      if (mounted.current) setError(t('auth.actionError'));
+    } catch (caught) {
+      if (caught instanceof InvitationSessionError) return;
+      if (mounted.current && lifecycle.isCurrent())
+        setError(t('auth.actionError'));
     } finally {
       pending.current = false;
-      if (mounted.current) setBusy(false);
+      if (mounted.current && lifecycle.isCurrent()) setBusy(false);
     }
   };
   const accept = () =>
     run(async () => {
-      if (!authenticated || !valid) return;
+      if (!authenticated || !valid || !lifecycle.scope) return;
+      const intentGeneration = pendingInvitationToken.generation();
+      const fence = createInvitationFence(lifecycle.scope);
       try {
-        const result = await acceptInvitation(token);
-        if (!mounted.current) return;
-        await pendingInvitationToken.clear(token);
-        if (mounted.current) setAccepted(result);
+        const result = await acceptInvitation(token, lifecycle.scope);
+        if (!mounted.current || !lifecycle.isCurrent()) return;
+        if (
+          !(await pendingInvitationToken.clear(
+            token,
+            fence.guard,
+            lifecycle.isCurrent,
+            intentGeneration,
+          ))
+        )
+          return;
+        if (mounted.current && lifecycle.isCurrent()) setAccepted(result);
       } catch (caught) {
         if (
           caught instanceof InvitationServiceError &&
           caught.code === 'unavailable'
         ) {
-          if (!mounted.current) return;
-          await pendingInvitationToken.clear(token);
-          if (mounted.current) setUnavailable(true);
+          if (!mounted.current || !lifecycle.isCurrent()) return;
+          if (
+            !(await pendingInvitationToken.clear(
+              token,
+              fence.guard,
+              lifecycle.isCurrent,
+              intentGeneration,
+            ))
+          )
+            return;
+          if (mounted.current && lifecycle.isCurrent()) setUnavailable(true);
         } else throw caught;
+      } finally {
+        fence.dispose();
       }
     });
   return (
@@ -98,19 +128,52 @@ function Invitation({
       error={error ?? (storageFailed ? t('auth.sessionError') : null)}
       onSignIn={() =>
         void run(async () => {
-          await pendingInvitationToken.set(token);
-          if (mounted.current) router.push('/auth/sign-in');
+          const storing = pendingInvitationToken.set(
+            token,
+            lifecycle.isCurrent,
+          );
+          const intentGeneration = pendingInvitationToken.generation();
+          await storing;
+          if (
+            mounted.current &&
+            lifecycle.isCurrent() &&
+            pendingInvitationToken.generation() === intentGeneration
+          )
+            router.push('/auth/sign-in');
         })
       }
       onAccept={() => void accept()}
       onBack={() =>
         void run(async () => {
-          await pendingInvitationToken.clear(token);
-          if (mounted.current)
+          if (!valid) {
+            if (lifecycle.isCurrent())
+              router.replace(authenticated ? '/auth/account' : '/auth/sign-in');
+            return;
+          }
+          const intentGeneration = pendingInvitationToken.generation();
+          const fence = lifecycle.scope
+            ? createInvitationFence(lifecycle.scope)
+            : null;
+          try {
+            if (
+              !(await pendingInvitationToken.clear(
+                token,
+                fence?.guard,
+                lifecycle.isCurrent,
+                intentGeneration,
+              ))
+            )
+              return;
+          } finally {
+            fence?.dispose();
+          }
+          if (mounted.current && lifecycle.isCurrent())
             router.replace(authenticated ? '/auth/account' : '/auth/sign-in');
         })
       }
-      onContinue={() => router.replace('/auth/account')}
+      onContinue={() => {
+        if (lifecycle.isCurrent()) router.replace('/auth/account');
+      }}
       onRetry={() => {
         if (authenticated && valid && ready && !storageFailed) void accept();
         else {
@@ -126,10 +189,13 @@ export default function InvitationRoute() {
   const auth = useAuth();
   const params = useLocalSearchParams<{ token?: string | string[] }>();
   const token = typeof params.token === 'string' ? params.token : '';
-  if (auth.loading || auth.failed) return <AuthLoadingScreen />;
+  const lifecycle = useInvitationLifecycle(token);
+  if (auth.loading || auth.failed || (auth.session && !lifecycle.scope))
+    return <AuthLoadingScreen />;
   return (
     <Invitation
-      key={`${auth.session?.user.id ?? ''}:${token}`}
+      key={lifecycle.key}
+      lifecycle={lifecycle}
       token={token}
       authenticated={Boolean(auth.session)}
     />
