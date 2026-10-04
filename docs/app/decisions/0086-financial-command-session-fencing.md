@@ -1,4 +1,4 @@
-# 0084. Session fence финансовых команд и durable retry
+# 0086. Session fence финансовых команд и durable retry
 
 - Статус: реализовано технически; live/runtime и приёмка владельца открыты
 - Дата: 04.10.2026

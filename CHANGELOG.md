@@ -12,7 +12,7 @@
 - [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
   terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),
-  [ADR 0084](docs/app/decisions/0084-financial-command-session-fencing.md).
+  [ADR 0086](docs/app/decisions/0086-financial-command-session-fencing.md).
   SQL/live auth/real storage/native/parity и приёмка владельца открыты.
 
 - [SOM-26 / draft PR #50](https://github.com/anuar02/panda-trainer/pull/50): создание занятия закреплено за login и workspace; поздние ответы и кэш успеха проверяют сессию, durable retry сохраняет requestId/план, conditional clear защищает pending. [Отчёт](app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0080](docs/app/decisions/0080-booking-creation-session-fencing-and-durable-retry.md). Runtime и приёмка владельца открыты.
@@ -28,6 +28,12 @@
 - [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
 
 ### Добавлено
+
+- [SOM-41 / draft PR #51](https://github.com/anuar02/panda-trainer/pull/51): внутренний read-only scoped SQLite outbox snapshot всех операций/receipts
+  и raw entries в одной queued transaction, bounded paging и session cancellation.
+  [Проверки](app/review/som-41-scoped-outbox-snapshot/README.md),
+  [handoff](docs/app/privacy/SCOPED-OUTBOX-SNAPSHOT.md). Native/runtime, collector
+  и одобрение владельца открыты.
 
 - [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
   add/replace/conflict selection; owner RPC создаёт журнал из booking assignment snapshot.

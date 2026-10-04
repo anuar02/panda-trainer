@@ -88,4 +88,5 @@
 
 | [0078](0078-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
 
-| [0084](0084-financial-command-session-fencing.md) | Session fence финансовых mutations и сохранение durable retry | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
+| [0086](0086-financial-command-session-fencing.md) | Session fence финансовых mutations и сохранение durable retry | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
+| [0084](0084-scoped-sqlite-outbox-snapshot.md) | Scoped read-only SQLite snapshot через очередь outbox | Реализовано технически; native/runtime и owner acceptance открыты | 04.10.2026 |

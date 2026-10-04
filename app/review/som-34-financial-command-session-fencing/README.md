@@ -7,7 +7,7 @@
 для `fix/som-50-template-picker`. Исходная база `9b6d8b7`, перед финальной
 проверкой обновлена fast-forward до `34d4fb3`, включая client-program read PR48.
 Невлитые ветки не использовались. Финансовый пакет не зависит от SOM-31 DB.
-[Решение](../../../docs/app/decisions/0084-financial-command-session-fencing.md).
+[Решение](../../../docs/app/decisions/0086-financial-command-session-fencing.md).
 
 ## Контекст и границы
 
@@ -98,3 +98,9 @@ validation/policy после relocation byte-identical; read helpers/hooks не 
 
 UI и продуктовая политика не меняются. Экраны и issue не объявлены принятыми;
 synthetic tests и draft PR не являются owner acceptance.
+
+## Coordinator integration · 04.10.2026
+
+Fresh base 290106e merged; ROADMAP and ADR index retained both sides.
+Financial ADR renumbered 0086, scoped snapshot ADR0084 preserved.
+Coordinator does not duplicate CI app/SQL checks; native/live/owner acceptance remain open.
