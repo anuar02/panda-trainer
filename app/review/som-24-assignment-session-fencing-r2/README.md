@@ -65,7 +65,7 @@ AsyncStorage не даёт транзакцию с auth: восстановле�
 зависит от успешных read/write; crash между delete/restore остаётся непроверенным.
 Сериализация защищает только этот JS runtime, не внешние writers или процессы.
 Экран и SOM-24 целиком не приняты; требуется одобрение владельца и runtime checks.
-[ADR 0080](../../../docs/app/decisions/0080-program-assignment-session-fencing.md).
+[ADR 0082](../../../docs/app/decisions/0082-program-assignment-session-fencing.md).
 
 ## Публикация
 

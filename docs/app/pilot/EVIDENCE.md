@@ -40,5 +40,17 @@
   → `private.touch_set_result()`; `apply_operations` с `'[]'::jsonb`; `auth.users` 0.
 - Security advisors без изменений (10 INFO private deny-all, 35 WARN командные RPC).
 
+## 04.10.2026 · Migration 20261003150000
+
+- UTC: `2026-10-04T00:16Z`. Commit `980e149` (PR #42 SOM-31 r2; CI зелёный, локально
+  db lint/pgTAP/concurrency на слиянии с базой). Dry-run: ровно
+  `20261003150000_prepare_workout_journal`, `seeds: []`, `roles: []`; затем
+  `db push --linked --skip-vault`. Разрешение владельца.
+- MCP: 26 migrations, последняя `20261003150000`; `prepare_workout_journal` —
+  security definer, `search_path=pg_catalog`, `anon` без EXECUTE;
+  `private.workout_preparation_receipts` с RLS; `auth.users` 0.
+- Security advisors: +1 INFO (новая private таблица квитанций, deny-all) и +1 WARN
+  (новая командная RPC) — ожидаемо; других изменений нет.
+
 Не подтверждено: Auth/SMTP/OAuth, Pages/DNS, регионы логов и
 бэкапов, monitoring, smoke и приёмка пилота. SOM-40 остаётся открытым.

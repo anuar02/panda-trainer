@@ -10,12 +10,29 @@
 ## Не выпущено
 
 - [SOM-24 r2 / draft PR #49](https://github.com/anuar02/panda-trainer/pull/49): восстановлен полный пакет закрытого без слияния PR #46; refresh проверяет JWT sub/session_id, поздние RPC/storage и cached success закрываются при смене identity, durable retry сохраняет requestId. [Текущий отчёт](app/review/som-24-assignment-session-fencing-r2/README.md), [ADR 0080](docs/app/decisions/0080-program-assignment-session-fencing.md). Live/native и приёмка владельца открыты.
+- SOM-24: чтение личной immutable программы закреплено за actor/client/session; same-user relogin скрывает старые данные, refresh проверяется, страницы и snapshot валидируются по схеме. [Проверки](app/review/som-24-client-program-read-fencing/README.md), [ADR 0080](docs/app/decisions/0080-client-program-read-session-fencing.md).
 
 - SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
+- [SOM-31 r2 / draft PR #42](https://github.com/anuar02/panda-trainer/pull/42): provenance reconciliation возвращает серверный original после current
+  receipt, убирает отвергнутую replacement и отсутствующие подходы, сохраняет pending/
+  rejected/drafts и свежий snapshot для offline reopen.
+  [Отчёт r2](app/review/som-31-workout-entry-r2/README.md); SQL/native и приёмка открыты.
 
 - [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
 
 ### Добавлено
+
+- [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
+  add/replace/conflict selection; owner RPC создаёт журнал из booking assignment snapshot.
+  [Отчёт](app/review/som-31-workout-entry/README.md),
+  [ADR 0075](docs/app/decisions/0075-booking-snapshot-journal-entry.md).
+  SQL/native/parity и одобрение владельца открыты; finish/correction — SOM-32.
+
+- SOM-41 local export r2: перенесён pure versioned local envelope из закрытого PR #39;
+  lossless SQL conflict/correction формы, scoped resolve context и строгие aggregate
+  relations без collector/storage/UI/delete integration.
+  [Отчёт r2](app/review/som-41-local-export-contract-r2/README.md),
+  [контракт](docs/app/privacy/LOCAL-EXPORT-CONTRACT.md). Runtime и owner acceptance открыты.
 
 - SOM-20: безопасное owner-scoped чтение списка/карточки клиентов, bounded pagination,
   runtime validation и session/retry fencing. Создание занятия сохраняет совместимый wrapper.
