@@ -108,4 +108,10 @@ SOM-37, screens and milestone are **not declared accepted/completed**.
 
 ## Publication
 
-Commit/push and draft PR read-back will be recorded after publication.
+Implementation committed as `7e156dc` and pushed with upstream tracking to
+`origin/agent/10-som-37-notification-feed-r2`. Published and read back:
+[draft PR #67](https://github.com/anuar02/panda-trainer/pull/67), title includes
+SOM-37, base `fix/som-50-template-picker`, correct head, `OPEN` and `isDraft=true`.
+Remote head was verified by `git ls-remote`. This review-only publication record
+is committed separately. CI for this PR is pending; no SQL/type-generation/real
+concurrency success is claimed, and no merge or owner acceptance is claimed.

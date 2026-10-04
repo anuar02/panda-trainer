@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-37 r2: server-owned in-app уведомления обеих ролей, точный unread count,
+- [SOM-37 r2 / draft PR #67](https://github.com/anuar02/panda-trainer/pull/67): server-owned in-app уведомления обеих ролей, точный unread count,
   явная отметка прочитанного, pagination и own-object переходы; additive atomic
   event triggers и scoped Realtime с JWT/caller/read race fences. SQL/app тесты,
   безопасный контракт для SOM-73, без push transport. [Отчёт](app/review/10-som-37-notification-feed-r2/README.md),
