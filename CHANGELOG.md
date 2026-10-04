@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-26: создание занятия закреплено за login и workspace; поздние ответы и кэш успеха проверяют сессию, durable retry сохраняет requestId/план, conditional clear защищает pending. [Отчёт](app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0080](docs/app/decisions/0080-booking-creation-session-fencing-and-durable-retry.md). Runtime и приёмка владельца открыты.
+- [SOM-26 / draft PR #50](https://github.com/anuar02/panda-trainer/pull/50): создание занятия закреплено за login и workspace; поздние ответы и кэш успеха проверяют сессию, durable retry сохраняет requestId/план, conditional clear защищает pending. [Отчёт](app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0080](docs/app/decisions/0080-booking-creation-session-fencing-and-durable-retry.md). Runtime и приёмка владельца открыты.
 
 - SOM-22: полное validated чтение библиотеки и шаблонов, ограниченные страницы/пакеты, закреплённые actor/workspace/session и защита provider от поздних результатов; архивные ссылки и pending draft сохранены. [Отчёт](app/review/som-22-library-read-fencing/README.md), [ADR 0078](docs/app/decisions/0078-validated-session-fenced-library-reads.md).
 
