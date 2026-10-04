@@ -515,7 +515,12 @@ export function TrainerScheduleScreen({
                       },
                     ]}
                   />
-                  <Mascot pose="sleep" size={170} style={s.pandaImage} />
+                  <Mascot
+                    pose="sleep"
+                    clipPlace="empty"
+                    size={170}
+                    style={s.pandaImage}
+                  />
                 </View>
               </View>
               <Text style={s.emptyTitle}>{t('trainerSchedule.empty')}</Text>

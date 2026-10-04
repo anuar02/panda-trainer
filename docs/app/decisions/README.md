@@ -121,3 +121,4 @@
 | [0102](0102-program-update-receipts-and-sources.md) | Выборочное обновление программы из проверенного journal/booking source, immutable receipt и caller recovery | Реализовано технически; DB runtime/native/owner acceptance открыты | 04.10.2026 |
 
 | [0104](0104-prototype-panda-reanimated-motion.md) | CSS-движение PNG-панды на UI-потоке Reanimated | Реализовано; native/parity/owner acceptance открыты | 04.10.2026 |
+| [0106](0106-approved-panda-webp-clips.md) | Выбранные WebP-клипы панды в крупных моментах | Реализовано; native/parity/owner acceptance открыты | 04.10.2026 |

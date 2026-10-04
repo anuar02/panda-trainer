@@ -9,6 +9,15 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-38, бриф 17 (решение владельца 05.10 из брифа):
+  [x] выбранные WebP/постеры, явные места, static gates и teardown плееров;
+  [x] jump в прежнем праздновании 2200 мс; [x] stretch/listen без новых мест;
+  [x] шесть клипов ≤300 000 байт, wave — разрешённое исключение 445 248 байт.
+  [Отчёт](../../app/review/17-som-38-mascot-clips-integration/README.md),
+  [ADR 0106](decisions/0106-approved-panda-webp-clips.md).
+  [ ] Native ощущение/FPS/память декодера, visual parity и одобрение владельца;
+  вопрос calm-контекстов не закрыт. SOM-38 целиком и экраны не приняты.
+
 - 04.10.2026 — SOM-39, бриф 15 r2 после MERGED #77: [x] UI-движение тостов,
   шторок/scrim, записи подхода, нового упражнения/заметок, steps/rest и demo dock;
   [x] общий calm/reduce и synthetic проверки, presentation adapters voice/hold.

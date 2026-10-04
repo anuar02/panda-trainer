@@ -843,6 +843,7 @@ export function TrainerTodayScreen({
                   <View style={s.emptyArtBox}>
                     <Mascot
                       pose="sleep"
+                      clipPlace="empty"
                       size={170}
                       style={s.emptyArt}
 

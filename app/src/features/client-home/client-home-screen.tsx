@@ -338,6 +338,7 @@ function DemoClientHomeScreen({
               <View style={s.empty}>
                 <Mascot
                   pose="sit"
+                  clipPlace="empty"
                   size={170}
                   style={s.emptyMascot}
                   resizeMode="contain"
@@ -396,6 +397,7 @@ function DemoClientHomeScreen({
                     ]}
                   />
                   <Mascot
+                    clipPlace="client-hero"
                     pose={
                       next.id === transferSessionId && transfer
                         ? 'clipboard'
@@ -768,6 +770,7 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
                 <View style={s.empty}>
                   <Mascot
                     pose="sit"
+                    clipPlace="empty"
                     size={170}
                     style={s.emptyMascot}
                     resizeMode="contain"
@@ -808,6 +811,7 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
                         ]}
                       />
                       <Mascot
+                        clipPlace="client-hero"
                         pose={
                           next.hasProposal || next.status === 'proposed'
                             ? 'clipboard'
