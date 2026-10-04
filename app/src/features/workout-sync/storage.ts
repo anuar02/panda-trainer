@@ -1,3 +1,4 @@
+import * as Crypto from 'expo-crypto';
 import type {
   JsonValue,
   JournalOperation,
@@ -7,6 +8,43 @@ import type {
   PendingOperation,
   SyncScope,
 } from '../../domain/workout-sync/types';
+
+import {
+  ScopedOutboxSnapshotError,
+  scopedOutboxSnapshotDefaults,
+  type ScopedOutboxSnapshot,
+  type ScopedOutboxSnapshotEntry,
+  type ScopedOutboxSnapshotOperation,
+  type ScopedOutboxSnapshotRequest,
+} from './snapshot-types';
+import {
+  snapshotUtf8Bytes,
+  validateSnapshotCount,
+  validateSnapshotEntry,
+  validateSnapshotOperation,
+} from './snapshot-validation';
+
+export * from './snapshot-types';
+
+function snapshotBinaryCompare(left: string, right: string): number {
+  const leftPoints = Array.from(
+    left,
+    (character) => character.codePointAt(0) ?? 0,
+  );
+  const rightPoints = Array.from(
+    right,
+    (character) => character.codePointAt(0) ?? 0,
+  );
+  for (
+    let index = 0;
+    index < Math.min(leftPoints.length, rightPoints.length);
+    index++
+  ) {
+    const difference = (leftPoints[index] ?? 0) - (rightPoints[index] ?? 0);
+    if (difference !== 0) return difference;
+  }
+  return leftPoints.length - rightPoints.length;
+}
 
 export type SQLiteParameter = string | number | null;
 export interface SQLiteExecutor {
@@ -98,6 +136,165 @@ export class SQLiteOutboxStore implements OutboxStore {
       () => undefined,
     );
     return result;
+  }
+  scopedSnapshot(
+    request: ScopedOutboxSnapshotRequest,
+  ): Promise<ScopedOutboxSnapshot> {
+    const scope = Object.freeze({
+      accountId: request.expectedScope.accountId,
+      workspaceId: request.expectedScope.workspaceId,
+    });
+    const isCurrentSession = request.isCurrentSession;
+    const signal = request.signal;
+    const limits = { ...scopedOutboxSnapshotDefaults, ...request.limits };
+    const guard = (): void => {
+      if (this.closing) throw new ScopedOutboxSnapshotError('closed');
+      if (
+        ![scope.accountId, scope.workspaceId].every(
+          (value) => typeof value === 'string' && value.length > 0,
+        ) ||
+        scope.accountId !== this.scope.accountId ||
+        scope.workspaceId !== this.scope.workspaceId
+      )
+        throw new ScopedOutboxSnapshotError('scopeMismatch');
+      let current = false;
+      try {
+        current = isCurrentSession() === true;
+      } catch {
+        throw new ScopedOutboxSnapshotError('cancelled');
+      }
+      if (this.closing) throw new ScopedOutboxSnapshotError('closed');
+      if (signal?.aborted || !current)
+        throw new ScopedOutboxSnapshotError('cancelled');
+    };
+    try {
+      guard();
+      for (const key of ['pageSize', 'maxRows', 'maxBytes'] as const) {
+        if (
+          !Number.isSafeInteger(limits[key]) ||
+          limits[key] < 1 ||
+          limits[key] > scopedOutboxSnapshotDefaults[key]
+        )
+          throw new ScopedOutboxSnapshotError('limit');
+      }
+    } catch (error) {
+      return Promise.reject(error);
+    }
+    return this.serialize(async () => {
+      guard();
+      const operations: ScopedOutboxSnapshotOperation[] = [];
+      const entries: ScopedOutboxSnapshotEntry[] = [];
+      let outboxCount = 0;
+      let entryCount = 0;
+      let bytes = 0;
+      const operationIds = new Set<string>();
+      const sequences = new Set<number>();
+      const entryIds = new Set<string>();
+      const accountParameters = [scope.accountId, scope.workspaceId];
+      const addBytes = (raw: string): void => {
+        bytes += snapshotUtf8Bytes(raw);
+        if (bytes > limits.maxBytes)
+          throw new ScopedOutboxSnapshotError('limit');
+      };
+      await this.database.withExclusiveTransactionAsync(async (transaction) => {
+        guard();
+        const outboxCountRow = await transaction.getFirstAsync<unknown>(
+          'SELECT COUNT(*) AS count FROM workout_outbox WHERE account_id = ? AND workspace_id = ?',
+          ...accountParameters,
+        );
+        guard();
+        outboxCount = validateSnapshotCount(outboxCountRow);
+        const entryCountRow = await transaction.getFirstAsync<unknown>(
+          'SELECT COUNT(*) AS count FROM workout_local_entries WHERE account_id = ? AND workspace_id = ?',
+          ...accountParameters,
+        );
+        guard();
+        entryCount = validateSnapshotCount(entryCountRow);
+        if (outboxCount + entryCount > limits.maxRows)
+          throw new ScopedOutboxSnapshotError('limit');
+        for (;;) {
+          const rows = await transaction.getAllAsync<unknown>(
+            'SELECT account_id, workspace_id, operation_id, entity_id, operation_json, sequence, result_json, confirmed FROM workout_outbox WHERE account_id = ? AND workspace_id = ? ORDER BY sequence ASC LIMIT ? OFFSET ?',
+            ...accountParameters,
+            limits.pageSize,
+            operations.length,
+          );
+          guard();
+          if (!Array.isArray(rows) || rows.length > limits.pageSize)
+            throw new ScopedOutboxSnapshotError('malformed');
+          if (rows.length === 0) break;
+          for (const row of rows) {
+            const operation = validateSnapshotOperation(row, scope);
+            const previous = operations[operations.length - 1];
+            if (
+              operationIds.has(operation.operationId) ||
+              sequences.has(operation.sequence) ||
+              (previous && previous.sequence >= operation.sequence)
+            )
+              throw new ScopedOutboxSnapshotError('malformed');
+            if (operations.length + entries.length >= limits.maxRows)
+              throw new ScopedOutboxSnapshotError('limit');
+            if (operations.length >= outboxCount)
+              throw new ScopedOutboxSnapshotError('malformed');
+            addBytes(operation.operationJson);
+            if (operation.resultJson !== null) addBytes(operation.resultJson);
+            operationIds.add(operation.operationId);
+            sequences.add(operation.sequence);
+            operations.push(operation);
+          }
+        }
+        if (operations.length !== outboxCount)
+          throw new ScopedOutboxSnapshotError('malformed');
+        for (;;) {
+          const rows = await transaction.getAllAsync<unknown>(
+            'SELECT account_id, workspace_id, entity_id, value_json FROM workout_local_entries WHERE account_id = ? AND workspace_id = ? ORDER BY entity_id COLLATE BINARY ASC LIMIT ? OFFSET ?',
+            ...accountParameters,
+            limits.pageSize,
+            entries.length,
+          );
+          guard();
+          if (!Array.isArray(rows) || rows.length > limits.pageSize)
+            throw new ScopedOutboxSnapshotError('malformed');
+          if (rows.length === 0) break;
+          for (const row of rows) {
+            const entry = validateSnapshotEntry(row, scope);
+            const previous = entries[entries.length - 1];
+            if (
+              entryIds.has(entry.entityId) ||
+              (previous &&
+                snapshotBinaryCompare(previous.entityId, entry.entityId) >= 0)
+            )
+              throw new ScopedOutboxSnapshotError('malformed');
+            if (operations.length + entries.length >= limits.maxRows)
+              throw new ScopedOutboxSnapshotError('limit');
+            if (entries.length >= entryCount)
+              throw new ScopedOutboxSnapshotError('malformed');
+            addBytes(entry.valueJson);
+            entryIds.add(entry.entityId);
+            entries.push(entry);
+          }
+        }
+        if (entries.length !== entryCount)
+          throw new ScopedOutboxSnapshotError('malformed');
+        guard();
+      });
+      guard();
+      const snapshot: ScopedOutboxSnapshot = {
+        metadata: {
+          id: Crypto.randomUUID(),
+          capturedAt: new Date().toISOString(),
+          scope,
+          consistency: 'sqlite-exclusive-transaction',
+          globalAtomicity: 'unknown',
+          outboxCount,
+          entryCount,
+        },
+        operations,
+        entries,
+      };
+      guard();
+      return snapshot;
+    });
   }
   save(entry: LocalEntry, operation: JournalOperation): Promise<void> {
     validate(entry, operation);

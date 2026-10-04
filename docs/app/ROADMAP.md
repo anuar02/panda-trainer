@@ -9,6 +9,15 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 scoped SQLite snapshot: [x] additive read-only API всех
+  scoped outbox rows и raw entries, одна queued transaction, runtime validation
+  и session/close/cancellation fencing; [x] synthetic driver/seam regressions.
+  Полный app check: 173 suites / 2007 tests, type/lint/format зелёные.
+  [ ] Native SQLite/connections/crash/reopen, cross-source collector/barrier,
+  file/export/ack proof, deletion и приёмка владельца. SOM-41 не закрыта.
+  [Отчёт](../../app/review/som-41-scoped-outbox-snapshot/README.md),
+  [ADR 0084](decisions/0084-scoped-sqlite-outbox-snapshot.md).
+
 - 03.10.2026 — SOM-26 creation: [x] login/scope/lifecycle fence и durable retry с conditional clear; [x] synthetic regressions relogin/refresh/storage/cache/overlap/plan; [ ] live auth, SQL/RLS, native/parity, реальный storage crash и приёмка владельца. [Отчёт](../../app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0083](decisions/0083-booking-creation-session-fencing-and-durable-retry.md). Issue и экраны не приняты.
 - 03.10.2026 — SOM-24 r2: восстановлен полный пакет PR #46 без слияния;
   [x] verified JWT sub/session_id fence transport/hook и durable retry;

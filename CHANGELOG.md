@@ -23,6 +23,12 @@
 
 ### Добавлено
 
+- [SOM-41 / draft PR #51](https://github.com/anuar02/panda-trainer/pull/51): внутренний read-only scoped SQLite outbox snapshot всех операций/receipts
+  и raw entries в одной queued transaction, bounded paging и session cancellation.
+  [Проверки](app/review/som-41-scoped-outbox-snapshot/README.md),
+  [handoff](docs/app/privacy/SCOPED-OUTBOX-SNAPSHOT.md). Native/runtime, collector
+  и одобрение владельца открыты.
+
 - [SOM-31 / draft PR #38](https://github.com/anuar02/panda-trainer/pull/38): production ввод подходов, scoped SQLite drafts, durable undo и journal-only
   add/replace/conflict selection; owner RPC создаёт журнал из booking assignment snapshot.
   [Отчёт](app/review/som-31-workout-entry/README.md),
