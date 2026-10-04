@@ -156,3 +156,9 @@ CI run `37175058383` failed in the new pgTAP fixture at line 28: the
 the privacy assertions and production migration are unchanged. `git diff --check`
 passed. No local application or SQL checks were repeated; fresh PR CI must verify
 this repair and all database gates before merge.
+
+Fresh run `37175262038` passed the first 18 overview subtests, then the privilege
+introspection itself failed because authenticated has no private-schema access.
+Replaced that introspection with an assertion that direct private receipt SELECT
+is denied (`42501`). No grants or application behavior changed; `git diff --check`
+passed and another fresh CI run is required.

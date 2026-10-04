@@ -55,7 +55,7 @@ select throws_ok($$select public.get_my_client_overview('f0360000-0000-4000-8000
 select throws_ok($$select public.get_my_client_overview('f0360000-0000-4000-8000-000000000020','2020-01-01','2022-01-01')$$,'22023',null,'bounded attendance period');
 select throws_ok($$select public.get_my_client_overview('f0360000-0000-4000-8000-000000000020','2020-01-01','2020-01-01')$$,'22023',null,'invalid range denied');
 select ok(not exists(select 1 from jsonb_object_keys((select result from results where name='overview')) k where k not in ('context','today','starts_on','ends_on','remaining_units','active_units','due_minor','visits')),'RPC approved aggregate fields only');
-select ok(not has_table_privilege('authenticated','private.billing_command_receipts','SELECT'),'client cannot read private billing receipts');
+select throws_ok($$select 1 from private.billing_command_receipts$$,'42501',null,'client cannot read private billing receipts');
 select ok(not has_function_privilege('anon','public.get_my_client_overview(uuid,date,date)','EXECUTE'),'anon cannot execute');
 select set_config('request.jwt.claims','{"sub":"f0360000-0000-4000-8000-000000000001","role":"authenticated"}',true);
 insert into results values ('payment',public.record_client_payment((select (result->>'purchase_id')::uuid from results where name='active'),101,'2026-10-04','Kaspi','f0360000-0000-4000-8000-000000000103'));
