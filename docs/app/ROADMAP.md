@@ -9,6 +9,17 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-32 explicit correction: [x] отдельная новая migration,
+  owner list/review/apply, immutable receipt/audit и serialized revision/provenance
+  validation; [x] typed session-fenced transport, отдельный durable command store,
+  явный просмотр/подтверждение и finished journal readback; [x] synthetic tests.
+  Полный app check: 182 suites / 2178 tests, type/lint/format зелёные.
+  [ ] needs-local-db: SQL lint/pgTAP/concurrency/type drift; [ ] real auth/storage,
+  native/parity и одобрение владельца. Personal-program update остаётся
+  заблокированным immutable-copy/provenance решением; SOM-32 целиком не закрыта.
+  [Отчёт](../../app/review/som-32-explicit-correction-server/README.md),
+  [ADR 0085](decisions/0085-explicit-finished-journal-correction.md).
+
 - 04.10.2026 — SOM-41 scoped SQLite snapshot: [x] additive read-only API всех
   scoped outbox rows и raw entries, одна queued transaction, runtime validation
   и session/close/cancellation fencing; [x] synthetic driver/seam regressions.

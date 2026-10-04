@@ -1366,6 +1366,8 @@ export type Database = {
       };
       workout_correction_drafts: {
         Row: {
+          applied_at: string | null;
+          applied_request_id: string | null;
           created_at: string;
           id: string;
           operation: NonNullable<Json>;
@@ -1373,6 +1375,8 @@ export type Database = {
           workspace_id: string;
         };
         Insert: {
+          applied_at?: string | null;
+          applied_request_id?: string | null;
           created_at?: string;
           id?: string;
           operation: NonNullable<Json>;
@@ -1380,6 +1384,8 @@ export type Database = {
           workspace_id: string;
         };
         Update: {
+          applied_at?: string | null;
+          applied_request_id?: string | null;
           created_at?: string;
           id?: string;
           operation?: NonNullable<Json>;
@@ -1413,6 +1419,7 @@ export type Database = {
           exercise_name_snapshot: string;
           id: string;
           instructions_snapshot: string[];
+          last_correction_request_id: string | null;
           measure_snapshot: string;
           muscle_group_snapshot: string;
           note: string | null;
@@ -1440,6 +1447,7 @@ export type Database = {
           exercise_name_snapshot: string;
           id: string;
           instructions_snapshot: string[];
+          last_correction_request_id?: string | null;
           measure_snapshot: string;
           muscle_group_snapshot: string;
           note?: string | null;
@@ -1467,6 +1475,7 @@ export type Database = {
           exercise_name_snapshot?: string;
           id?: string;
           instructions_snapshot?: string[];
+          last_correction_request_id?: string | null;
           measure_snapshot?: string;
           muscle_group_snapshot?: string;
           note?: string | null;
@@ -1528,6 +1537,7 @@ export type Database = {
           created_by: string | null;
           finished_at: string | null;
           id: string;
+          last_correction_request_id: string | null;
           revision: number;
           source_program_id: string | null;
           source_program_revision: number | null;
@@ -1542,6 +1552,7 @@ export type Database = {
           created_by?: string | null;
           finished_at?: string | null;
           id: string;
+          last_correction_request_id?: string | null;
           revision?: number;
           source_program_id?: string | null;
           source_program_revision?: number | null;
@@ -1556,6 +1567,7 @@ export type Database = {
           created_by?: string | null;
           finished_at?: string | null;
           id?: string;
+          last_correction_request_id?: string | null;
           revision?: number;
           source_program_id?: string | null;
           source_program_revision?: number | null;
@@ -1711,6 +1723,19 @@ export type Database = {
       apply_operations: {
         Args: {
           p_operations: Json;
+          p_workspace_id: string;
+        };
+        Returns: Json;
+      };
+      apply_workout_correction: {
+        Args: {
+          p_actor_id: string;
+          p_draft_id: string;
+          p_expected_entity_revision: number;
+          p_expected_exercise_revision?: number;
+          p_expected_workout_revision: number;
+          p_request_id: string;
+          p_workout_id: string;
           p_workspace_id: string;
         };
         Returns: Json;
@@ -1900,6 +1925,15 @@ export type Database = {
           workspace_id: string;
         }[];
       };
+      get_workout_correction: {
+        Args: {
+          p_actor_id: string;
+          p_draft_id: string;
+          p_workout_id: string;
+          p_workspace_id: string;
+        };
+        Returns: Json;
+      };
       is_workspace_owner: {
         Args: {
           target_workspace_id: string;
@@ -1922,6 +1956,14 @@ export type Database = {
           trainer_name: string;
           workspace_id: string;
         }[];
+      };
+      list_workout_corrections: {
+        Args: {
+          p_actor_id: string;
+          p_workout_id: string;
+          p_workspace_id: string;
+        };
+        Returns: Json;
       };
       mark_attended: {
         Args: {

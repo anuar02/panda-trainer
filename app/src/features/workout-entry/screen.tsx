@@ -12,6 +12,7 @@ import { Button } from '@/ui/button';
 import { Sheet } from '@/ui/sheet';
 import { getWorkoutStyles } from '@/features/workout/measurements';
 import { WorkoutSyncStatus } from '@/features/workout-sync';
+import { CorrectionPanel } from '@/features/workout-corrections';
 import { useWorkoutEntry } from './use-entry';
 
 const emptyValues = (): SetValues => ({
@@ -36,7 +37,17 @@ export function WorkoutEntryPanel({
   const [editing, setEditing] = useState<Record<string, SetValues>>({});
   const [invalid, setInvalid] = useState(false);
   const [rawInputs, setRawInputs] = useState<Record<string, string>>({});
-  const p = entry.state?.workout.participant ?? participant;
+  const [corrected, setCorrected] = useState<{
+    scope: string;
+    participant: PreloadParticipant;
+  } | null>(null);
+  const correctionScope = `${session?.accountId}:${session?.workspaceId}:${session?.sessionId}:${participant.workoutId}:${participant.bookingId}:${participant.clientRecordId}`;
+  const originalParticipant = entry.state?.workout.participant ?? participant;
+  const p =
+    corrected?.scope === correctionScope &&
+    originalParticipant.workoutStatus === 'finished'
+      ? corrected.participant
+      : originalParticipant;
   const exercises = p.exercises.filter((exercise) => !exercise.skipped);
   const draft: EntryDraft = entry.state?.draft ?? {
     workoutId: p.workoutId,
@@ -227,6 +238,29 @@ export function WorkoutEntryPanel({
     ].join(' · ');
   return (
     <View style={s.list}>
+      {p.workoutStatus === 'finished' && (
+        <CorrectionPanel
+          key={`${session?.accountId}:${session?.workspaceId}:${session?.sessionId}:${p.workoutId}`}
+          session={session}
+          getSession={getSession}
+          participant={p}
+          onRefresh={async (refreshed) => {
+            const current = getSession();
+            if (
+              session !== null &&
+              current !== null &&
+              current.accountId === session.accountId &&
+              current?.workspaceId === session?.workspaceId &&
+              current?.sessionId === session?.sessionId &&
+              refreshed.workoutId === p.workoutId &&
+              refreshed.bookingId === p.bookingId &&
+              refreshed.clientRecordId === p.clientRecordId &&
+              refreshed.workoutStatus === 'finished'
+            )
+              setCorrected({ scope: correctionScope, participant: refreshed });
+          }}
+        />
+      )}
       {entry.sync && <WorkoutSyncStatus state={entry.sync} />}
       {entry.sync?.status === 'error' && (
         <Button
