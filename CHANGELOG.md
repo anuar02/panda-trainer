@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-41: единый settings → coverage → JSON UTF-8 v2 flow объединяет серверный
+- [SOM-41 / draft PR #61](https://github.com/anuar02/panda-trainer/pull/61): единый settings → coverage → JSON UTF-8 v2 flow объединяет серверный
   снимок, scoped SQLite операции/receipts и распознанные локальные данные,
   конфликты/correction context и доступные pending/drafts. Явные gaps и
   `globalAtomicity: unknown` сохраняют статус incomplete; session guards,

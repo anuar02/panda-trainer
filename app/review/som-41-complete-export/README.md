@@ -1,5 +1,7 @@
 # SOM-41 · Пользовательский экспорт server + local
 
+Draft PR: https://github.com/anuar02/panda-trainer/pull/61. Implementation commit: `2a826d6`.
+
 04.10.2026. Ветка `agent/02-som-41-complete-export`, PR в
 `fix/som-50-template-picker`. SOM-41 целиком не закрыта; удаление аккаунта и
 публикация политики не входят в этот пакет. Приёмка экранов — владельцем.
