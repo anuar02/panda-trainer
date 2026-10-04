@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-38: выбранные WebP-клипы панды через expo-image в местах прототипа,
+- [SOM-38 / draft PR #79](https://github.com/anuar02/panda-trainer/pull/79): выбранные WebP-клипы панды через expo-image в местах прототипа,
   постер при загрузке/ошибке, отключение при calm/reduce и уходе с экрана.
   stretch/listen без места; clipboard/front остаются PNG. Шесть клипов ≤300 КБ,
   wave 445 248 байт — документированное исключение.
