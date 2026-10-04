@@ -13,13 +13,32 @@ import { Sheet } from '@/ui/sheet';
 import { getWorkoutStyles } from '@/features/workout/measurements';
 import { WorkoutSyncStatus } from '@/features/workout-sync';
 import { useWorkoutEntry } from './use-entry';
+import { summarizeWorkoutFinish } from '@/domain/workout-entry';
 
 const emptyValues = (): SetValues => ({
   weightGrams: null,
   reps: null,
   seconds: null,
 });
-export function WorkoutEntryPanel({
+export function WorkoutEntryPanel(props: {
+  session: SyncSession | null;
+  getSession: () => SyncSession | null;
+  participant: PreloadParticipant;
+}) {
+  const { session, participant } = props;
+  const key = JSON.stringify([
+    session?.accountId,
+    session?.workspaceId,
+    session?.sessionId,
+    session?.accessToken,
+    participant.workoutId,
+    participant.bookingId,
+    participant.clientRecordId,
+  ]);
+  return <WorkoutEntryContent key={key} {...props} />;
+}
+
+function WorkoutEntryContent({
   session,
   getSession,
   participant,
@@ -32,7 +51,9 @@ export function WorkoutEntryPanel({
   const { width, fontScale } = useWindowDimensions();
   const s = getWorkoutStyles(fontScale, width);
   const entry = useWorkoutEntry(session, getSession, participant);
-  const [sheet, setSheet] = useState<'set' | 'add' | 'replace' | null>(null);
+  const [sheet, setSheet] = useState<
+    'set' | 'add' | 'replace' | 'finish' | null
+  >(null);
   const [editing, setEditing] = useState<Record<string, SetValues>>({});
   const [invalid, setInvalid] = useState(false);
   const [rawInputs, setRawInputs] = useState<Record<string, string>>({});
@@ -51,8 +72,20 @@ export function WorkoutEntryPanel({
   const values = focus
     ? (editing[focus.id] ?? draft.values[focus.id] ?? emptyValues())
     : emptyValues();
+  const finish = entry.state?.finish;
+  const finished = finish?.status === 'applied';
+  const finishPending = finish?.status === 'saved_on_phone';
+  const notFinished = finish?.status === 'not_finished';
+  const summary = summarizeWorkoutFinish(p, {
+    ...draft,
+    values: { ...draft.values, ...editing },
+  });
+  const recoveryDisabled = entry.busy || !entry.state;
   const disabled =
-    entry.busy || !entry.state || p.workoutStatus !== 'in_progress';
+    recoveryDisabled ||
+    Boolean(entry.state?.workout.finishOperation) ||
+    (finish !== undefined && finish.status !== 'available') ||
+    p.workoutStatus !== 'in_progress';
   function change(next: SetValues, preserveRaw = false) {
     if (!preserveRaw) setRawInputs({});
     if (!focus) return;
@@ -186,14 +219,16 @@ export function WorkoutEntryPanel({
   }
   const save = () => {
     if (!focus || invalid) return;
-    void entry.execute(async (service) => {
+    void entry.execute(async (service, isCurrent = () => true) => {
       const confirmed = await service.confirm(p, focus.id, values);
+      if (!isCurrent()) return;
       const nextDraft = {
         ...confirmed.draft,
         values: { ...confirmed.draft.values },
       };
       delete nextDraft.values[focus.id];
       await service.saveDraft(confirmed.workout.participant, nextDraft);
+      if (!isCurrent()) return;
       setEditing((current) => {
         const next = { ...current };
         delete next[focus.id];
@@ -228,12 +263,16 @@ export function WorkoutEntryPanel({
   return (
     <View style={s.list}>
       {entry.sync && <WorkoutSyncStatus state={entry.sync} />}
-      {entry.sync?.status === 'error' && (
-        <Button
-          label={t('common.retry')}
-          onPress={() => void entry.retryDelivery()}
-        />
-      )}
+      {!notFinished &&
+        (entry.sync?.status === 'error' ||
+          (entry.sync?.status === 'saved_on_phone' && entry.sync.pending > 0) ||
+          finishPending) && (
+          <Button
+            label={t('common.retry')}
+            disabled={recoveryDisabled}
+            onPress={() => void entry.retryDelivery()}
+          />
+        )}
       {(entry.error || invalid) && (
         <Text accessibilityRole="alert" style={s.error}>
           {t(invalid ? 'workoutEntry.invalid' : 'workoutEntry.saveError')}
@@ -242,10 +281,10 @@ export function WorkoutEntryPanel({
       {entry.error && (
         <Button label={t('common.retry')} onPress={entry.retry} />
       )}
-      {p.workoutStatus !== 'in_progress' && (
+      {p.workoutStatus !== 'in_progress' && !finished && (
         <Text>{t('workoutEntry.unprepared')}</Text>
       )}
-      {focus && (
+      {focus && !finished && !finishPending && !notFinished && (
         <View style={s.focus}>
           <View style={s.eyebrow}>
             <Text style={s.eyebrowText}>
@@ -325,7 +364,7 @@ export function WorkoutEntryPanel({
           />
         </View>
       )}
-      {last && (
+      {last && !finished && !finishPending && !notFinished && (
         <Button
           label={t('workoutEntry.undo')}
           variant="ghost"
@@ -346,7 +385,7 @@ export function WorkoutEntryPanel({
             ]}
             accessibilityRole="button"
             accessibilityLabel={exercise.name}
-            disabled={entry.busy}
+            disabled={disabled}
             onPress={() =>
               void entry.execute(
                 (service) =>
@@ -374,6 +413,57 @@ export function WorkoutEntryPanel({
         disabled={disabled || !entry.resources.catalog.length}
         onPress={() => setSheet('add')}
       />
+      {(finished || finishPending || notFinished) && (
+        <View style={s.complete}>
+          <Text accessibilityRole="alert" style={s.bold}>
+            {t(
+              notFinished
+                ? 'workoutEntry.finishNotFinished'
+                : finished
+                  ? 'workoutEntry.finishApplied'
+                  : 'workoutEntry.finishLocal',
+            )}
+          </Text>
+          <Text style={s.listTitle}>{t('workoutEntry.finishResults')}</Text>
+          {p.exercises.map((exercise) => (
+            <View key={exercise.id} style={s.list}>
+              <Text style={s.bold}>{exercise.name}</Text>
+              {exercise.sets
+                .filter((set) => !set.deletedAt)
+                .map((set) => (
+                  <Text key={set.id}>{format(set)}</Text>
+                ))}
+            </View>
+          ))}
+        </View>
+      )}
+      {!finished && !finishPending && !notFinished && (
+        <Button
+          label={t('workoutEntry.finish')}
+          disabled={
+            disabled ||
+            finish?.status === 'conflict' ||
+            finish?.status === 'correction_draft' ||
+            Boolean(entry.state?.issues.length) ||
+            Boolean(entry.resources.conflicts.length)
+          }
+          onPress={() => {
+            if (
+              summary.unrecordedSets > 0 ||
+              summary.draftCount > 0 ||
+              summary.plannedSets === 0 ||
+              invalid
+            )
+              setSheet('finish');
+            else void entry.finish();
+          }}
+        />
+      )}
+      {finish?.status === 'error' && (
+        <Text accessibilityRole="alert" style={s.error}>
+          {t('workoutEntry.finishError')}
+        </Text>
+      )}
       {entry.state?.issues.map((issue) => (
         <Text key={issue.operation_id} accessibilityRole="alert">
           {t(
@@ -390,7 +480,7 @@ export function WorkoutEntryPanel({
             <Button
               key={selection}
               label={t(`workoutEntry.${selection}`)}
-              disabled={disabled}
+              disabled={recoveryDisabled}
               onPress={() =>
                 void entry.execute((service) =>
                   service.resolve(
@@ -406,6 +496,52 @@ export function WorkoutEntryPanel({
           ))}
         </View>
       ))}
+      {sheet === 'finish' && (
+        <Sheet
+          open
+          title={t('workoutEntry.finishTitle')}
+          onClose={() => setSheet(null)}
+        >
+          <Text>{t('workoutEntry.finishHint')}</Text>
+          <View style={s.listRows}>
+            <View style={s.complete}>
+              <Text style={s.bold}>{p.clientName}</Text>
+              <Text style={s.secondary}>
+                {t(
+                  summary.plannedSets
+                    ? 'workoutEntry.finishSummary'
+                    : 'workoutEntry.finishEmpty',
+                  {
+                    done: summary.recordedSets,
+                    total: summary.plannedSets,
+                    missing: summary.unrecordedSets,
+                  },
+                )}
+              </Text>
+              {summary.draftCount > 0 && (
+                <Text>
+                  {t('workoutEntry.finishDrafts', {
+                    count: summary.draftCount,
+                  })}
+                </Text>
+              )}
+            </View>
+          </View>
+          <Button
+            label={t('workoutEntry.finishConfirm')}
+            disabled={disabled}
+            onPress={() => {
+              setSheet(null);
+              void entry.finish();
+            }}
+          />
+          <Button
+            label={t('workoutEntry.continueInput')}
+            variant="soft"
+            onPress={() => setSheet(null)}
+          />
+        </Sheet>
+      )}
       {sheet === 'set' && focus && (
         <Sheet
           open
@@ -465,13 +601,13 @@ export function WorkoutEntryPanel({
               variant="ghost"
               disabled={disabled || exercise.exerciseId === focus?.exerciseId}
               onPress={() =>
-                void entry.execute(async (service) => {
+                void entry.execute(async (service, isCurrent = () => true) => {
                   const next = await service.add(
                     p,
                     exercise,
                     sheet === 'replace' ? focus?.id : undefined,
                   );
-                  setSheet(null);
+                  if (isCurrent()) setSheet(null);
                   return next;
                 })
               }

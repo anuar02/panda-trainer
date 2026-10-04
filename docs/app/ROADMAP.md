@@ -17,6 +17,7 @@
   [ADR 0086](decisions/0086-financial-command-session-fencing.md).
   [ ] SQL/RLS/live auth/real storage/reopen/crash/native/parity и owner acceptance;
   issue и экраны не приняты.
+- 04.10.2026 — SOM-32 finish: [x] production durable finish, saved-only summary и partial/empty confirmation; [x] synthetic domain/service/hook/screen regressions (check: 179 suites / 2056 tests); correction draft и selective program update остаются отдельными контрактами. [Отчёт](../../app/review/som-32-production-finish/README.md), [ADR 0087](decisions/0087-production-workout-finish-outbox.md). Runtime/parity и одобрение владельца открыты; SOM-32 целиком не закрыта.
 - 04.10.2026 — SOM-23: [x] template save/archive session fencing и provider pending recovery/owned lock; [x] synthetic relogin/refresh/cache/clear-await regressions, полный check 1931 tests / 172 suites; type/lint/format зелёные. [Отчёт](../../app/review/som-23-template-save-session-fencing/README.md), [ADR 0085](decisions/0085-template-mutation-session-fencing.md). [ ] Live auth/SQL/RLS/storage/crash/native/parity и одобрение владельца.
 
 - 04.10.2026 — SOM-20 creation: [x] actor/workspace/JWT session/caller fencing, explicit bearer, route/sheet generations и in-memory retry с прежним requestId; [x] synthetic race regressions. [ ] Live auth/SQL/RLS/native/parity и одобрение владельца; disk/crash/reopen recovery не заявляется. [Отчёт](../../app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](decisions/0088-client-creation-session-fencing.md). Issue и экраны не приняты.
@@ -833,6 +834,8 @@
 - [ ] Индикатор «Сохранено на телефоне» / «Синхронизировано», ошибка отправки не теряет
   данные.
 - [ ] Завершение: сводка, частичное завершение, исправление завершённого журнала.
+  SOM-32: пакет production finish через outbox; применение correction drafts,
+  runtime и приёмка владельца остаются открытыми.
 - [ ] Обновление личной программы клиента по итогам (задача 4 из `prototype-fresh/CODEX-PLAN.md`).
 - [ ] Тесты: очередь (повтор, дубликат, порядок), конфликт одного подхода на двух
   устройствах (по таблице в `SYNC-DESIGN.md`), режим полёта в середине тренировки.
