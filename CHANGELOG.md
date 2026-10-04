@@ -9,6 +9,12 @@
 
 ## Не выпущено
 
+- SOM-20: production onboarding теперь валидирует actor/workspace/connections,
+  фиксирует JWT session и explicit bearer на весь read/completion, защищает
+  hook/route/welcome от relogin и поздних ответов; ambiguous retry сохраняет
+  исходный payload существующего atomic RPC. [Проверки](app/review/som-20-onboarding-production-finish/README.md).
+  SQL/live Auth/native/parity и одобрение владельца остаются открыты.
+
 - [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
   terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),

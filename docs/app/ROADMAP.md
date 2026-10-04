@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-20 onboarding: [x] полный service → hook → route/welcome session fence,
+  unknown scoped context, explicit bearer и safe atomic retry; [x] synthetic workflow
+  first trainer → optional client → existing real client read → return, relogin на
+  всех completion I/O и новые SQL returning-connections contracts.
+  [Отчёт](../../app/review/som-20-onboarding-production-finish/README.md).
+  [ ] needs-local-db/CI SQL runtime, live Auth/native/parity и одобрение владельца;
+  issue и экраны не приняты.
+
 - 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
   explicit bearer/result/error/storage guards; [x] session-aware command hook,
   conditional clear/recovery и exact-ID durable retry с synthetic regressions.
