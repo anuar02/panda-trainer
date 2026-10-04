@@ -116,3 +116,33 @@ export function toTrainerOnboardingPayload(
     clientPhone: clientName ? draft.clientPhone.trim() : '',
   };
 }
+
+export const isSafeOnboardingText = (
+  value: unknown,
+  max: number,
+  empty = false,
+): value is string =>
+  typeof value === 'string' &&
+  value.length <= max &&
+  (empty || value.trim().length > 0) &&
+  !/[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/u.test(value);
+
+export function isValidTrainerOnboardingDraft(
+  draft: TrainerOnboardingDraft,
+): boolean {
+  return (
+    isSafeOnboardingText(draft.name.trim(), 120) &&
+    isSafeOnboardingText(draft.clientName.trim(), 120, true) &&
+    isSafeOnboardingText(draft.clientPhone.trim(), 80, true) &&
+    Boolean(draft.clientName.trim() || !draft.clientPhone.trim()) &&
+    draft.focus.every((label) =>
+      welcomeFocusOptions.some((option) => option === label),
+    ) &&
+    draft.days.length > 0 &&
+    draft.days.every((day) => Number.isInteger(day) && day >= 0 && day <= 6) &&
+    /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(draft.from) &&
+    /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(draft.to) &&
+    draft.from < draft.to &&
+    [45, 60, 90].includes(draft.length)
+  );
+}

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -21,6 +21,7 @@ import {
   createTrainerOnboardingDraft,
   getWelcomeDaysLabel,
   getWelcomeNameError,
+  isValidTrainerOnboardingDraft,
   toTrainerOnboardingPayload,
   toggleWelcomeDay,
   toggleWelcomeFocus,
@@ -73,13 +74,16 @@ type StaticWelcomeKey =
   | 'done.schedule'
   | 'done.home'
   | 'errors.nameRequired'
-  | 'errors.save';
+  | 'errors.save'
+  | 'errors.retryOriginal';
 
 type Props = {
   initialName?: string;
   error?: string | null;
   canSchedule?: boolean;
-  onComplete: (draft: TrainerOnboardingDraft) => Promise<void>;
+  onComplete: (
+    draft: TrainerOnboardingDraft,
+  ) => Promise<TrainerOnboardingDraft | void>;
   onClientInvitation: () => void;
   onScheduleFirstSession: () => void;
   onOpenClients: () => void;
@@ -106,7 +110,16 @@ export function WelcomeScreen({
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const nameInput = useRef<TextInput>(null);
-  const submitting = useRef(false);
+  const submitting = useRef<object | null>(null);
+  const mounted = useRef(true);
+  const pendingPayload = useRef<TrainerOnboardingDraft | null>(null);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      submitting.current = null;
+    };
+  }, []);
   const [step, setStep] = useState<WelcomeStep>(0);
   const [draft, setDraft] = useState(() =>
     createTrainerOnboardingDraft(initialName),
@@ -114,6 +127,7 @@ export function WelcomeScreen({
   const [busy, setBusy] = useState(false);
   const [nameError, setNameError] = useState<WelcomeNameError | null>(null);
   const [saveFailed, setSaveFailed] = useState(false);
+  const [retryOriginal, setRetryOriginal] = useState(false);
   const text = (key: StaticWelcomeKey): string => t(`welcome.${key}`) as string;
   const textWithName = (
     key: 'done.title' | 'done.invitePending',
@@ -137,7 +151,7 @@ export function WelcomeScreen({
   });
 
   const complete = async (includeClient: boolean) => {
-    if (submitting.current) return;
+    if (!mounted.current || submitting.current) return;
     const invalidName = getWelcomeNameError(draft.name);
     if (invalidName) {
       setStep(1);
@@ -145,24 +159,39 @@ export function WelcomeScreen({
       nameInput.current?.focus();
       return;
     }
-    submitting.current = true;
+    const generation = {};
+    submitting.current = generation;
     setBusy(true);
     setSaveFailed(false);
+    setRetryOriginal(false);
     setNameError(null);
     try {
-      const payload = toTrainerOnboardingPayload({
-        ...draft,
-        clientName: includeClient ? draft.clientName : '',
-        clientPhone: includeClient ? draft.clientPhone : '',
-      });
-      await onComplete(payload);
-      setDraft(payload);
+      const payload =
+        pendingPayload.current ??
+        toTrainerOnboardingPayload({
+          ...draft,
+          clientName: includeClient ? draft.clientName : '',
+          clientPhone: includeClient ? draft.clientPhone : '',
+        });
+      if (!isValidTrainerOnboardingDraft(payload)) {
+        setSaveFailed(true);
+        return;
+      }
+      pendingPayload.current = payload;
+      const completedDraft = await onComplete(payload);
+      if (!mounted.current || submitting.current !== generation) return;
+      setDraft(completedDraft ?? payload);
       setStep(4);
     } catch {
-      setSaveFailed(true);
+      if (mounted.current && submitting.current === generation) {
+        setSaveFailed(true);
+        setRetryOriginal(pendingPayload.current !== null);
+      }
     } finally {
-      submitting.current = false;
-      setBusy(false);
+      if (mounted.current && submitting.current === generation) {
+        submitting.current = null;
+        setBusy(false);
+      }
     }
   };
 
@@ -341,9 +370,14 @@ export function WelcomeScreen({
   );
 
   const errorNotice = chosenError ? (
-    <Text accessibilityRole="alert" style={styles.error}>
-      {chosenError}
-    </Text>
+    <View>
+      <Text accessibilityRole="alert" style={styles.error}>
+        {chosenError}
+      </Text>
+      {retryOriginal ? (
+        <Text style={styles.error}>{text('errors.retryOriginal')}</Text>
+      ) : null}
+    </View>
   ) : null;
 
   const fieldFocus = (
