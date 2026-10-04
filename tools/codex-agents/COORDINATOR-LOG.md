@@ -624,3 +624,12 @@
 - Summary разобран по(account,task), coordinator исключён: active0/0/0, unstarted0/0/0. Старые OK-файлы аудитом, не queued. Единственный worker FAIL financial-read покрыт merged43/done, retry не нужен. Финальный live open agent PR0. Подходящих новых целых задач нет; норма2–3 не заполняется дубликатами/микробрифами/приёмкой.
 - Блокеры: SOM32 immutable-copy/provenance/version owner policy;41 deletion shared-client/dual-role/legal/export-ack/offline copies/DB-Auth recovery specialist/owner;19 providers/Keychain/two phones;35 native history;38/39/50 Rive/accessibility/native/parity;40 EU/DNS/SMTP/secrets/restore/retention;73 EAS/APNs/FCM/Expo/installed devices и morning operator parameter;42 builds/devices/pilot/acceptance;63 interviews;64 after-pilot;54 voice внеv1. Закрытые решения51–62 не переоткрываются. STOP создан: нет PR/active/допустимых задач. Экраны не приняты.
 - Snapshot перезаписан по живому Linear:49=11 Done/Canceled+38 остальных; UTC/coordinator/groups сохранены, SOM73 owner/In Review. Ради снимка Linear не меняли. Никаких comments/descriptions/new issues/messages/Done/Canceled/decision writes. Queue changes только tasks/done/STOP/COORDINATOR-LOG/явно разрешённый linear-status.json. JSON consistency/git diff --check PASS перед commit; push только origin HEAD:claude/busy-bardeen-3kzcza. Paid/real client data/main/scripts/rules не затронуты.
+
+
+## 2026-10-04 12:00 UTC · решения владельца, STOP снят (Claude)
+
+- SOM-32 разблокирован: ADR 0100 — после тренировки тренеру предлагается «Обновить программу», выбранные упражнения идут в новую immutable копию. Нужна целая задача: migration + transport + экран по прототипу + тесты.
+- SOM-41 удаление: ADR 0101 — карточки у тренеров остаются «без приложения» с историей; двойная роль — удаление своего workspace + отвязка. Юридическая проверка остаётся gate до реальных данных, но реализация отвязки разблокирована.
+- SOM-73: утренняя сводка 07:00 (`PUSH_MORNING_LOCAL_TIME`). Развёртывание push-v1/secrets/cron в пилот — задача Claude/владельца, не агентов.
+- Пилот: применены migrations до `20261004110241`. Все 18 concurrency-скриптов теперь в CI (#70) — DB PR проверяются CI полностью.
+- STOP удалён: есть допустимые целые задачи (SOM-32, SOM-41 deletion).
