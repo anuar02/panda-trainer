@@ -98,3 +98,8 @@ dark/light/default 390×844 parity и одобрение владельца. Т�
 JSONB local initializer `options := '[]'` имел неявный text cast. Исправлено
 явным `'[]'::jsonb`; pgTAP/concurrency/types в этом запуске не дошли до исполнения.
 Повторный запуск проверит исправление; green SQL или приёмка экрана пока не заявлены.
+
+Run [37207761045](https://github.com/anuar02/panda-trainer/actions/runs/37207761045):
+SQL lint PASS; new pgTAP fixture stopped before assertions because it assumed
+template revision 1. Fixture now uses revision returned by save_workout_template
+for assignment and booking; production code unchanged. Repeat runtime pending.

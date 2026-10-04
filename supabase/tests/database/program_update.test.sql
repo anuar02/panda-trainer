@@ -13,7 +13,7 @@ select set_config('test.template',public.save_workout_template(null,null,'Synthe
  jsonb_build_object('exercise_id',(select id from public.exercises where workspace_id='52000000-0000-4000-8000-000000000003' and source_key='e0'),'planned_sets',3,'planned_reps','8'),
  jsonb_build_object('exercise_id',(select id from public.exercises where workspace_id='52000000-0000-4000-8000-000000000003' and source_key='e69'),'planned_sets',2,'planned_seconds','30')
 ),gen_random_uuid())::text,true);
-select set_config('test.source',public.assign_client_program('52000000-0000-4000-8000-000000000004',(current_setting('test.template')::jsonb->>'id')::uuid,1,gen_random_uuid())->>'id',true);
+select set_config('test.source',public.assign_client_program('52000000-0000-4000-8000-000000000004',(current_setting('test.template')::jsonb->>'id')::uuid,(current_setting('test.template')::jsonb->>'revision')::integer,gen_random_uuid())->>'id',true);
 reset role;
 insert into public.bookings(id,workspace_id,client_record_id,starts_at,ends_at,status) values('52000000-0000-4000-8000-000000000005','52000000-0000-4000-8000-000000000003','52000000-0000-4000-8000-000000000004',now()+interval '180 days',now()+interval '180 days 1 hour','confirmed');
 insert into public.workout_instances(id,workspace_id,booking_id,client_record_id,source_program_id,source_program_revision,finished_at) values('52000000-0000-4000-8000-000000000006','52000000-0000-4000-8000-000000000003','52000000-0000-4000-8000-000000000005','52000000-0000-4000-8000-000000000004',current_setting('test.source')::uuid,1,now());
@@ -85,7 +85,7 @@ reset role;
 update public.set_results set reps=11 where id='52000000-0000-4000-8000-000000000009';
 insert into public.client_records(id,workspace_id,display_name) values('52000000-0000-4000-8000-000000000020','52000000-0000-4000-8000-000000000003','Synthetic fresh client');
 set local role authenticated;
-select set_config('test.booking',public.create_booking_set_with_plan(array['52000000-0000-4000-8000-000000000020'::uuid],now()+interval '181 days',now()+interval '181 days 1 hour',false,gen_random_uuid(),(current_setting('test.template')::jsonb->>'id')::uuid,1)::text,true);
+select set_config('test.booking',public.create_booking_set_with_plan(array['52000000-0000-4000-8000-000000000020'::uuid],now()+interval '181 days',now()+interval '181 days 1 hour',false,gen_random_uuid(),(current_setting('test.template')::jsonb->>'id')::uuid,(current_setting('test.template')::jsonb->>'revision')::integer)::text,true);
 select set_config('test.prepared',public.prepare_workout_journal((current_setting('test.booking')::jsonb->'booking_ids'->>0)::uuid,'52000000-0000-4000-8000-000000000021',gen_random_uuid())::text,true);
 select set_config('test.prepared_exercise',(select id::text from public.workout_exercises where workout_instance_id='52000000-0000-4000-8000-000000000021' and position=0),true);
 select set_config('test.saved',public.apply_operations('52000000-0000-4000-8000-000000000003',jsonb_build_array(jsonb_build_object('operation_id',gen_random_uuid(),'entity_id',gen_random_uuid(),'device_id','52000000-0000-4000-8000-000000000010','kind','upsert_set','base_revision',0,'created_at','2026-10-04T12:00:00Z',
