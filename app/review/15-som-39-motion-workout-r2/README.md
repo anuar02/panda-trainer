@@ -90,3 +90,14 @@ SQL/pgTAP не запускались: SQL не менялся, Docker отсу�
 - `git diff --check`: PASS. Graph refresh недоступен, Graft отсутствует.
 - Новых библиотек или изменения общего подхода не было: продолжен Reanimated
   timing/policy из ADR0063/0105; новых ADR/migrations нет.
+
+## Доставка
+
+Implementation commit: `71b30d9a6646ce05ac2c8cf8e11da3f75b26cd9e`.
+`git push -u origin agent/15-som-39-motion-workout-r2`: remote ветка создана.
+`gh pr create --base fix/som-50-template-picker --draft --fill --title … --body-file …`:
+[draft PR #78 · SOM-39](https://github.com/anuar02/panda-trainer/pull/78).
+Read-back `gh pr view --json number,url,state,isDraft,baseRefName,headRefName,headRefOid`:
+OPEN, isDraft=true, правильные base/head и implementation commit.
+GitHub CI не объявлен зелёным до его фактического выполнения; слияние выполняет
+внешний скрипт. Нативная и владельческая приёмка остаются открытыми.

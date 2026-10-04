@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-39, бриф 15 r2: Reanimated-тосты/лицо, общий calm/reduce для шторок и scrim,
+- [SOM-39 / draft PR #78](https://github.com/anuar02/panda-trainer/pull/78), бриф 15 r2: Reanimated-тосты/лицо, общий calm/reduce для шторок и scrim,
   immediate-редакторы подхода, прерываемые шаги, запись только нового подхода,
   выделение нового упражнения, заметки, отдых и pulse demo dock. Voice/hold
   adapters проверены отдельно; кнопка Голос остаётся disabled по SOM-54.
