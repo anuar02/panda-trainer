@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import * as Crypto from 'expo-crypto';
+import {
+  openAssignmentSession,
+  type AssignmentSession,
+} from './assignment-session';
 import {
   clearPendingClientProgramAssignment,
   loadPendingClientProgramAssignment,
@@ -36,6 +40,15 @@ type LoadedPending = {
   error: AssignmentError;
 };
 
+type AssignmentControl = {
+  active: boolean;
+  disposed: boolean;
+  scope: string;
+  attempt: number;
+  session: AssignmentSession | null;
+  lock: symbol | null;
+};
+
 export function useClientProgramAssignment({
   userId,
   workspaceId,
@@ -49,9 +62,22 @@ export function useClientProgramAssignment({
     error: AssignmentError;
   } | null>(null);
   const [attempt, setAttempt] = useState(0);
-  const lock = useRef<symbol | null>(null);
-  const generation = useRef(0);
-  const scope = `${userId ?? ''}:${workspaceId ?? ''}:${clientRecordId}`;
+  const [authGeneration, setAuthGeneration] = useState(0);
+  const control = useRef<AssignmentControl | null>(null);
+  const scopeKey = JSON.stringify([
+    userId,
+    workspaceId,
+    clientRecordId,
+    authGeneration,
+  ]);
+  const [scopeGeneration, setScopeGeneration] = useState({
+    key: scopeKey,
+    value: 0,
+  });
+  if (scopeGeneration.key !== scopeKey) {
+    setScopeGeneration({ key: scopeKey, value: scopeGeneration.value + 1 });
+  }
+  const scope = JSON.stringify([scopeKey, scopeGeneration.value]);
   const scopeRef = useRef(scope);
   const onAssignedRef = useRef(onAssigned);
   const loading = loaded?.scope !== scope || loaded.attempt !== attempt;
@@ -71,67 +97,147 @@ export function useClientProgramAssignment({
         ? loaded.error
         : null;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     onAssignedRef.current = onAssigned;
   }, [onAssigned]);
 
-  useEffect(() => {
-    let active = true;
-    const currentGeneration = ++generation.current;
-    const currentAttempt = attempt;
+  useLayoutEffect(() => {
     scopeRef.current = scope;
+    const token: AssignmentControl = {
+      active: true,
+      disposed: false,
+      scope,
+      attempt,
+      session: null,
+      lock: null,
+    };
+    control.current = token;
+    const isCurrent = () =>
+      token.active &&
+      control.current === token &&
+      scopeRef.current === scope &&
+      (token.session === null || token.session.valid());
     const finish = (value: Omit<LoadedPending, 'attempt'>) => {
-      if (active) setLoaded({ ...value, attempt: currentAttempt });
+      if (isCurrent()) setLoaded({ ...value, attempt });
     };
     if (!userId || !workspaceId) {
       void Promise.resolve().then(() =>
         finish({ scope, pending: null, error: 'unavailable' }),
       );
     } else {
-      void Promise.resolve()
-        .then(() =>
-          loadPendingClientProgramAssignment(
-            userId,
-            workspaceId,
-            clientRecordId,
-          ),
-        )
-        .then(
-          (value) => finish({ scope, pending: value, error: null }),
-          (caught: unknown) =>
-            finish({
-              scope,
-              pending: null,
-              error:
-                caught instanceof PendingClientProgramAssignmentError &&
-                caught.code === 'invalid'
-                  ? 'invalidPending'
-                  : 'storage',
-            }),
-        );
+      try {
+        token.session = openAssignmentSession(userId, (canResume = true) => {
+          if (
+            token.disposed ||
+            control.current !== token ||
+            scopeRef.current !== scope
+          )
+            return;
+          token.active = false;
+          token.lock = null;
+          setLoaded(
+            canResume
+              ? null
+              : { scope, attempt, pending: null, error: 'unavailable' },
+          );
+          setBusyScope(null);
+          setCommandError(null);
+          if (canResume) setAuthGeneration((value) => value + 1);
+        });
+        void Promise.resolve()
+          .then(async () => {
+            if (!isCurrent()) return null;
+            try {
+              await token.session?.token(userId);
+            } catch {
+              throw new WorkspaceProgramAssignmentError('unavailable');
+            }
+            if (!isCurrent()) return null;
+            return loadPendingClientProgramAssignment(
+              userId,
+              workspaceId,
+              clientRecordId,
+              isCurrent,
+            );
+          })
+          .then(
+            (value) => finish({ scope, pending: value, error: null }),
+            (caught: unknown) =>
+              finish({
+                scope,
+                pending: null,
+                error:
+                  caught instanceof WorkspaceProgramAssignmentError
+                    ? caught.code
+                    : caught instanceof PendingClientProgramAssignmentError &&
+                        caught.code === 'invalid'
+                      ? 'invalidPending'
+                      : 'storage',
+              }),
+          );
+      } catch (caught) {
+        finish({
+          scope,
+          pending: null,
+          error:
+            caught instanceof WorkspaceProgramAssignmentError
+              ? caught.code
+              : 'unavailable',
+        });
+      }
     }
     return () => {
-      active = false;
-      if (generation.current === currentGeneration) generation.current += 1;
+      token.active = false;
+      token.disposed = true;
+      token.lock = null;
+      token.session?.dispose();
     };
   }, [attempt, clientRecordId, scope, userId, workspaceId]);
 
   const reload = useCallback(() => {
+    const token = control.current;
+    if (
+      !token?.active ||
+      token.scope !== scope ||
+      token.attempt !== attempt ||
+      scopeRef.current !== scope ||
+      (token.session !== null && !token.session.valid())
+    )
+      return;
     setCommandError(null);
+    setBusyScope(null);
+    token.active = false;
+    token.disposed = true;
+    token.lock = null;
+    token.session?.dispose();
     setAttempt((value) => value + 1);
-  }, []);
+  }, [attempt, scope]);
 
   const assign = useCallback(
     async (templateId?: string, expectedTemplateRevision?: number) => {
-      if (lock.current || loading || busy || !ready || !userId || !workspaceId)
+      const token = control.current;
+      if (
+        !token?.active ||
+        token.scope !== scope ||
+        token.attempt !== attempt ||
+        scopeRef.current !== scope ||
+        !token.session?.valid() ||
+        token.lock ||
+        loading ||
+        busy ||
+        !ready ||
+        !userId ||
+        !workspaceId
+      )
         return;
       const operationScope = scope;
-      const operationGeneration = generation.current;
       const lockToken = Symbol();
-      lock.current = lockToken;
+      token.lock = lockToken;
       const isCurrent = () =>
-        generation.current === operationGeneration &&
-        scopeRef.current === operationScope;
+        token.active &&
+        control.current === token &&
+        scopeRef.current === operationScope &&
+        token.session?.valid() === true;
       setBusyScope(operationScope);
       setCommandError({ scope: operationScope, error: null });
       try {
@@ -157,6 +263,7 @@ export function useClientProgramAssignment({
               userId,
               workspaceId,
               command,
+              isCurrent,
             );
             if (!isCurrent()) return;
             setLoaded({
@@ -175,6 +282,7 @@ export function useClientProgramAssignment({
                 userId,
                 workspaceId,
                 clientRecordId,
+                isCurrent,
               );
               if (!isCurrent()) return;
               setLoaded({
@@ -208,6 +316,7 @@ export function useClientProgramAssignment({
           expectedTemplateRevision: command.expectedTemplateRevision,
           expectedUserId: userId,
           requestId: command.requestId,
+          session: token.session,
         });
         try {
           const result = await operation.execute();
@@ -217,12 +326,14 @@ export function useClientProgramAssignment({
             workspaceId,
             clientRecordId,
             command.requestId,
+            isCurrent,
           );
           if (!isCurrent()) return;
           const latest = await loadPendingClientProgramAssignment(
             userId,
             workspaceId,
             clientRecordId,
+            isCurrent,
           );
           if (!isCurrent()) return;
           setLoaded({
@@ -247,12 +358,14 @@ export function useClientProgramAssignment({
               workspaceId,
               clientRecordId,
               command.requestId,
+              isCurrent,
             );
             if (!isCurrent()) return;
             const latest = await loadPendingClientProgramAssignment(
               userId,
               workspaceId,
               clientRecordId,
+              isCurrent,
             );
             if (!isCurrent()) return;
             setLoaded({
@@ -288,9 +401,9 @@ export function useClientProgramAssignment({
                   : 'storage',
           });
       } finally {
-        if (lock.current === lockToken) {
-          lock.current = null;
-          setBusyScope(null);
+        if (token.lock === lockToken) {
+          token.lock = null;
+          if (isCurrent()) setBusyScope(null);
         }
       }
     },

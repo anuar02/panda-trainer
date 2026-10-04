@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 03.10.2026 — SOM-24 r2: восстановлен полный пакет PR #46 без слияния;
+  [x] verified JWT sub/session_id fence transport/hook и durable retry;
+  свежая база с SOM-20/SOM-22 read fencing сохранена, ADR остаётся 0080.
+  Полный check: 1846 tests / 163 suites, type/lint/format зелёные.
+  Текущие проверки — в [отчёте r2](../../app/review/som-24-assignment-session-fencing-r2/README.md).
+  [ ] live auth/SQL/RLS/concurrent receipts, real storage/reopen/crash,
+  native/parity и одобрение владельца. SOM-24 целиком не закрыта.
+  [ADR 0082](decisions/0082-program-assignment-session-fencing.md).
 - 03.10.2026 — SOM-24 client program read: [x] actor/client/session fence, explicit bearer, bounded validated lines и hook auth/retry/focus reset; [ ] SQL/RLS/live auth/native/parity/storage crash и одобрение владельца. Assignment не менялся; интеграция после invitation read. [Отчёт](../../app/review/som-24-client-program-read-fencing/README.md), [ADR 0081](decisions/0081-client-program-read-session-fencing.md). Issue и экран не приняты.
 - 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
   SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
