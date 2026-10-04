@@ -92,6 +92,7 @@ const decode = (raw: string): WorkspaceProposalCommand => {
     throw new PendingWorkspaceProposalError('invalid');
   return snapshotWorkspaceProposalCommand(value);
 };
+const recovery = new Map<string, string>();
 let operations = Promise.resolve();
 async function serialize<T>(operation: () => Promise<T>): Promise<T> {
   const previous = operations;
@@ -112,10 +113,16 @@ async function serialize<T>(operation: () => Promise<T>): Promise<T> {
 export function loadPendingWorkspaceProposal(
   userId: string,
   workspaceId: string,
+  guard: () => void = () => {},
 ): Promise<WorkspaceProposalCommand | null> {
   const key = keyFor(userId, workspaceId);
   return serialize(async () => {
-    const raw = await AsyncStorage.getItem(key);
+    guard();
+    const stored = await AsyncStorage.getItem(key);
+    guard();
+    if (stored !== null && recovery.has(key) && stored !== recovery.get(key))
+      recovery.delete(key);
+    const raw = stored ?? recovery.get(key) ?? null;
     return raw === null ? null : decode(raw);
   });
 }
@@ -123,32 +130,75 @@ export function savePendingWorkspaceProposal(
   userId: string,
   workspaceId: string,
   value: WorkspaceProposalCommand,
+  guard: () => void = () => {},
 ): Promise<void> {
   const key = keyFor(userId, workspaceId);
   if (!validWorkspaceProposalCommand(value))
     throw new PendingWorkspaceProposalError('invalid');
   const saved = snapshotWorkspaceProposalCommand(value);
   return serialize(async () => {
-    const raw = await AsyncStorage.getItem(key);
+    guard();
+    const stored = await AsyncStorage.getItem(key);
+    guard();
+    const raw = stored ?? recovery.get(key) ?? null;
     if (raw !== null) {
-      if (JSON.stringify(decode(raw)) === JSON.stringify(saved)) return;
-      throw new PendingWorkspaceProposalError('unresolved');
+      if (JSON.stringify(decode(raw)) === JSON.stringify(saved)) {
+        if (stored !== null) return;
+      } else throw new PendingWorkspaceProposalError('unresolved');
     }
+    guard();
     await AsyncStorage.setItem(key, JSON.stringify(saved));
+    recovery.delete(key);
+    guard();
   });
 }
 export function clearPendingWorkspaceProposal(
   userId: string,
   workspaceId: string,
   requestId: string,
+  guard: () => void = () => {},
+  expectedCommand?: WorkspaceProposalCommand,
 ): Promise<boolean> {
   const key = keyFor(userId, workspaceId);
   if (!uuid(requestId)) throw new PendingWorkspaceProposalError('invalid');
   return serialize(async () => {
-    const raw = await AsyncStorage.getItem(key);
+    guard();
+    const stored = await AsyncStorage.getItem(key);
+    const raw = stored ?? recovery.get(key) ?? null;
+    guard();
     if (raw === null || decode(raw).requestId !== requestId.toLowerCase())
       return false;
+    guard();
+    if (
+      expectedCommand &&
+      JSON.stringify(snapshotWorkspaceProposalCommand(decode(raw))) !==
+        JSON.stringify(snapshotWorkspaceProposalCommand(expectedCommand))
+    )
+      return false;
     await AsyncStorage.removeItem(key);
+    recovery.delete(key);
     return true;
+  });
+}
+
+export function retainPendingWorkspaceProposal(
+  userId: string,
+  workspaceId: string,
+  command: WorkspaceProposalCommand,
+): Promise<void> {
+  const key = keyFor(userId, workspaceId);
+  if (!validWorkspaceProposalCommand(command))
+    throw new PendingWorkspaceProposalError('invalid');
+  const raw = JSON.stringify(snapshotWorkspaceProposalCommand(command));
+  recovery.set(key, raw);
+  return serialize(async () => {
+    const stored = await AsyncStorage.getItem(key);
+    if (stored === null) {
+      await AsyncStorage.setItem(key, raw);
+    } else if (stored !== raw) {
+      recovery.delete(key);
+      return;
+    }
+    recovery.delete(key);
   });
 }

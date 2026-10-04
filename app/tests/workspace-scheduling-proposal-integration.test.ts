@@ -1,3 +1,5 @@
+import { schedulingAuthFixture } from './scheduling-command-auth-fixture';
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/features/auth/client';
@@ -61,7 +63,12 @@ const getSession = jest.fn();
 const header = jest.fn();
 const rpc = jest.fn().mockImplementation(() => ({ setHeader: header }));
 const session = (id: string) => ({
-  data: { session: { user: { id }, access_token: `token-${id}` } },
+  data: {
+    session: {
+      user: { id },
+      access_token: bookingAuthFixture(id).session().access_token,
+    },
+  },
   error: null,
 });
 beforeEach(async () => {
@@ -70,7 +77,8 @@ beforeEach(async () => {
   getSession.mockResolvedValue(session(userId));
   header.mockResolvedValue({ data: receipt, error: null });
   jest.mocked(getSupabaseClient).mockReturnValue({
-    auth: { getSession },
+    auth: { ...bookingAuthFixture(userId).auth, getSession },
+    from: schedulingAuthFixture(userId, workspaceId).from,
     rpc,
   } as unknown as SupabaseClient<Database>);
 });

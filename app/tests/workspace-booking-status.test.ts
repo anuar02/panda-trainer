@@ -1,3 +1,4 @@
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/features/auth/client';
 import {
@@ -28,11 +29,16 @@ const setup = (data: unknown = result()) => {
   const header = jest.fn().mockResolvedValue({ data, error: null });
   const rpc = jest.fn().mockReturnValue({ setHeader: header });
   const getSession = jest.fn().mockResolvedValue({
-    data: { session: { user: { id: userId }, access_token: 'test-token' } },
+    data: {
+      session: {
+        user: { id: userId },
+        access_token: bookingAuthFixture(userId).session().access_token,
+      },
+    },
     error: null,
   });
   getClient.mockReturnValue({
-    auth: { getSession },
+    auth: { ...bookingAuthFixture(userId).auth, getSession },
     rpc,
   } as unknown as SupabaseClient<Database>);
   return { header, rpc, getSession };
@@ -43,16 +49,19 @@ test('pins auth and shares in-flight and completed confirmation', async () => {
   const { header, rpc } = setup();
   const operation = createWorkspaceBookingStatusOperation(input());
   const first = operation.execute();
-  expect(operation.execute()).toBe(first);
+  await expect(operation.execute()).resolves.toEqual(await first);
   expect(await first).toEqual({
     bookingId,
     revision: 4,
     status: 'confirmed',
     replayed: false,
   });
-  expect(operation.execute()).toBe(first);
+  await expect(operation.execute()).resolves.toEqual(await first);
   expect(rpc).toHaveBeenCalledTimes(1);
-  expect(header).toHaveBeenCalledWith('Authorization', 'Bearer test-token');
+  expect(header).toHaveBeenCalledWith(
+    'Authorization',
+    `Bearer ${bookingAuthFixture(userId).session().access_token}`,
+  );
 });
 test.each(['cancelled_by_client', 'cancelled_by_trainer'])(
   'routes cancellation and accepts %s',

@@ -23,7 +23,7 @@ import { scheduleClock } from '../workspace-scheduling/screen-adapter';
 import type { ClientScheduleBooking, ClientScheduleProposal } from './service';
 import type { WorkspaceProposalCommand } from '../workspace-scheduling/proposal-operation';
 
-export function ClientBookingControls({
+function ClientBookingControlsContent({
   userId,
   workspaceId,
   timezone,
@@ -435,5 +435,32 @@ export function ClientBookingStatusRecovery({
         />
       ) : null}
     </Card>
+  );
+}
+
+export function ClientBookingControls(
+  props: Parameters<typeof ClientBookingControlsContent>[0],
+) {
+  return (
+    <ClientBookingControlsContent
+      key={JSON.stringify([
+        props.userId,
+        props.workspaceId,
+        props.clientRecordId,
+        props.booking.id,
+        props.booking.revision,
+        props.proposalStore.scopeKey,
+        props.statusStore.scopeKey,
+        props.proposals
+          .filter((row) => row.bookingId === props.booking.id)
+          .map((row) => [
+            row.id,
+            row.revision,
+            row.baseRevision,
+            row.authorRole,
+          ]),
+      ])}
+      {...props}
+    />
   );
 }

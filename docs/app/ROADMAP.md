@@ -9,6 +9,15 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-27: [x] обе роли status/propose/counter/accept/decline/withdraw,
+  actor/workspace/client/session fencing, exact durable replay/resolution и
+  UI/provider generations; [x] synthetic transport/store/hooks/controls regressions,
+  additive pgTAP и cancellation-penalty concurrency scenarios.
+  [Отчёт](../../app/review/som-27-reschedule-production-finish/README.md),
+  [ADR 0089](decisions/0089-booking-command-session-and-recovery.md).
+  [ ] needs-local-db: SQL/RLS/Auth/concurrency/types; real storage/crash/reopen,
+  два телефона, native/parity/accessibility и одобрение владельца. Не принята.
+
 - 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
   explicit bearer/result/error/storage guards; [x] session-aware command hook,
   conditional clear/recovery и exact-ID durable retry с synthetic regressions.

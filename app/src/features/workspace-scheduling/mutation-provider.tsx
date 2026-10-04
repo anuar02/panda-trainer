@@ -1,6 +1,9 @@
+import { getSupabaseClient } from '@/features/auth/client';
+import { scheduleSessionId } from './read-session';
 import {
   createContext,
   useContext,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -24,9 +27,46 @@ type MutationState = Scope & {
 const Context = createContext<MutationState | null>(null);
 
 export function WorkspaceMutationProvider(props: PropsWithChildren<Scope>) {
+  const [sessionEpoch, setSessionEpoch] = useState(0);
+  useEffect(() => {
+    const client = getSupabaseClient();
+    if (!client) return;
+    let active = true;
+    let identity: string | null = null;
+    let version = 0;
+    const subscription = client.auth.onAuthStateChange((event, session) => {
+      const next = scheduleSessionId(session);
+      if (event === 'INITIAL_SESSION') {
+        identity = next;
+        return;
+      }
+      if (
+        event === 'TOKEN_REFRESHED' &&
+        identity &&
+        next === identity &&
+        session?.user.id.toLowerCase() === props.userId.toLowerCase()
+      )
+        return;
+      version += 1;
+      identity = next;
+      if (active) setSessionEpoch((value) => value + 1);
+    }).data.subscription;
+    const started = version;
+    void client.auth.getSession().then(
+      (result) => {
+        if (active && version === started && !result.error)
+          identity = scheduleSessionId(result.data.session);
+      },
+      () => {},
+    );
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [props.userId]);
   return (
     <MutationContent
-      key={JSON.stringify([props.userId, props.workspaceId])}
+      key={JSON.stringify([props.userId, props.workspaceId, sessionEpoch])}
       {...props}
     />
   );

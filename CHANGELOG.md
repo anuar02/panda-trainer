@@ -9,6 +9,14 @@
 
 ## Не выпущено
 
+- SOM-27: переносы и отмены обеих ролей закреплены за login/workspace/client,
+  durable recovery проверяет exact payload/requestId, UI callbacks и общий lock
+  не пересекают поколения. Дополнены synthetic workflow/regression, pgTAP и
+  concurrency проверки отдельного списания с причиной; серверная policy и
+  billing implementation сохранены. [Отчёт](app/review/som-27-reschedule-production-finish/README.md),
+  [ADR 0089](docs/app/decisions/0089-booking-command-session-and-recovery.md).
+  SQL/native/parity и приёмка владельца открыты.
+
 - [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
   terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),
