@@ -373,7 +373,6 @@ export function createWorkoutPreloadReader(
               {
                 ...scoped,
                 workout_instance_id: `eq.${parentId}`,
-                deleted_at: 'is.null',
               },
               'position.asc,id.asc',
             );
@@ -384,7 +383,7 @@ export function createWorkoutPreloadReader(
               if (
                 row.workout_instance_id !== parentId ||
                 !exercise ||
-                row.deleted_at !== null ||
+                (row.deleted_at !== null && !timestamp(row.deleted_at)) ||
                 !integer(row.position) ||
                 !integer(row.revision, 1) ||
                 !nullableInteger(row.reps) ||
@@ -398,6 +397,9 @@ export function createWorkoutPreloadReader(
                 return fail();
               const set: PreloadSet = {
                 id: row.id as string,
+                ...(row.deleted_at === null
+                  ? {}
+                  : { deletedAt: row.deleted_at as string }),
                 position: row.position,
                 revision: row.revision,
                 reps: row.reps,
@@ -443,7 +445,7 @@ export function createWorkoutPreloadReader(
           )) {
             if (
               !unresolved.has(old.exerciseId) ||
-              !old.sets.length ||
+              !old.sets.some((set) => !set.deletedAt) ||
               !historyLines.some(
                 (line) =>
                   line.exerciseId === old.exerciseId &&
@@ -456,7 +458,7 @@ export function createWorkoutPreloadReader(
                 line.exerciseId === old.exerciseId &&
                 line.measure === old.measure
               )
-                line.previousSets = old.sets;
+                line.previousSets = old.sets.filter((set) => !set.deletedAt);
             unresolved.delete(old.exerciseId);
           }
         }

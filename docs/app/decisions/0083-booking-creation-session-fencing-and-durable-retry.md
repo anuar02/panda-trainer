@@ -1,4 +1,4 @@
-# 0080. Session fence создания занятия и durable retry
+# 0083. Session fence создания занятия и durable retry
 
 - **Статус:** Реализовано технически; runtime и приёмка открыты
 - **Дата:** 03.10.2026

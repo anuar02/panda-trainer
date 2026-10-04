@@ -10,6 +10,9 @@ SOM-41, review checklist от 03.10.2026, база 4758705.
 Техническое выявление препятствий без удаления: [preflight-контракт](DELETION-PREFLIGHT-CONTRACT.md).
 Pure evaluator не авторизует delete; все незавершённые gates ниже остаются открытыми.
 
+Изолированный [local export contract](LOCAL-EXPORT-CONTRACT.md) сохраняет typed journal
+данные, но не создаёт export/ack proof; collector и реальное file result открыты.
+
 ## Серверная авторизация и область удаления
 
 - [ ] Проверить сервером действующую сессию и личность инициатора; не доверять
