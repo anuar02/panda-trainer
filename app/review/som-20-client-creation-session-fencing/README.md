@@ -74,4 +74,9 @@ No real client data or paid services used. Existing styles, layout, texts,
 validation, prototype and parity specs unchanged; no visual acceptance claimed.
 Screens and issue remain subject to owner acceptance.
 
-Architecture: [ADR 0086](../../../docs/app/decisions/0086-client-creation-session-fencing.md).
+Architecture: [ADR 0088](../../../docs/app/decisions/0088-client-creation-session-fencing.md).
+
+## Coordinator integration · 04.10.2026
+
+Fresh base a8403a6 (merged PR53) integrated. Client creation ADR renumbered 0088;
+financial ADR0086 retained. CI validates the combined head; local check not duplicated.
