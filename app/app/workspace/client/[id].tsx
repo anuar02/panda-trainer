@@ -15,6 +15,7 @@ import { useClientRead } from '@/features/workspace-clients/use-client-read';
 import { Screen } from '@/ui/screen';
 import { Button } from '@/ui/button';
 import { useClientProgramAssignment } from '@/features/workspace-programs/use-assignment';
+import { ClientFinancialMetrics } from '@/features/trainer-billing/client-financial-metrics';
 import { ClientPurchaseControls } from '@/features/trainer-billing/client-purchase-controls';
 import { WorkspaceMutationBoundary } from '@/features/workspace-scheduling/mutation-provider';
 
@@ -68,6 +69,14 @@ function ClientDetails({
       onRetry={read.retry}
       onBack={() => router.replace('/workspace/clients')}
       initialTab={initialTab}
+      financialContent={
+        <ClientFinancialMetrics
+          userId={userId}
+          workspaceId={workspaceId}
+          clientRecordId={clientId}
+          timezone={timezone}
+        />
+      }
       billingContent={
         <ClientPurchaseControls
           userId={userId}

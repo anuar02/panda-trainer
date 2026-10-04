@@ -105,3 +105,5 @@
 
 | [0091](0091-exercise-mutation-session-and-replay.md) | Exercise mutation session fence и durable UUID replay | Реализовано технически; SQL/runtime/owner acceptance открыты | 04.10.2026 |
 | [0089](0089-terminal-finish-current-recovery.md) | Продолжение ввода после доказанного current finish resolution | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0094](0094-financial-presentation-and-client-totals.md) | Financial presentation lifecycle и scoped totals карточки клиента | Реализовано технически; SQL/runtime/parity/owner acceptance открыты | 04.10.2026 |

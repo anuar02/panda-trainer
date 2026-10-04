@@ -173,7 +173,8 @@ test('opens the real billing tab from its route and reads only the selected clie
   await waitFor(() => expect(screen.getByText('Реальный пакет')).toBeTruthy());
   expect(read).toHaveBeenCalledWith(userId, workspaceId, clientId);
   expect(screen.getByRole('tab', { name: 'Оплаты' })).toBeSelected();
-  expect(screen.getByText('1 250,50 ₸')).toBeTruthy();
+  expect(screen.getAllByText('1 250,50 ₸')).toHaveLength(2);
+  expect(screen.getByText('5')).toBeTruthy();
   expect(screen.getByText('5 · использовано 0')).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Записать оплату' })).toBeEnabled();
   expect(screen.queryByText('Оплачено')).toBeNull();

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../../ui/sheet';
@@ -6,6 +6,7 @@ import { Field } from '../../ui/field';
 import { Button } from '../../ui/button';
 import { Text } from '../../ui/text';
 import type { CreateClientPurchaseInput } from './types';
+import { useFinancialFormLifecycle } from './use-form-lifecycle';
 import { date, minorMoney, positiveInteger } from './validation';
 export type PurchaseCreateInput = Pick<
   CreateClientPurchaseInput,
@@ -17,6 +18,7 @@ type Props = {
   busy?: boolean;
   disabled?: boolean;
   error?: string | null;
+  isCurrent?: () => boolean;
   onClose: () => void;
   onSubmit: (input: PurchaseCreateInput) => Promise<boolean>;
 };
@@ -32,14 +34,23 @@ export function parsePurchasePrice(value: string): string | null {
 }
 export function PurchaseCreateSheet(props: Props) {
   const { t } = useTranslation();
+  const lifecycle = useFinancialFormLifecycle(props.isCurrent);
+  const close = () => lifecycle.close(props.onClose);
   return (
     <Sheet
       open={props.open}
       title={t('trainerBillingPurchase.title')}
-      onClose={props.onClose}
+      onClose={close}
       closeLabel={t('trainerPayments.cancel')}
     >
-      {props.open && <PurchaseCreateForm {...props} />}
+      {props.open && (
+        <PurchaseCreateForm
+          key={lifecycle.version}
+          {...props}
+          isCurrent={lifecycle.isCurrent}
+          onClose={close}
+        />
+      )}
     </Sheet>
   );
 }
@@ -48,6 +59,7 @@ function PurchaseCreateForm({
   busy = false,
   disabled = false,
   error,
+  isCurrent = () => true,
   onClose,
   onSubmit,
 }: Props) {
@@ -61,7 +73,7 @@ function PurchaseCreateForm({
   const [failed, setFailed] = useState(false);
   const locked = useRef(false);
   const active = useRef(true);
-  useEffect(() => {
+  useLayoutEffect(() => {
     active.current = true;
     return () => {
       active.current = false;
@@ -75,7 +87,7 @@ function PurchaseCreateForm({
   const expiryValid = expiresOn === null || date(expiresOn);
   const blocked = busy || disabled || submitting;
   const submit = async () => {
-    if (blocked || locked.current) return;
+    if (!active.current || !isCurrent() || blocked || locked.current) return;
     setAttempted(true);
     if (!titleValid || !unitsValid || priceMinor === null || !expiryValid)
       return;
@@ -89,15 +101,15 @@ function PurchaseCreateForm({
         priceMinor,
         expiresOn,
       });
-      if (active.current) {
+      if (active.current && isCurrent()) {
         if (saved) onClose();
         else setFailed(true);
       }
     } catch {
-      if (active.current) setFailed(true);
+      if (active.current && isCurrent()) setFailed(true);
     } finally {
       locked.current = false;
-      if (active.current) setSubmitting(false);
+      if (active.current && isCurrent()) setSubmitting(false);
     }
   };
   return (

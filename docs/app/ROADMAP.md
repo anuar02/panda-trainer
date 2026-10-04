@@ -9,6 +9,15 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-34 production flow: [x] реальные header totals и billing,
+  частичная/полная оплата, debt и one-row reversal history; [x] session/caller/
+  generation/dismiss fencing форм и own-client durable recovery; [x] synthetic
+  read+command+controller workflow и новый SQL rollback/workflow test.
+  [Отчёт](../../app/review/05-som-34-billing-production-finish/README.md),
+  [ADR 0094](decisions/0094-financial-presentation-and-client-totals.md).
+  [ ] needs-local-db для Claude/CI; [ ] live Auth/storage/crash/reopen/native,
+  два устройства, parity и одобрение владельца. SOM-47 и приёмка не включены.
+
 - 04.10.2026 — SOM-27: [x] обе роли status/propose/counter/accept/decline/withdraw,
   actor/workspace/client/session fencing, exact durable replay/resolution и
   UI/provider generations; [x] synthetic transport/store/hooks/controls regressions,

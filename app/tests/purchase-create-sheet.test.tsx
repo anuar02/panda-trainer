@@ -135,3 +135,30 @@ test('dismissal clears form and old completion cannot close a reopened sheet', a
   expect(close).not.toHaveBeenCalled();
   expect(screen.getByLabelText(key('name')).props.value).toBe('');
 });
+
+test('caller cancellation during deferred failure cannot publish feedback or close', async () => {
+  let current = true;
+  let complete: (value: boolean) => void = () => {};
+  const submit = jest.fn(
+    () =>
+      new Promise<boolean>((resolve) => {
+        complete = resolve;
+      }),
+  );
+  const close = jest.fn();
+  const screen = await render(
+    <PurchaseCreateSheet
+      open
+      clientName="Client"
+      isCurrent={() => current}
+      onClose={close}
+      onSubmit={submit}
+    />,
+  );
+  await fill(screen);
+  await fireEvent.press(screen.getByText(key('save')));
+  current = false;
+  await act(async () => complete(false));
+  expect(close).not.toHaveBeenCalled();
+  expect(screen.queryByText(key('submitError'))).toBeNull();
+});

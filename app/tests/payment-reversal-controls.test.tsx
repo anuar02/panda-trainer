@@ -4,6 +4,11 @@ import { ClientPurchaseControls } from '../src/features/trainer-billing/client-p
 import type { TrainerBillingCommand } from '../src/features/trainer-billing/commands';
 import type { PaymentEntry } from '../src/features/trainer-payments/types';
 
+import { mutationAuth } from './financial-mutation-fixtures';
+jest.mock('../src/features/auth/client', () => ({
+  getSupabaseClient: jest.fn(),
+}));
+let mockAuth: ReturnType<typeof mutationAuth>;
 const id = (n: number) =>
   `91000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 const props = {
@@ -119,6 +124,8 @@ jest.mock('expo-crypto', () => ({
 }));
 beforeEach(() => {
   jest.clearAllMocks();
+  mockAuth = mutationAuth(props.userId);
+  mockAuth.install();
   mockEntries = [payment];
   mockPending = null;
   mockGeneration = 0;
@@ -249,3 +256,164 @@ test('same-client storage error allows recovery reload without sending a new rev
   expect(mockResume).not.toHaveBeenCalled();
   expect(mockSubmit).not.toHaveBeenCalled();
 });
+
+async function openPayment() {
+  await fireEvent.press(screen.getByText('Записать оплату'));
+}
+test.each(['payment', 'purchase', 'reversal'])(
+  'generation resets %s draft and old completion cannot close a fresh form',
+  async (form) => {
+    mockEntries = [];
+    if (form === 'reversal') mockEntries = [payment];
+    let complete: (value: boolean) => void = () => {};
+    mockSubmit.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve;
+        }),
+    );
+    const view = await render(<ClientPurchaseControls {...props} />);
+    if (form === 'payment') {
+      await openPayment();
+      await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '1');
+      await fireEvent.press(screen.getAllByText('Записать оплату').at(-1)!);
+    } else if (form === 'purchase') {
+      await fireEvent.press(screen.getByText('Добавить пакет'));
+      await fireEvent.changeText(screen.getByLabelText('Название'), 'Черновик');
+      await fireEvent.changeText(
+        screen.getByLabelText('Количество занятий'),
+        '2',
+      );
+      await fireEvent.changeText(screen.getByLabelText('Стоимость, ₸'), '1');
+      await fireEvent.press(screen.getAllByText('Добавить пакет').at(-1)!);
+    } else {
+      await open();
+      await fireEvent.press(screen.getByText('Подтвердить отмену'));
+    }
+    mockGeneration += 1;
+    await view.rerender(<ClientPurchaseControls {...props} />);
+    expect(screen.queryByLabelText('Сумма, ₸')).toBeNull();
+    expect(screen.queryByLabelText('Название')).toBeNull();
+    expect(screen.queryByLabelText('Причина отмены')).toBeNull();
+    await fireEvent.press(screen.getByText('Добавить пакет'));
+    await fireEvent.changeText(
+      screen.getByLabelText('Название'),
+      'Новая форма',
+    );
+    await act(async () => complete(true));
+    expect(screen.getByLabelText('Название').props.value).toBe('Новая форма');
+    expect(screen.getByLabelText('Название').props.editable).toBe(true);
+    expect(mockReadRetry).toHaveBeenCalledTimes(1);
+    expect(mockPaymentsRetry).toHaveBeenCalledTimes(1);
+  },
+);
+test.each([true, false])(
+  'same-user relogin fresh form rejects late outcome %s',
+  async (outcome) => {
+    mockEntries = [];
+    let complete: (value: boolean) => void = () => {};
+    mockSubmit.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve;
+        }),
+    );
+    await render(<ClientPurchaseControls {...props} />);
+    await openPayment();
+    await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '1');
+    await fireEvent.press(screen.getAllByText('Записать оплату').at(-1)!);
+    await act(async () => {
+      mockAuth.emit('SIGNED_OUT', null);
+      mockAuth.emit('SIGNED_IN', mockAuth.session(props.userId, id(90)));
+    });
+    expect(screen.queryByLabelText('Сумма, ₸')).toBeNull();
+    await openPayment();
+    await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '2');
+    await act(async () => complete(outcome));
+    expect(screen.getByLabelText('Сумма, ₸').props.value).toBe('2');
+    expect(screen.getByLabelText('Сумма, ₸').props.editable).toBe(true);
+    expect(
+      screen.queryByText('Не удалось записать оплату. Попробуйте ещё раз.'),
+    ).toBeNull();
+  },
+);
+test('verified token refresh preserves current form and permits its normal completion', async () => {
+  mockEntries = [];
+  let complete: (value: boolean) => void = () => {};
+  mockSubmit.mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        complete = resolve;
+      }),
+  );
+  await render(<ClientPurchaseControls {...props} />);
+  await openPayment();
+  await fireEvent.changeText(screen.getByLabelText('Сумма, ₸'), '1');
+  await fireEvent.press(screen.getAllByText('Записать оплату').at(-1)!);
+  await act(async () =>
+    mockAuth.emit(
+      'TOKEN_REFRESHED',
+      mockAuth.session(props.userId, undefined, 2),
+    ),
+  );
+  expect(screen.getByLabelText('Сумма, ₸').props.value).toBe('1');
+  await act(async () => complete(true));
+  expect(screen.queryByLabelText('Сумма, ₸')).toBeNull();
+});
+
+test('dismissal of a busy reversal preserves the command and old completion cannot close a reopened confirmation', async () => {
+  let complete: (value: boolean) => void = () => {};
+  mockSubmit.mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        complete = resolve;
+      }),
+  );
+  await render(<ClientPurchaseControls {...props} />);
+  await open();
+  await fireEvent.press(screen.getByText('Подтвердить отмену'));
+  await fireEvent.press(screen.getByText('Отмена'));
+  expect(screen.queryByLabelText('Причина отмены')).toBeNull();
+  await fireEvent.press(screen.getByText('Отменить оплату'));
+  expect(screen.getByLabelText('Причина отмены').props.value).toBe('');
+  await fireEvent.changeText(
+    screen.getByLabelText('Причина отмены'),
+    'Новая причина',
+  );
+  await act(async () => complete(true));
+  expect(screen.getByLabelText('Причина отмены').props.value).toBe(
+    'Новая причина',
+  );
+  expect(screen.getByLabelText('Причина отмены').props.editable).toBe(true);
+  expect(mockSubmit).toHaveBeenCalledTimes(1);
+});
+test.each(['recordPayment', 'createPurchase'])(
+  'a foreign-client %s pending cannot resume from this client',
+  async (action) => {
+    mockPending =
+      action === 'recordPayment'
+        ? {
+            action: 'recordPayment',
+            purchaseId: id(80),
+            amountMinor: '100',
+            method: 'Kaspi',
+            paidOn: '2026-10-04',
+            requestId: id(99),
+          }
+        : {
+            action: 'createPurchase',
+            clientRecordId: id(80),
+            title: 'Пакет',
+            units: 8,
+            priceMinor: '100',
+            requestId: id(99),
+          };
+    await render(<ClientPurchaseControls {...props} />);
+    const retry = screen.getByRole('button', { name: 'Попробовать снова' });
+    expect(retry.props.accessibilityState.disabled).toBe(true);
+    await fireEvent.press(retry);
+    expect(mockResume).not.toHaveBeenCalled();
+    expect(mockReload).not.toHaveBeenCalled();
+    expect(mockSubmit).not.toHaveBeenCalled();
+  },
+);

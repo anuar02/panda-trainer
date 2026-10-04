@@ -154,3 +154,48 @@ test('cancel closes without submitting and invalid date explains disabled save',
   expect(props.onClose).toHaveBeenCalledTimes(1);
   expect(props.onSubmit).not.toHaveBeenCalled();
 });
+
+test('same-title purchases use their IDs and a late result cannot close the newly selected purchase', async () => {
+  let complete: (value: boolean) => void = () => {};
+  const submit = jest.fn(
+    () =>
+      new Promise<boolean>((resolve) => {
+        complete = resolve;
+      }),
+  );
+  const screen = await render(
+    <PaymentSheet {...props} purchaseId="first" onSubmit={submit} />,
+  );
+  await fireEvent.changeText(screen.getByLabelText(key('amount')), '40');
+  await fireEvent.press(screen.getByText(key('save')));
+  await screen.rerender(
+    <PaymentSheet
+      {...props}
+      purchaseId="second"
+      dueMinor="60000"
+      onSubmit={submit}
+    />,
+  );
+  expect(screen.getByLabelText(key('amount')).props.value).toBe('600');
+  await act(async () => complete(true));
+  expect(props.onClose).not.toHaveBeenCalled();
+  expect(screen.getByLabelText(key('amount')).props.value).toBe('600');
+});
+test('dismissal invalidates immediately even before the parent commits its close/reopen', async () => {
+  let complete: (value: boolean) => void = () => {};
+  const submit = jest.fn(
+    () =>
+      new Promise<boolean>((resolve) => {
+        complete = resolve;
+      }),
+  );
+  const screen = await render(<PaymentSheet {...props} onSubmit={submit} />);
+  await fireEvent.press(screen.getByText(key('save')));
+  await fireEvent.press(screen.getByText(key('cancel')));
+  expect(props.onClose).toHaveBeenCalledTimes(1);
+  await fireEvent.changeText(screen.getByLabelText(key('amount')), '10');
+  await act(async () => complete(false));
+  expect(screen.queryByText(key('submitError'))).toBeNull();
+  expect(screen.getByLabelText(key('amount')).props.value).toBe('10');
+  expect(screen.getByLabelText(key('amount')).props.editable).toBe(true);
+});
