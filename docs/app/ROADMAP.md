@@ -9,6 +9,17 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-32 program update: [x] additive server command/receipt/provenance,
+  immutable personal copy и saved-only selection; [x] реальный SOM-31 booking source,
+  caller/JWT/pending/dismiss guards и readback; [x] independent synthetic regressions,
+  pgTAP и assignment/correction/update races в existing CI harness.
+  App check: 240 suites / 3048 tests; iOS/Android/web export PASS.
+  [Отчёт](../../app/review/01-som-32-program-update/README.md),
+  [ADR 0102](decisions/0102-program-update-receipts-and-sources.md).
+  [ ] needs-local-db: SQL lint/pgTAP/concurrency/generated types CI;
+  [ ] два телефона/offline/SQLite/crash/reopen, parity/accessibility и owner acceptance.
+  Неоднозначность values/prev сохранена в OPEN-QUESTIONS; SOM-32/экран не приняты.
+
 - 04.10.2026 — SOM-73 r3: [x] additive private device/delivery schema и JWT/capability/
   generation lifecycle; [x] native prompt/rotation/logout и own cold/warm open;
   [x] sender/leases/tickets/receipts/unknown recovery и due reminder/daily scheduler;

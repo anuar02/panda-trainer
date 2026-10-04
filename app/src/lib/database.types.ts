@@ -2009,6 +2009,15 @@ export type Database = {
           workspace_id: string;
         }[];
       };
+      get_program_update: {
+        Args: {
+          p_actor_id: string;
+          p_client_record_id: string;
+          p_workout_id: string;
+          p_workspace_id: string;
+        };
+        Returns: Json;
+      };
       get_workout_correction: {
         Args: {
           p_actor_id: string;
@@ -2260,6 +2269,20 @@ export type Database = {
           p_sequence: number;
         };
         Returns: undefined;
+      };
+      update_client_program: {
+        Args: {
+          p_actor_id: string;
+          p_client_record_id: string;
+          p_expected_program_revision: number;
+          p_expected_workout_revision: number;
+          p_program_id: string;
+          p_request_id: string;
+          p_selected_keys: string[];
+          p_workout_id: string;
+          p_workspace_id: string;
+        };
+        Returns: Json;
       };
       withdraw_booking_reschedule: {
         Args: {
