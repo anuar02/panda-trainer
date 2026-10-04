@@ -1,3 +1,7 @@
+import {
+  templateMutation,
+  type TemplateMutationScope,
+} from './template-mutation';
 import * as Crypto from 'expo-crypto';
 import {
   createWorkspaceLibraryReadFence,
@@ -67,7 +71,10 @@ export class WorkspaceLibraryError extends Error {
   }
 }
 
-export type WorkspaceLibraryOperation<T> = { execute: () => Promise<T> };
+export type WorkspaceLibraryOperation<T> = {
+  execute: () => Promise<T>;
+  dispose?: () => void;
+};
 
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -559,6 +566,7 @@ export const saveWorkspaceTemplateOperation = (
   expectedRevision: number | null,
   expectedUserId: string,
   requestId = Crypto.randomUUID(),
+  scope?: TemplateMutationScope,
 ): WorkspaceLibraryOperation<TemplateSaveResult> => {
   if (
     !validUuid(expectedUserId) ||
@@ -584,27 +592,29 @@ export const saveWorkspaceTemplateOperation = (
     p_exercises: exercises,
     p_request_id: requestId,
   } as unknown as Database['public']['Functions']['save_workout_template']['Args'];
-  return operation(async () => {
-    const client = requireClient();
-    const session = await client.auth.getSession();
-    const accessToken = session.data.session?.access_token;
-    if (
-      session.error ||
-      session.data.session?.user.id !== expectedUserId ||
-      !accessToken
-    )
-      throw new WorkspaceLibraryError('unavailable');
-    const { data, error } = await client
-      .rpc('save_workout_template', args)
-      .setHeader('Authorization', `Bearer ${accessToken}`);
-    if (error) throw requestError(error.code);
-    return parseTemplateResult(data);
-  });
+  const client = requireClient();
+  return templateMutation(
+    client.auth,
+    { ...scope, userId: expectedUserId },
+    () => new WorkspaceLibraryError('unavailable'),
+    async (accessToken) => {
+      const { data, error } = await client
+        .rpc('save_workout_template', args)
+        .setHeader('Authorization', `Bearer ${accessToken}`);
+      if (error) throw requestError(error.code);
+      return parseTemplateResult(data);
+    },
+    (error) =>
+      error instanceof WorkspaceLibraryError
+        ? error
+        : new WorkspaceLibraryError('request'),
+  );
 };
 
 export const archiveWorkspaceTemplateOperation = (
   templateId: string,
   expectedRevision: number,
+  scope?: TemplateMutationScope,
 ): WorkspaceLibraryOperation<TemplateSaveResult> => {
   if (
     !validUuid(templateId) ||
@@ -613,16 +623,27 @@ export const archiveWorkspaceTemplateOperation = (
   )
     throw new WorkspaceLibraryError('invalidInput');
   const requestId = Crypto.randomUUID();
-  return operation(async () => {
-    const client = requireClient();
-    const { data, error } = await client.rpc('archive_workout_template', {
-      p_template_id: templateId,
-      p_expected_revision: expectedRevision,
-      p_request_id: requestId,
-    });
-    if (error) throw requestError(error.code);
-    return parseTemplateResult(data);
-  });
+  const client = requireClient();
+  return templateMutation(
+    client.auth,
+    scope,
+    () => new WorkspaceLibraryError('unavailable'),
+    async (accessToken) => {
+      const { data, error } = await client
+        .rpc('archive_workout_template', {
+          p_template_id: templateId,
+          p_expected_revision: expectedRevision,
+          p_request_id: requestId,
+        })
+        .setHeader('Authorization', `Bearer ${accessToken}`);
+      if (error) throw requestError(error.code);
+      return parseTemplateResult(data);
+    },
+    (error) =>
+      error instanceof WorkspaceLibraryError
+        ? error
+        : new WorkspaceLibraryError('request'),
+  );
 };
 
 export const workspaceTemplateExpectedRevision = (

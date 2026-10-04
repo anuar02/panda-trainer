@@ -1,3 +1,4 @@
+import { financialToken } from './financial-read-fixtures';
 import { getSupabaseClient } from '../src/features/auth/client';
 import {
   recordClientPayment,
@@ -39,14 +40,19 @@ const header = jest.fn();
 beforeEach(() => {
   jest.resetAllMocks();
   jest.mocked(getSupabaseClient).mockReturnValue({
-    auth: { getSession: session },
+    auth: {
+      getSession: session,
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
+    },
     rpc,
   } as unknown as NonNullable<ReturnType<typeof getSupabaseClient>>);
   session.mockResolvedValue({
     data: {
       session: {
         user: { id: input.expectedUserId },
-        access_token: 'bound-token',
+        access_token: financialToken(input.expectedUserId),
       },
     },
     error: null,
@@ -66,7 +72,10 @@ test('record binds bearer and preserves exact minor money through request and re
     p_request_id: input.requestId,
     p_reason: null,
   });
-  expect(header).toHaveBeenCalledWith('Authorization', 'Bearer bound-token');
+  expect(header).toHaveBeenCalledWith(
+    'Authorization',
+    `Bearer ${financialToken(input.expectedUserId)}`,
+  );
 });
 test('reversal verifies original target, negative sign and restored debt', async () => {
   header.mockResolvedValue({

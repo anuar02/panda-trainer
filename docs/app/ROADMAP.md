@@ -1,6 +1,6 @@
 # План разработки приложения
 
-Обновлено: 3 октября 2026.
+Обновлено: 4 октября 2026.
 
 Стек: React Native (Expo) + Supabase ([ADR 0001](decisions/0001-react-native-expo.md),
 [ADR 0002](decisions/0002-supabase.md)). Цель первой версии — пилот с 3–5 настоящими
@@ -18,7 +18,19 @@
   native/parity и одобрение владельца. Personal-program update остаётся
   заблокированным immutable-copy/provenance решением; SOM-32 целиком не закрыта.
   [Отчёт](../../app/review/som-32-explicit-correction-server/README.md),
-  [ADR 0085](decisions/0085-explicit-finished-journal-correction.md).
+  [ADR 0087](decisions/0087-explicit-finished-journal-correction.md).
+
+- 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
+  explicit bearer/result/error/storage guards; [x] session-aware command hook,
+  conditional clear/recovery и exact-ID durable retry с synthetic regressions.
+  Полный app check: 178 suites / 2107 tests, type/lint/format зелёные.
+  [Отчёт](../../app/review/som-34-financial-command-session-fencing/README.md),
+  [ADR 0086](decisions/0086-financial-command-session-fencing.md).
+  [ ] SQL/RLS/live auth/real storage/reopen/crash/native/parity и owner acceptance;
+  issue и экраны не приняты.
+- 04.10.2026 — SOM-23: [x] template save/archive session fencing и provider pending recovery/owned lock; [x] synthetic relogin/refresh/cache/clear-await regressions, полный check 1931 tests / 172 suites; type/lint/format зелёные. [Отчёт](../../app/review/som-23-template-save-session-fencing/README.md), [ADR 0085](decisions/0085-template-mutation-session-fencing.md). [ ] Live auth/SQL/RLS/storage/crash/native/parity и одобрение владельца.
+
+- 04.10.2026 — SOM-20 creation: [x] actor/workspace/JWT session/caller fencing, explicit bearer, route/sheet generations и in-memory retry с прежним requestId; [x] synthetic race regressions. [ ] Live auth/SQL/RLS/native/parity и одобрение владельца; disk/crash/reopen recovery не заявляется. [Отчёт](../../app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](decisions/0088-client-creation-session-fencing.md). Issue и экраны не приняты.
 
 - 04.10.2026 — SOM-41 scoped SQLite snapshot: [x] additive read-only API всех
   scoped outbox rows и raw entries, одна queued transaction, runtime validation
@@ -27,7 +39,7 @@
   [ ] Native SQLite/connections/crash/reopen, cross-source collector/barrier,
   file/export/ack proof, deletion и приёмка владельца. SOM-41 не закрыта.
   [Отчёт](../../app/review/som-41-scoped-outbox-snapshot/README.md),
-  [ADR 0084](decisions/0084-scoped-sqlite-outbox-snapshot.md).
+  [ADR 0086](decisions/0084-scoped-sqlite-outbox-snapshot.md).
 
 - 03.10.2026 — SOM-26 creation: [x] login/scope/lifecycle fence и durable retry с conditional clear; [x] synthetic regressions relogin/refresh/storage/cache/overlap/plan; [ ] live auth, SQL/RLS, native/parity, реальный storage crash и приёмка владельца. [Отчёт](../../app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0083](decisions/0083-booking-creation-session-fencing-and-durable-retry.md). Issue и экраны не приняты.
 - 03.10.2026 — SOM-24 r2: восстановлен полный пакет PR #46 без слияния;
@@ -38,7 +50,7 @@
   [ ] live auth/SQL/RLS/concurrent receipts, real storage/reopen/crash,
   native/parity и одобрение владельца. SOM-24 целиком не закрыта.
   [ADR 0082](decisions/0082-program-assignment-session-fencing.md).
-- 03.10.2026 — SOM-24 client program read: [x] actor/client/session fence, explicit bearer, bounded validated lines и hook auth/retry/focus reset; [ ] SQL/RLS/live auth/native/parity/storage crash и одобрение владельца. Assignment не менялся; интеграция после invitation read. [Отчёт](../../app/review/som-24-client-program-read-fencing/README.md), [ADR 0081](decisions/0081-client-program-read-session-fencing.md). Issue и экран не приняты.
+- 03.10.2026 — SOM-24 client program read: [x] actor/client/session fence, explicit bearer, bounded validated lines и hook auth/retry/focus reset; [ ] SQL/RLS/live auth/native/parity/storage crash и одобрение владельца. Assignment не менялся; интеграция после invitation read. [Отчёт](../../app/review/som-24-client-program-read-fencing/README.md), [ADR 0085](decisions/0081-client-program-read-session-fencing.md). Issue и экран не приняты.
 - 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
   SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
   synthetic round-trip regressions; [ ] collector, real SQLite/SQL/file API,

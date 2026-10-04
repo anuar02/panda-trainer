@@ -30,7 +30,7 @@ provenance решением, см. OPEN-QUESTIONS и ADR 0029.
 
 ## Контракт и проверки
 
-[ADR 0085](../../../docs/app/decisions/0085-explicit-finished-journal-correction.md)
+[ADR 0087](../../../docs/app/decisions/0087-explicit-finished-journal-correction.md)
 фиксирует arguments, explicit confirmation, original finish timestamp,
 immutable request receipt и session/storage fences.
 

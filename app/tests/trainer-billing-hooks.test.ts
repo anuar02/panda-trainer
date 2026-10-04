@@ -1,3 +1,5 @@
+import { getSupabaseClient } from '../src/features/auth/client';
+import { mutationAuth, financialId } from './financial-mutation-fixtures';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useTrainerBilling } from '../src/features/trainer-billing/use-billing';
 import { useTrainerBillingCommands } from '../src/features/trainer-billing/use-commands';
@@ -12,7 +14,7 @@ import {
 } from '../src/features/trainer-billing/commands';
 import type { TrainerBilling } from '../src/features/trainer-billing/types';
 jest.mock('../src/features/auth/client', () => ({
-  getSupabaseClient: () => null,
+  getSupabaseClient: jest.fn(),
 }));
 jest.mock('expo-router', () => ({
   useFocusEffect: (effect: () => () => void) => {
@@ -50,7 +52,10 @@ const empty: TrainerBilling = {
   revisions: [],
   credits: [],
 };
-beforeEach(() => jest.clearAllMocks());
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest.mocked(getSupabaseClient).mockReturnValue(null);
+});
 test('billing hides previous account data and ignores delayed response', async () => {
   let complete = (_value: TrainerBilling) => {};
   jest
@@ -107,14 +112,15 @@ test('read failure never reveals prior account billing', async () => {
   expect(hook.result.current.data).toBeNull();
 });
 test('failed pending read blocks submission until explicit reload succeeds', async () => {
+  mutationAuth(financialId(1)).install();
   jest
     .mocked(loadPendingTrainerBillingCommand)
     .mockRejectedValueOnce(new PendingTrainerBillingCommandError('storage'))
     .mockResolvedValueOnce(null);
   const hook = await renderHook(() =>
     useTrainerBillingCommands({
-      userId: 'user',
-      workspaceId: 'workspace',
+      userId: financialId(1),
+      workspaceId: financialId(2),
       onChanged: jest.fn(),
     }),
   );
@@ -128,6 +134,8 @@ test('failed pending read blocks submission until explicit reload succeeds', asy
   await waitFor(() => expect(hook.result.current.blocked).toBe(false));
 });
 test('scope switch during submit suppresses old completion and onChanged', async () => {
+  const auth = mutationAuth(financialId(1));
+  auth.install();
   let complete = (
     _value: Awaited<ReturnType<typeof submitTrainerBillingCommand>>,
   ) => {};
@@ -146,22 +154,23 @@ test('scope switch during submit suppresses old completion and onChanged', async
     ({ user }) =>
       useTrainerBillingCommands({
         userId: user,
-        workspaceId: 'workspace',
+        workspaceId: financialId(2),
         onChanged: changed,
       }),
-    { initialProps: { user: 'first' } },
+    { initialProps: { user: financialId(1) } },
   );
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   let submitted: Promise<boolean> = Promise.resolve(true);
   await act(async () => {
     submitted = hook.result.current.submit(command);
   });
-  await hook.rerender({ user: 'second' });
+  await act(async () => auth.emit('SIGNED_IN', auth.session(financialId(9))));
+  await hook.rerender({ user: financialId(9) });
   await waitFor(() => expect(hook.result.current.loading).toBe(false));
   await act(async () => {
     complete({
       purchaseId: 'id',
-      workspaceId: 'workspace',
+      workspaceId: financialId(2),
       clientRecordId: 'client',
       replayed: false,
     });

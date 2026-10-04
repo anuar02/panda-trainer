@@ -1,3 +1,7 @@
+import {
+  captureFinancialMutationFence,
+  type FinancialMutationFence,
+} from './mutation-auth';
 import * as service from './service';
 import type {
   RecordClientPaymentInput,
@@ -18,6 +22,7 @@ import { TrainerBillingError } from './types';
 import { uuid, positiveInteger, minorMoney, date, record } from './validation';
 import {
   savePendingTrainerBillingCommand,
+  retainPendingTrainerBillingCommand,
   clearPendingTrainerBillingCommand,
 } from './command-storage';
 
@@ -177,65 +182,94 @@ export async function submitTrainerBillingCommand(
   userId: string,
   workspaceId: string,
   input: TrainerBillingCommand,
+  suppliedFence?: FinancialMutationFence,
 ): Promise<TrainerBillingCommandResult> {
   if (!validTrainerBillingCommand(input))
     throw new TrainerBillingError('invalidInput');
   const command = snapshotTrainerBillingCommand(input);
-  await savePendingTrainerBillingCommand(userId, workspaceId, command);
-  const payload = { ...command, expectedUserId: userId };
-  let result: TrainerBillingCommandResult;
+  const fence =
+    suppliedFence ?? captureFinancialMutationFence(userId, workspaceId);
+  let cleared = false;
   try {
-    result = await (payload.action === 'recordPayment'
-      ? service.recordClientPayment(payload)
-      : payload.action === 'reversePayment'
-        ? service.reverseClientPayment(payload)
-        : payload.action === 'createPurchase'
-          ? service.createClientPurchase(payload)
-          : payload.action === 'markAttended'
-            ? service.markAttended(payload)
-            : payload.action === 'markNoShow'
-              ? service.markNoShow(payload)
-              : payload.action === 'bindPurchase'
-                ? service.bindAttendancePurchase(payload)
-                : payload.action === 'undoAttendance'
-                  ? service.undoAttendance(payload)
-                  : service.chargeLateCancellation(payload));
-  } catch (error: unknown) {
+    fence.assertActor(userId);
+    fence.assertWorkspace(workspaceId);
+    await fence.guard();
+    fence.assertCurrent();
+    await savePendingTrainerBillingCommand(userId, workspaceId, command, fence);
+    await fence.guard();
+    fence.assertCurrent();
+    const payload = { ...command, expectedUserId: userId };
+    let result: TrainerBillingCommandResult;
+    try {
+      result = await (payload.action === 'recordPayment'
+        ? service.recordClientPayment(payload, fence)
+        : payload.action === 'reversePayment'
+          ? service.reverseClientPayment(payload, fence)
+          : payload.action === 'createPurchase'
+            ? service.createClientPurchase(payload, fence)
+            : payload.action === 'markAttended'
+              ? service.markAttended(payload, fence)
+              : payload.action === 'markNoShow'
+                ? service.markNoShow(payload, fence)
+                : payload.action === 'bindPurchase'
+                  ? service.bindAttendancePurchase(payload, fence)
+                  : payload.action === 'undoAttendance'
+                    ? service.undoAttendance(payload, fence)
+                    : service.chargeLateCancellation(payload, fence));
+    } catch (error: unknown) {
+      await fence.guard();
+      fence.assertCurrent();
+      if (
+        error instanceof TrainerBillingError &&
+        (error.code === 'conflict' ||
+          error.code === 'invalidState' ||
+          error.code === 'overpayment')
+      )
+        cleared = await clearPendingTrainerBillingCommand(
+          userId,
+          workspaceId,
+          command.requestId,
+          fence,
+        );
+      await fence.guard();
+      fence.assertCurrent();
+      cleared = false;
+      throw error;
+    }
+    await fence.guard();
+    fence.assertCurrent();
     if (
-      error instanceof TrainerBillingError &&
-      (error.code === 'conflict' ||
-        error.code === 'invalidState' ||
-        error.code === 'overpayment')
+      'workspaceId' in result &&
+      result.workspaceId.toLowerCase() !== workspaceId.toLowerCase()
     )
-      await clearPendingTrainerBillingCommand(
-        userId,
-        workspaceId,
-        command.requestId,
-      );
+      throw new TrainerBillingError('request');
+    if (
+      command.action === 'reversePayment' &&
+      (!isPaymentResult(result) ||
+        result.workspaceId.toLowerCase() !== workspaceId.toLowerCase() ||
+        result.clientRecordId.toLowerCase() !==
+          command.clientRecordId.toLowerCase() ||
+        result.kind !== 'reversal' ||
+        result.reversesEntryId?.toLowerCase() !==
+          command.paymentEntryId.toLowerCase() ||
+        result.amountMinor !== `-${command.amountMinor}` ||
+        result.purchaseId.toLowerCase() !== command.purchaseId.toLowerCase())
+    )
+      throw new TrainerBillingError('request');
+    cleared = await clearPendingTrainerBillingCommand(
+      userId,
+      workspaceId,
+      command.requestId,
+      fence,
+    );
+    await fence.guard();
+    fence.assertCurrent();
+    return result;
+  } catch (error: unknown) {
+    if (cleared)
+      await retainPendingTrainerBillingCommand(userId, workspaceId, command);
     throw error;
+  } finally {
+    if (!suppliedFence) fence.dispose();
   }
-  if (
-    'workspaceId' in result &&
-    result.workspaceId.toLowerCase() !== workspaceId.toLowerCase()
-  )
-    throw new TrainerBillingError('request');
-  if (
-    command.action === 'reversePayment' &&
-    (!isPaymentResult(result) ||
-      result.workspaceId.toLowerCase() !== workspaceId.toLowerCase() ||
-      result.clientRecordId.toLowerCase() !==
-        command.clientRecordId.toLowerCase() ||
-      result.kind !== 'reversal' ||
-      result.reversesEntryId?.toLowerCase() !==
-        command.paymentEntryId.toLowerCase() ||
-      result.amountMinor !== `-${command.amountMinor}` ||
-      result.purchaseId.toLowerCase() !== command.purchaseId.toLowerCase())
-  )
-    throw new TrainerBillingError('request');
-  await clearPendingTrainerBillingCommand(
-    userId,
-    workspaceId,
-    command.requestId,
-  );
-  return result;
 }

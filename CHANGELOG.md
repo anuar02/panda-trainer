@@ -9,6 +9,13 @@
 
 ## Не выпущено
 
+- [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
+  при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
+  terminal policy. [Проверки](app/review/som-34-financial-command-session-fencing/README.md),
+  [ADR 0086](docs/app/decisions/0086-financial-command-session-fencing.md).
+  SQL/live auth/real storage/native/parity и приёмка владельца открыты.
+
+- [SOM-23 / draft PR #52](https://github.com/anuar02/panda-trainer/pull/52): session fence save/archive шаблонов, guarded cached success, recovery прежнего pending requestId и owned provider lock. [Отчёт](app/review/som-23-template-save-session-fencing/README.md), [ADR 0085](docs/app/decisions/0085-template-mutation-session-fencing.md). Live auth/storage/native и приёмка владельца открыты.
 - [SOM-26 / draft PR #50](https://github.com/anuar02/panda-trainer/pull/50): создание занятия закреплено за login и workspace; поздние ответы и кэш успеха проверяют сессию, durable retry сохраняет requestId/план, conditional clear защищает pending. [Отчёт](app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0080](docs/app/decisions/0080-booking-creation-session-fencing-and-durable-retry.md). Runtime и приёмка владельца открыты.
 - [SOM-24 r2 / draft PR #49](https://github.com/anuar02/panda-trainer/pull/49): восстановлен полный пакет закрытого без слияния PR #46; refresh проверяет JWT sub/session_id, поздние RPC/storage и cached success закрываются при смене identity, durable retry сохраняет requestId. [Текущий отчёт](app/review/som-24-assignment-session-fencing-r2/README.md), [ADR 0080](docs/app/decisions/0080-program-assignment-session-fencing.md). Live/native и приёмка владельца открыты.
 - SOM-24: чтение личной immutable программы закреплено за actor/client/session; same-user relogin скрывает старые данные, refresh проверяется, страницы и snapshot валидируются по схеме. [Проверки](app/review/som-24-client-program-read-fencing/README.md), [ADR 0080](docs/app/decisions/0080-client-program-read-session-fencing.md).
@@ -27,7 +34,7 @@
   журнала: owner RPC, immutable receipts/audit и tenant/revision/provenance guards;
   scoped transport, durable exact retry, просмотр/подтверждение и readback в журнале.
   [Отчёт](app/review/som-32-explicit-correction-server/README.md),
-  [ADR 0085](docs/app/decisions/0085-explicit-finished-journal-correction.md).
+  [ADR 0087](docs/app/decisions/0087-explicit-finished-journal-correction.md).
   SQL runtime — needs-local-db; native/parity и одобрение владельца открыты.
   Выборочное обновление личной программы и SOM-32 целиком не завершены.
 
@@ -354,6 +361,8 @@
   [ADR 0025](docs/app/decisions/0025-identity-rls-foundation.md).
 
 ### Исправлено
+
+- [SOM-20 / draft PR #55](https://github.com/anuar02/panda-trainer/pull/55): создание клиента закреплено за actor/workspace/JWT session и lifetime caller; поздние RPC/sheet completion не затрагивают новый scope, explicit retry сохраняет in-memory requestId. [Отчёт](app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](docs/app/decisions/0088-client-creation-session-fencing.md). Live/native/parity и приёмка владельца открыты.
 
 - [SOM-34 / draft PR #43](https://github.com/anuar02/panda-trainer/pull/43): финансовые чтения изолированы по auth session_id; hooks сбрасывают данные
   при повторном входе, bounded exact-count paging и scoped relations отклоняют
