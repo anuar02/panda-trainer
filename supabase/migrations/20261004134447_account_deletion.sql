@@ -135,8 +135,8 @@ begin
  and ns.nspname in ('public','private') and att.attnotnull and (att.attname in ('created_by','author_user_id','accepted_by') or (att.attname='user_id' and con.conrelid in ('public.sync_operations'::regclass,'private.workout_correction_receipts'::regclass,'private.workout_correction_audit'::regclass))) loop
   execute format('alter table %s alter column %I drop not null',c.conrelid::regclass,c.attname);
  end loop;
- for t in select c.oid from pg_class c join pg_namespace n on n.oid=c.relnamespace
- where n.nspname in ('public','private') and c.relkind='r' and c.relname not like 'account_deletion_%' loop
+ for t in select source_table.oid from pg_class source_table join pg_namespace n on n.oid=source_table.relnamespace
+ where n.nspname in ('public','private') and source_table.relkind='r' and source_table.relname not like 'account_deletion_%' loop
   execute format('create trigger account_deletion_lock before insert or update or delete on %s for each statement execute function private.account_deletion_write_lock()',t.oid::regclass);
   execute format('create trigger account_deletion_guard before insert or update or delete on %s for each row execute function private.account_deletion_write_guard()',t.oid::regclass);
  end loop;
@@ -219,7 +219,7 @@ begin
  end loop;
  -- Delete every workspace table captured by its explicit workspace column.
  for t in select c.oid from pg_class c join pg_namespace n on n.oid=c.relnamespace
- join pg_attribute a on a.attrelid=c.oid and a.attname='workspace_id' and not a.attisdropped
+ join pg_attribute workspace_column on workspace_column.attrelid=c.oid and workspace_column.attname='workspace_id' and not workspace_column.attisdropped
  where n.nspname in ('public','private') and c.relkind='r' and c.relname not like 'account_deletion_%'
  order by array_position(array[
  'workout_correction_audit','workout_correction_receipts',

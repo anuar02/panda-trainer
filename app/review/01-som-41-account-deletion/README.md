@@ -167,3 +167,34 @@ SOM-41 status is Done, which does not establish the outstanding acceptance gates
 
 Fresh repair validation: `cd app && npm run check` PASS (exit 0; typecheck,
 lint, formatting, 238 suites / 3079 tests). `git diff --check` PASS.
+
+## CI repair · 04.10.2026 · attempt 2
+
+`gh run view 37208307708 --json jobs` reports app success and database failure.
+Installation stopped at deletion migration statement 13 (SQLSTATE 42703,
+`record "c" has no field "relnamespace"`). The preceding constraint loop assigns
+PL/pgSQL `c record`; the subsequent `pg_class c` alias is therefore interpreted
+as that record. Rename the catalog alias to `source_table` throughout the trigger
+installation query. Audit of every declaration/catalog query also found the same
+collision in `account_deletion_execute`: `pg_attribute a` shadows the populated
+`a record` from the preceding Auth-reference loop. Rename it to `workspace_column`
+so workspace discovery reads catalog attributes rather than record fields.
+
+Only SQL aliases changed: selection, ordering, constraints, writer guards, RPC
+signatures and generated types are unchanged. Existing pgTAP/Auth/concurrency
+tests remain intact. As in repair 1, this corrects only PR #73's new, unmerged,
+unapplied migration; a later migration cannot run past its installation failure.
+Base/pilot migrations are untouched. Fresh base fetch confirms its latest migration
+is still `20261004110241_push_v1.sql`; this PR's version is later.
+
+Commands: `git fetch origin fix/som-50-template-picker`,
+`git ls-tree -r --name-only origin/fix/som-50-template-picker supabase/migrations/`,
+`gh run view 37208307708 --json jobs`, manual review of every PL/pgSQL declaration
+and catalog alias in the new migration, `cd app && npm run check`,
+`git diff --check`. Docker/PostgreSQL are absent; SQL installation/pgTAP/Auth/
+concurrency/type generation still require CI (needs-local-db). No runtime SQL
+success is inferred from this alias audit. Linear issue/project were read only;
+no deployment, secrets, real accounts, workflows or acceptance gates changed.
+
+Fresh repair 2 validation: `cd app && npm run check` PASS (exit 0; TypeScript,
+ESLint, Prettier, 238 suites / 3079 tests). `git diff --check` PASS.

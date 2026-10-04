@@ -9,6 +9,11 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-41 CI repair #73, попытка 2: устранены оставшиеся конфликты
+  SQL-алиасов `c`/`a` с record-переменными в trigger installation/workspace cleanup.
+  SQL execution и последующие database checks требуют повторного CI; base/pilot
+  migrations не изменены. [Отчёт](../../app/review/01-som-41-account-deletion/README.md).
+
 - 04.10.2026 — SOM-41 CI repair #73: устранён конфликт `pg_class t` с переменной
   `t record` при установке новой deletion migration. SQL/Auth/type проверки первой
   попытки CI были пропущены после ошибки установки; повторная проверка — в CI.
