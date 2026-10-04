@@ -75,3 +75,10 @@ Implementation commit: `86c97f6`.
 [Draft PR #49](https://github.com/anuar02/panda-trainer/pull/49): read-back
 подтвердил draft/open, base `fix/som-50-template-picker` и r2 head.
 После добавления ссылки на PR `cd app && npm run format:check` — exit 0.
+
+## Coordinator integration · 04.10.2026
+
+Fresh base `e26dc30` merged; CHANGELOG/ROADMAP/ADR index preserve both sides.
+Assignment ADR renumbered 0082; independent read-only reviewer found no material defects.
+`cd app && npm run check` PASS: typecheck/lint/format, 174 suites /1992 tests.
+`git diff --check` PASS. SQL/native/real storage/owner acceptance not tested.
