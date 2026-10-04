@@ -1,8 +1,15 @@
 {
- "updated_at": "2026-10-04T02:25Z",
+ "updated_at": "2026-10-04T02:26Z",
  "updated_by": "coordinator",
- "done": 12,
+ "done": 11,
  "issues": [
+  {
+   "id": "SOM-23",
+   "title": "Подключить редактор шаблонов к серверу",
+   "status": "In Progress",
+   "milestone": "03",
+   "group": "agents"
+  },
   {
    "id": "SOM-27",
    "title": "Реализовать переносы, отмены и проверку ревизий",
