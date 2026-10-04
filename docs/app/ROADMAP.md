@@ -11,6 +11,16 @@
 
 - 04.10.2026 — SOM-32 finish r2: восстановлен полный пакет закрытого PR #54 на свежей базе; [x] доказательство terminal current resolution через existing scoped receipts и продолжение ввода/новый explicit finish; [x] credentials исключены из React keys/state. [Отчёт r2](../../app/review/som-32-production-finish-r2/README.md), [ADR 0089](decisions/0089-terminal-finish-current-recovery.md). Полный check: 188 suites / 2332 tests, type/lint/format зелёные; [ ] correction/program contracts, live/storage/native/parity и приёмка владельца. SOM-32 целиком не завершена.
 
+- 04.10.2026 — SOM-26 presentation/lifecycle: [x] Today/week/create caller scope,
+  same-user relogin reset, owned provider lock/result/finally и verified refresh;
+  [x] overlap acknowledgement/save, exact durable group-plan retry и server-only
+  read refresh с synthetic regressions; [x] default day/week rollover timezone.
+  Полный check после свежей базы: 184 suites / 2286 tests, type/lint/format зелёные.
+  [Отчёт](../../app/review/som-26-schedule-production-finish/README.md),
+  [ADR 0087](decisions/0087-schedule-presentation-session-lifecycle.md).
+  [ ] Live SQL/RLS/Auth, native storage/crash/reopen, два телефона,
+  visual/accessibility/parity и приёмка владельца. Issue и экраны не приняты.
+
 - 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
   explicit bearer/result/error/storage guards; [x] session-aware command hook,
   conditional clear/recovery и exact-ID durable retry с synthetic regressions.
