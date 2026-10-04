@@ -1,21 +1,21 @@
 {
-  "updated_at": "2026-10-04T05:23Z",
+  "updated_at": "2026-10-04T06:16Z",
   "updated_by": "coordinator",
   "done": 11,
   "issues": [
+    {
+      "id": "SOM-73",
+      "title": "Push-уведомления v1 (ADR 0065)",
+      "status": "In Review",
+      "milestone": "08",
+      "group": "owner"
+    },
     {
       "id": "SOM-37",
       "title": "Реализовать уведомления, непрочитанное и Realtime",
       "status": "In Review",
       "milestone": "08",
       "group": "owner"
-    },
-    {
-      "id": "SOM-73",
-      "title": "Push-уведомления v1 (ADR 0065)",
-      "status": "In Progress",
-      "milestone": "08",
-      "group": "agents"
     },
     {
       "id": "SOM-36",
