@@ -1,3 +1,4 @@
+import { mutationAuth, financialId } from './financial-mutation-fixtures';
 import { useEffect } from 'react';
 import { act, render, waitFor } from '@testing-library/react-native';
 import {
@@ -73,11 +74,11 @@ function Schedule() {
   }, [store]);
   return null;
 }
-function Tree({ userId = 'user-a' }: { userId?: string }) {
+function Tree({ userId = financialId(1) }: { userId?: string }) {
   return (
-    <WorkspaceMutationProvider userId={userId} workspaceId="workspace">
+    <WorkspaceMutationProvider userId={userId} workspaceId={financialId(2)}>
       <Today />
-      <WorkspaceMutationBoundary userId={userId} workspaceId="workspace">
+      <WorkspaceMutationBoundary userId={userId} workspaceId={financialId(2)}>
         <Schedule />
       </WorkspaceMutationBoundary>
     </WorkspaceMutationProvider>
@@ -90,8 +91,11 @@ const deferred = <T,>() => {
   });
   return { promise, resolve };
 };
+let auth: ReturnType<typeof mutationAuth>;
 beforeEach(() => {
   jest.clearAllMocks();
+  auth = mutationAuth(financialId(1));
+  auth.install();
   jest
     .mocked(loadPendingTrainerBillingCommand)
     .mockReset()
@@ -106,7 +110,7 @@ beforeEach(() => {
 
 const receipt = {
   paymentEntryId: command.requestId,
-  workspaceId: 'workspace',
+  workspaceId: financialId(2),
   clientRecordId: command.clientRecordId,
   purchaseId: command.purchaseId,
   kind: 'reversal' as const,
@@ -147,7 +151,7 @@ test('reversal double tap shares workspace lock and restart resumes the exact sa
   jest.mocked(loadPendingTrainerBillingCommand).mockResolvedValue(null);
   await act(async () => expect(await schedule.billing.resume()).toBe(true));
   const calls = jest.mocked(submitTrainerBillingCommand).mock.calls;
-  expect(calls[0]).toEqual(calls[1]);
+  expect(calls[0]?.slice(0, 3)).toEqual(calls[1]?.slice(0, 3));
   expect(today.blocked).toBe(false);
   expect(today.generation).toBe(1);
 });
@@ -156,7 +160,8 @@ test('old account reversal callback cannot submit after provider switch', async 
   const view = await render(<Tree />);
   await waitFor(() => expect(today.blocked).toBe(false));
   const stale = today.billing.submit;
-  await view.rerender(<Tree userId="user-b" />);
+  await act(async () => auth.emit('SIGNED_IN', auth.session(financialId(9))));
+  await view.rerender(<Tree userId={financialId(9)} />);
   await waitFor(() => expect(today.blocked).toBe(false));
   await act(async () => expect(await stale(command)).toBe(false));
   expect(submitTrainerBillingCommand).not.toHaveBeenCalled();

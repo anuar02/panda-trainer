@@ -1,6 +1,6 @@
 # План разработки приложения
 
-Обновлено: 3 октября 2026.
+Обновлено: 4 октября 2026.
 
 Стек: React Native (Expo) + Supabase ([ADR 0001](decisions/0001-react-native-expo.md),
 [ADR 0002](decisions/0002-supabase.md)). Цель первой версии — пилот с 3–5 настоящими
@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-34 mutations: [x] actor/workspace/session fence до async,
+  explicit bearer/result/error/storage guards; [x] session-aware command hook,
+  conditional clear/recovery и exact-ID durable retry с synthetic regressions.
+  Полный app check: 178 suites / 2107 tests, type/lint/format зелёные.
+  [Отчёт](../../app/review/som-34-financial-command-session-fencing/README.md),
+  [ADR 0086](decisions/0086-financial-command-session-fencing.md).
+  [ ] SQL/RLS/live auth/real storage/reopen/crash/native/parity и owner acceptance;
+  issue и экраны не приняты.
 - 04.10.2026 — SOM-23: [x] template save/archive session fencing и provider pending recovery/owned lock; [x] synthetic relogin/refresh/cache/clear-await regressions, полный check 1931 tests / 172 suites; type/lint/format зелёные. [Отчёт](../../app/review/som-23-template-save-session-fencing/README.md), [ADR 0085](decisions/0085-template-mutation-session-fencing.md). [ ] Live auth/SQL/RLS/storage/crash/native/parity и одобрение владельца.
 
 - 04.10.2026 — SOM-20 creation: [x] actor/workspace/JWT session/caller fencing, explicit bearer, route/sheet generations и in-memory retry с прежним requestId; [x] synthetic race regressions. [ ] Live auth/SQL/RLS/native/parity и одобрение владельца; disk/crash/reopen recovery не заявляется. [Отчёт](../../app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](decisions/0086-client-creation-session-fencing.md). Issue и экраны не приняты.
@@ -20,7 +28,7 @@
   [ ] Native SQLite/connections/crash/reopen, cross-source collector/barrier,
   file/export/ack proof, deletion и приёмка владельца. SOM-41 не закрыта.
   [Отчёт](../../app/review/som-41-scoped-outbox-snapshot/README.md),
-  [ADR 0084](decisions/0084-scoped-sqlite-outbox-snapshot.md).
+  [ADR 0086](decisions/0084-scoped-sqlite-outbox-snapshot.md).
 
 - 03.10.2026 — SOM-26 creation: [x] login/scope/lifecycle fence и durable retry с conditional clear; [x] synthetic regressions relogin/refresh/storage/cache/overlap/plan; [ ] live auth, SQL/RLS, native/parity, реальный storage crash и приёмка владельца. [Отчёт](../../app/review/som-26-booking-creation-session-fencing/README.md), [ADR 0083](decisions/0083-booking-creation-session-fencing-and-durable-retry.md). Issue и экраны не приняты.
 - 03.10.2026 — SOM-24 r2: восстановлен полный пакет PR #46 без слияния;

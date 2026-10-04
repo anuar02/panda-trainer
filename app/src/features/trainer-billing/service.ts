@@ -1,7 +1,10 @@
 import { financialPage } from './read-page';
 import { withReadAuth, financialRowLimit } from './read-auth';
 import { validateBillingRelations } from './read-validation';
-import { getSupabaseClient } from '@/features/auth/client';
+import {
+  withFinancialMutationAuth,
+  type FinancialMutationFence,
+} from './mutation-auth';
 import type { Database } from '@/lib/database.types';
 import {
   recordClientPayment as recordPayment,
@@ -44,10 +47,14 @@ const paymentRequest = async <T>(run: () => Promise<T>): Promise<T> => {
     );
   }
 };
-export const recordClientPayment = (input: RecordClientPaymentInput) =>
-  paymentRequest(() => recordPayment(input));
-export const reverseClientPayment = (input: ReverseClientPaymentInput) =>
-  paymentRequest(() => reversePayment(input));
+export const recordClientPayment = (
+  input: RecordClientPaymentInput,
+  fence?: FinancialMutationFence,
+) => paymentRequest(() => recordPayment(input, fence));
+export const reverseClientPayment = (
+  input: ReverseClientPaymentInput,
+  fence?: FinancialMutationFence,
+) => paymentRequest(() => reversePayment(input, fence));
 const invalid = (): never => {
   throw new TrainerBillingError('invalidInput');
 };
@@ -63,19 +70,6 @@ const rpcError = (code: string) =>
             ? 'invalidState'
             : 'request',
   );
-const authenticate = async (expectedUserId: string) => {
-  const client = getSupabaseClient();
-  if (!client) throw new TrainerBillingError('configuration');
-  const { data, error } = await client.auth.getSession();
-  const token = data.session?.access_token;
-  if (
-    error ||
-    !token ||
-    data.session?.user.id.toLowerCase() !== expectedUserId.toLowerCase()
-  )
-    throw new TrainerBillingError('unavailable');
-  return { client, token };
-};
 const protectedRequest = async <T>(run: () => Promise<T>): Promise<T> => {
   try {
     return await run();
@@ -136,17 +130,31 @@ const rpc = async <K extends RpcName, T>(
   args: Database['public']['Functions'][K]['Args'],
   expectedUserId: string,
   parse: (value: unknown) => T,
+  fence?: FinancialMutationFence,
 ): Promise<T> =>
-  protectedRequest(async () => {
-    const { client, token } = await authenticate(expectedUserId);
-    const { data, error } = await client
-      .rpc(name, args)
-      .setHeader('Authorization', `Bearer ${token}`);
-    if (error) throw rpcError(error.code);
-    return parse(data);
-  });
+  protectedRequest(() =>
+    withFinancialMutationAuth(expectedUserId, fence, async (client, token) => {
+      const { data, error } = await client
+        .rpc(name, args)
+        .setHeader('Authorization', `Bearer ${token}`);
+      if (error) throw rpcError(error.code);
+      const result = parse(data);
+      if (
+        fence &&
+        typeof result === 'object' &&
+        result !== null &&
+        'workspaceId' in result &&
+        typeof result.workspaceId === 'string'
+      )
+        fence.assertWorkspace(result.workspaceId);
+      return result;
+    }),
+  );
 
-export function createClientPurchase(input: CreateClientPurchaseInput) {
+export function createClientPurchase(
+  input: CreateClientPurchaseInput,
+  fence?: FinancialMutationFence,
+) {
   const identity = commandIdentity(input);
   if (
     !uuid(input.clientRecordId) ||
@@ -172,9 +180,13 @@ export function createClientPurchase(input: CreateClientPurchaseInput) {
     wireArgs as unknown as Database['public']['Functions']['create_client_purchase']['Args'],
     identity.expectedUserId,
     (value) => parsePurchaseResult(value, clientRecordId),
+    fence,
   );
 }
-export function markAttended(input: MarkAttendedInput) {
+export function markAttended(
+  input: MarkAttendedInput,
+  fence?: FinancialMutationFence,
+) {
   const identity = commandIdentity(input);
   const args = {
     ...bookingArgs(input),
@@ -187,35 +199,51 @@ export function markAttended(input: MarkAttendedInput) {
     (!input.charge && input.purchaseId != null)
   )
     invalid();
-  return rpc('mark_attended', args, identity.expectedUserId, (value) =>
-    parseAttendanceResult(
-      value,
-      {
-        bookingId: args.p_booking_id,
-        expectedStatus: 'present',
-        forbidCharge: !args.p_charge,
-        selectedPurchaseId: args.p_purchase_id,
-      },
-      false,
-    ),
+  return rpc(
+    'mark_attended',
+    args,
+    identity.expectedUserId,
+    (value) =>
+      parseAttendanceResult(
+        value,
+        {
+          bookingId: args.p_booking_id,
+          expectedStatus: 'present',
+          forbidCharge: !args.p_charge,
+          selectedPurchaseId: args.p_purchase_id,
+        },
+        false,
+      ),
+    fence,
   );
 }
-export function markNoShow(input: BillingBookingCommand) {
+export function markNoShow(
+  input: BillingBookingCommand,
+  fence?: FinancialMutationFence,
+) {
   const identity = commandIdentity(input);
   const args = { ...bookingArgs(input), p_request_id: identity.requestId };
-  return rpc('mark_no_show', args, identity.expectedUserId, (value) =>
-    parseAttendanceResult(
-      value,
-      {
-        bookingId: args.p_booking_id,
-        expectedStatus: 'noshow',
-        forbidCharge: true,
-      },
-      false,
-    ),
+  return rpc(
+    'mark_no_show',
+    args,
+    identity.expectedUserId,
+    (value) =>
+      parseAttendanceResult(
+        value,
+        {
+          bookingId: args.p_booking_id,
+          expectedStatus: 'noshow',
+          forbidCharge: true,
+        },
+        false,
+      ),
+    fence,
   );
 }
-export function bindAttendancePurchase(input: BindAttendancePurchaseInput) {
+export function bindAttendancePurchase(
+  input: BindAttendancePurchaseInput,
+  fence?: FinancialMutationFence,
+) {
   const identity = commandIdentity(input);
   const args = {
     ...attendanceArgs(input),
@@ -237,30 +265,42 @@ export function bindAttendancePurchase(input: BindAttendancePurchaseInput) {
         },
         false,
       ),
+    fence,
   );
 }
-export function undoAttendance(input: UndoAttendanceInput) {
+export function undoAttendance(
+  input: UndoAttendanceInput,
+  fence?: FinancialMutationFence,
+) {
   const identity = commandIdentity(input);
   const args = {
     ...attendanceArgs(input),
     p_reason: reason(input.reason),
     p_request_id: identity.requestId,
   };
-  return rpc('undo_attendance', args, identity.expectedUserId, (value) =>
-    parseAttendanceResult(
-      value,
-      {
-        attendanceId: args.p_attendance_id,
-        expectedStatus: 'undone',
-        expectedRevision: args.p_expected_attendance_revision,
-        increments: true,
-        forbidCharge: true,
-      },
-      false,
-    ),
+  return rpc(
+    'undo_attendance',
+    args,
+    identity.expectedUserId,
+    (value) =>
+      parseAttendanceResult(
+        value,
+        {
+          attendanceId: args.p_attendance_id,
+          expectedStatus: 'undone',
+          expectedRevision: args.p_expected_attendance_revision,
+          increments: true,
+          forbidCharge: true,
+        },
+        false,
+      ),
+    fence,
   );
 }
-export function chargeLateCancellation(input: ChargeLateCancellationInput) {
+export function chargeLateCancellation(
+  input: ChargeLateCancellationInput,
+  fence?: FinancialMutationFence,
+) {
   const identity = commandIdentity(input);
   const args = {
     ...bookingArgs(input),
@@ -281,6 +321,7 @@ export function chargeLateCancellation(input: ChargeLateCancellationInput) {
         },
         true,
       ),
+    fence,
   );
 }
 
