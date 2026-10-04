@@ -10,6 +10,8 @@
 ## Где остановились
 
 - 04.10.2026 — SOM-32 finish: [x] production durable finish, saved-only summary и partial/empty confirmation; [x] synthetic domain/service/hook/screen regressions (check: 179 suites / 2056 tests); correction draft и selective program update остаются отдельными контрактами. [Отчёт](../../app/review/som-32-production-finish/README.md), [ADR 0087](decisions/0087-production-workout-finish-outbox.md). Runtime/parity и одобрение владельца открыты; SOM-32 целиком не закрыта.
+- 04.10.2026 — SOM-23: [x] template save/archive session fencing и provider pending recovery/owned lock; [x] synthetic relogin/refresh/cache/clear-await regressions, полный check 1931 tests / 172 suites; type/lint/format зелёные. [Отчёт](../../app/review/som-23-template-save-session-fencing/README.md), [ADR 0085](decisions/0085-template-mutation-session-fencing.md). [ ] Live auth/SQL/RLS/storage/crash/native/parity и одобрение владельца.
+
 - 04.10.2026 — SOM-41 scoped SQLite snapshot: [x] additive read-only API всех
   scoped outbox rows и raw entries, одна queued transaction, runtime validation
   и session/close/cancellation fencing; [x] synthetic driver/seam regressions.
@@ -28,7 +30,7 @@
   [ ] live auth/SQL/RLS/concurrent receipts, real storage/reopen/crash,
   native/parity и одобрение владельца. SOM-24 целиком не закрыта.
   [ADR 0082](decisions/0082-program-assignment-session-fencing.md).
-- 03.10.2026 — SOM-24 client program read: [x] actor/client/session fence, explicit bearer, bounded validated lines и hook auth/retry/focus reset; [ ] SQL/RLS/live auth/native/parity/storage crash и одобрение владельца. Assignment не менялся; интеграция после invitation read. [Отчёт](../../app/review/som-24-client-program-read-fencing/README.md), [ADR 0081](decisions/0081-client-program-read-session-fencing.md). Issue и экран не приняты.
+- 03.10.2026 — SOM-24 client program read: [x] actor/client/session fence, explicit bearer, bounded validated lines и hook auth/retry/focus reset; [ ] SQL/RLS/live auth/native/parity/storage crash и одобрение владельца. Assignment не менялся; интеграция после invitation read. [Отчёт](../../app/review/som-24-client-program-read-fencing/README.md), [ADR 0085](decisions/0081-client-program-read-session-fencing.md). Issue и экран не приняты.
 - 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
   SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
   synthetic round-trip regressions; [ ] collector, real SQLite/SQL/file API,

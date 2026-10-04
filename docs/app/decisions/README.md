@@ -90,3 +90,5 @@
 
 | [0087](0087-production-workout-finish-outbox.md) | Production finish через существующий outbox и подтверждённый snapshot | Runtime и приёмка владельца открыты | 04.10.2026 |
 | [0084](0084-scoped-sqlite-outbox-snapshot.md) | Scoped read-only SQLite snapshot через очередь outbox | Реализовано технически; native/runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0085](0085-template-mutation-session-fencing.md) | Template mutation session fence и durable pending-clear recovery | Реализовано технически; runtime и owner acceptance открыты | 04.10.2026 |
