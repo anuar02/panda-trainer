@@ -46,6 +46,7 @@ export function WorkspaceLibraryProvider({
   children,
 }: PropsWithChildren<{ userId: string; workspaceId: string }>) {
   const key = `panda-trainer-workspace-template-v1:${userId}:${workspaceId}`;
+  const pendingClearKey = `${key}:pending-clear`;
   const [client] = useState(getSupabaseClient);
   const [visibleKey, setVisibleKey] = useState<string | null>(null);
   const [library, setLibrary] = useState(emptyLibrary);
@@ -61,7 +62,8 @@ export function WorkspaceLibraryProvider({
   const current = useRef(emptyDraft);
   const catalog = useRef(emptyLibrary);
   const mounted = useRef(false);
-  const locked = useRef(false);
+  const locked = useRef<number | null>(null);
+  const command = useRef(0);
   const available = useRef(false);
   const writes = useRef(Promise.resolve(true));
   const ticket = useRef(0);
@@ -86,6 +88,9 @@ export function WorkspaceLibraryProvider({
     mounted.current = true;
     available.current = false;
     identity.current = null;
+    locked.current = null;
+    saveOperation.current?.operation.dispose?.();
+    saveOperation.current = null;
     const version = ++generation.current;
     const read = ++request.current;
     const isCurrent = () =>
@@ -99,6 +104,7 @@ export function WorkspaceLibraryProvider({
       setReady(false);
       setReadError(false);
       setStatus('loading');
+      setCommandError(null);
       setBusy(false);
     });
     const invalidate = () => {
@@ -109,6 +115,11 @@ export function WorkspaceLibraryProvider({
       setVisibleKey(null);
       setReady(false);
       setReadError(true);
+      locked.current = null;
+      saveOperation.current?.operation.dispose?.();
+      saveOperation.current = null;
+      setBusy(false);
+      setCommandError(null);
       setStatus('error');
     };
     const subscription = client?.auth.onAuthStateChange((event, session) => {
@@ -139,9 +150,14 @@ export function WorkspaceLibraryProvider({
           sessionId,
           isCurrent,
         }),
-        writes.current
-          .then(() => AsyncStorage.getItem(key))
-          .then(decodeWorkspaceDraft),
+        writes.current.then(async () => {
+          const draft = decodeWorkspaceDraft(await AsyncStorage.getItem(key));
+          if (draft.draft) return draft;
+          const backup = decodeWorkspaceDraft(
+            await AsyncStorage.getItem(pendingClearKey),
+          );
+          return backup.pendingSave ? backup : draft;
+        }),
       ]);
       if (!isCurrent()) return;
       catalog.current = data;
@@ -154,6 +170,14 @@ export function WorkspaceLibraryProvider({
               draft.pendingSave.expectedRevision,
               userId,
               draft.pendingSave.requestId,
+              {
+                userId,
+                sessionId,
+                isCurrent: () =>
+                  mounted.current &&
+                  generation.current === version &&
+                  scopeKey.current === key,
+              },
             ),
           }
         : null;
@@ -175,11 +199,16 @@ export function WorkspaceLibraryProvider({
       request.current += 1;
       mounted.current = false;
       available.current = false;
+      saveOperation.current?.operation.dispose?.();
       subscription?.unsubscribe();
     };
-  }, [attempt, client, key, userId, workspaceId]);
+  }, [attempt, client, key, pendingClearKey, userId, workspaceId]);
 
-  const persist = (next: WorkspaceDraft) => {
+  const persist = (
+    next: WorkspaceDraft,
+    guard?: () => boolean | Promise<boolean>,
+  ) => {
+    const currentBefore = current.current;
     const revision = ++ticket.current;
     const version = generation.current;
     const isCurrent = () =>
@@ -189,10 +218,25 @@ export function WorkspaceLibraryProvider({
       revision === ticket.current;
     setStatus('saving');
     const result = writes.current
-      .then(() => AsyncStorage.setItem(key, JSON.stringify(next)))
-      .then(() => {
-        if (isCurrent()) setStatus('saved');
+      .then(async () => {
+        if (guard && !(await guard())) return false;
+        if (guard && next.draft === null && currentBefore.pendingSave) {
+          await AsyncStorage.setItem(
+            pendingClearKey,
+            JSON.stringify(currentBefore),
+          );
+          if (!(await guard())) return false;
+        }
+        await AsyncStorage.setItem(key, JSON.stringify(next));
+        if (guard && !(await guard())) {
+          await AsyncStorage.setItem(key, JSON.stringify(currentBefore));
+          return false;
+        }
         return true;
+      })
+      .then((ok) => {
+        if (isCurrent()) setStatus(ok ? 'saved' : 'error');
+        return ok;
       })
       .catch(() => {
         if (isCurrent()) setStatus('error');
@@ -201,9 +245,22 @@ export function WorkspaceLibraryProvider({
     writes.current = result;
     return result;
   };
+  const cleanupPendingClear = (isCurrent: () => boolean) => {
+    const cleanup = writes.current.then(async () => {
+      if (!isCurrent() || current.current !== emptyDraft) return true;
+      try {
+        await AsyncStorage.setItem(pendingClearKey, JSON.stringify(emptyDraft));
+        return true;
+      } catch {
+        return false;
+      }
+    });
+    writes.current = cleanup;
+  };
   const update = (next: WorkspaceDraft) => {
     current.current = next;
     setLocal(next);
+    saveOperation.current?.operation.dispose?.();
     saveOperation.current = null;
     setCommandError(null);
     void persist(next);
@@ -263,9 +320,9 @@ export function WorkspaceLibraryProvider({
     templates: visibleLibrary.templates,
     draft: visible ? local.draft : null,
     ready: visible && ready,
-    readError,
+    readError: (visibleKey === null || visible) && readError,
     busy: visible && busy,
-    status,
+    status: visible ? status : 'loading',
     update: (draft) => {
       if (available.current && !locked.current)
         update({ draft, baseRevision: current.current.baseRevision });
@@ -288,21 +345,29 @@ export function WorkspaceLibraryProvider({
         available.current &&
         generation.current === version &&
         scopeKey.current === key;
-      locked.current = true;
+      const owner = ++command.current;
+      locked.current = owner;
       setBusy(true);
-      const ok = await persist(emptyDraft);
+      const ok = await persist(emptyDraft, isCurrent);
       if (ok && isCurrent()) {
         current.current = emptyDraft;
         setLocal(emptyDraft);
+        saveOperation.current?.operation.dispose?.();
         saveOperation.current = null;
         setCommandError(null);
+        cleanupPendingClear(isCurrent);
       }
-      locked.current = false;
+      if (locked.current === owner) locked.current = null;
       if (isCurrent()) setBusy(false);
-      return ok;
+      return ok && isCurrent();
     },
     save: async () => {
-      if (!available.current || locked.current || !current.current.draft)
+      if (
+        scopeKey.current !== key ||
+        !available.current ||
+        locked.current ||
+        !current.current.draft
+      )
         return { ok: false, error: 'storage' };
       const version = generation.current;
       const isCurrent = () =>
@@ -310,6 +375,38 @@ export function WorkspaceLibraryProvider({
         available.current &&
         scopeKey.current === key &&
         generation.current === version;
+      const invalidateSave = () => {
+        if (!isCurrent()) return;
+        generation.current += 1;
+        available.current = false;
+        identity.current = null;
+        saveOperation.current?.operation.dispose?.();
+        saveOperation.current = null;
+        locked.current = null;
+        setVisibleKey(null);
+        setReady(false);
+        setReadError(true);
+        setBusy(false);
+        setCommandError(null);
+        setStatus('error');
+      };
+      const sessionId = identity.current;
+      const verifySaveScope = async () => {
+        if (!isCurrent() || !client || !sessionId) return false;
+        try {
+          const result = await client.auth.getSession();
+          const valid =
+            isCurrent() &&
+            !result.error &&
+            result.data.session?.user.id === userId &&
+            librarySessionId(result.data.session) === sessionId;
+          if (!valid) invalidateSave();
+          return valid;
+        } catch {
+          invalidateSave();
+          return false;
+        }
+      };
       const result = saveOperation.current
         ? { ok: true as const, template: saveOperation.current.template }
         : prepareTemplate(
@@ -318,7 +415,8 @@ export function WorkspaceLibraryProvider({
             randomUUID(),
           );
       if (!result.ok) return result;
-      locked.current = true;
+      const owner = ++command.current;
+      locked.current = owner;
       setBusy(true);
       setCommandError(null);
       try {
@@ -340,6 +438,7 @@ export function WorkspaceLibraryProvider({
               current.current.baseRevision,
               userId,
               requestId,
+              { userId, sessionId: identity.current ?? undefined, isCurrent },
             ),
             template: result.template,
           };
@@ -348,22 +447,30 @@ export function WorkspaceLibraryProvider({
         if (!isCurrent()) return { ok: false, error: 'storage' };
         await refresh();
         if (!isCurrent()) return { ok: false, error: 'storage' };
-        if (!(await persist(emptyDraft)))
+        if (!(await persist(emptyDraft, verifySaveScope)))
           return { ok: false, error: 'storage' };
+        if (!isCurrent()) return { ok: false, error: 'storage' };
         if (isCurrent()) {
           current.current = emptyDraft;
           setLocal(emptyDraft);
+          saveOperation.current?.operation.dispose?.();
           saveOperation.current = null;
         }
+        cleanupPendingClear(isCurrent);
         return { ok: true, template: { ...result.template, id: saved.id } };
       } catch (error) {
+        if (
+          error instanceof WorkspaceLibraryError &&
+          error.code === 'unavailable'
+        )
+          invalidateSave();
         if (isCurrent())
           setCommandError(
             error instanceof WorkspaceLibraryError ? error.code : 'request',
           );
         return { ok: false, error: 'storage' };
       } finally {
-        locked.current = false;
+        if (locked.current === owner) locked.current = null;
         if (isCurrent()) setBusy(false);
       }
     },
@@ -390,11 +497,12 @@ export function WorkspaceLibraryProvider({
         library: visibleLibrary,
         media: sources,
         refresh,
-        commandError,
+        commandError: visible ? commandError : null,
         reloadServerDraft: async () => {
           if (!available.current || locked.current) return;
           const version = generation.current;
-          locked.current = true;
+          const owner = ++command.current;
+          locked.current = owner;
           setBusy(true);
           try {
             const id = current.current.draft?.id;
@@ -408,7 +516,7 @@ export function WorkspaceLibraryProvider({
               });
             else if (id) throw new WorkspaceLibraryError('unavailable');
           } finally {
-            locked.current = false;
+            if (locked.current === owner) locked.current = null;
             if (
               mounted.current &&
               generation.current === version &&

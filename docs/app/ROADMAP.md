@@ -9,6 +9,8 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-23: [x] template save/archive session fencing и provider pending recovery/owned lock; [x] synthetic relogin/refresh/cache/clear-await regressions, полный check 1931 tests / 172 suites; type/lint/format зелёные. [Отчёт](../../app/review/som-23-template-save-session-fencing/README.md), [ADR 0081](decisions/0081-template-mutation-session-fencing.md). [ ] Live auth/SQL/RLS/storage/crash/native/parity и одобрение владельца.
+
 - 03.10.2026 — SOM-41 local export r2: [x] исходный pure пакет из закрытого PR #39,
   SQL-shaped conflict/correction contracts, kind-specific aggregate validation и
   synthetic round-trip regressions; [ ] collector, real SQLite/SQL/file API,
