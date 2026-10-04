@@ -72,3 +72,10 @@ Production-домен приглашений пока не выбран. `EXPO_P
 
 Команды локальной базы: [../supabase/README.md](../supabase/README.md).
 Решения и ограничения: [ADR 0006](../docs/app/decisions/0006-app-foundation.md).
+
+## Push v1 (SOM-73)
+
+Native SDK 57 permission/device lifecycle and own notification opening are
+connected at the root. Web does not register; demo events never produce push. Server worker, scheduler,
+leases/tickets/receipts and deployment steps: [PUSH-V1](../docs/app/PUSH-V1.md).
+No cloud credentials, phones, live send or owner acceptance were established.

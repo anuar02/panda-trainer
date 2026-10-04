@@ -1,4 +1,6 @@
 export const notificationKinds = [
+  'booking_reminder',
+  'daily_plan',
   'booking_requested',
   'booking_confirmed',
   'booking_cancelled',

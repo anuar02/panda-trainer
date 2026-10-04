@@ -1851,6 +1851,22 @@ export type Database = {
         };
         Returns: Json;
       };
+      claim_push_v1: {
+        Args: {
+          p_limit?: number;
+        };
+        Returns: Json;
+      };
+      complete_push_v1: {
+        Args: {
+          p_error?: string;
+          p_id: string;
+          p_lease: string;
+          p_outcome: string;
+          p_ticket?: string;
+        };
+        Returns: boolean;
+      };
       complete_trainer_onboarding: {
         Args: {
           display_name: string;
@@ -2085,6 +2101,17 @@ export type Database = {
         };
         Returns: Json;
       };
+      open_push_notification: {
+        Args: {
+          p_notification_id: string;
+          p_workspace_id: string;
+        };
+        Returns: Json;
+      };
+      own_push_devices: {
+        Args: Record<PropertyKey, never>;
+        Returns: Json;
+      };
       prepare_workout_journal: {
         Args: {
           p_booking_id: string;
@@ -2102,6 +2129,14 @@ export type Database = {
         };
         Returns: Json;
       };
+      reconcile_push_device: {
+        Args: {
+          p_device_id: string;
+          p_device_secret: string;
+          p_sequence: number;
+        };
+        Returns: undefined;
+      };
       record_client_payment: {
         Args: {
           p_amount_minor: number;
@@ -2112,6 +2147,17 @@ export type Database = {
           p_request_id: string;
         };
         Returns: Json;
+      };
+      register_push_device: {
+        Args: {
+          p_device_id: string;
+          p_device_secret: string;
+          p_generation: string;
+          p_platform: string;
+          p_sequence: number;
+          p_token: string;
+        };
+        Returns: undefined;
       };
       resolve_booking_reschedule_request: {
         Args: {
@@ -2160,6 +2206,13 @@ export type Database = {
         };
         Returns: Json;
       };
+      schedule_push_v1: {
+        Args: {
+          p_morning: string;
+          p_now: string;
+        };
+        Returns: number;
+      };
       search_exercises: {
         Args: {
           search_query: string;
@@ -2198,6 +2251,15 @@ export type Database = {
           p_request_id: string;
         };
         Returns: Json;
+      };
+      unregister_push_device: {
+        Args: {
+          p_device_id: string;
+          p_device_secret: string;
+          p_generation: string;
+          p_sequence: number;
+        };
+        Returns: undefined;
       };
       withdraw_booking_reschedule: {
         Args: {

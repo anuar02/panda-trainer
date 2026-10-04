@@ -314,3 +314,22 @@ identity, expected caller session, user and observed token refresh; it treats
 changes as invalidations rather than applying websocket row payloads. Foreground,
 focus and subscribe/reconnect trigger server reconciliation. Controller generations
 fence old reads/counts/errors; read flags never regress when rows are merged.
+
+## SOM-73: private push bindings and delivery state
+
+Additive push migration adds `private.push_devices` (installation UUID, owner,
+JWT session, capability digest, Expo token, platform and generation) and
+`private.push_deliveries` (notification/device unique key, captured generation,
+state, bounded attempts/due, lease, ticket and allowlisted error code). A third `private.push_installations` capability/sequence tombstone fences late
+RPC commands even after unregister; it contains no user or token. All three enable
+RLS; raw tables have no anon/authenticated grants. Authenticated device RPCs use
+JWT ownership plus installation proof; own metadata excludes tokens. Only
+service_role can invoke scheduler/claim/completion. Device tokens and delivery
+state are intentionally outside the existing public export contract; that export
+is not claimed complete by this task. No deletion policy or existing writer changed.
+
+Scheduled `booking_reminder` / `daily_plan` extend the existing safe version-1
+feed; existing recipient RLS, read RPC and private visibility remain unchanged.
+Own push open repeats SOM-37 target authorization. Unknown external send outcome
+is a retained delivery state, not a success or automatic retry.
+See [PUSH-V1](PUSH-V1.md) for scheduling, atomic claims, ambiguity and deployment.

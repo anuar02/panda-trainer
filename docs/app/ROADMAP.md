@@ -9,6 +9,17 @@
 
 ## Где остановились
 
+- 04.10.2026 — SOM-73 r3: [x] additive private device/delivery schema и JWT/capability/
+  generation lifecycle; [x] native prompt/rotation/logout и own cold/warm open;
+  [x] sender/leases/tickets/receipts/unknown recovery и due reminder/daily scheduler;
+  [x] synthetic controller/native hook/service/transport/routing tests, pgTAP и
+  отдельный concurrency harness. [Отчёт](../../app/review/12-som-73-push-v1-r3/README.md),
+  [handoff](PUSH-V1.md), [ADR 0099](decisions/0099-push-device-leases-and-due-evaluation.md).
+  [ ] SQL lint/pgTAP/type drift CI и manual push/notification concurrency;
+  [ ] live EAS/APNs/FCM/Expo, installed iOS/Android, parity/accessibility и owner
+  acceptance. Утреннее время — обязательный server parameter, без owner default.
+  Этап 8/issue не приняты.
+
 - 04.10.2026 — SOM-37 r2: [x] additive notification events/read/RLS schema;
   [x] реальные ленты, серверный unread, явный read, pagination и own target обеих
   ролей; [x] isolated Realtime/JWT/caller/reconnect/focus fences и independent
@@ -987,6 +998,9 @@
 - [ ] Push-уведомления в v1 ([ADR 0065](decisions/0065-push-notifications-v1.md)): напоминание
   о занятии и изменения расписания клиенту; запросы клиентов и план на день тренеру.
   Лента в приложении остаётся; без разрешения на push — только она.
+  [x] SOM-73 r3: код native lifecycle/server sender/scheduler и synthetic tests;
+  [ ] runtime CI/manual concurrency, live phones и приёмка.
+  [Handoff](PUSH-V1.md).
 
 ## Этап 9. Маскот и движение
 
@@ -1027,6 +1041,10 @@
 ошибки и отзывы собираются.
 
 ## Этап 11. После пилота (не планируется детально)
+
+Push входит в v1 этапа 8 по ADR 0065; после пилота — только будущая настройка
+времени напоминаний и расширения после отдельного решения. Live rollout текущего
+пакета остаётся в SOM-73/SOM-42, не переносится автоматически после пилота.
 
 - Голосовой ввод подходов: после решения о пороге ([OPEN-QUESTIONS](OPEN-QUESTIONS.md) №4)
   и полевых замеров (`prototype-fresh` задача 6).

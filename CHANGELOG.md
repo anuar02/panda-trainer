@@ -9,6 +9,14 @@
 
 ## Не выпущено
 
+- SOM-73 r3: Expo SDK 57 native device lifecycle и системное разрешение, logout/
+  rotation/cold-warm own routing; additive private RLS devices/deliveries, bounded
+  leased sender с tickets/receipts/unknown recovery и timezone due scheduler поверх
+  SOM-37. [Отчёт](app/review/12-som-73-push-v1-r3/README.md),
+  [handoff](docs/app/PUSH-V1.md), [ADR 0099](docs/app/decisions/0099-push-device-leases-and-due-evaluation.md).
+  Live credentials/phones и owner acceptance не проверены; новое точное утреннее
+  время требует server configuration, не считается выбранным владельцем.
+
 - SOM-37: исправлены generated-типы обязательного JSON payload по точному diff CI;
   проверка типов выводит расхождение генератора при ошибке.
 
