@@ -1,8 +1,36 @@
 {
- "updated_at": "2026-10-04T01:52Z",
+ "updated_at": "2026-10-04T02:12Z",
  "updated_by": "coordinator",
  "done": 11,
  "issues": [
+  {
+   "id": "SOM-41",
+   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
+   "status": "In Progress",
+   "milestone": "10",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-27",
+   "title": "Реализовать переносы, отмены и проверку ревизий",
+   "status": "In Progress",
+   "milestone": "04",
+   "group": "agents"
+  },
+  {
+   "id": "SOM-20",
+   "title": "Подключить onboarding тренера и управление клиентами",
+   "status": "In Review",
+   "milestone": "02",
+   "group": "owner"
+  },
+  {
+   "id": "SOM-22",
+   "title": "Подключить серверную библиотеку, поиск и архивирование",
+   "status": "In Review",
+   "milestone": "03",
+   "group": "owner"
+  },
   {
    "id": "SOM-37",
    "title": "Реализовать уведомления, непрочитанное и Realtime",
@@ -32,20 +60,6 @@
    "group": "owner"
   },
   {
-   "id": "SOM-22",
-   "title": "Подключить серверную библиотеку, поиск и архивирование",
-   "status": "In Progress",
-   "milestone": "03",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-20",
-   "title": "Подключить onboarding тренера и управление клиентами",
-   "status": "In Progress",
-   "milestone": "02",
-   "group": "agents"
-  },
-  {
    "id": "SOM-34",
    "title": "Подключить ручные оплаты, долг и экран billing",
    "status": "In Progress",
@@ -57,13 +71,6 @@
    "title": "Подключить редактор шаблонов к серверу",
    "status": "In Progress",
    "milestone": "03",
-   "group": "agents"
-  },
-  {
-   "id": "SOM-41",
-   "title": "Реализовать экспорт, удаление аккаунта и документы приватности",
-   "status": "In Progress",
-   "milestone": "10",
    "group": "agents"
   },
   {
@@ -163,13 +170,6 @@
    "status": "In Progress",
    "milestone": "02",
    "group": "owner"
-  },
-  {
-   "id": "SOM-27",
-   "title": "Реализовать переносы, отмены и проверку ревизий",
-   "status": "In Progress",
-   "milestone": "04",
-   "group": "agents"
   },
   {
    "id": "SOM-28",
