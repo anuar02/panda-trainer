@@ -1,6 +1,8 @@
 # SOM-20 · Production onboarding finish
 
 Дата: 04.10.2026. Ветка: `agent/03-som-20-onboarding-production-finish`.
+Draft PR: [#60](https://github.com/anuar02/panda-trainer/pull/60),
+`agent/03-som-20-onboarding-production-finish` → `fix/som-50-template-picker`.
 База при старте: `origin/fix/som-50-template-picker` / `4c20e22`.
 Один агент, без делегирования. Экраны и issue не приняты владельцем.
 

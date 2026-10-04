@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-20: production onboarding теперь валидирует actor/workspace/connections,
+- [SOM-20 / draft PR #60](https://github.com/anuar02/panda-trainer/pull/60): production onboarding теперь валидирует actor/workspace/connections,
   фиксирует JWT session и explicit bearer на весь read/completion, защищает
   hook/route/welcome от relogin и поздних ответов; ambiguous retry сохраняет
   исходный payload существующего atomic RPC. [Проверки](app/review/som-20-onboarding-production-finish/README.md).
