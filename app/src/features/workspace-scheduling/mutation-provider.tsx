@@ -1,9 +1,14 @@
+import { useFocusEffect } from 'expo-router';
 import { getSupabaseClient } from '@/features/auth/client';
+import {
+  createBookingSessionFence,
+  type BookingSessionFence,
+} from './creation-session';
 import { scheduleSessionId } from './read-session';
 import {
   createContext,
+  useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -16,6 +21,10 @@ import { useWorkspaceStatusCommands } from './use-status-commands';
 
 type Scope = { userId: string; workspaceId: string };
 type MutationState = Scope & {
+  unavailable: boolean;
+  retrySession: () => void;
+  isCurrent: () => boolean;
+  verifyCurrent: () => Promise<boolean>;
   generation: number;
   blocked: boolean;
   busy: boolean;
@@ -27,47 +36,66 @@ type MutationState = Scope & {
 const Context = createContext<MutationState | null>(null);
 
 export function WorkspaceMutationProvider(props: PropsWithChildren<Scope>) {
-  const [sessionEpoch, setSessionEpoch] = useState(0);
-  useEffect(() => {
+  return (
+    <MutationSession
+      key={JSON.stringify([props.userId, props.workspaceId])}
+      {...props}
+    />
+  );
+}
+
+function MutationSession(props: PropsWithChildren<Scope>) {
+  const [epoch, setEpoch] = useState(0);
+  const lifecycle = useRef({ active: true });
+  useLayoutEffect(() => {
+    const token = lifecycle.current;
+    token.active = true;
     const client = getSupabaseClient();
-    if (!client) return;
-    let active = true;
     let identity: string | null = null;
-    let version = 0;
-    const subscription = client.auth.onAuthStateChange((event, session) => {
-      const next = scheduleSessionId(session);
-      if (event === 'INITIAL_SESSION') {
-        identity = next;
-        return;
-      }
+    let events = 0;
+    const subscription = client?.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') return;
       if (
         event === 'TOKEN_REFRESHED' &&
         identity &&
-        next === identity &&
-        session?.user.id.toLowerCase() === props.userId.toLowerCase()
+        session?.user.id === props.userId &&
+        scheduleSessionId(session) === identity
       )
         return;
-      version += 1;
-      identity = next;
-      if (active) setSessionEpoch((value) => value + 1);
+      events += 1;
+      token.active = false;
+      lifecycle.current = { active: true };
+      identity = scheduleSessionId(session);
+      setEpoch((value) => value + 1);
     }).data.subscription;
-    const started = version;
-    void client.auth.getSession().then(
+    const version = events;
+    void client?.auth.getSession().then(
       (result) => {
-        if (active && version === started && !result.error)
+        if (
+          version === events &&
+          !result.error &&
+          result.data.session?.user.id === props.userId
+        )
           identity = scheduleSessionId(result.data.session);
       },
       () => {},
     );
     return () => {
-      active = false;
-      subscription.unsubscribe();
+      token.active = false;
+      subscription?.unsubscribe();
     };
-  }, [props.userId]);
+  }, [props.userId, epoch]);
   return (
     <MutationContent
-      key={JSON.stringify([props.userId, props.workspaceId, sessionEpoch])}
+      key={JSON.stringify([props.userId, props.workspaceId, epoch])}
       {...props}
+      lifecycle={lifecycle}
+      onRetrySession={() => {
+        if (!lifecycle.current.active) return;
+        lifecycle.current.active = false;
+        lifecycle.current = { active: true };
+        setEpoch((value) => value + 1);
+      }}
     />
   );
 }
@@ -76,19 +104,83 @@ function MutationContent({
   userId,
   workspaceId,
   children,
-}: PropsWithChildren<Scope>) {
+  lifecycle,
+  onRetrySession,
+}: PropsWithChildren<Scope> & {
+  lifecycle: { current: { active: boolean } };
+  onRetrySession: () => void;
+}) {
   const [generation, setGeneration] = useState(0);
   const [running, setRunning] = useState(false);
-  const control = useRef({ active: true, locked: false });
+  const control = useRef<{
+    active: boolean;
+    locked: boolean;
+    fence?: BookingSessionFence;
+    parent?: { active: boolean };
+  }>({ active: false, locked: false });
+  const [verified, setVerified] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
   useLayoutEffect(() => {
-    const token = control.current;
-    token.active = true;
+    const token: NonNullable<typeof control.current> = {
+      active: true,
+      locked: false,
+      parent: lifecycle.current,
+    };
+    control.current = token;
+    try {
+      token.fence = createBookingSessionFence(
+        userId,
+        () =>
+          token.active &&
+          control.current === token &&
+          Boolean(token.parent?.active),
+      );
+      void token.fence.assertCurrent().then(
+        () => {
+          if (token.active && control.current === token && token.parent?.active)
+            setVerified(true);
+        },
+        () => {
+          if (token.active && control.current === token && token.parent?.active)
+            setUnavailable(true);
+        },
+      );
+    } catch {
+      token.active = false;
+      void Promise.resolve().then(() => {
+        if (control.current === token && token.parent?.active)
+          setUnavailable(true);
+      });
+    }
     return () => {
       token.active = false;
+      token.fence?.dispose();
     };
+  }, [lifecycle, userId]);
+  const isCurrent = useCallback(() => {
+    const token = control.current;
+    if (!token.active || !token.parent?.active || !token.fence) return false;
+    try {
+      token.fence.guard();
+      return true;
+    } catch {
+      return false;
+    }
   }, []);
+  const verifyCurrent = useCallback(async () => {
+    if (!isCurrent()) return false;
+    const token = control.current;
+    try {
+      await token.fence!.assertCurrent();
+      return control.current === token && isCurrent();
+    } catch {
+      if (control.current === token && token.active && token.parent?.active)
+        setUnavailable(true);
+      return false;
+    }
+  }, [isCurrent]);
   const changed = () => {
-    if (control.current.active) setGeneration((value) => value + 1);
+    if (isCurrent()) setGeneration((value) => value + 1);
   };
   const billing = useTrainerBillingCommands({
     userId,
@@ -113,6 +205,8 @@ function MutationContent({
   const stores = [billing, proposal, creation, status];
   const busy = running || stores.some((store) => store.busy);
   const blocked =
+    !verified ||
+    unavailable ||
     busy ||
     stores.some(
       (store) =>
@@ -132,29 +226,29 @@ function MutationContent({
   ): Promise<T> => {
     const token = control.current;
     if (
-      !token.active ||
+      !isCurrent() ||
       token.locked ||
       (recovery ? latest.current.busy : latest.current.blocked)
     )
       return fallback;
     token.locked = true;
-    latest.current = { blocked: true, busy: true };
     setRunning(true);
     try {
+      if (!(await verifyCurrent())) return fallback;
       const result = await operation();
-      return token.active ? result : fallback;
+      return (await verifyCurrent()) ? result : fallback;
+    } catch (error) {
+      if (!(await verifyCurrent())) return fallback;
+      throw error;
     } finally {
       token.locked = false;
-      latest.current.busy = false;
-      if (token.active) setRunning(false);
+      if (control.current === token && token.active && token.parent?.active) {
+        setRunning(false);
+      }
     }
   };
   const reload = (operation: () => void) => {
-    if (
-      control.current.active &&
-      !control.current.locked &&
-      !latest.current.busy
-    )
+    if (isCurrent() && !control.current.locked && !latest.current.busy)
       operation();
   };
   return (
@@ -162,6 +256,12 @@ function MutationContent({
       value={{
         userId,
         workspaceId,
+        unavailable,
+        retrySession: () => {
+          if (control.current.parent?.active) onRetrySession();
+        },
+        isCurrent,
+        verifyCurrent,
         generation,
         blocked,
         busy,
@@ -217,4 +317,44 @@ export function useWorkspaceMutations() {
   const value = useContext(Context);
   if (!value) throw new Error('Workspace mutation provider is missing');
   return value;
+}
+
+export function useWorkspaceScreenScope(key: string) {
+  const mutations = useWorkspaceMutations();
+  const lifecycle = useRef<{ key: string; active: boolean } | null>(null);
+  const focus = useRef({ active: true, epoch: 0 });
+  useLayoutEffect(() => {
+    const token = { key, active: true };
+    lifecycle.current = token;
+    return () => {
+      token.active = false;
+    };
+  }, [key]);
+  useFocusEffect(
+    useCallback(() => {
+      focus.current.active = true;
+      focus.current.epoch += 1;
+      return () => {
+        focus.current.active = false;
+        focus.current.epoch += 1;
+      };
+    }, []),
+  );
+  const isCurrent = () =>
+    lifecycle.current?.key === key &&
+    lifecycle.current.active &&
+    focus.current.active &&
+    mutations.isCurrent();
+  const verifyCurrent = async () => {
+    if (!isCurrent()) return false;
+    const token = lifecycle.current;
+    const epoch = focus.current.epoch;
+    return (
+      (await mutations.verifyCurrent()) &&
+      isCurrent() &&
+      lifecycle.current === token &&
+      focus.current.epoch === epoch
+    );
+  };
+  return { isCurrent, verifyCurrent };
 }

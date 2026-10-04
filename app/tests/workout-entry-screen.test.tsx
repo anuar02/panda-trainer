@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import type {
   PreloadExercise,
   PreloadParticipant,
@@ -10,6 +10,8 @@ import type {
 } from '../src/features/workout-entry/service';
 import { WorkoutEntryPanel } from '../src/features/workout-entry/screen';
 import { useWorkoutEntry } from '../src/features/workout-entry/use-entry';
+import { CorrectionPanel } from '../src/features/workout-corrections';
+import type { SyncSession } from '../src/domain/workout-sync/types';
 import '../src/lib/i18n';
 
 jest.mock('../src/features/workout-entry/use-entry', () => ({
@@ -17,6 +19,9 @@ jest.mock('../src/features/workout-entry/use-entry', () => ({
 }));
 jest.mock('../src/features/workout-sync', () => ({
   WorkoutSyncStatus: () => null,
+}));
+jest.mock('../src/features/workout-corrections', () => ({
+  CorrectionPanel: jest.fn(() => null),
 }));
 jest.mock('../src/ui/sheet', () => ({ Sheet: () => null }));
 
@@ -87,6 +92,7 @@ function fixture(p = participant(), values: SetValues = blank) {
     busy: false,
     retry: jest.fn(),
     retryDelivery: jest.fn(),
+    finish: jest.fn(async () => {}),
     execute: jest.fn(async (action) => {
       await action(service as unknown as WorkoutEntryService);
     }),
@@ -206,4 +212,92 @@ it('finished journals disable confirmation and result fields', async () => {
     screen.getByRole('button', { name: 'Записать подход 1' }),
   );
   expect(test.service.confirm).not.toHaveBeenCalled();
+});
+
+it('exposes correction controls only for the finished selected participant', async () => {
+  const test = fixture();
+  const session: SyncSession = {
+    accountId: 'synthetic-account',
+    workspaceId: 'synthetic-workspace',
+    sessionId: 'synthetic-session',
+    accessToken: 'synthetic-token',
+  };
+  const view = await render(
+    <WorkoutEntryPanel
+      session={session}
+      getSession={() => session}
+      participant={test.p}
+    />,
+  );
+  expect(CorrectionPanel).not.toHaveBeenCalled();
+  const finished = { ...test.p, workoutStatus: 'finished' as const };
+  fixture(finished);
+  await view.rerender(
+    <WorkoutEntryPanel
+      session={session}
+      getSession={() => session}
+      participant={finished}
+    />,
+  );
+  const props = jest.mocked(CorrectionPanel).mock.calls.at(-1)?.[0];
+  expect(props?.participant).toBe(finished);
+  expect(props?.session).toBe(session);
+});
+
+it('renders confirmed scoped readback and hides it after same-user relogin', async () => {
+  const finished = { ...participant(), workoutStatus: 'finished' as const };
+  fixture(finished);
+  const session: SyncSession = {
+    accountId: 'synthetic-account',
+    workspaceId: 'synthetic-workspace',
+    sessionId: 'synthetic-session',
+    accessToken: 'synthetic-token',
+  };
+  let current: SyncSession | null = session;
+  const getSession = () => current;
+  const view = await render(
+    <WorkoutEntryPanel
+      session={session}
+      getSession={getSession}
+      participant={finished}
+    />,
+  );
+  const onRefresh = jest
+    .mocked(CorrectionPanel)
+    .mock.calls.at(-1)?.[0].onRefresh;
+  const corrected = {
+    ...finished,
+    workoutRevision: 2,
+    exercises: finished.exercises.map((value) => ({
+      ...value,
+      name: 'Confirmed correction',
+    })),
+  };
+  await act(async () => onRefresh?.(corrected));
+  expect(screen.getAllByText('Confirmed correction').length).toBeGreaterThan(0);
+  current = null;
+  await act(async () =>
+    onRefresh?.({
+      ...corrected,
+      exercises: corrected.exercises.map((value) => ({
+        ...value,
+        name: 'Late correction',
+      })),
+    }),
+  );
+  expect(screen.queryByText('Late correction')).toBeNull();
+  current = {
+    ...session,
+    sessionId: 'synthetic-relogin',
+    accessToken: 'synthetic-new-token',
+  };
+  await view.rerender(
+    <WorkoutEntryPanel
+      session={current}
+      getSession={getSession}
+      participant={finished}
+    />,
+  );
+  expect(screen.queryAllByText('Confirmed correction')).toHaveLength(0);
+  expect(screen.getAllByText('Exercise first').length).toBeGreaterThan(0);
 });

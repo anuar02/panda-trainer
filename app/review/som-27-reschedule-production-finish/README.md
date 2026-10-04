@@ -2,7 +2,9 @@
 
 2026-10-04. Branch: `agent/04-som-27-reschedule-production-finish`.
 Fresh base fetched and fast-forwarded from `origin/fix/som-50-template-picker`
-(`4c20e22`). Historical `third/som-27-status-proposal-session-fencing` was not used
+(`4c20e22`), then merged the newer integrated base `40ece81` before final
+verification. SOM-26 provider implementation was retained and regression suites
+combined. Historical `third/som-27-status-proposal-session-fencing` was not used
 as a dependency or claimed as merged. One agent; no delegated work.
 
 Live Linear project and SOM-27 were read, including relations and duplicate search.
@@ -53,7 +55,8 @@ npm test -- --runTestsByPath tests/som-27-command-session.test.ts \
   tests/som-27-production-controls-workflow.test.tsx \
   tests/workspace-status-commands-hook.test.tsx \
   tests/client-booking-status-hook.test.tsx tests/workspace-proposal-hook.test.tsx \
-  tests/client-booking-controls.test.tsx tests/workspace-mutation-provider.test.tsx
+  tests/client-booking-controls.test.tsx tests/workspace-mutation-provider.test.tsx \
+  tests/client-command-coordinator.test.tsx
 npm run check
 ```
 
@@ -112,4 +115,4 @@ isolation remain unchanged. No existing migration was edited.
   new debit/overlap policy or SOM-36/37/73 functionality.
 
 Issue, screens and product stage are not accepted. See
-[ADR 0089](../../../docs/app/decisions/0089-booking-command-session-and-recovery.md).
+[ADR 0092](../../../docs/app/decisions/0092-booking-command-session-and-recovery.md).

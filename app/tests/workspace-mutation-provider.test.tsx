@@ -251,3 +251,63 @@ test('same-user relogin creates an independent lock and old completion cannot ch
   expect(today.generation).toBe(1);
   await view.unmount();
 });
+
+test('same-user login invalidates captured results and cannot unlock a new submit', async () => {
+  const oldRequest =
+    deferred<Awaited<ReturnType<typeof submitWorkspaceBookingStatus>>>();
+  const newRequest =
+    deferred<Awaited<ReturnType<typeof submitWorkspaceBookingStatus>>>();
+  jest
+    .mocked(submitWorkspaceBookingStatus)
+    .mockReturnValueOnce(oldRequest.promise)
+    .mockReturnValueOnce(newRequest.promise);
+  await render(<Tree />);
+  await waitFor(() => expect(today.blocked).toBe(false));
+  const old = today;
+  let completion!: Promise<boolean>;
+  await act(async () => {
+    completion = old.status.submit(statusCommand);
+  });
+  await act(async () =>
+    auth.emit(
+      'SIGNED_IN',
+      auth.session(financialId(1), 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'),
+    ),
+  );
+  await waitFor(() => expect(today.blocked).toBe(false));
+  await act(async () => {
+    void today.status.submit(statusCommand);
+  });
+  await act(async () =>
+    oldRequest.resolve({
+      bookingId: command.bookingId,
+      revision: 2,
+      status: 'cancelled_by_trainer',
+      replayed: false,
+    }),
+  );
+  expect(await completion).toBe(false);
+  expect(today.busy).toBe(true);
+  expect(today.generation).toBe(0);
+  await act(async () => expect(await old.billing.submit(command)).toBe(false));
+  await act(async () =>
+    newRequest.resolve({
+      bookingId: command.bookingId,
+      revision: 2,
+      status: 'cancelled_by_trainer',
+      replayed: false,
+    }),
+  );
+  expect(today.busy).toBe(false);
+  expect(today.generation).toBe(1);
+});
+
+test('provider verification failure offers a fresh session retry', async () => {
+  auth.getSession.mockRejectedValueOnce(new Error('temporary auth storage'));
+  await render(<Tree />);
+  await waitFor(() => expect(today.unavailable).toBe(true));
+  expect(today.blocked).toBe(true);
+  await act(async () => today.retrySession());
+  await waitFor(() => expect(today.blocked).toBe(false));
+  expect(today.unavailable).toBe(false);
+});

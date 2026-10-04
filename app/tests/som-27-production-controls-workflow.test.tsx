@@ -40,7 +40,13 @@ import { loadPendingWorkspaceProposal } from '../src/features/workspace-scheduli
 jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+jest.mock('expo-router', () => ({
+  useRouter: () => ({ push: jest.fn() }),
+  useFocusEffect: (callback: () => void | (() => void)) => {
+    const react = jest.requireActual<typeof import('react')>('react');
+    react.useEffect(callback, [callback]);
+  },
+}));
 jest.mock('../src/features/trainer-billing/use-billing', () => ({
   useTrainerBilling: () => ({
     data: mockBilling,

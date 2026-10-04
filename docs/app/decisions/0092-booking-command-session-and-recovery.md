@@ -1,4 +1,4 @@
-# 0089. Booking status/reschedule session fencing and exact recovery
+# 0092. Booking status/reschedule session fencing and exact recovery
 
 Date: 2026-10-04. Status: implemented; synthetic verification recorded in the
 [SOM-27 review](../../../app/review/som-27-reschedule-production-finish/README.md).

@@ -11,7 +11,10 @@ import { Text } from '@/ui/text';
 import { useTrainerBilling } from '../trainer-billing/use-billing';
 import { workspaceAgendaSessions } from './agenda';
 import { workspaceScheduleRows } from './screen-adapter';
-import { useWorkspaceMutations } from './mutation-provider';
+import {
+  useWorkspaceMutations,
+  useWorkspaceScreenScope,
+} from './mutation-provider';
 import { WorkspaceAttendanceControls } from './workspace-attendance-controls';
 import {
   WorkspaceProposalControls,
@@ -43,6 +46,7 @@ export function WorkspaceSessionControls({
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const mutations = useWorkspaceMutations();
+  const caller = useWorkspaceScreenScope(JSON.stringify([selectedId, loading]));
   const preload = useOptionalWorkoutPreload();
   const sheetEpoch = useRef(0);
   useLayoutEffect(() => {
@@ -190,7 +194,12 @@ export function WorkspaceSessionControls({
           <Button
             label={t('workspaceScheduling.createResume')}
             disabled={mutations.busy}
-            onPress={() => router.push('/workspace/new')}
+            onPress={() => {
+              if (!caller.isCurrent()) return;
+              void caller.verifyCurrent().then((valid) => {
+                if (valid && caller.isCurrent()) router.push('/workspace/new');
+              });
+            }}
           />
         </Card>
       ) : null}

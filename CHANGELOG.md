@@ -14,8 +14,17 @@
   не пересекают поколения. Дополнены synthetic workflow/regression, pgTAP и
   concurrency проверки отдельного списания с причиной; серверная policy и
   billing implementation сохранены. [Отчёт](app/review/som-27-reschedule-production-finish/README.md),
-  [ADR 0089](docs/app/decisions/0089-booking-command-session-and-recovery.md).
+  [ADR 0092](docs/app/decisions/0092-booking-command-session-and-recovery.md).
   SQL/native/parity и приёмка владельца открыты.
+
+- [SOM-22 / draft PR #58](https://github.com/anuar02/panda-trainer/pull/58): create/archive упражнений закреплены за actor/workspace/login; durable input/UUID replay, validated mutation rows и provider/route lifecycle guards защищают от дублей и поздних результатов. Additive grant INSERT(id), SQL archive/history regressions и concurrency handoff; [отчёт](app/review/som-22-library-production-finish/README.md), [ADR 0091](docs/app/decisions/0091-exercise-mutation-session-and-replay.md). SQL/runtime/native и приёмка владельца открыты.
+
+- [SOM-26 / draft PR #57](https://github.com/anuar02/panda-trainer/pull/57): Today/week/create и общий mutation provider сбрасывают selections,
+  callbacks и locks при relogin/logout; verified refresh сохраняет сценарий.
+  Исправлен повтор save после overlap acknowledgement; default week следует
+  workspace clock. [Проверки](app/review/som-26-schedule-production-finish/README.md),
+  [ADR 0087](docs/app/decisions/0087-schedule-presentation-session-lifecycle.md).
+  SQL/live auth/native/parity и одобрение владельца не проверены.
 
 - [SOM-34 / draft PR #53](https://github.com/anuar02/panda-trainer/pull/53): financial mutation session fence, защита pending/clear и hook callbacks
   при relogin/logout/refresh; durable retry сохраняет exact payload/requestId и
@@ -37,6 +46,16 @@
 - [SOM-35 / draft PR #40](https://github.com/anuar02/panda-trainer/pull/40): клиентская история и pagination закрываются при смене сессии, включая новый вход того же аккаунта; штатный refresh сохраняется. [Проверки](app/review/som-35-history-session-fencing/README.md), [ADR 0076](docs/app/decisions/0076-client-history-session-fencing.md).
 
 ### Добавлено
+
+- [SOM-32 / draft PR #54](https://github.com/anuar02/panda-trainer/pull/54): production finish конкретного журнала через durable outbox, сводка сохранённых подходов и явное partial/empty подтверждение; local save отделён от server finish, draft/conflict не выдают applied исправление. [Отчёт](app/review/som-32-production-finish/README.md), [ADR 0087](docs/app/decisions/0087-production-workout-finish-outbox.md). Correction/program contracts, runtime и приёмка владельца открыты.
+
+- [SOM-32 / draft PR #56](https://github.com/anuar02/panda-trainer/pull/56): отдельное явное применение сохранённого correction draft завершённого
+  журнала: owner RPC, immutable receipts/audit и tenant/revision/provenance guards;
+  scoped transport, durable exact retry, просмотр/подтверждение и readback в журнале.
+  [Отчёт](app/review/som-32-explicit-correction-server/README.md),
+  [ADR 0090](docs/app/decisions/0090-explicit-finished-journal-correction.md).
+  SQL runtime — needs-local-db; native/parity и одобрение владельца открыты.
+  Выборочное обновление личной программы и SOM-32 целиком не завершены.
 
 - [SOM-41 / draft PR #51](https://github.com/anuar02/panda-trainer/pull/51): внутренний read-only scoped SQLite outbox snapshot всех операций/receipts
   и raw entries в одной queued transaction, bounded paging и session cancellation.
@@ -361,6 +380,8 @@
   [ADR 0025](docs/app/decisions/0025-identity-rls-foundation.md).
 
 ### Исправлено
+
+- [SOM-32 r2 / draft PR #59](https://github.com/anuar02/panda-trainer/pull/59): полный production finish пакет восстановлен; доказанный current resolution снимает terminal lock для продолжения ввода и нового явного завершения, сохраняя audit/outbox/drafts. Bearer исключён из React keys/state. [Отчёт r2](app/review/som-32-production-finish-r2/README.md), [ADR 0089](docs/app/decisions/0089-terminal-finish-current-recovery.md); runtime и приёмка владельца открыты.
 
 - [SOM-20 / draft PR #55](https://github.com/anuar02/panda-trainer/pull/55): создание клиента закреплено за actor/workspace/JWT session и lifetime caller; поздние RPC/sheet completion не затрагивают новый scope, explicit retry сохраняет in-memory requestId. [Отчёт](app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](docs/app/decisions/0088-client-creation-session-fencing.md). Live/native/parity и приёмка владельца открыты.
 

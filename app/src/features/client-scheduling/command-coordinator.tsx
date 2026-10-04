@@ -21,7 +21,7 @@ export function ClientSchedulingCommandBoundary({
 function useClientSchedulingCommands(
   status: ClientBookingStatusStore,
   proposal: WorkspaceProposalStore,
-) {
+): { status: ClientBookingStatusStore; proposal: WorkspaceProposalStore } {
   const key = JSON.stringify([status.scopeKey, proposal.scopeKey]);
   const control = useRef({ key, active: true, locked: false });
   const [running, setRunning] = useState<string | null>(null);

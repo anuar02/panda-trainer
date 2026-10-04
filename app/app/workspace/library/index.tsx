@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
@@ -7,11 +7,6 @@ import type { LibraryExercise } from '@/features/trainer-library/fixtures';
 import { useWorkspaceLibrary } from '@/features/workspace-library/provider';
 import { workspaceTemplateRouteHref } from '@/features/workspace-library/editor-routes';
 import { useWorkspaceTemplateLauncher } from '@/features/workspace-library/launcher';
-import {
-  createWorkspaceExerciseOperation,
-  archiveWorkspaceExerciseOperation,
-  WorkspaceLibraryError,
-} from '@/features/workspace-library/service';
 import { Button } from '@/ui/button';
 import { Screen } from '@/ui/screen';
 import { Sheet } from '@/ui/sheet';
@@ -25,38 +20,41 @@ export default function WorkspaceLibraryRoute() {
   const store = useWorkspaceLibrary();
   const launcher = useWorkspaceTemplateLauncher(clientId);
   const { t } = useTranslation();
-  const [selected, setSelected] = useState<LibraryExercise | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const pending = useRef(false);
-  const create = useRef<{
-    name: string;
-    operation: ReturnType<typeof createWorkspaceExerciseOperation>;
+  const [selected, setSelected] = useState<{
+    exercise: LibraryExercise;
+    scope: string;
   } | null>(null);
-  const archive = useRef<{
-    id: string;
-    operation: ReturnType<typeof archiveWorkspaceExerciseOperation>;
-  } | null>(null);
-  const mutate = async (action: () => Promise<void>) => {
-    if (pending.current) return;
-    pending.current = true;
-    setBusy(true);
-    setError(null);
-    try {
-      await action();
-    } catch (caught) {
-      setError(
-        t(
-          caught instanceof WorkspaceLibraryError && caught.code === 'duplicate'
-            ? 'workspaceLibrary.duplicate'
-            : 'workspaceLibrary.error',
-        ),
-      );
-    } finally {
-      pending.current = false;
-      setBusy(false);
-    }
+  const commands = store.exerciseCommands;
+  const busy = commands.busy;
+  const error = commands.error
+    ? t(
+        commands.error === 'duplicate'
+          ? 'workspaceLibrary.duplicate'
+          : 'workspaceLibrary.error',
+      )
+    : null;
+  const lifecycle = useRef(commands.scopeId);
+  const mounted = useRef(false);
+  useLayoutEffect(() => {
+    lifecycle.current = commands.scopeId;
+  }, [commands.scopeId]);
+  const cancel = useRef(commands.cancel);
+  useLayoutEffect(() => {
+    cancel.current = commands.cancel;
+  }, [commands.cancel]);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      cancel.current();
+    };
+  }, []);
+  const currentGuard = () => {
+    const scope = commands.scopeId;
+    return () => mounted.current && lifecycle.current === scope;
   };
+  const visibleSelected =
+    selected?.scope === commands.scopeId ? selected.exercise : null;
   if (store.editor.readError)
     return (
       <Screen title={t('common.error')}>
@@ -77,6 +75,7 @@ export default function WorkspaceLibraryRoute() {
   return (
     <View style={{ flex: 1 }}>
       <TrainerLibraryScreen
+        key={commands.scopeId}
         initialTab={clientId && tab === 'templates' ? 'templates' : 'exercises'}
         header={
           <>
@@ -85,7 +84,21 @@ export default function WorkspaceLibraryRoute() {
               label={t('trainerLibrary.back')}
               onPress={() => router.replace('/auth/account')}
             />
-            {error ? <Text accessibilityRole="alert">{error}</Text> : null}
+            {error ? (
+              <>
+                <Text accessibilityRole="alert">{error}</Text>
+                <Button
+                  label={t('common.retry')}
+                  onPress={() => {
+                    const guard = currentGuard();
+                    void commands.retry(guard).then((ok) => {
+                      if (ok && guard()) setSelected(null);
+                    });
+                  }}
+                  disabled={busy}
+                />
+              </>
+            ) : null}
             {busy ? (
               <Text accessibilityLiveRegion="polite">
                 {t('common.loading')}
@@ -103,63 +116,51 @@ export default function WorkspaceLibraryRoute() {
         onOpenTemplate={(id) =>
           router.push(workspaceTemplateRouteHref(id, clientId))
         }
-        onArchiveExercise={busy ? undefined : setSelected}
-        onCreateExercise={
-          busy
+        onArchiveExercise={
+          busy || !commands.ready
             ? undefined
-            : (name) =>
-                void mutate(async () => {
-                  if (create.current?.name !== name)
-                    create.current = {
-                      name,
-                      operation: createWorkspaceExerciseOperation(
-                        store.workspaceId,
-                        {
-                          name,
-                          muscleGroup: t('workspaceLibrary.customGroup'),
-                          equipment: t('workspaceLibrary.customEquipment'),
-                          measure: 'reps',
-                          bodyweight: false,
-                        },
-                      ),
-                    };
-                  await create.current.operation.execute();
-                  await store.refresh();
-                  create.current = null;
-                })
+            : (exercise) => {
+                setSelected({ exercise, scope: commands.scopeId });
+              }
+        }
+        onCreateExercise={
+          busy || !commands.ready
+            ? undefined
+            : (name) => {
+                void commands.create(
+                  {
+                    name,
+                    muscleGroup: t('workspaceLibrary.customGroup'),
+                    equipment: t('workspaceLibrary.customEquipment'),
+                    measure: 'reps',
+                    bodyweight: false,
+                  },
+                  currentGuard(),
+                );
+              }
         }
       />
       {launcher.conflict}
       <Sheet
-        open={selected !== null}
+        open={visibleSelected !== null}
         title={t('workspaceLibrary.archive')}
         onClose={() => {
           if (!busy) setSelected(null);
         }}
       >
-        <Text>{selected?.name}</Text>
+        <Text>{visibleSelected?.name}</Text>
         <Text>{t('workspaceLibrary.archiveHint')}</Text>
         {error ? <Text accessibilityRole="alert">{error}</Text> : null}
         <Button
           label={t('workspaceLibrary.archiveConfirm')}
           loading={busy}
-          onPress={() =>
-            void mutate(async () => {
-              if (!selected) return;
-              if (archive.current?.id !== selected.id)
-                archive.current = {
-                  id: selected.id,
-                  operation: archiveWorkspaceExerciseOperation(
-                    store.workspaceId,
-                    selected.id,
-                  ),
-                };
-              await archive.current.operation.execute();
-              await store.refresh();
-              archive.current = null;
-              setSelected(null);
-            })
-          }
+          onPress={() => {
+            if (!visibleSelected) return;
+            const guard = currentGuard();
+            void commands.archive(visibleSelected.id, guard).then((ok) => {
+              if (ok && guard()) setSelected(null);
+            });
+          }}
         />
         <Button
           variant="ghost"
