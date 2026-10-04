@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { ClientSchedulingCommandBoundary } from './command-coordinator';
+import type { ClientBookingStatusStore } from './use-status';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -49,8 +51,24 @@ function ClientScheduleContent(props: Props) {
     userId: props.userId,
     workspaceId: props.workspaceId,
     onChanged: read.retry,
+    clientRecordId: props.clientRecordId,
   });
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const generation = useRef<string | null>(status.scopeKey);
+  useLayoutEffect(() => {
+    generation.current = status.scopeKey;
+    return () => {
+      generation.current = null;
+    };
+  }, [status.scopeKey]);
+  const isCurrent = () => generation.current === status.scopeKey;
+  const [selection, setSelection] = useState<{
+    id: string | null;
+    scope: string;
+  } | null>(null);
+  const selectedId = selection?.scope === status.scopeKey ? selection.id : null;
+  const setSelectedId = (id: string | null) => {
+    if (isCurrent()) setSelection({ id, scope: status.scopeKey });
+  };
   const home = read.schedule ? clientScheduleHome(read.schedule, now) : null;
   const context = read.schedule?.context;
   const scopeFailed = Boolean(
@@ -73,6 +91,7 @@ function ClientScheduleContent(props: Props) {
     booking: ClientScheduleBooking,
     proposal: WorkspaceProposalStore,
     proposalOnly = false,
+    statusOverride: ClientBookingStatusStore = status,
   ) => (
     <ClientBookingControls
       key={booking.id}
@@ -84,7 +103,7 @@ function ClientScheduleContent(props: Props) {
       booking={booking}
       proposals={home?.pendingProposals ?? []}
       proposalStore={proposal}
-      statusStore={status}
+      statusStore={statusOverride}
       proposalOnly={proposalOnly}
       blocked={read.loading || read.failed || scopeFailed}
     />
@@ -94,85 +113,100 @@ function ClientScheduleContent(props: Props) {
       userId={props.userId}
       workspaceId={props.workspaceId}
       onChanged={read.retry}
+      clientRecordId={props.clientRecordId}
       externalBlocked={blocked}
       externalBusy={status.busy}
     >
       {(proposal) => (
-        <View className="flex-1 bg-canvas">
-          <WorkspaceProposalRecovery />
-          <ClientBookingStatusRecovery
-            store={status}
-            externalBusy={proposal.busy}
-          />
-          {read.failed || scopeFailed ? (
-            <Screen title={t('common.error')}>
-              <Button label={t('common.retry')} onPress={read.retry} />
-            </Screen>
-          ) : (
-            <ClientHomeScreen
-              data={{
-                clientName: context?.clientName ?? props.clientName,
-                trainerName: context?.trainerName ?? props.trainerName,
-                timezone: context?.timezone ?? 'UTC',
-                loading: read.loading,
-                bookings: (home?.bookings ?? []).map((row) => ({
-                  ...row,
-                  programPreview: row.booking.program?.exercises.length
-                    ? t('clientHome.programPreview', {
-                        program: row.programName,
-                        exercises: row.booking.program.exercises
-                          .slice(0, 3)
-                          .map((line) => line.exercise_name_snapshot)
-                          .join(', '),
-                        more:
-                          row.booking.program.exercises.length > 3
-                            ? t('clientHome.moreExercises', {
-                                count: row.booking.program.exercises.length - 3,
-                              })
-                            : '',
-                      })
-                    : t('clientHome.onsite'),
-                })),
-                onSelectBooking: (row) => setSelectedId(row.id),
-                onProgramPreview: () =>
-                  router.push({
-                    pathname: '/connection/[clientRecordId]/program',
-                    params: { clientRecordId: props.clientRecordId },
-                  }),
-                onOpenHistory: () =>
-                  router.push({
-                    pathname: '/connection/[clientRecordId]/history',
-                    params: { clientRecordId: props.clientRecordId },
-                  }),
-                renderActions: (row) => {
-                  const booking = home?.bookings.find(
-                    (value) => value.id === row.id,
-                  )?.booking;
-                  return booking ? controls(booking, proposal) : null;
-                },
-                requests: home?.pendingProposals
-                  .filter((request) => request.bookingId !== home.next?.id)
-                  .map((request) => (
-                    <View key={request.id}>
-                      {controls(request.booking, proposal, true)}
-                    </View>
-                  )),
-              }}
-            />
+        <ClientSchedulingCommandBoundary status={status} proposal={proposal}>
+          {(status, proposal) => (
+            <View className="flex-1 bg-canvas">
+              <WorkspaceProposalRecovery store={proposal} />
+              <ClientBookingStatusRecovery
+                store={status}
+                externalBusy={proposal.busy}
+              />
+              {read.failed || scopeFailed ? (
+                <Screen title={t('common.error')}>
+                  <Button label={t('common.retry')} onPress={read.retry} />
+                </Screen>
+              ) : (
+                <ClientHomeScreen
+                  data={{
+                    clientName: context?.clientName ?? props.clientName,
+                    trainerName: context?.trainerName ?? props.trainerName,
+                    timezone: context?.timezone ?? 'UTC',
+                    loading: read.loading,
+                    bookings: (home?.bookings ?? []).map((row) => ({
+                      ...row,
+                      programPreview: row.booking.program?.exercises.length
+                        ? t('clientHome.programPreview', {
+                            program: row.programName,
+                            exercises: row.booking.program.exercises
+                              .slice(0, 3)
+                              .map((line) => line.exercise_name_snapshot)
+                              .join(', '),
+                            more:
+                              row.booking.program.exercises.length > 3
+                                ? t('clientHome.moreExercises', {
+                                    count:
+                                      row.booking.program.exercises.length - 3,
+                                  })
+                                : '',
+                          })
+                        : t('clientHome.onsite'),
+                    })),
+                    onSelectBooking: (row) => setSelectedId(row.id),
+                    onProgramPreview: () => {
+                      if (!isCurrent()) return;
+                      router.push({
+                        pathname: '/connection/[clientRecordId]/program',
+                        params: { clientRecordId: props.clientRecordId },
+                      });
+                    },
+                    onOpenHistory: () => {
+                      if (!isCurrent()) return;
+                      router.push({
+                        pathname: '/connection/[clientRecordId]/history',
+                        params: { clientRecordId: props.clientRecordId },
+                      });
+                    },
+                    renderActions: (row) => {
+                      const booking = home?.bookings.find(
+                        (value) => value.id === row.id,
+                      )?.booking;
+                      return booking
+                        ? controls(booking, proposal, false, status)
+                        : null;
+                    },
+                    requests: home?.pendingProposals
+                      .filter((request) => request.bookingId !== home.next?.id)
+                      .map((request) => (
+                        <View key={request.id}>
+                          {controls(request.booking, proposal, true, status)}
+                        </View>
+                      )),
+                  }}
+                />
+              )}
+              <Sheet
+                open={
+                  Boolean(selected) &&
+                  !read.loading &&
+                  !read.failed &&
+                  !scopeFailed
+                }
+                title={selected?.program?.name ?? t('clientHome.onsite')}
+                onClose={() => setSelectedId(null)}
+              >
+                {selected ? controls(selected, proposal, false, status) : null}
+                {selected?.program?.description ? (
+                  <Text>{selected.program.description}</Text>
+                ) : null}
+              </Sheet>
+            </View>
           )}
-          <Sheet
-            open={
-              Boolean(selected) && !read.loading && !read.failed && !scopeFailed
-            }
-            title={selected?.program?.name ?? t('clientHome.onsite')}
-            onClose={() => setSelectedId(null)}
-          >
-            {selected ? controls(selected, proposal) : null}
-            {selected?.program?.description ? (
-              <Text>{selected.program.description}</Text>
-            ) : null}
-          </Sheet>
-        </View>
+        </ClientSchedulingCommandBoundary>
       )}
     </WorkspaceProposalProvider>
   );

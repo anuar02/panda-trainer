@@ -1,4 +1,8 @@
-import { getSupabaseClient } from '@/features/auth/client';
+import {
+  createSchedulingCommandFence,
+  schedulingCommandError,
+  type SchedulingCommandFence,
+} from './command-session';
 import type { Database } from '@/lib/database.types';
 
 export type WorkspaceBookingStatusErrorCode =
@@ -39,7 +43,11 @@ const validUuid = (value: unknown): value is string =>
 
 export const createWorkspaceBookingStatusOperation = (
   input: WorkspaceBookingStatusInput,
-) => {
+  suppliedFence?: SchedulingCommandFence,
+): {
+  execute(): Promise<WorkspaceBookingStatusResult>;
+  dispose?: () => void;
+} => {
   if (
     (input.action !== 'confirm' && input.action !== 'cancel') ||
     !validUuid(input.bookingId) ||
@@ -58,27 +66,37 @@ export const createWorkspaceBookingStatusOperation = (
     p_request_id: input.requestId.toLowerCase(),
   };
   let pending: Promise<WorkspaceBookingStatusResult> | null = null;
+  let fence = suppliedFence;
   return {
+    dispose: () => {
+      if (!suppliedFence) fence?.dispose();
+    },
     execute: (): Promise<WorkspaceBookingStatusResult> => {
-      if (pending) return pending;
+      if (pending) {
+        const cached = pending;
+        return (async () => {
+          await fence?.assertCurrent();
+          const result = await cached;
+          await fence?.assertCurrent();
+          return result;
+        })().catch((error: unknown) => {
+          if (error instanceof WorkspaceBookingStatusError) throw error;
+          throw new WorkspaceBookingStatusError(schedulingCommandError(error));
+        });
+      }
       pending = (async (): Promise<WorkspaceBookingStatusResult> => {
         try {
-          const client = getSupabaseClient();
-          if (!client) throw new WorkspaceBookingStatusError('configuration');
-          const session = await client.auth.getSession();
-          const token = session.data.session?.access_token;
-          if (
-            session.error ||
-            session.data.session?.user.id.toLowerCase() !== expectedUserId ||
-            !token
-          )
-            throw new WorkspaceBookingStatusError('unavailable');
+          fence ??= createSchedulingCommandFence(expectedUserId);
+          await fence.assertCurrent();
+          const client = fence.client;
+          const token = fence.accessToken;
           const { data, error } = await client
             .rpc(
               action === 'confirm' ? 'confirm_booking' : 'cancel_booking',
               args,
             )
             .setHeader('Authorization', `Bearer ${token}`);
+          await fence.assertCurrent();
           if (error)
             throw new WorkspaceBookingStatusError(
               error.code === '22023'
@@ -99,8 +117,14 @@ export const createWorkspaceBookingStatusOperation = (
             requestId: args.p_request_id,
           });
         } catch (error) {
+          if (fence)
+            await fence.assertCurrent().catch((failure: unknown) => {
+              throw new WorkspaceBookingStatusError(
+                schedulingCommandError(failure),
+              );
+            });
           if (error instanceof WorkspaceBookingStatusError) throw error;
-          throw new WorkspaceBookingStatusError('request');
+          throw new WorkspaceBookingStatusError(schedulingCommandError(error));
         }
       })().catch((error: unknown) => {
         pending = null;

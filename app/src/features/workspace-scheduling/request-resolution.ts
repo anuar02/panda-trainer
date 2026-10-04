@@ -1,4 +1,8 @@
-import { getSupabaseClient } from '@/features/auth/client';
+import {
+  createSchedulingCommandFence,
+  schedulingCommandError,
+  type SchedulingCommandFence,
+} from './command-session';
 import {
   createWorkspaceBookingStatusOperation,
   parseWorkspaceBookingStatusResult,
@@ -48,33 +52,29 @@ function envelope(
     throw new Error('Invalid booking request resolution');
   return value;
 }
-async function authenticatedClient(userId: string) {
-  const client = getSupabaseClient();
-  if (!client) throw new Error('configuration');
-  const session = await client.auth.getSession();
-  const token = session.data.session?.access_token;
-  if (
-    session.error ||
-    session.data.session?.user.id.toLowerCase() !== userId.toLowerCase() ||
-    !token
-  )
-    throw new Error('unavailable');
-  return { client, token };
-}
 const rpcError = (code: string) =>
   code === '22023'
     ? 'invalidInput'
     : code === '42501' || code === 'P0002'
       ? 'unavailable'
-      : 'request';
+      : code === '40001'
+        ? 'conflict'
+        : code === '55000'
+          ? 'invalidState'
+          : 'request';
 export async function resolveWorkspaceBookingStatusRequest(
   input: WorkspaceBookingStatusInput,
   workspaceId: string,
+  suppliedFence?: SchedulingCommandFence,
 ): Promise<BookingRequestResolution<WorkspaceBookingStatusResult>> {
   createWorkspaceBookingStatusOperation(input);
   const saved = { ...input };
+  const fence =
+    suppliedFence ?? createSchedulingCommandFence(saved.expectedUserId);
   try {
-    const { client, token } = await authenticatedClient(saved.expectedUserId);
+    await fence.assertCurrent();
+    const client = fence.client;
+    const token = fence.accessToken;
     const { data, error } = await client
       .rpc('resolve_booking_status_request', {
         p_command: saved.action,
@@ -83,6 +83,7 @@ export async function resolveWorkspaceBookingStatusRequest(
         p_request_id: saved.requestId.toLowerCase(),
       })
       .setHeader('Authorization', `Bearer ${token}`);
+    await fence.assertCurrent();
     if (error) throw new WorkspaceBookingStatusError(rpcError(error.code));
     const value = envelope(
       data,
@@ -103,6 +104,9 @@ export async function resolveWorkspaceBookingStatusRequest(
           result: parseWorkspaceBookingStatusResult(value.result, saved),
         };
   } catch (error) {
+    await fence.assertCurrent().catch((failure: unknown) => {
+      throw new WorkspaceBookingStatusError(schedulingCommandError(failure));
+    });
     if (error instanceof WorkspaceBookingStatusError) throw error;
     throw new WorkspaceBookingStatusError(
       error instanceof Error &&
@@ -110,15 +114,19 @@ export async function resolveWorkspaceBookingStatusRequest(
         ? error.message
         : 'request',
     );
+  } finally {
+    if (!suppliedFence) fence.dispose();
   }
 }
 export async function resolveWorkspaceProposalRequest(
   input: WorkspaceProposalCommand,
   userId: string,
   workspaceId: string,
+  suppliedFence?: SchedulingCommandFence,
 ): Promise<BookingRequestResolution<WorkspaceProposalResult>> {
   createWorkspaceProposalOperation(input, userId);
   const command = snapshotWorkspaceProposalCommand(input);
+  const fence = suppliedFence ?? createSchedulingCommandFence(userId);
   const proposalId = command.action === 'propose' ? null : command.proposalId;
   const proposalRevision =
     command.action === 'propose' ? null : command.expectedProposalRevision;
@@ -127,7 +135,9 @@ export async function resolveWorkspaceProposalRequest(
       ? command.proposedStartsAtUtc
       : null;
   try {
-    const { client, token } = await authenticatedClient(userId);
+    await fence.assertCurrent();
+    const client = fence.client;
+    const token = fence.accessToken;
     const args = {
       p_command: command.action,
       p_booking_id: command.action === 'propose' ? command.bookingId : null,
@@ -140,6 +150,7 @@ export async function resolveWorkspaceProposalRequest(
     const { data, error } = await client
       .rpc('resolve_booking_reschedule_request', args)
       .setHeader('Authorization', `Bearer ${token}`);
+    await fence.assertCurrent();
     if (error) throw new WorkspaceProposalError(rpcError(error.code));
     const value = envelope(
       data,
@@ -164,6 +175,9 @@ export async function resolveWorkspaceProposalRequest(
           result: parseWorkspaceProposalResult(value.result, command),
         };
   } catch (error) {
+    await fence.assertCurrent().catch((failure: unknown) => {
+      throw new WorkspaceProposalError(schedulingCommandError(failure));
+    });
     if (error instanceof WorkspaceProposalError) throw error;
     throw new WorkspaceProposalError(
       error instanceof Error &&
@@ -171,5 +185,7 @@ export async function resolveWorkspaceProposalRequest(
         ? error.message
         : 'request',
     );
+  } finally {
+    if (!suppliedFence) fence.dispose();
   }
 }

@@ -1,3 +1,5 @@
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
+import { getSupabaseClient } from '../src/features/auth/client';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useClientBookingStatus } from '../src/features/client-scheduling/use-status';
 import {
@@ -56,7 +58,10 @@ const deferred = <T,>() => {
   });
   return { promise, resolve };
 };
+let auth: ReturnType<typeof bookingAuthFixture>;
 beforeEach(() => {
+  auth = bookingAuthFixture(props.userId);
+  jest.mocked(getSupabaseClient).mockReturnValue(auth.client);
   load.mockReset().mockResolvedValue(null);
   submit.mockReset().mockResolvedValue(result);
   onChanged.mockReset();
@@ -202,3 +207,41 @@ test('resolution failure retains exact pending and scope switch ignores old comp
   expect(onChanged).not.toHaveBeenCalled();
   expect(hook.result.current.pending).toBeNull();
 });
+
+test.each(['success', 'late error'] as const)(
+  'same-user relogin hides %s and fences retained callbacks',
+  async (outcome) => {
+    const hook = await mount();
+    await waitFor(() => expect(hook.result.current.loading).toBe(false));
+    const staleSubmit = hook.result.current.submit;
+    const oldKey = hook.result.current.scopeKey;
+    const deferredResult = deferred<typeof result>();
+    let reject!: (error: unknown) => void;
+    const failed = new Promise<typeof result>((_resolve, no) => {
+      reject = no;
+    });
+    submit.mockReturnValueOnce(
+      outcome === 'success' ? deferredResult.promise : failed,
+    );
+    let oldResult: ReturnType<typeof staleSubmit>;
+    await act(async () => {
+      oldResult = staleSubmit(command);
+    });
+    await act(async () => {
+      auth.change(auth.session(props.userId, bookingId), 'SIGNED_IN');
+    });
+    await waitFor(() => expect(hook.result.current.loading).toBe(false));
+    expect(hook.result.current.scopeKey).not.toBe(oldKey);
+    await act(async () => {
+      if (outcome === 'success') deferredResult.resolve(result);
+      else reject(new Error('late private error'));
+    });
+    expect(await oldResult!).toBe(null);
+    expect(onChanged).not.toHaveBeenCalled();
+    await act(async () => {
+      expect(await staleSubmit(command)).toBe(null);
+    });
+    expect(submit).toHaveBeenCalledTimes(1);
+    await hook.unmount();
+  },
+);

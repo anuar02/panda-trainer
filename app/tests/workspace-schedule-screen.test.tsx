@@ -254,12 +254,18 @@ test('real group cancellation sends only the selected participant revision', asy
     screen.getByRole('button', { name: 'Отменить участие: Server b' }),
   );
   await waitFor(() =>
-    expect(submit).toHaveBeenCalledWith('user-a', 'workspace-a', {
-      action: 'cancel',
-      bookingId: '20000000-0000-4000-8000-000000000002',
-      expectedRevision: 3,
-      requestId: '30000000-0000-4000-8000-000000000002',
-    }),
+    expect(submit).toHaveBeenCalledWith(
+      'user-a',
+      'workspace-a',
+      {
+        action: 'cancel',
+        bookingId: '20000000-0000-4000-8000-000000000002',
+        expectedRevision: 3,
+        requestId: '30000000-0000-4000-8000-000000000002',
+      },
+      expect.any(Function),
+      undefined,
+    ),
   );
   await waitFor(() => expect(retry).toHaveBeenCalledTimes(1));
   expect(screen.queryByText('Server b')).toBeNull();
@@ -280,7 +286,13 @@ test('lost response offers the identical durable command and blocks new cancella
     screen.getByRole('button', { name: 'Повторить изменение' }),
   );
   await waitFor(() =>
-    expect(submit).toHaveBeenCalledWith('user-a', 'workspace-a', command),
+    expect(submit).toHaveBeenCalledWith(
+      'user-a',
+      'workspace-a',
+      command,
+      expect.any(Function),
+      undefined,
+    ),
   );
   await waitFor(() =>
     expect(
@@ -368,6 +380,9 @@ test('switching account remounts the controller and rejects stale request comple
   await fireEvent.press(
     screen.getByRole('button', { name: 'Отменить участие: Server a' }),
   );
+  jest
+    .mocked(getSupabaseClient)
+    .mockReturnValue(bookingAuthFixture('user-b').client);
   await view.rerender(
     <WorkspaceScheduleScreen
       userId="user-b"

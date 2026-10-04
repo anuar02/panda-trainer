@@ -44,18 +44,21 @@ export function WorkspaceProposalProvider({
   children,
   externalBlocked = false,
   externalBusy = false,
+  clientRecordId,
 }: {
   userId: string;
   workspaceId: string;
   onChanged: () => void;
   externalBlocked?: boolean;
   externalBusy?: boolean;
+  clientRecordId?: string;
   children: ReactNode | ((store: WorkspaceProposalStore) => ReactNode);
 }) {
   const store = useWorkspaceProposalCommands({
     userId,
     workspaceId,
     onChanged,
+    clientRecordId,
   });
   const value = {
     ...store,
@@ -135,7 +138,7 @@ export function WorkspaceProposalRecovery({
     </Card>
   );
 }
-export function WorkspaceProposalControls({
+function WorkspaceProposalControlsContent({
   userId,
   workspaceId,
   timezone,
@@ -361,5 +364,33 @@ export function WorkspaceProposalControls({
         disabled={blocked}
       />
     </View>
+  );
+}
+
+export function WorkspaceProposalControls(
+  props: Parameters<typeof WorkspaceProposalControlsContent>[0],
+) {
+  const inherited = useContext(Context);
+  const store = props.store ?? inherited;
+  return (
+    <WorkspaceProposalControlsContent
+      key={JSON.stringify([
+        props.userId,
+        props.workspaceId,
+        props.booking.id,
+        props.booking.revision,
+        store?.scopeKey,
+        props.proposals
+          .filter((row) => row.booking_id === props.booking.id)
+          .map((row) => [
+            row.id,
+            row.revision,
+            row.base_revision,
+            row.authorRole,
+            row.status,
+          ]),
+      ])}
+      {...props}
+    />
   );
 }

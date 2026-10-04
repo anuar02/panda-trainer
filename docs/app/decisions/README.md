@@ -100,6 +100,7 @@
 
 | [0088](0088-client-creation-session-fencing.md) | Client creation session/caller fence и in-memory retry | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
 
+| [0093](0093-booking-command-session-and-recovery.md) | Booking status/reschedule session fence и exact pending recovery | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
 | [0092](0092-account-export-source-coverage.md) | Read-only account export v2, явные source gaps и historical file outcome | Реализовано технически; runtime и owner acceptance открыты | 04.10.2026 |
 
 | [0091](0091-exercise-mutation-session-and-replay.md) | Exercise mutation session fence и durable UUID replay | Реализовано технически; SQL/runtime/owner acceptance открыты | 04.10.2026 |

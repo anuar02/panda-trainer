@@ -1,4 +1,8 @@
-import { getSupabaseClient } from '@/features/auth/client';
+import {
+  createSchedulingCommandFence,
+  schedulingCommandError,
+  type SchedulingCommandFence,
+} from './command-session';
 import {
   validWorkspaceProposalCommand,
   snapshotWorkspaceProposalCommand,
@@ -104,26 +108,36 @@ export function parseWorkspaceProposalResult(
 export function createWorkspaceProposalOperation(
   input: WorkspaceProposalCommand,
   expectedUserId: string,
-) {
+  suppliedFence?: SchedulingCommandFence,
+): { execute(): Promise<WorkspaceProposalResult>; dispose?: () => void } {
   if (!validWorkspaceProposalCommand(input) || !uuid(expectedUserId))
     throw new WorkspaceProposalError('invalidInput');
   const command = snapshotWorkspaceProposalCommand(input);
   const userId = expectedUserId.toLowerCase();
   let pending: Promise<WorkspaceProposalResult> | null = null;
+  let fence = suppliedFence;
   return {
+    dispose: () => {
+      if (!suppliedFence) fence?.dispose();
+    },
     execute: (): Promise<WorkspaceProposalResult> => {
-      if (pending) return pending;
+      if (pending) {
+        const cached = pending;
+        return (async () => {
+          await fence?.assertCurrent();
+          const result = await cached;
+          await fence?.assertCurrent();
+          return result;
+        })().catch(async (error: unknown) => {
+          if (error instanceof WorkspaceProposalError) throw error;
+          throw new WorkspaceProposalError(schedulingCommandError(error));
+        });
+      }
       pending = (async () => {
-        const client = getSupabaseClient();
-        if (!client) throw new WorkspaceProposalError('configuration');
-        const session = await client.auth.getSession();
-        const token = session.data.session?.access_token;
-        if (
-          session.error ||
-          session.data.session?.user.id.toLowerCase() !== userId ||
-          !token
-        )
-          throw new WorkspaceProposalError('unavailable');
+        fence ??= createSchedulingCommandFence(userId);
+        await fence.assertCurrent();
+        const client = fence.client;
+        const token = fence.accessToken;
         const common = {
           p_expected_booking_revision: command.expectedBookingRevision,
           p_request_id: command.requestId,
@@ -160,6 +174,7 @@ export function createWorkspaceProposalOperation(
           'Authorization',
           `Bearer ${token}`,
         );
+        await fence.assertCurrent();
         if (error)
           throw new WorkspaceProposalError(
             error.code === '22023'
@@ -173,10 +188,14 @@ export function createWorkspaceProposalOperation(
                     : 'request',
           );
         return parseWorkspaceProposalResult(data, command);
-      })().catch((error: unknown) => {
+      })().catch(async (error: unknown) => {
         pending = null;
+        if (fence)
+          await fence.assertCurrent().catch((failure: unknown) => {
+            throw new WorkspaceProposalError(schedulingCommandError(failure));
+          });
         if (error instanceof WorkspaceProposalError) throw error;
-        throw new WorkspaceProposalError('request');
+        throw new WorkspaceProposalError(schedulingCommandError(error));
       });
       return pending;
     },

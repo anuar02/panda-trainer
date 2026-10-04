@@ -1,3 +1,4 @@
+import { bookingAuthFixture } from './booking-creation-auth-fixture';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
 import { getSupabaseClient } from '@/features/auth/client';
@@ -62,12 +63,15 @@ function setup(data: unknown = result(), sessionUser = user) {
   const rpc = jest.fn().mockImplementation(() => ({ setHeader: header }));
   const getSession = jest.fn().mockResolvedValue({
     data: {
-      session: { user: { id: sessionUser }, access_token: 'test-token' },
+      session: {
+        user: { id: sessionUser },
+        access_token: bookingAuthFixture(user).session().access_token,
+      },
     },
     error: null,
   });
   jest.mocked(getSupabaseClient).mockReturnValue({
-    auth: { getSession },
+    auth: { ...bookingAuthFixture(user).auth, getSession },
     rpc,
   } as unknown as SupabaseClient<Database>);
   return { rpc, header, getSession };
@@ -79,13 +83,13 @@ test.each(['propose', 'counter', 'accept', 'decline', 'withdraw'] as const)(
     const { rpc, header } = setup(result(action));
     const operation = createWorkspaceProposalOperation(command(action), user);
     const first = operation.execute();
-    expect(operation.execute()).toBe(first);
+    await expect(operation.execute()).resolves.toEqual(await first);
     expect(await first).toMatchObject({
       bookingId: booking,
       proposalId: proposal,
       startsAtUtc: '2026-10-05T10:00:00.000Z',
     });
-    expect(operation.execute()).toBe(first);
+    await expect(operation.execute()).resolves.toEqual(await first);
     expect(rpc).toHaveBeenCalledTimes(1);
     expect(rpc).toHaveBeenCalledWith(
       `${action}_booking_reschedule`,
@@ -94,7 +98,10 @@ test.each(['propose', 'counter', 'accept', 'decline', 'withdraw'] as const)(
         p_expected_booking_revision: 3,
       }),
     );
-    expect(header).toHaveBeenCalledWith('Authorization', 'Bearer test-token');
+    expect(header).toHaveBeenCalledWith(
+      'Authorization',
+      `Bearer ${bookingAuthFixture(user).session().access_token}`,
+    );
     expect(rpc.mock.calls[0]?.[1]).not.toHaveProperty('author_user_id');
   },
 );
@@ -113,20 +120,28 @@ test('snapshots immutable payload and replays exact ID after lost response', asy
     expect.objectContaining({ p_booking_id: booking, p_request_id: request }),
   );
 });
-test('blocks switched account before network and retries after authentication restored', async () => {
+test('blocks an invalidated operation after account restoration and permits an explicit new operation', async () => {
   const { rpc, getSession } = setup(result(), booking);
   const operation = createWorkspaceProposalOperation(command(), user);
   await expect(operation.execute()).rejects.toMatchObject({
     code: 'unavailable',
   });
   expect(rpc).not.toHaveBeenCalled();
-  getSession.mockResolvedValueOnce({
-    data: { session: { user: { id: user }, access_token: 'restored' } },
+  getSession.mockResolvedValue({
+    data: {
+      session: {
+        user: { id: user },
+        access_token: bookingAuthFixture(user).session().access_token,
+      },
+    },
     error: null,
   });
-  await expect(operation.execute()).resolves.toMatchObject({
-    bookingId: booking,
+  await expect(operation.execute()).rejects.toMatchObject({
+    code: 'unavailable',
   });
+  await expect(
+    createWorkspaceProposalOperation(command(), user).execute(),
+  ).resolves.toMatchObject({ bookingId: booking });
 });
 test.each([
   ['22023', 'invalidInput'],
