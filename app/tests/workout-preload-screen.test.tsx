@@ -8,6 +8,18 @@ import { WorkoutPreloadScreen } from '@/features/workout-preload/screen';
 import { useOptionalWorkoutPreload } from '@/features/workout-preload/provider';
 import '../src/lib/i18n';
 
+jest.mock('../src/features/workout-entry/screen', () => ({
+  WorkoutEntryPanel: ({
+    participant,
+  }: {
+    participant: { workoutId: string };
+  }) => {
+    const { Text } =
+      jest.requireActual<typeof import('react-native')>('react-native');
+    return <Text testID="entry-panel">{participant.workoutId}</Text>;
+  },
+}));
+
 jest.mock('../src/features/workout-preload/provider', () => ({
   useOptionalWorkoutPreload: jest.fn(),
 }));
@@ -109,6 +121,8 @@ function actions(
   return {
     state,
     syncState: null,
+    session: null,
+    getSession: () => null,
     open: jest.fn(async () => {}),
     select: jest.fn(async () => {}),
     collapse: jest.fn(async () => {}),
@@ -126,28 +140,19 @@ it('shows three participants with isolated assigned and current plans for the se
   await render(<WorkoutPreloadScreen />);
   for (const id of [1, 2, 3])
     expect(screen.getByRole('button', { name: `Client ${id}` })).toBeTruthy();
-  expect(screen.getByText('Assigned 2')).toBeTruthy();
-  expect(screen.getByText('Current 2')).toBeTruthy();
+  expect(screen.getByText('Program 2')).toBeTruthy();
+  expect(screen.getByTestId('entry-panel')).toBeTruthy();
   expect(screen.queryByText('Assigned 1')).toBeNull();
   expect(screen.queryByText('Current 3')).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Client 3' }));
   expect(value.select).toHaveBeenCalledWith('client-3');
 });
 
-it('distinguishes zero values from unknown data and exposes no write or finish controls', async () => {
+it('connects the production entry seam without a finish control', async () => {
   jest.mocked(useOptionalWorkoutPreload).mockReturnValue(actions());
   await render(<WorkoutPreloadScreen />);
-  expect(screen.getByText('0 кг · 0 повт.')).toBeTruthy();
-  expect(screen.getByText('— · —')).toBeTruthy();
-  expect(screen.queryAllByRole('textbox')).toHaveLength(0);
-  expect(
-    screen.queryByRole('button', { name: /Сохранить|Завершить/ }),
-  ).toBeNull();
-  expect(
-    screen.getByText(
-      'Журнал доступен для просмотра. Ввод подходов и завершение тренировки пока недоступны.',
-    ),
-  ).toBeTruthy();
+  expect(screen.getByTestId('entry-panel')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: /Завершить/ })).toBeNull();
 });
 
 it.each(['hydrating', 'loading'] as const)(

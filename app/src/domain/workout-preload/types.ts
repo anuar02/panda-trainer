@@ -1,6 +1,7 @@
 import type { SyncScope, SyncSession } from '../workout-sync/types';
 
 export type PreloadSet = {
+  deletedAt?: string | null;
   id: string;
   revision: number;
   position: number;

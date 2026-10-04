@@ -40,6 +40,8 @@ const context: WorkoutPreloadContext = {
 function actions() {
   return {
     syncState: null,
+    session: null,
+    getSession: () => null,
     state: {
       status: 'ready' as const,
       context,

@@ -1,4 +1,4 @@
-# 0080. Session-fenced чтение личной immutable программы
+# 0081. Session-fenced чтение личной immutable программы
 
 - Статус: Принято для реализации; owner acceptance открыта
 - Дата: 03.10.2026

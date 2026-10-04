@@ -65,4 +65,4 @@ assignment tests are included in targeted and full suites.
 - [ ] Owner acceptance of screens and whole SOM-24; issue not declared Done.
 
 No SQL/types/dependencies/prototype/routes/screens/auth provider/assignment or
-other feature module changes. No new PNG. ADR 0080 documents local read approach.
+other feature module changes. No new PNG. ADR 0081 documents local read approach.

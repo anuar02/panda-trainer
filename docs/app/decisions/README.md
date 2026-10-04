@@ -83,4 +83,6 @@
 
 | [0076](0076-client-history-session-fencing.md) | Session fence клиентской истории и пагинации | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
 
+| [0080](0080-pure-local-export-envelope.md) | Pure local export и SQL conflict/correction relations r2 | Технический контракт; collector/runtime/owner acceptance открыты | 03.10.2026 |
+
 | [0078](0078-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
