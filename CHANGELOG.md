@@ -37,6 +37,8 @@
 
 ### Добавлено
 
+- [SOM-32 / draft PR #54](https://github.com/anuar02/panda-trainer/pull/54): production finish конкретного журнала через durable outbox, сводка сохранённых подходов и явное partial/empty подтверждение; local save отделён от server finish, draft/conflict не выдают applied исправление. [Отчёт](app/review/som-32-production-finish/README.md), [ADR 0087](docs/app/decisions/0087-production-workout-finish-outbox.md). Correction/program contracts, runtime и приёмка владельца открыты.
+
 - [SOM-32 / draft PR #56](https://github.com/anuar02/panda-trainer/pull/56): отдельное явное применение сохранённого correction draft завершённого
   журнала: owner RPC, immutable receipts/audit и tenant/revision/provenance guards;
   scoped transport, durable exact retry, просмотр/подтверждение и readback в журнале.
@@ -368,6 +370,8 @@
   [ADR 0025](docs/app/decisions/0025-identity-rls-foundation.md).
 
 ### Исправлено
+
+- [SOM-32 r2 / draft PR #59](https://github.com/anuar02/panda-trainer/pull/59): полный production finish пакет восстановлен; доказанный current resolution снимает terminal lock для продолжения ввода и нового явного завершения, сохраняя audit/outbox/drafts. Bearer исключён из React keys/state. [Отчёт r2](app/review/som-32-production-finish-r2/README.md), [ADR 0089](docs/app/decisions/0089-terminal-finish-current-recovery.md); runtime и приёмка владельца открыты.
 
 - [SOM-20 / draft PR #55](https://github.com/anuar02/panda-trainer/pull/55): создание клиента закреплено за actor/workspace/JWT session и lifetime caller; поздние RPC/sheet completion не затрагивают новый scope, explicit retry сохраняет in-memory requestId. [Отчёт](app/review/som-20-client-creation-session-fencing/README.md), [ADR 0086](docs/app/decisions/0088-client-creation-session-fencing.md). Live/native/parity и приёмка владельца открыты.
 

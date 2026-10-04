@@ -89,6 +89,7 @@
 | [0078](0078-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
 
 | [0086](0086-financial-command-session-fencing.md) | Session fence финансовых mutations и сохранение durable retry | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
+| [0087](0087-production-workout-finish-outbox.md) | Production finish через существующий outbox и подтверждённый snapshot | Runtime и приёмка владельца открыты | 04.10.2026 |
 | [0084](0084-scoped-sqlite-outbox-snapshot.md) | Scoped read-only SQLite snapshot через очередь outbox | Реализовано технически; native/runtime и owner acceptance открыты | 04.10.2026 |
 
 | [0090](0090-explicit-finished-journal-correction.md) | Явное применение correction draft завершённого журнала, immutable receipt и отдельная durable команда | Техническое решение; local DB/native/owner acceptance открыты | 04.10.2026 |
@@ -98,3 +99,5 @@
 | [0087](0087-schedule-presentation-session-lifecycle.md) | Schedule presentation и provider ограничены login/caller lifecycle | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
 
 | [0088](0088-client-creation-session-fencing.md) | Client creation session/caller fence и in-memory retry | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
+
+| [0089](0089-terminal-finish-current-recovery.md) | Продолжение ввода после доказанного current finish resolution | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
