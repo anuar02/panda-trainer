@@ -138,3 +138,9 @@ Postgres are unavailable in this container. The checker now prints a unified dif
 against the actual generator output on mismatch. This preserves the failing gate
 and allows an exact correction from CI evidence; it does not certify types or the
 separate notification concurrency harness.
+
+CI diagnostic run 37178793489, database job 111366917613, displayed exactly
+three differences: notifications.payload Row/Insert/Update must use
+NonNullable<Json>. Applied that exact generator diff; no SQL or production
+behavior changed. Fresh CI must pass before merge. Notification concurrency
+remains outside the standard workflow and unexecuted here.

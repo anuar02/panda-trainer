@@ -9,6 +9,9 @@
 
 ## Не выпущено
 
+- SOM-37: исправлены generated-типы обязательного JSON payload по точному diff CI;
+  проверка типов выводит расхождение генератора при ошибке.
+
 - [SOM-37 r2 / draft PR #67](https://github.com/anuar02/panda-trainer/pull/67): server-owned in-app уведомления обеих ролей, точный unread count,
   явная отметка прочитанного, pagination и own-object переходы; additive atomic
   event triggers и scoped Realtime с JWT/caller/read race fences. SQL/app тесты,

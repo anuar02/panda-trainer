@@ -841,7 +841,7 @@ export type Database = {
           event_key: string;
           id: string;
           kind: string;
-          payload: Json;
+          payload: NonNullable<Json>;
           read_at: string | null;
           recipient_role: string;
           recipient_user_id: string;
@@ -855,7 +855,7 @@ export type Database = {
           event_key: string;
           id?: string;
           kind: string;
-          payload: Json;
+          payload: NonNullable<Json>;
           read_at?: string | null;
           recipient_role: string;
           recipient_user_id: string;
@@ -869,7 +869,7 @@ export type Database = {
           event_key?: string;
           id?: string;
           kind?: string;
-          payload?: Json;
+          payload?: NonNullable<Json>;
           read_at?: string | null;
           recipient_role?: string;
           recipient_user_id?: string;
