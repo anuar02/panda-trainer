@@ -14,7 +14,7 @@
   generation/dismiss fencing форм и own-client durable recovery; [x] synthetic
   read+command+controller workflow и новый SQL rollback/workflow test.
   [Отчёт](../../app/review/05-som-34-billing-production-finish/README.md),
-  [ADR 0094](decisions/0094-financial-presentation-and-client-totals.md).
+  [ADR 0095](decisions/0095-financial-presentation-and-client-totals.md).
   [ ] needs-local-db для Claude/CI; [ ] live Auth/storage/crash/reopen/native,
   два устройства, parity и одобрение владельца. SOM-47 и приёмка не включены.
 
@@ -40,6 +40,8 @@
   accessibility и приёмка владельца. Экспорт намеренно incomplete; отсутствие
   промежуточных записей не доказано. Deletion/policy остаются отдельным пакетом,
   SOM-41 целиком не закрыта.
+
+- 04.10.2026 — SOM-23 editor: [x] caller/draft scope и late save/discard/reload guards; [x] immutable pending retry и durable explicit reload; [x] synthetic create/edit/copy/read и lifecycle regressions; полный app check 2717 tests / 209 suites, type/lint/format зелёные. [Отчёт](../../app/review/04-som-23-editor-production-finish/README.md), [ADR 0094](decisions/0094-template-editor-caller-lifetime.md). [ ] needs-local-db: новый template-specific pgTAP и existing concurrency; live Auth/storage/crash/reopen/native/parity и одобрение владельца. Issue и экраны не приняты.
 
 - 04.10.2026 — SOM-20 onboarding: [x] полный service → hook → route/welcome session fence,
   unknown scoped context, explicit bearer и safe atomic retry; [x] synthetic workflow

@@ -70,7 +70,7 @@ supplies ClientFinancialMetrics. No client/onboarding business logic is changed.
 This minimal seam extension makes real header totals possible without inserting
 financial rules into clients. It reuses existing prototype metric styles and
 existing i18n labels; no redesign, new PNG, dependency, token storage or secret.
-[ADR 0094](../../../docs/app/decisions/0094-financial-presentation-and-client-totals.md).
+[ADR 0095](../../../docs/app/decisions/0095-financial-presentation-and-client-totals.md).
 
 ## Commands and results
 
