@@ -17,9 +17,7 @@ test('demo export entry opens authenticated settings and retains library action'
       /Серверный экспорт доступен в настройках авторизованного аккаунта/,
     ),
   ).toBeTruthy();
-  await fireEvent.press(
-    screen.getByRole('button', { name: 'Серверный экспорт данных' }),
-  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Экспорт данных' }));
   expect(router.push).toHaveBeenCalledWith('/auth/account');
   await fireEvent.press(
     screen.getByRole('button', { name: 'Библиотека и шаблоны' }),

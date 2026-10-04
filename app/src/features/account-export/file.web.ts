@@ -1,4 +1,9 @@
-import { ExportFileError, type ExportFileAdapter } from './file-contract';
+import {
+  ExportFileError,
+  boundedExportCleanup,
+  exportFileOutcome,
+  type ExportFileAdapter,
+} from './file-contract';
 
 type Writer = {
   write(content: Blob): Promise<void>;
@@ -10,17 +15,19 @@ type Picker = (options: {
   types: { description: string; accept: Record<string, string[]> }[];
 }) => Promise<{ createWritable(): Promise<Writer> }>;
 export function createWebExportAdapter(picker?: Picker): ExportFileAdapter {
-  return async (json, _scope, guard) => {
+  return async (json, scope, guard, delivery) => {
     if (!picker) throw new ExportFileError('unsupported');
     let writer: Writer | undefined;
     let closed = false;
     try {
       const handle = await picker({
-        suggestedName: 'trainer-export-v1.json',
+        suggestedName: 'trainer-export-v2.json',
         types: [
           { description: 'JSON', accept: { 'application/json': ['.json'] } },
         ],
       });
+      await guard();
+      const outcome = await exportFileOutcome('saved', json, scope, delivery);
       await guard();
       writer = await handle.createWritable();
       await guard();
@@ -30,17 +37,20 @@ export function createWebExportAdapter(picker?: Picker): ExportFileAdapter {
       await guard();
       await writer.close();
       closed = true;
-      return 'saved';
+      await guard();
+      return outcome;
     } catch (error: unknown) {
-      if (error instanceof Error && error.name === 'AbortError')
-        return 'cancelled';
+      if (error instanceof Error && error.name === 'AbortError') {
+        await guard();
+        return exportFileOutcome('cancelled', json, scope, delivery);
+      }
       if (error instanceof Error && error.name === 'AccountExportError')
         throw error;
       throw new ExportFileError('storage');
     } finally {
       if (writer && !closed) {
         try {
-          await writer.abort();
+          await boundedExportCleanup(writer.abort());
         } catch {
           throw new ExportFileError('cleanup');
         }
