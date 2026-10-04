@@ -18,7 +18,10 @@ import {
 } from '@/domain/templates';
 import { getSupabaseClient } from '@/features/auth/client';
 import { librarySessionId, WorkspaceLibrarySessionError } from './read-session';
-import type { TemplateEditorStore } from '@/features/template-editor/provider';
+import {
+  nextTemplateEditorScope,
+  type TemplateEditorStore,
+} from '@/features/template-editor/provider';
 import { media } from '@/features/trainer-library/fixtures';
 import { decodeWorkspaceDraft, type WorkspaceDraft } from './draft';
 import {
@@ -52,6 +55,7 @@ export function WorkspaceLibraryProvider({
   const pendingClearKey = `${key}:pending-clear`;
   const [client] = useState(getSupabaseClient);
   const [exerciseSession, setExerciseSession] = useState<string | null>(null);
+  const [editorScope, setEditorScope] = useState(nextTemplateEditorScope);
   const [visibleKey, setVisibleKey] = useState<string | null>(null);
   const [library, setLibrary] = useState(emptyLibrary);
   const [local, setLocal] = useState(emptyDraft);
@@ -68,6 +72,7 @@ export function WorkspaceLibraryProvider({
   const mounted = useRef(false);
   const locked = useRef<number | null>(null);
   const command = useRef(0);
+  const draftEpoch = useRef(0);
   const available = useRef(false);
   const writes = useRef(Promise.resolve(true));
   const ticket = useRef(0);
@@ -104,6 +109,7 @@ export function WorkspaceLibraryProvider({
       scopeKey.current === key;
     void Promise.resolve().then(() => {
       if (!isCurrent()) return;
+      setEditorScope(nextTemplateEditorScope());
       setVisibleKey(null);
       setReady(false);
       setReadError(false);
@@ -116,6 +122,7 @@ export function WorkspaceLibraryProvider({
       request.current += 1;
       available.current = false;
       identity.current = null;
+      setEditorScope(nextTemplateEditorScope());
       setVisibleKey(null);
       setReady(false);
       setReadError(true);
@@ -304,6 +311,7 @@ export function WorkspaceLibraryProvider({
         request.current += 1;
         available.current = false;
         identity.current = null;
+        setEditorScope(nextTemplateEditorScope());
         setVisibleKey(null);
         setReady(false);
         setReadError(true);
@@ -358,6 +366,18 @@ export function WorkspaceLibraryProvider({
   const visible = visibleKey === key;
   const visibleLibrary = visible ? library : emptyLibrary;
   const editor: TemplateEditorStore = {
+    scope: editorScope,
+    pendingSave: visible && !!local.pendingSave,
+    capture: () => {
+      const version = generation.current;
+      const epoch = draftEpoch.current;
+      return () =>
+        mounted.current &&
+        available.current &&
+        scopeKey.current === key &&
+        generation.current === version &&
+        draftEpoch.current === epoch;
+    },
     templates: visibleLibrary.templates,
     draft: visible ? local.draft : null,
     ready: visible && ready,
@@ -365,13 +385,26 @@ export function WorkspaceLibraryProvider({
     busy: visible && busy,
     status: visible ? status : 'loading',
     update: (draft) => {
-      if (available.current && !locked.current)
+      if (
+        scopeKey.current === key &&
+        available.current &&
+        !locked.current &&
+        !current.current.pendingSave
+      )
         update({ draft, baseRevision: current.current.baseRevision });
     },
     begin: (id, copy) => {
-      if (!available.current || locked.current) return false;
+      if (
+        scopeKey.current !== key ||
+        !available.current ||
+        locked.current ||
+        current.current.pendingSave
+      )
+        return false;
       const template = catalog.current.templates.find((item) => item.id === id);
       if (id && !template) return false;
+      draftEpoch.current += 1;
+      setEditorScope(nextTemplateEditorScope());
       update({
         draft: beginTemplate(template, copy),
         baseRevision: template && !copy ? template.revision : null,
@@ -379,7 +412,8 @@ export function WorkspaceLibraryProvider({
       return true;
     },
     discard: async () => {
-      if (!available.current || locked.current) return false;
+      if (scopeKey.current !== key || !available.current || locked.current)
+        return false;
       const version = generation.current;
       const isCurrent = () =>
         mounted.current &&
@@ -424,6 +458,7 @@ export function WorkspaceLibraryProvider({
         saveOperation.current?.operation.dispose?.();
         saveOperation.current = null;
         locked.current = null;
+        setEditorScope(nextTemplateEditorScope());
         setVisibleKey(null);
         setReady(false);
         setReadError(true);
@@ -551,12 +586,22 @@ export function WorkspaceLibraryProvider({
             const { data, isCurrent } = await readCatalog();
             if (!isCurrent()) return;
             const template = data.templates.find((item) => item.id === id);
-            if (template)
-              update({
+            if (template) {
+              const next = {
                 draft: beginTemplate(template),
                 baseRevision: template.revision,
-              });
-            else if (id) throw new WorkspaceLibraryError('unavailable');
+              };
+              if (!(await persist(next, isCurrent)))
+                throw new WorkspaceLibraryError('request');
+              if (!isCurrent()) return;
+              draftEpoch.current += 1;
+              setEditorScope(nextTemplateEditorScope());
+              current.current = next;
+              setLocal(next);
+              saveOperation.current?.operation.dispose?.();
+              saveOperation.current = null;
+              setCommandError(null);
+            } else if (id) throw new WorkspaceLibraryError('unavailable');
           } finally {
             if (locked.current === owner) locked.current = null;
             if (

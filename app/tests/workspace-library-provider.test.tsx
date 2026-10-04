@@ -1,5 +1,6 @@
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { getSupabaseClient } from '../src/features/auth/client';
+import { randomUUID } from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { PropsWithChildren } from 'react';
@@ -32,7 +33,7 @@ jest.mock('../src/features/auth/client', () => ({
   getSupabaseClient: jest.fn(),
 }));
 jest.mock('expo-crypto', () => ({
-  randomUUID: () => '41000000-0000-4000-8000-000000000001',
+  randomUUID: jest.fn(() => '41000000-0000-4000-8000-000000000001'),
 }));
 
 const exercise: WorkspaceLibraryExercise = {
@@ -116,6 +117,9 @@ const mount = (userId = 'user-a') => {
 beforeEach(() => {
   jest.clearAllMocks();
   listeners.clear();
+  jest
+    .mocked(randomUUID)
+    .mockImplementation(() => '41000000-0000-4000-8000-000000000001');
   save.mockReset();
   save.mockReturnValue({
     execute: jest.fn(async () => ({
@@ -938,4 +942,235 @@ test('exercise command owns shared provider lock and late completion cannot publ
   });
   expect(hook.result.current.library.exercises).toEqual([]);
   expect(hook.result.current.editor.ready).toBe(false);
+});
+
+test('unresolved save keeps immutable pending input through edit and copy attempts', async () => {
+  save.mockReturnValue({
+    execute: jest.fn(async () => {
+      throw new Error('lost response');
+    }),
+  });
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => hook.result.current.editor.begin(template.id));
+  await act(async () => {
+    expect((await hook.result.current.editor.save()).ok).toBe(false);
+  });
+  const pending = decodeWorkspaceDraft(
+    storage.get(
+      'panda-trainer-workspace-template-v1:user-a:61000000-0000-4000-8000-000000000001',
+    ) ?? null,
+  ).pendingSave;
+  const before = hook.result.current.editor.draft;
+  await act(() => {
+    hook.result.current.editor.update({ ...before!, name: 'Changed' });
+    expect(hook.result.current.editor.begin(template.id, true)).toBe(false);
+  });
+  expect(hook.result.current.editor.draft).toBe(before);
+  expect(hook.result.current.editor.pendingSave).toBe(true);
+  expect(
+    decodeWorkspaceDraft(
+      storage.get(
+        'panda-trainer-workspace-template-v1:user-a:61000000-0000-4000-8000-000000000001',
+      ) ?? null,
+    ).pendingSave,
+  ).toEqual(pending);
+  await act(async () => {
+    expect(await hook.result.current.editor.discard()).toBe(true);
+  });
+  await act(() => {
+    expect(hook.result.current.editor.begin()).toBe(true);
+  });
+});
+
+test('create edit copy save read keeps order, archived references, exact grams, null, zero and cues', async () => {
+  let uuid = 0;
+  jest
+    .mocked(randomUUID)
+    .mockImplementation(
+      () => `41000000-0000-4000-8000-${String(++uuid).padStart(12, '0')}`,
+    );
+  const timed = {
+    ...exercise,
+    id: '81000000-0000-4000-8000-000000000002',
+    name: 'Своя планка',
+    sourceKey: null,
+    measure: 'seconds' as const,
+  };
+  const timedLine = {
+    ...template.exercises[0]!,
+    id: timed.id,
+    name: timed.name,
+    exercise: timed,
+    unit: 'сек' as const,
+    reps: '45–60 сек',
+    target: 0,
+    plannedWeightG: null,
+    rest: 0,
+    position: 1,
+    note: null,
+  };
+  data = { exercises: [exercise, timed], templates: [] };
+  let count = 0;
+  save.mockImplementation((input) => ({
+    execute: jest.fn(async () => {
+      count += 1;
+      const id = input.id;
+      const stored = {
+        ...template,
+        ...input,
+        revision: 3 + count,
+        archivedAt: null,
+        exercises: input.exercises.map((line, position) => ({
+          ...line,
+          position,
+          lineId: `line-${position}`,
+          lineRevision: 1,
+          exercise:
+            line.id === timed.id
+              ? timed
+              : { ...exercise, archivedAt: '2026-10-04T12:00:00Z' },
+          note: 'note' in line ? (line.note as string | null) : null,
+          plannedWeightG:
+            'plannedWeightG' in line
+              ? (line.plannedWeightG as number | null)
+              : 0,
+        })),
+      };
+      data = {
+        exercises: [timed],
+        templates: [...data.templates.filter((t) => t.id !== id), stored],
+      };
+      return { id, revision: stored.revision, replayed: false };
+    }),
+  }));
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => hook.result.current.editor.begin());
+  await act(() =>
+    hook.result.current.editor.update({
+      id: null,
+      name: 'Низ А',
+      description: 'Заметка',
+      exercises: [template.exercises[0]!, timedLine].map((line) => ({
+        ...line,
+        sets: String(line.sets),
+        reps: line.reps.replace(' сек', ''),
+        target: String(line.target),
+        rest: String(line.rest),
+      })),
+    }),
+  );
+  await act(async () => {
+    expect((await hook.result.current.editor.save()).ok).toBe(true);
+  });
+  const id = hook.result.current.library.templates[0]!.id;
+  await act(() => hook.result.current.editor.begin(id));
+  await act(() =>
+    hook.result.current.editor.update({
+      ...hook.result.current.editor.draft!,
+      exercises: [...hook.result.current.editor.draft!.exercises].reverse(),
+    }),
+  );
+  await act(async () => {
+    expect((await hook.result.current.editor.save()).ok).toBe(true);
+  });
+  expect(
+    hook.result.current.library.templates[0]!.exercises.map((line) => line.id),
+  ).toEqual([timed.id, exercise.id]);
+  expect(save.mock.calls[1]![1]).toBe(4);
+  await act(() => hook.result.current.editor.begin(id, true));
+  expect(hook.result.current.editor.draft!.id).toBeNull();
+  expect(hook.result.current.editor.draft!.name).toBe('Низ А — копия');
+  await act(async () => {
+    expect((await hook.result.current.editor.save()).ok).toBe(true);
+  });
+  expect(save.mock.calls[2]![1]).toBeNull();
+  expect(save.mock.calls[2]![0].exercises).toMatchObject([
+    {
+      id: timed.id,
+      unit: 'сек',
+      reps: '45–60 сек',
+      target: 0,
+      rest: 0,
+      plannedWeightG: null,
+    },
+    { id: exercise.id, target: 5, plannedWeightG: 5000, note: 'Темп' },
+  ]);
+  expect(hook.result.current.editor.draft).toBeNull();
+  expect(load).toHaveBeenCalledTimes(4);
+  expect(hook.result.current.library.templates).toHaveLength(2);
+  expect(hook.result.current.library.templates[1]!.id).not.toBe(id);
+});
+
+test('explicit reload retains the old pending draft if storage fails, then permits next save after durable replacement', async () => {
+  save.mockReturnValueOnce({
+    execute: jest.fn(async () => {
+      throw new Error('conflict');
+    }),
+  });
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => hook.result.current.editor.begin(template.id));
+  await act(async () => {
+    expect((await hook.result.current.editor.save()).ok).toBe(false);
+  });
+  const before = hook.result.current.editor.draft;
+  const key =
+    'panda-trainer-workspace-template-v1:user-a:61000000-0000-4000-8000-000000000001';
+  const raw = storage.get(key);
+  setItem.mockRejectedValueOnce(new Error('disk full'));
+  await act(async () => {
+    await expect(hook.result.current.reloadServerDraft()).rejects.toMatchObject(
+      { code: 'request' },
+    );
+  });
+  expect(hook.result.current.editor.draft).toBe(before);
+  expect(storage.get(key)).toBe(raw);
+  data = {
+    ...data,
+    templates: [{ ...template, revision: 9, description: 'С сервера' }],
+  };
+  await act(async () => {
+    await hook.result.current.reloadServerDraft();
+  });
+  expect(hook.result.current.editor.draft?.description).toBe('С сервера');
+  expect(
+    decodeWorkspaceDraft(storage.get(key) ?? null).pendingSave,
+  ).toBeUndefined();
+  save.mockReturnValue({
+    execute: jest.fn(async () => ({
+      id: template.id,
+      revision: 10,
+      replayed: false,
+    })),
+  });
+  await act(async () => {
+    expect((await hook.result.current.editor.save()).ok).toBe(true);
+  });
+  expect(save.mock.calls[1]![1]).toBe(9);
+});
+
+test('editor caller scope survives catalog and verified refresh but expires on a new draft and relogin', async () => {
+  const hook = await mount();
+  await waitFor(() => expect(hook.result.current.editor.ready).toBe(true));
+  await act(() => hook.result.current.editor.begin(template.id));
+  const scope = hook.result.current.editor.scope;
+  const caller = hook.result.current.editor.capture!();
+  await act(async () => {
+    await hook.result.current.refresh();
+  });
+  await act(() => emit('TOKEN_REFRESHED', sessionFor('user-a')));
+  expect(caller()).toBe(true);
+  expect(hook.result.current.editor.scope).toBe(scope);
+  await act(() => hook.result.current.editor.begin(template.id, true));
+  expect(caller()).toBe(false);
+  const next = hook.result.current.editor.capture!();
+  await act(() =>
+    emit(
+      'SIGNED_IN',
+      sessionFor('user-a', 'a1000000-0000-4000-8000-000000000002'),
+    ),
+  );
+  expect(next()).toBe(false);
 });

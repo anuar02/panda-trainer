@@ -26,6 +26,8 @@
   [ADR 0092](docs/app/decisions/0092-account-export-source-coverage.md).
   Runtime, визуальная приёмка, удаление и публикация политики остаются открытыми.
 
+- [SOM-23 / draft PR #63](https://github.com/anuar02/panda-trainer/pull/63): editor screen/route/launcher закреплены за caller и draft scope; поздние save/discard/reload не вызывают callbacks новой формы. Неопределённый pendingSave сохраняет payload/requestId, explicit reload ждёт storage. [Проверки](app/review/04-som-23-editor-production-finish/README.md), [ADR 0094](docs/app/decisions/0094-template-editor-caller-lifetime.md). SQL/runtime/native/parity и приёмка владельца открыты.
+
 - [SOM-20 / draft PR #60](https://github.com/anuar02/panda-trainer/pull/60): production onboarding теперь валидирует actor/workspace/connections,
   фиксирует JWT session и explicit bearer на весь read/completion, защищает
   hook/route/welcome от relogin и поздних ответов; ambiguous retry сохраняет

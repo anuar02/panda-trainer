@@ -1,4 +1,5 @@
 import * as Crypto from 'expo-crypto';
+import { beginTemplate, prepareTemplate } from '../src/domain/templates';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '../src/features/auth/client';
 import {
@@ -578,4 +579,137 @@ describe('workspace library service operations', () => {
     await expect(save.execute()).rejects.toMatchObject({ code: 'unavailable' });
     expect(rpc).not.toHaveBeenCalled();
   });
+});
+
+it('serial create edit and archived copy roundtrip through actual preparation transport and read adapter', async () => {
+  const timedId = '81000000-0000-4000-8000-000000000002';
+  const copiedId = '91000000-0000-4000-8000-000000000002';
+  const catalog = new Map([
+    [exerciseId, toLibraryExercise(row)],
+    [
+      timedId,
+      toLibraryExercise({
+        ...row,
+        id: timedId,
+        source_key: null,
+        name: 'Своя планка',
+        measure: 'seconds',
+        archived_at: null,
+      }),
+    ],
+  ]);
+  let stored = { ...templateRow, revision: 1 };
+  let rows: WorkspaceTemplateExerciseRow[] = [];
+  let commands = 0;
+  const rpc = jest.fn(
+    (
+      _name: string,
+      input: {
+        p_template_id: string | null;
+        p_name: string;
+        p_description: string;
+        p_exercises: {
+          exercise_id: string;
+          planned_sets: number;
+          planned_reps: string | null;
+          planned_seconds: string | null;
+          planned_weight_g: number | null;
+          rest_seconds: number;
+          note: string | null;
+        }[];
+      },
+    ) => {
+      commands += 1;
+      stored = {
+        ...stored,
+        id: commands === 3 ? copiedId : templateId,
+        name: input.p_name,
+        description: input.p_description,
+        revision: stored.revision + 3,
+      };
+      rows = input.p_exercises.map((payload, position) => ({
+        ...line,
+        ...payload,
+        template_id: stored.id,
+        position,
+      }));
+      return postgrestResponse({
+        data: { id: stored.id, revision: stored.revision, replayed: false },
+        error: null,
+      });
+    },
+  );
+  getClient.mockReturnValue(client({ rpc }));
+  const draft = beginTemplate();
+  draft.name = 'Низ А';
+  draft.description = 'Заметка';
+  draft.exercises = [
+    {
+      id: exerciseId,
+      name: row.name,
+      sets: '3',
+      reps: '8–12',
+      target: '42,501',
+      rest: '0',
+      unit: 'повт',
+      ...{ plannedWeightG: 42501, note: 'Темп' },
+    },
+    {
+      id: timedId,
+      name: 'Своя планка',
+      sets: '2',
+      reps: '45–60',
+      target: '',
+      rest: '0',
+      unit: 'сек',
+      ...{ plannedWeightG: null, note: null },
+    },
+  ];
+  const created = prepareTemplate(draft, [], templateId);
+  if (!created.ok) throw new Error('fixture');
+  await saveWorkspaceTemplateOperation(
+    created.template,
+    null,
+    userId,
+  ).execute();
+  let read = toWorkspaceTemplate(stored, rows, catalog);
+  expect(read.exercises).toMatchObject([
+    { plannedWeightG: 42501, note: 'Темп', target: 42.501, rest: 0 },
+    { plannedWeightG: null, note: null, unit: 'сек', reps: '45–60 сек' },
+  ]);
+  const edit = beginTemplate(read);
+  edit.exercises.reverse();
+  const edited = prepareTemplate(edit, [read], templateId);
+  if (!edited.ok) throw new Error('fixture');
+  await saveWorkspaceTemplateOperation(
+    edited.template,
+    read.revision,
+    userId,
+  ).execute();
+  read = toWorkspaceTemplate(stored, rows, catalog);
+  catalog.set(timedId, {
+    ...catalog.get(timedId)!,
+    archivedAt: '2026-10-04T12:00:00Z',
+  });
+  read = toWorkspaceTemplate(stored, rows, catalog);
+  const copied = prepareTemplate(beginTemplate(read, true), [read], copiedId);
+  if (!copied.ok) throw new Error('fixture');
+  await saveWorkspaceTemplateOperation(copied.template, null, userId).execute();
+  const copy = toWorkspaceTemplate(stored, rows, catalog);
+  expect(copy.id).toBe(copiedId);
+  expect(copy.name).toBe('Низ А — копия');
+  expect(copy.exercises.map((e) => e.id)).toEqual([timedId, exerciseId]);
+  expect(copy.exercises).toMatchObject([
+    {
+      plannedWeightG: null,
+      rest: 0,
+      exercise: { archivedAt: '2026-10-04T12:00:00Z' },
+    },
+    { plannedWeightG: 42501, note: 'Темп' },
+  ]);
+  expect(rpc.mock.calls.map((call) => call[1].p_template_id)).toEqual([
+    null,
+    templateId,
+    null,
+  ]);
 });
