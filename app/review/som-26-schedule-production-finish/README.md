@@ -1,7 +1,9 @@
 # SOM-26 · Trainer scheduling production lifecycle
 
 Date: 2026-10-04. Branch: `agent/03-som-26-schedule-production-finish`.
-Base: fetched `origin/fix/som-50-template-picker`, `a8403a6`, including PR41/PR50.
+Base at start: fetched `origin/fix/som-50-template-picker`, `a8403a6`, including PR41/PR50.
+Final integration: merged refreshed base `4c20e22` (SOM-20/PR55) without conflicts.
+Draft PR: [#57](https://github.com/anuar02/panda-trainer/pull/57).
 One agent; no unmerged work from other accounts, new transport package, schema,
 status/proposal storage, billing implementation, prototype or cloud changes.
 
@@ -76,7 +78,8 @@ npm run check
 ```
 
 - Targeted final screen/provider/lifecycle run: **5 suites / 43 tests passed**.
-- Full final `npm run check`: **182 suites / 2262 tests passed**; typecheck, lint and format check passed.
+- Full final `npm run check` on refreshed `4c20e22`: **184 suites / 2286 tests passed**; typecheck, lint and format check passed.
+- Full pre-integration `npm run check`: **182 suites / 2262 tests passed**; typecheck, lint and format check passed.
 - TypeScript strict, lint, Prettier and unit checks are the `check` pipeline.
 - `git diff --check`: passed. No new image files, comments, `any` or dependencies.
 

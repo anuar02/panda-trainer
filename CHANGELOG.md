@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-26: Today/week/create и общий mutation provider сбрасывают selections,
+- [SOM-26 / draft PR #57](https://github.com/anuar02/panda-trainer/pull/57): Today/week/create и общий mutation provider сбрасывают selections,
   callbacks и locks при relogin/logout; verified refresh сохраняет сценарий.
   Исправлен повтор save после overlap acknowledgement; default week следует
   workspace clock. [Проверки](app/review/som-26-schedule-production-finish/README.md),

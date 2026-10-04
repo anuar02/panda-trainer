@@ -13,6 +13,7 @@
   same-user relogin reset, owned provider lock/result/finally и verified refresh;
   [x] overlap acknowledgement/save, exact durable group-plan retry и server-only
   read refresh с synthetic regressions; [x] default day/week rollover timezone.
+  Полный check после свежей базы: 184 suites / 2286 tests, type/lint/format зелёные.
   [Отчёт](../../app/review/som-26-schedule-production-finish/README.md),
   [ADR 0087](decisions/0087-schedule-presentation-session-lifecycle.md).
   [ ] Live SQL/RLS/Auth, native storage/crash/reopen, два телефона,
