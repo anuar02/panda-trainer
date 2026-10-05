@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-39, исправление #89: основные списки десяти вкладок явно зарегистрированы
+- [SOM-39 / draft PR #91](https://github.com/anuar02/panda-trainer/pull/91), исправление #89: основные списки десяти вкладок явно зарегистрированы
   через публичный ScrollViewMarker на iOS NativeTabs; шапки и содержимое сохранены,
   временный measured bottom-padding Сегодня удалён.
   [Проверки](app/review/01-som-39-native-liquid-glass-tabs-fix/README.md);

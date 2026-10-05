@@ -1,5 +1,7 @@
 # SOM-39 · Регистрация списков NativeTabs после #89
 
+Draft PR: [#91](https://github.com/anuar02/panda-trainer/pull/91).
+
 Дата: 05.10.2026. Ветка: `agent/01-som-39-native-liquid-glass-tabs-fix`.
 Разрешённая база: `fix/som-50-template-picker`, исходный HEAD `64e89dd` (#90),
 включает #89 `9cb1f5c` и SOM-26 #88. Очередь 00 завершена в базе; third/22 не реализован.
