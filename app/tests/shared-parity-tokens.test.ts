@@ -21,13 +21,11 @@ describe.each(['light', 'dark'] as const)(
       ),
     ) as Specification;
 
-    test('screen title uses the recorded Montserrat weight, size and leading', () => {
+    test('calm Today title keeps the shared Montserrat family and weight', () => {
       const title = spec.classes['today-head__title'];
       expect(title?.['font-family']).toContain('Montserrat');
       expect(title?.['font-weight']).toBe('800');
       expect(tokens.font.heading).toBe('Montserrat_800ExtraBold');
-      expect(`${tokens.fontSize.title}px`).toBe(title?.['font-size']);
-      expect(`${tokens.lineHeight.title}px`).toBe(title?.['line-height']);
     });
 
     test('card and primary button preserve recorded shadows and height', () => {

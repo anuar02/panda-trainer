@@ -258,3 +258,60 @@ test('emits shared intersection links matching prototype overlapInfo', () => {
     },
   ]);
 });
+
+test('renders every session once across focus, timeline and past', () => {
+  const data = workspaceTodayAgenda(
+    schedule([
+      booking('past', '2026-10-05T08:00:00Z', '2026-10-05T09:00:00Z'),
+      booking('current', '2026-10-05T10:00:00Z', '2026-10-05T11:00:00Z'),
+      booking('overlap', '2026-10-05T10:15:00Z', '2026-10-05T11:15:00Z'),
+      booking('future', '2026-10-05T12:00:00Z', '2026-10-05T13:00:00Z'),
+    ]),
+    now,
+    'Группа',
+  );
+  const ids = [
+    data.focusRow?.id,
+    ...data.items.flatMap((item) =>
+      item.kind === 'session' ? [item.row.id] : [],
+    ),
+    ...data.pastRows.map((row) => row.id),
+  ];
+  expect(ids.sort()).toEqual(['current', 'future', 'overlap', 'past']);
+  expect(data.rows.filter((row) => row.role !== null)).toHaveLength(1);
+  expect(data.items.filter((item) => item.kind === 'overlap')).toHaveLength(1);
+});
+
+test('represents pending trainer replies once and includes requests outside today', () => {
+  const a = booking('a', '2026-10-05T10:00:00Z', '2026-10-05T11:00:00Z');
+  const b = booking('b', '2026-10-06T10:00:00Z', '2026-10-06T11:00:00Z');
+  const data = workspaceTodayAgenda(
+    schedule(
+      [a, b],
+      [
+        proposal(a),
+        proposal(b),
+        proposal(b, 'trainer'),
+        { ...proposal(a), id: 'settled', status: 'accepted' },
+      ],
+    ),
+    now,
+    'Группа',
+  );
+  expect(data.requests.map((request) => request.id)).toEqual([
+    'proposal-a',
+    'proposal-b',
+  ]);
+  expect(data.pendingRequestCount).toBe(data.requests.length);
+  expect(data.requests[1]).toMatchObject({
+    sessionId: 'b',
+    fromDate: '2026-10-06',
+    fromStart: '15:00',
+    toDate: '2026-10-06',
+    toStart: '15:00',
+  });
+  const empty = workspaceTodayAgenda(schedule([]), now, 'Группа');
+  expect(empty.requests).toEqual([]);
+  expect(empty.pendingRequestCount).toBe(0);
+  expect(empty.focusRow).toBeNull();
+});

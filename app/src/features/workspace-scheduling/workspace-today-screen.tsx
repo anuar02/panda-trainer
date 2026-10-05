@@ -1,4 +1,3 @@
-import { NotificationEntry } from '@/features/notifications/feed';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -68,6 +67,7 @@ function WorkspaceTodayContent({
     }
   }, [mutations.generation, retryRead]);
   const [requestsOpen, setRequestsOpen] = useState(false);
+  const [requestId, setRequestId] = useState<string | null>(null);
   const [overlap, setOverlap] = useState<Extract<
     TrainerTodayAgendaItem,
     { kind: 'overlap' }
@@ -78,6 +78,8 @@ function WorkspaceTodayContent({
         date,
         clock: scheduleClock(workspaceMinuteOfDay(now, timezone)),
         rows: [],
+        focusRow: null,
+        requests: [],
         pastRows: [],
         items: [],
         pendingRequestCount: 0,
@@ -119,13 +121,6 @@ function WorkspaceTodayContent({
         <TrainerTodayScreen
           scenario={read.loading ? 'loading' : 'normal'}
           data={{
-            notificationAction: (
-              <NotificationEntry
-                userId={userId}
-                workspaceId={workspaceId}
-                role="trainer"
-              />
-            ),
             trainerName,
             timezone,
             dateLabel,
@@ -149,7 +144,16 @@ function WorkspaceTodayContent({
               });
             },
             onOpenRequests: () => {
-              if (caller.isCurrent()) setRequestsOpen(true);
+              if (caller.isCurrent()) {
+                setRequestId(null);
+                setRequestsOpen(true);
+              }
+            },
+            onSelectRequest: (id) => {
+              if (caller.isCurrent()) {
+                setRequestId(id);
+                setRequestsOpen(true);
+              }
             },
             onOpenOverlap: (value) => {
               if (caller.isCurrent()) setOverlap(value);
@@ -178,7 +182,12 @@ function WorkspaceTodayContent({
         }}
       >
         {read.schedule?.pendingProposals
-          .filter((proposal) => proposal.authorRole === 'client')
+          .filter(
+            (proposal) =>
+              proposal.authorRole === 'client' &&
+              proposal.status === 'pending' &&
+              (requestId === null || proposal.id === requestId),
+          )
           .map((proposal) => (
             <View key={proposal.id} className="gap-2">
               <Text className="font-strong">
