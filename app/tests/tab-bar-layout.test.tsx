@@ -34,12 +34,12 @@ test('shared screen retains keyboard tap handling without overriding automatic n
 afterEach(() => jest.restoreAllMocks());
 
 test.each([
-  ['ios', 'today', 83],
+  ['ios', 'today', 0],
   ['ios', 'schedule', 0],
   ['android', 'today', 0],
   ['web', 'today', 0],
 ] as const)(
-  '%s %s reserves only measured iOS Today insets',
+  '%s %s does not reserve additional measured scene insets',
   async (os, name, expected) => {
     jest.replaceProperty(Platform, 'OS', os);
     const view = await render(

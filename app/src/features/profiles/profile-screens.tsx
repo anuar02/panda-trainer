@@ -1,10 +1,6 @@
+import { NativeTabScrollView as ScrollView } from '@/features/navigation/native-tab-scroll-view';
 import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
-import {
-  GrowX,
-  Shimmer,
-  MotionScrollView as ScrollView,
-  MotionPressable as Pressable,
-} from '@/ui/motion';
+import { GrowX, Shimmer, MotionPressable as Pressable } from '@/ui/motion';
 
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
