@@ -55,19 +55,21 @@ async function reachProgram() {
   await press('Анна');
   await press('Продолжить');
   await press('Продолжить');
+  await press('Продолжить');
 }
 
-test('requires a client and retains a group draft through all three steps', async () => {
+test('requires a client and retains a group draft through all four steps', async () => {
   const { onCreate } = await show({ initialStart: '12:15' });
   expect(screen.getByRole('button', { name: 'Продолжить' })).toBeDisabled();
   await press('Анна');
   await press('Дана');
   await press('Продолжить');
+  await press('вт, 15 сен');
+  await press('Продолжить');
   expect(screen.getByRole('button', { name: '12:15' })).toHaveProp(
     'accessibilityState',
     { selected: true, disabled: false },
   );
-  await press('вт, 15 сен');
   await press('75 мин');
   await press('Продолжить');
   await press('Силовая А');
@@ -220,4 +222,98 @@ test('unknown preselected program is discarded from the draft', async () => {
   expect(onCreate).toHaveBeenCalledWith(
     expect.objectContaining({ program: null, programLater: false }),
   );
+});
+
+test('step chips follow clients, date, time, program and jump directly back while retaining the draft', async () => {
+  const { onCreate } = await show({
+    initialClientId: 'c1',
+    initialProgram: 'strength',
+  });
+  const labels = ['1. Клиенты', '2. Дата', '3. Время', '4. Программа'];
+  const buttons = screen.getAllByRole('button');
+  expect(
+    labels.map((name) => buttons.indexOf(screen.getByRole('button', { name }))),
+  ).toEqual([1, 2, 3, 4]);
+  await press('Продолжить');
+  expect(screen.queryByRole('button', { name: '19:00' })).toBeNull();
+  await press('вт, 15 сен');
+  expect(screen.getByRole('button', { name: '2. Дата' })).toHaveProp(
+    'accessibilityState',
+    { selected: true, disabled: true },
+  );
+  await press('Продолжить');
+  expect(screen.getByText('Изменить дату')).toBeTruthy();
+  await press('75 мин');
+  await press('18:30');
+  await press('Продолжить');
+  await press('1. Клиенты');
+  expect(screen.getByRole('button', { name: 'Анна' })).toHaveProp(
+    'accessibilityState',
+    { selected: true, disabled: false },
+  );
+  await press('Продолжить');
+  await press('Продолжить');
+  await press('вт, 15 сен');
+  expect(screen.queryByRole('button', { name: '18:30' })).toBeNull();
+  await press('Продолжить');
+  await press('Продолжить');
+  await press('Создать занятие');
+  expect(onCreate).toHaveBeenCalledWith(
+    expect.objectContaining({
+      date: '2026-09-15',
+      start: '18:30',
+      duration: 75,
+      program: 'strength',
+    }),
+  );
+});
+
+test.each(['past', 'collision'] as const)(
+  'changing date clears %s time and requires an explicit new choice',
+  async (reason) => {
+    await show({
+      initialClientId: 'c1',
+      isStartAvailable: (draft) =>
+        reason !== 'past' || draft.date !== '2026-09-15',
+      getCollisions: (draft) =>
+        reason === 'collision' &&
+        draft.date === '2026-09-15' &&
+        draft.start === '19:00'
+          ? [{ id: 's1', title: 'Дана', start: '19:00' }]
+          : [],
+    });
+    await press('Продолжить');
+    await press('вт, 15 сен');
+    await press('Продолжить');
+    expect(screen.getByRole('button', { name: '19:00' })).toHaveProp(
+      'accessibilityState',
+      { selected: false, disabled: false },
+    );
+    expect(screen.getByRole('button', { name: 'Продолжить' })).toBeDisabled();
+    await press('20:00');
+    expect(screen.getByRole('button', { name: 'Продолжить' })).toBeEnabled();
+  },
+);
+
+test('restored draft retains every field through the four steps without date revalidation', async () => {
+  const draft = {
+    date: '2026-09-15',
+    start: '12:15',
+    duration: 90,
+    clientIds: ['c1', 'c2'],
+    program: 'strength',
+    programLater: false,
+    collisionAck: true,
+  };
+  const { onCreate } = await show({
+    initialDraft: draft,
+    isStartAvailable: () => false,
+    getCollisions: () => [{ id: 's1', title: 'Дана', start: '12:15' }],
+  });
+  await press('Продолжить');
+  await press('Продолжить');
+  await press('Продолжить');
+  expect(screen.getByRole('checkbox')).toBeChecked();
+  await press('Создать занятие');
+  expect(onCreate).toHaveBeenCalledWith(draft);
 });

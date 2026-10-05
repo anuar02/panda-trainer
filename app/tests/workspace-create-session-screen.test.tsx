@@ -171,6 +171,7 @@ test('real catalogue and workspace defaults create a program-later booking and r
   expect(screen.queryByText('Дана')).toBeNull();
   await press('Real Anna');
   await press('Продолжить');
+  await press('Продолжить');
   expect(screen.getByRole('button', { name: '75 мин' })).toHaveProp(
     'accessibilityState',
     { selected: true, disabled: false },
@@ -208,6 +209,7 @@ test('server overlap warns, requires explicit acknowledgement and sends a new re
     expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
   );
   await press('Real Anna');
+  await press('Продолжить');
   await press('Продолжить');
   await press('Продолжить');
   await press('Назначить программу позже');
@@ -305,6 +307,7 @@ test('noncreation on saved recovery preserves the full restored draft for explic
     expect(screen.getByRole('button', { name: 'Продолжить' })).toBeEnabled(),
   );
   await press('Продолжить');
+  await press('Продолжить');
   expect(screen.getByRole('button', { name: '11:30' })).toHaveProp(
     'accessibilityState',
     { selected: true, disabled: false },
@@ -349,6 +352,7 @@ test('blurring the retained creator while shared provider survives suppresses la
   await press('Real Anna');
   await press('Продолжить');
   await press('Продолжить');
+  await press('Продолжить');
   await press('Назначить программу позже');
   await press('Создать занятие');
   await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
@@ -374,6 +378,7 @@ test.each(['success', 'error'] as const)(
       expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
     );
     await press('Real Anna');
+    await press('Продолжить');
     await press('Продолжить');
     await press('Продолжить');
     await press('Назначить программу позже');
@@ -454,6 +459,7 @@ test('blur and refocus do not authorize completion from the previous focus epoch
   await press('Real Anna');
   await press('Продолжить');
   await press('Продолжить');
+  await press('Продолжить');
   await press('Назначить программу позже');
   await press('Создать занятие');
   await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
@@ -485,6 +491,7 @@ test('group selection preserves the exact selected template revision for every p
   await press('Real Dana');
   await press('Продолжить');
   await press('Продолжить');
+  await press('Продолжить');
   await press('Selected snapshot');
   await press('Создать занятие');
   await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
@@ -494,3 +501,41 @@ test('group selection preserves the exact selected template revision for every p
   });
   expect(onCreated).toHaveBeenCalledWith('2030-10-02');
 });
+
+test.each([
+  ['вт, 1 окт', false],
+  ['чт, 3 окт', true],
+])(
+  'date %s rechecks the selected time in the workspace timezone',
+  async (dateLabel, selected) => {
+    const clock = jest
+      .spyOn(Date, 'now')
+      .mockReturnValue(Date.parse('2030-10-01T07:30:00.000Z'));
+    try {
+      await mount();
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'Real Anna' })).toBeTruthy(),
+      );
+      await press('Real Anna');
+      await press('Продолжить');
+      await press(dateLabel);
+      await press('Продолжить');
+      if (selected)
+        expect(screen.getByRole('button', { name: '12:15' })).toHaveProp(
+          'accessibilityState',
+          { selected: true, disabled: false },
+        );
+      else expect(screen.queryByRole('button', { name: '12:15' })).toBeNull();
+      if (selected)
+        expect(
+          screen.getByRole('button', { name: 'Продолжить' }),
+        ).toBeEnabled();
+      else
+        expect(
+          screen.getByRole('button', { name: 'Продолжить' }),
+        ).toBeDisabled();
+    } finally {
+      clock.mockRestore();
+    }
+  },
+);

@@ -9,6 +9,11 @@
 
 ## Не выпущено
 
+- [SOM-26 / draft PR #82](https://github.com/anuar02/panda-trainer/pull/82), бриф 18: выбор даты и времени разделён на четыре шага редактора;
+  возврат сохраняет поля, смена даты очищает недоступное начало.
+  Исключение владельца 05.10.2026 — ADR 0107; приёмка экрана открыта.
+  [Отчёт](app/review/18-som-26-schedule-time-step/README.md).
+
 - [SOM-38 / draft PR #79](https://github.com/anuar02/panda-trainer/pull/79): выбранные WebP-клипы панды через expo-image в местах прототипа,
   постер при загрузке/ошибке, отключение при calm/reduce и уходе с экрана.
   stretch/listen без места; clipboard/front остаются PNG. Шесть клипов ≤300 КБ,

@@ -32,6 +32,7 @@ export function CreateSessionScreen({
   initialClientId,
   initialProgram,
   getCollisions,
+  isStartAvailable,
   onCreate,
   onClose,
   disabled = false,
@@ -73,10 +74,21 @@ export function CreateSessionScreen({
   const blocked = disabled || busy;
   const patch = (next: Partial<SessionDraft>) => {
     if (disabled || locked.current) return;
-    setDraft((current) => patchSessionDraft(current, next));
+    setDraft((current) => {
+      const updated = patchSessionDraft(current, next);
+      if (
+        next.date !== undefined &&
+        next.date !== current.date &&
+        updated.start &&
+        (getCollisions(updated).length > 0 ||
+          isStartAvailable?.(updated) === false)
+      )
+        return patchSessionDraft(updated, { start: '' });
+      return updated;
+    });
     setError('');
   };
-  const collisions = getCollisions(draft);
+  const collisions = draft.start ? getCollisions(draft) : [];
   const previous = () => {
     if (disabled || locked.current) return;
     setStep((current) => Math.max(0, current - 1));
@@ -115,7 +127,7 @@ export function CreateSessionScreen({
       '18:30',
       '19:00',
       '20:00',
-      draft.start,
+      ...(draft.start ? [draft.start] : []),
     ]),
   ].sort();
   const dateOptions = [...new Set([...dates, draft.date])].sort();
@@ -151,13 +163,17 @@ export function CreateSessionScreen({
         </Text>
       </View>
       <View className="flex-row flex-wrap gap-2 px-4 pb-3 pt-1">
-        {(['clients', 'time', 'program'] as const).map((key, index) => (
+        {(['clients', 'date', 'time', 'program'] as const).map((key, index) => (
           <EditorChip
             key={key}
             label={`${index + 1}. ${t(`sessionEditor.${key}`)}`}
             selected={step === index}
             disabled={blocked || index >= step}
-            onPress={previous}
+            onPress={() => {
+              if (disabled || locked.current) return;
+              setStep(index);
+              setError('');
+            }}
           />
         ))}
       </View>
@@ -213,6 +229,30 @@ export function CreateSessionScreen({
                 />
               ))}
             </Card>
+          </>
+        )}
+        {step === 2 && (
+          <>
+            <EditorLabel>{t('sessionEditor.date')}</EditorLabel>
+            <Card flush className="p-[6px]">
+              <ChoiceRow
+                disabled={blocked}
+                title={
+                  draft.date === today
+                    ? t('sessionEditor.today', { date: dateLabel(draft.date) })
+                    : dateLabel(draft.date)
+                }
+                meta={t('sessionEditor.changeDate')}
+                lead={String(Number(draft.date.slice(8)))}
+                selected
+                last
+                onPress={() => {
+                  if (disabled || locked.current) return;
+                  setStep(1);
+                  setError('');
+                }}
+              />
+            </Card>
             <View className="mt-4">
               <EditorLabel>{t('sessionEditor.start')}</EditorLabel>
             </View>
@@ -243,7 +283,7 @@ export function CreateSessionScreen({
             </View>
           </>
         )}
-        {step === 2 && (
+        {step === 3 && (
           <>
             {collisions.length > 0 && (
               <>
@@ -326,12 +366,16 @@ export function CreateSessionScreen({
         )}
         <Button
           className="flex-1"
-          label={t(step < 2 ? 'sessionEditor.next' : 'sessionEditor.create')}
-          variant={step < 2 ? 'primary' : 'mint'}
-          disabled={blocked || (step === 0 && draft.clientIds.length === 0)}
+          label={t(step < 3 ? 'sessionEditor.next' : 'sessionEditor.create')}
+          variant={step < 3 ? 'primary' : 'mint'}
+          disabled={
+            blocked ||
+            (step === 0 && draft.clientIds.length === 0) ||
+            (step === 2 && !draft.start)
+          }
           loading={busy}
           onPress={
-            step < 2
+            step < 3
               ? () => {
                   if (disabled || locked.current) return;
                   setStep((current) => current + 1);
