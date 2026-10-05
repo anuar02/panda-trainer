@@ -20,7 +20,7 @@ Liquid Glass**. Это сознательное отступление от `pro
   прямой зависимостью через `npx expo install expo-glass-effect` и сверь API
   с документацией установленной версии (`GlassView`, `isLiquidGlassAvailable`).
 - Анимированные стили и `className` — только через `AnimatedView` /
-  `AnimatedPressableView` из `app/src/ui/motion.tsx` (ADR 0107). Не регистрируй
+  `AnimatedPressableView` из `app/src/ui/motion.tsx` (ADR 0110). Не регистрируй
   `cssInterop` на сырых Animated-компонентах — это ломает все стили на устройстве.
 
 ## Критерии
@@ -66,7 +66,7 @@ Liquid Glass**. Это сознательное отступление от `pro
 ## Повтор r2 — восстановление после незавершённого запуска
 
 Этот бриф заблокирован и НЕ стоит в исполняемой очереди third. Координатор
-переносит его в tasks/third/ только после слияния PR #80 (ADR 0107,
+переносит его в tasks/third/ только после слияния PR #80 (ADR 0110,
 AnimatedView / AnimatedPressableView) в fix/som-50-template-picker.
 Не обходить зависимость копированием motion.tsx и не вливать fix/* PR.
 
@@ -85,7 +85,7 @@ Jest не запускался. Лог исходного worker FAIL в кон�
   смены темы и корректного cleanup подписки.
 - [ ] Тесты общего отступа обеих ролей: safe area, крупный текст, измерение
   панели, dock, последний элемент контента; клавиатура и шторки без регрессий.
-- [ ] Новый ADR бери по максимуму свежей базы; не перезаписывай ADR 0107.
+- [ ] Новый ADR бери по максимуму свежей базы; не перезаписывай ADR 0110.
 - [ ] Полный отчёт app/review/18-som-39-liquid-glass-tabbar-r2/README.md,
   CHANGELOG/ROADMAP/UI-PARITY и npm run check. Не объявлять iPhone-проверку
   или приёмку выполненными по Jest/web.

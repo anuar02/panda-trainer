@@ -52,7 +52,7 @@
 критерии с чекбоксами, «Границы», «Нельзя проверить в контейнере». Обязательно:
 
 - анимированные стили и `className` — только через `AnimatedView` /
-  `AnimatedPressableView` из `app/src/ui/motion.tsx` (ADR 0107);
+  `AnimatedPressableView` из `app/src/ui/motion.tsx` (ADR 0110);
 - в Jest Reanimated замокан: UI-изменения нативно в контейнере не проверить —
   в отчёте честное «не проверено на iPhone».
 
