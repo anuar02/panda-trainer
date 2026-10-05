@@ -31,7 +31,6 @@ const ThemeContext = createContext<Theme>({
 export function ThemeProvider({
   children,
   role = 'client',
-  workout = false,
 }: PropsWithChildren<{ role?: Role; workout?: boolean }>) {
   const [appearance, updateAppearance] = useState<Appearance>('auto');
   const changed = useRef(false);
@@ -59,9 +58,8 @@ export function ThemeProvider({
       .then(() => AsyncStorage.setItem(appearanceStorageKey, value))
       .catch(() => {});
   }, []);
-  const scheme = workout
-    ? 'dark'
-    : appearance === 'auto'
+  const scheme =
+    appearance === 'auto'
       ? role === 'trainer'
         ? 'dark'
         : 'light'

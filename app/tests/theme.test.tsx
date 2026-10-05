@@ -44,7 +44,7 @@ test('switches both ways without remounting its child', async () => {
   expect(screen.getByTestId('scheme')).toHaveTextContent('light');
   expect(onMount).toHaveBeenCalledTimes(1);
 });
-test('auto follows the role and the workout stays dark under a light override', async () => {
+test('auto follows the role and the workout follows a light override', async () => {
   const onMount = jest.fn();
   const view = await render(
     <ThemeProvider role="trainer">
@@ -64,7 +64,7 @@ test('auto follows the role and the workout stays dark under a light override', 
       <Probe onMount={onMount} />
     </ThemeProvider>,
   );
-  expect(screen.getByTestId('scheme')).toHaveTextContent('dark');
+  expect(screen.getByTestId('scheme')).toHaveTextContent('light');
   await view.rerender(
     <ThemeProvider role="trainer">
       <Probe onMount={onMount} />

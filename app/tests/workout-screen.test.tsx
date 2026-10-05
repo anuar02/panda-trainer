@@ -1,7 +1,14 @@
+import { ThemeProvider, tokens, useTheme } from '../src/ui/theme';
 import { useReducer, type PropsWithChildren } from 'react';
 import { withTiming } from 'react-native-reanimated';
 import { motion } from '../src/ui/motion';
-import { Dimensions, ScrollView, StyleSheet } from 'react-native';
+import {
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+  Text as NativeText,
+} from 'react-native';
 import {
   act,
   fireEvent,
@@ -449,3 +456,40 @@ test.each([573, 461])(
     ).toBeTruthy();
   },
 );
+
+function AppearanceSwitch() {
+  const { setAppearance } = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="switch-theme"
+      onPress={() => setAppearance('dark')}
+    >
+      <NativeText>switch</NativeText>
+    </Pressable>
+  );
+}
+
+test('changing appearance recolors journal and composer without losing the draft', async () => {
+  await render(
+    <ThemeProvider role="client">
+      <AppearanceSwitch />
+      <Harness />
+    </ThemeProvider>,
+  );
+  expect(
+    StyleSheet.flatten(screen.getByTestId('workout-normal').props.style)
+      .backgroundColor,
+  ).toBe(tokens.colors.light.canvas);
+  await fireEvent.changeText(screen.getByTestId('workout-composer-kg'), '52,5');
+  await fireEvent.press(screen.getByRole('button', { name: 'switch-theme' }));
+  expect(
+    StyleSheet.flatten(screen.getByTestId('workout-normal').props.style)
+      .backgroundColor,
+  ).toBe(tokens.colors.dark.canvas);
+  expect(screen.getByTestId('workout-composer-kg').props.value).toBe('52,5');
+  expect(
+    StyleSheet.flatten(screen.getByTestId('workout-composer-kg').props.style)
+      .color,
+  ).toBe(tokens.colors.dark.ink);
+});

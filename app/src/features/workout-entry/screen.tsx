@@ -1,3 +1,4 @@
+import { useTheme } from '@/ui/theme';
 import { ProgramUpdatePanel } from '@/features/program-update/panel';
 import { useState } from 'react';
 import { Pressable, TextInput, View, useWindowDimensions } from 'react-native';
@@ -59,8 +60,9 @@ function WorkoutEntryContent({
   participant: PreloadParticipant;
 }) {
   const { t } = useTranslation();
+  const { colors } = useTheme();
   const { width, fontScale } = useWindowDimensions();
-  const s = getWorkoutStyles(fontScale, width);
+  const s = getWorkoutStyles(fontScale, width, colors);
   const entry = useWorkoutEntry(session, getSession, participant);
   const [sheet, setSheet] = useState<
     'set' | 'add' | 'replace' | 'finish' | null
@@ -195,7 +197,7 @@ function WorkoutEntryContent({
               editable={!disabled}
               style={s.input}
               placeholder={t('workoutPreload.unknown')}
-              placeholderTextColor="#a3a4ab"
+              placeholderTextColor={colors.secondary}
               value={
                 rawInputs[`${exercise.id}:${key}`] ??
                 (values[key] === null

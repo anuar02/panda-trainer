@@ -1,3 +1,4 @@
+import { useTheme } from '@/ui/theme';
 import { MascotCelebration } from '@/ui/mascot/celebration';
 import { useRef, useState } from 'react';
 import {
@@ -87,9 +88,10 @@ export function WorkoutScreen({
   onRetrySave,
 }: Props) {
   const { t, i18n } = useTranslation();
+  const { colors } = useTheme();
   const { fontScale, width } = useWindowDimensions();
   const largeText = fontScale > 1.3 || width < 360;
-  const s = getWorkoutStyles(fontScale, width);
+  const s = getWorkoutStyles(fontScale, width, colors);
   const calmMode = useCalmMode();
   const [localFocus, setLocalFocus] = useState<string | null>(null);
   const runtime = useWorkoutRuntime(sessionId, journal?.active ?? '');
@@ -332,7 +334,7 @@ export function WorkoutScreen({
                   editable={interactive}
                   value={draft[field]}
                   placeholder={String(exercise.prev[field])}
-                  placeholderTextColor="#84858d"
+                  placeholderTextColor={colors.workoutPlaceholder}
                   keyboardType={field === 'kg' ? 'decimal-pad' : 'number-pad'}
                   selectTextOnFocus
                   style={s.input}
@@ -355,7 +357,7 @@ export function WorkoutScreen({
                       style={s.step}
                       onPress={() => adjust(-1)}
                     >
-                      <Icon name="minus" size={20} color="#f2f2f3" />
+                      <Icon name="minus" size={20} color={colors.ink} />
                     </WorkoutStep>
                     <WorkoutStep
                       disabled={!interactive}
@@ -367,7 +369,7 @@ export function WorkoutScreen({
                       style={s.step}
                       onPress={() => adjust(1)}
                     >
-                      <Icon name="plus" size={20} color="#f2f2f3" />
+                      <Icon name="plus" size={20} color={colors.ink} />
                     </WorkoutStep>
                   </View>
                 )}
@@ -436,7 +438,11 @@ export function WorkoutScreen({
               largeText && { flex: 1, width: undefined, paddingHorizontal: 8 },
             ]}
           >
-            <GradientBackground start="#2e4be0" end="#2136b0" radius={18} />
+            <GradientBackground
+              start={colors.workoutVoiceStart}
+              end={colors.workoutVoiceEnd}
+              radius={18}
+            />
             {!calmMode && !largeText && (
               <View style={s.voiceFace}>
                 <Image
@@ -448,7 +454,7 @@ export function WorkoutScreen({
                   <Icon
                     name="mic"
                     size={12}
-                    color="#6f86ff"
+                    color={colors.accent}
                     strokeWidth={2.6}
                   />
                 </View>
@@ -497,7 +503,7 @@ export function WorkoutScreen({
           <Icon
             name={journal.finished ? 'chevL' : 'chevD'}
             size={18}
-            color="#f2f2f3"
+            color={colors.ink}
           />
           {!journal.finished && (
             <Text style={[s.small, s.bold]}>{t('workout.minimize')}</Text>
@@ -513,7 +519,7 @@ export function WorkoutScreen({
             accessibilityLabel={t('workout.more')}
             style={[s.icon, { opacity: 0.45 }]}
           >
-            <Icon name="more" size={20} color="#f2f2f3" />
+            <Icon name="more" size={20} color={colors.ink} />
           </Pressable>
         </View>
       </View>
@@ -722,7 +728,7 @@ export function WorkoutScreen({
                         <Text style={[s.small, s.secondary]}>
                           {t('workout.next', { name: next.name })}
                         </Text>
-                        <Icon name="chevR" size={14} color="#a3a4ab" />
+                        <Icon name="chevR" size={14} color={colors.secondary} />
                       </Pressable>
                     )}
                   </View>
@@ -753,7 +759,7 @@ export function WorkoutScreen({
                         }
                         style={s.menu}
                       >
-                        <Icon name="more" size={20} color="#a3a4ab" />
+                        <Icon name="more" size={20} color={colors.secondary} />
                       </Pressable>
                     )}
                   </View>
@@ -846,7 +852,11 @@ export function WorkoutScreen({
                             style={s.composerEdit}
                             onPress={() => openEditor(focus, index)}
                           >
-                            <Icon name="edit" size={17} color="#a3a4ab" />
+                            <Icon
+                              name="edit"
+                              size={17}
+                              color={colors.secondary}
+                            />
                             <Text style={[s.small, s.secondary]}>
                               {t('workout.adjust')}
                             </Text>
@@ -930,7 +940,7 @@ export function WorkoutScreen({
                           </Text>
                         )}
                         {value && (
-                          <Icon name="check" size={13} color="#3ddc97" />
+                          <Icon name="check" size={13} color={colors.success} />
                         )}
                       </WorkoutEffect>
                     </Pressable>
@@ -969,7 +979,11 @@ export function WorkoutScreen({
                       })
                     }
                   >
-                    <Icon name="plus" size={16} color="#8c9eff" />
+                    <Icon
+                      name="plus"
+                      size={16}
+                      color={colors.workoutAccentInk}
+                    />
                     <Text style={[s.small, s.bold, s.accent]}>
                       {t('workout.addSet')}
                     </Text>
@@ -1051,9 +1065,18 @@ export function WorkoutScreen({
                         style={[s.mark, exercise === focus && s.markActive]}
                       >
                         {done.length === exercise.sets ? (
-                          <Icon name="check" size={15} color="#3ddc97" />
+                          <Icon name="check" size={15} color={colors.success} />
                         ) : (
-                          <Text style={s.bold}>{i + 1}</Text>
+                          <Text
+                            style={[
+                              s.bold,
+                              exercise === focus && {
+                                color: colors.workoutOnAccent,
+                              },
+                            ]}
+                          >
+                            {i + 1}
+                          </Text>
                         )}
                       </View>
                       <View style={s.grow}>
@@ -1096,7 +1119,7 @@ export function WorkoutScreen({
                 accessibilityLabel={t('workout.addExercise')}
                 style={s.addExercise}
               >
-                <Icon name="plus" size={18} color="#f2f2f3" />
+                <Icon name="plus" size={18} color={colors.ink} />
                 <Text>{t('workout.addExercise')}</Text>
               </Pressable>
             </View>
@@ -1140,7 +1163,7 @@ export function WorkoutScreen({
                               })}
                             </Text>
                           </View>
-                          <Icon name="check" size={15} color="#3ddc97" />
+                          <Icon name="check" size={15} color={colors.success} />
                         </View>
                       ),
                   )}

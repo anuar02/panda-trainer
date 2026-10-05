@@ -1,3 +1,4 @@
+import { useTheme } from '@/ui/theme';
 import {
   useLayoutEffect,
   useRef,
@@ -66,6 +67,7 @@ export function WorkoutEffect({
   }
 >) {
   const disabled = useMotionDisabled();
+  const { colors } = useTheme();
   const progress = useSharedValue(
     disabled || !active || kind === 'recorded' ? 1 : 0,
   );
@@ -162,14 +164,14 @@ export function WorkoutEffect({
             offsetY: 0,
             blurRadius: 0,
             spreadDistance: disabled || !active ? 0 : 14 * p,
-            color: `rgba(111,134,255,${disabled || !active ? 0 : 0.5 * (1 - p)})`,
+            color: `rgba(${colors.workoutAccentRgb},${disabled || !active ? 0 : 0.5 * (1 - p)})`,
           },
           {
             offsetX: 0,
             offsetY: 18,
             blurRadius: 40,
             spreadDistance: -18,
-            color: 'rgba(0,0,0,0.8)',
+            color: colors.workoutElevation,
           },
         ],
       };
@@ -184,8 +186,8 @@ export function WorkoutEffect({
               disabled || !active ? 0 : p * (kind === 'dock' ? 5 : 12),
             color:
               kind === 'dock'
-                ? `rgba(255,178,61,${disabled || !active ? 0 : 0.22 * p})`
-                : `rgba(111,134,255,${disabled || !active ? 0 : 0.4 * (1 - p)})`,
+                ? `rgba(${colors.workoutDockRgb},${disabled || !active ? 0 : 0.22 * p})`
+                : `rgba(${colors.workoutAccentRgb},${disabled || !active ? 0 : 0.4 * (1 - p)})`,
           },
         ],
       };
@@ -236,8 +238,8 @@ export function WorkoutEffect({
               borderRadius: 999,
               backgroundColor:
                 kind === 'hold-mic'
-                  ? 'rgba(214,58,42,0.25)'
-                  : 'rgba(214,58,42,0.28)',
+                  ? colors.workoutHoldHalo
+                  : colors.workoutMicHalo,
             },
             halo,
           ]}
@@ -331,6 +333,7 @@ export function WorkoutRow({
 }: Omit<PressableProps, 'children'> &
   PropsWithChildren<{ selected: boolean }>) {
   const disabled = useMotionDisabled();
+  const { colors } = useTheme();
   const opacity = useSharedValue(selected ? 1 : 0);
   useLayoutEffect(() => {
     cancelAnimation(opacity);
@@ -357,7 +360,7 @@ export function WorkoutRow({
             bottom: 0,
             left: 0,
             right: 0,
-            backgroundColor: 'rgba(111,134,255,0.16)',
+            backgroundColor: colors.workoutAccentSoft,
           },
           style,
         ]}

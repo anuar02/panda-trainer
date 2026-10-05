@@ -1,3 +1,4 @@
+import { useTheme } from '@/ui/theme';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/ui/icons';
@@ -17,18 +18,19 @@ export function WorkoutRestPanel({
 }) {
   const { rest, adjustRest, skipRest } = useWorkoutRuntime(sessionId, clientId);
   const { t } = useTranslation();
+  const { colors } = useTheme();
   if (!rest) return null;
   const buttonStyle = {
     minWidth: 44,
     minHeight: 44,
     paddingHorizontal: 10,
     borderRadius: 12,
-    backgroundColor: '#151619',
+    backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   } as const;
   const textStyle = {
-    color: '#8c9eff',
+    color: colors.workoutAccentInk,
     fontFamily: 'Inter_700Bold',
     fontSize: 15,
   };
@@ -41,8 +43,8 @@ export function WorkoutRestPanel({
         marginBottom: 8,
         borderRadius: 16,
         backgroundColor: rest.done
-          ? 'rgba(61,220,151,0.13)'
-          : 'rgba(111,134,255,0.16)',
+          ? colors.workoutSuccessSoft
+          : colors.workoutAccentSoft,
         overflow: 'hidden',
       }}
     >
@@ -55,7 +57,7 @@ export function WorkoutRestPanel({
             top: 0,
             bottom: 0,
             left: 0,
-            backgroundColor: 'rgba(111,134,255,0.16)',
+            backgroundColor: colors.workoutAccentSoft,
           }}
         />
       )}
@@ -78,7 +80,7 @@ export function WorkoutRestPanel({
             name={rest.done ? 'check' : 'clock'}
             size={18}
             strokeWidth={2.4}
-            color={rest.done ? '#3ddc97' : '#8c9eff'}
+            color={rest.done ? colors.success : colors.workoutAccentInk}
           />
         </WorkoutEffect>
         <Text
@@ -86,14 +88,14 @@ export function WorkoutRestPanel({
             flexGrow: 1,
             flexShrink: 1,
             fontFamily: 'Inter_600SemiBold',
-            color: '#f2f2f3',
+            color: colors.ink,
             fontSize: 15,
           }}
         >
           {t(rest.done ? 'workoutDemo.restDone' : 'workoutDemo.rest')}
           <Text
             style={{
-              color: '#f2f2f3',
+              color: colors.ink,
               fontFamily: 'Montserrat_800ExtraBold',
               fontSize: 20,
             }}
