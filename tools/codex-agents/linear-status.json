@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-05T09:50Z",
+  "updated_at": "2026-10-05T10:22Z",
   "updated_by": "coordinator",
   "done": 11,
   "groups": {
@@ -12,9 +12,9 @@
     {
       "id": "SOM-39",
       "title": "Принять крупный текст, спокойный интерфейс и движение",
-      "status": "In Progress",
+      "status": "In Review",
       "milestone": "09",
-      "group": "agents"
+      "group": "owner"
     },
     {
       "id": "SOM-50",
