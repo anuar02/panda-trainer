@@ -12,7 +12,7 @@
     {
       "id": "SOM-31",
       "title": "Довести ввод подходов и мини-группы до production",
-      "status": "In Progress",
+      "status": "In Review",
       "milestone": "05",
       "group": "agents"
     },
