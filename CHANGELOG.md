@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-39, бриф 18 r2: плавающая Liquid Glass-навигация обеих ролей, theme fallback,
+- [SOM-39 / draft PR #86](https://github.com/anuar02/panda-trainer/pull/86), бриф 18 r2: плавающая Liquid Glass-навигация обеих ролей, theme fallback,
   reduce transparency и общий измеряемый отступ контента с учётом safe area/dock.
   Исключение владельца 05.10.2026 — [ADR 0111](docs/app/decisions/0111-floating-liquid-glass-tabbar.md).
   [Отчёт](app/review/18-som-39-liquid-glass-tabbar-r2/README.md); iPhone и приёмка открыты.
