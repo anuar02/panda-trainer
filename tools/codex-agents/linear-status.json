@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-05T10:22Z",
+  "updated_at": "2026-10-05T10:40Z",
   "updated_by": "coordinator",
   "done": 11,
   "groups": {
@@ -12,9 +12,16 @@
     {
       "id": "SOM-39",
       "title": "Принять крупный текст, спокойный интерфейс и движение",
-      "status": "In Review",
+      "status": "In Progress",
       "milestone": "09",
-      "group": "owner"
+      "group": "agents"
+    },
+    {
+      "id": "SOM-26",
+      "title": "Подключить Today, неделю и создание занятия к серверу",
+      "status": "In Progress",
+      "milestone": "04",
+      "group": "agents"
     },
     {
       "id": "SOM-50",
@@ -28,13 +35,6 @@
       "title": "Довести ввод подходов и мини-группы до production",
       "status": "In Review",
       "milestone": "05",
-      "group": "owner"
-    },
-    {
-      "id": "SOM-26",
-      "title": "Подключить Today, неделю и создание занятия к серверу",
-      "status": "In Review",
-      "milestone": "04",
       "group": "owner"
     },
     {
