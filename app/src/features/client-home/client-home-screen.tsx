@@ -1,3 +1,4 @@
+import { useTabContentBottomInset } from '@/features/navigation/tab-bar-layout';
 import {
   MotionHeader,
   Shimmer,
@@ -77,6 +78,7 @@ function DemoClientHomeScreen({
 }: {
   scenario?: HomeScenario;
 }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t, i18n } = useTranslation();
   const demo = useOptionalSchedulingDemo();
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
@@ -273,7 +275,10 @@ function DemoClientHomeScreen({
         </View>
         <DemoNotificationEntry />
       </MotionHeader>
-      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[s.body, { paddingBottom }]}
+      >
         {actionError ? (
           <Text accessibilityRole="alert">{actionError}</Text>
         ) : null}
@@ -660,6 +665,7 @@ function DemoClientHomeScreen({
 }
 
 function ControlledClientHome({ data }: { data: ClientHomeData }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
   const tx = (key: keyof typeof clientHome) => t(`clientHome.${key}`);
@@ -714,7 +720,7 @@ function ControlledClientHome({ data }: { data: ClientHomeData }) {
           </Pressable>
         )}
       </MotionHeader>
-      <ScrollView contentContainerStyle={s.body}>
+      <ScrollView contentContainerStyle={[s.body, { paddingBottom }]}>
         {data.loading ? (
           <View
             style={s.page}

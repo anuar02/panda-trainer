@@ -1,3 +1,4 @@
+import { useTabContentBottomInset } from '@/features/navigation/tab-bar-layout';
 import {
   MotionHeader,
   Shimmer,
@@ -72,6 +73,7 @@ function DemoClientHistoryScreen({
 }: {
   scenario?: DemoScenario;
 }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t, i18n } = useTranslation();
   const demo = useOptionalWorkoutDemo();
   const journals = demo?.hydrated ? workoutClientHistory(demo.state, 'c1') : [];
@@ -143,7 +145,10 @@ function DemoClientHistoryScreen({
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
       </MotionHeader>
-      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[s.body, { paddingBottom }]}
+      >
         {scenario === 'loading' || (demo && !demo.hydrated) ? (
           <View
             style={s.page}
@@ -333,6 +338,7 @@ function DemoClientHistoryScreen({
 }
 
 function ControlledClientHistory({ data }: { data: ClientHistoryData }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -401,7 +407,7 @@ function ControlledClientHistory({ data }: { data: ClientHistoryData }) {
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
       </MotionHeader>
-      <ScrollView contentContainerStyle={s.body}>
+      <ScrollView contentContainerStyle={[s.body, { paddingBottom }]}>
         {data.loading ? (
           <View
             style={s.page}

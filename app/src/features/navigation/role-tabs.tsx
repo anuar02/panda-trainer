@@ -1,11 +1,13 @@
 import { TabMotion, useScreenEntrance } from '@/ui/motion';
 import { Tabs } from 'expo-router';
-import { useEffect, useRef, type ComponentProps } from 'react';
-import { Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { Keyboard, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/ui/theme';
 import { Icon } from '@/ui/icons';
 import { WorkoutDock } from '@/features/workout-demo';
+import { TabBarSurface } from './tab-bar-surface';
+import { TabBarLayoutProvider, TAB_BAR_HORIZONTAL_INSET, useTabBarLayout } from './tab-bar-layout';
 type BottomTabBarProps = Parameters<
   NonNullable<ComponentProps<typeof Tabs>['tabBar']>
 >[0];
@@ -29,10 +31,25 @@ export function FloatingTabBar({
   role,
   state,
   navigation,
-  insets,
 }: BottomTabBarProps & { role: keyof typeof routes }) {
   const { t } = useTranslation();
-  const { scheme, colors } = useTheme();
+  const { scheme } = useTheme();
+  const { bottomOffset, onTabBarLayout } = useTabBarLayout();
+  const [keyboardVisible, setKeyboardVisible] = useState(Keyboard.isVisible());
+  useEffect(() => {
+    const show = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setKeyboardVisible(true),
+    );
+    const hide = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setKeyboardVisible(false),
+    );
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
   const { fontScale } = useWindowDimensions();
   const entry = useScreenEntrance();
   const params = state.routes[state.index]?.params;
@@ -83,30 +100,24 @@ export function FloatingTabBar({
   const fontSize = role === 'trainer' ? 10 : 12;
   const accent = dark ? '#6f86ff' : '#2b48d6';
   const secondary = dark ? '#a3a4ab' : '#545868';
+  if (keyboardVisible) return null;
   return (
     <View
+      testID="floating-tab-bar-stack"
+      pointerEvents="box-none"
+      onLayout={onTabBarLayout}
       style={{
-        backgroundColor: colors.canvas,
-        paddingHorizontal: 12,
-        paddingBottom: Math.max(10, insets.bottom),
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        paddingHorizontal: TAB_BAR_HORIZONTAL_INSET,
+        paddingBottom: bottomOffset,
       }}
     >
       {role === 'trainer' && <WorkoutDock />}
-      <View
-        accessibilityLabel={t('tabs.navigation')}
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          padding: 6,
-          borderRadius: 26,
-          backgroundColor: dark
-            ? 'rgba(21,22,25,0.95)'
-            : 'rgba(252,252,253,0.9)',
-          boxShadow: dark
-            ? '0 14px 34px -14px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.07)'
-            : '0 14px 34px -14px rgba(15,18,40,0.35), 0 0 0 1px rgba(20,24,50,0.08)',
-        }}
-      >
+      <View accessibilityLabel={t('tabs.navigation')}>
+        <TabBarSurface>
         {routes[role].map((item) => {
           const route = state.routes.find((entry) => entry.name === item.name);
           if (!route) return null;
@@ -195,6 +206,7 @@ export function FloatingTabBar({
             </Pressable>
           );
         })}
+        </TabBarSurface>
       </View>
     </View>
   );
@@ -203,6 +215,7 @@ export function RoleTabs({ role }: { role: keyof typeof routes }) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   return (
+    <TabBarLayoutProvider role={role}>
     <Tabs
       initialRouteName={routes[role][0].name}
       tabBar={(props) => <FloatingTabBar {...props} role={role} />}
@@ -219,5 +232,6 @@ export function RoleTabs({ role }: { role: keyof typeof routes }) {
         />
       ))}
     </Tabs>
+    </TabBarLayoutProvider>
   );
 }

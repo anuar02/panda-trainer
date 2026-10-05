@@ -1,3 +1,4 @@
+import { useTabContentBottomInset } from '@/features/navigation/tab-bar-layout';
 import {
   Shimmer,
   MotionHeader,
@@ -57,6 +58,7 @@ export function TrainerScheduleScreen({
   initialDate?: string;
   data?: TrainerScheduleData;
 }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
   const demoContext = useOptionalSchedulingDemo();
@@ -289,7 +291,10 @@ export function TrainerScheduleScreen({
           <Icon name="plus" color={selectedInk} />
         </Pressable>
       </MotionHeader>
-      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[s.body, { paddingBottom }]}
+      >
         {demo?.storageStatus === 'error' && (
           <View>
             <Text accessibilityRole="alert">

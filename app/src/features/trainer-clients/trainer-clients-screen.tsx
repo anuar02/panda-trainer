@@ -1,3 +1,4 @@
+import { useTabContentBottomInset } from '@/features/navigation/tab-bar-layout';
 import {
   MotionHeader,
   Shimmer,
@@ -26,6 +27,7 @@ export function TrainerClientsScreen({
 }: {
   scenario?: DemoScenario;
 }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const [query, setQuery] = useState('');
@@ -151,7 +153,7 @@ export function TrainerClientsScreen({
       </View>
       <ScrollView
         motionKey={scenario}
-        contentContainerStyle={s.body}
+        contentContainerStyle={[s.body, { paddingBottom }]}
         keyboardShouldPersistTaps="handled"
       >
         {scenario === 'offline' && (

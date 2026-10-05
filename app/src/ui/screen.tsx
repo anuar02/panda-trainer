@@ -1,3 +1,5 @@
+import { useTabContentBottomInset } from '@/features/navigation/tab-bar-layout';
+import tokens from './tokens.json';
 import { MotionScrollView } from './motion';
 import type { PropsWithChildren } from 'react';
 import { View } from 'react-native';
@@ -8,10 +10,12 @@ export function Screen({
   subtitle,
   children,
 }: PropsWithChildren<{ title: string; subtitle?: string }>) {
+  const paddingBottom = useTabContentBottomInset(tokens.spacing.section);
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-canvas">
       <MotionScrollView
         contentContainerClassName="grow gap-section px-page pb-section pt-page"
+        contentContainerStyle={{ paddingBottom }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="gap-3">

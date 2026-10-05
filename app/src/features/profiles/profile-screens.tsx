@@ -1,3 +1,4 @@
+import { useTabContentBottomInset } from '@/features/navigation/tab-bar-layout';
 import {
   GrowX,
   Shimmer,
@@ -166,6 +167,7 @@ export function TrainerProfileScreen({
 }: {
   scenario?: DemoScenario;
 }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const tx = useProfileText();
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
@@ -184,7 +186,10 @@ export function TrainerProfileScreen({
       <View style={s.trainerHeader}>
         <Text style={s.trainerTitle}>{tx('title')}</Text>
       </View>
-      <ScrollView motionKey={scenario} contentContainerStyle={s.trainerBody}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[s.trainerBody, { paddingBottom }]}
+      >
         <View style={s.trainerPerson}>
           <Lead trainer>{tx('trainerInitials')}</Lead>
           <View style={s.personText}>
@@ -258,6 +263,7 @@ export function ClientProfileScreen({
 }: {
   scenario?: DemoScenario;
 }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const tx = useProfileText();
   const { colors, scheme } = useTheme();
   const secondary = { color: colors.secondary };
@@ -293,7 +299,10 @@ export function ClientProfileScreen({
           <Icon name="bell" size={22} color={colors.ink} />
         </Pressable>
       </View>
-      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[s.body, { paddingBottom }]}
+      >
         {scenario === 'loading' ? (
           <View
             style={s.clientContent}

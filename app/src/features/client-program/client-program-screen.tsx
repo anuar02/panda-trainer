@@ -1,3 +1,4 @@
+import { useTabContentBottomInset } from '@/features/navigation/tab-bar-layout';
 import {
   MotionHeader,
   Shimmer,
@@ -70,6 +71,7 @@ function DemoClientProgramScreen({
 }: {
   scenario?: DemoScenario;
 }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const [selected, setSelected] = useState<ProgramExercise | null>(null);
@@ -124,7 +126,10 @@ function DemoClientProgramScreen({
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
       </MotionHeader>
-      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[s.body, { paddingBottom }]}
+      >
         {scenario === 'loading' ? (
           <View
             style={s.page}
@@ -342,6 +347,7 @@ function DemoClientProgramScreen({
 }
 
 function ControlledClientProgram({ data }: { data: ClientProgramData }) {
+  const paddingBottom = useTabContentBottomInset(20);
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -404,7 +410,7 @@ function ControlledClientProgram({ data }: { data: ClientProgramData }) {
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
       </MotionHeader>
-      <ScrollView contentContainerStyle={s.body}>
+      <ScrollView contentContainerStyle={[s.body, { paddingBottom }]}>
         {data.loading ? (
           <View
             style={s.page}
