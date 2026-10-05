@@ -65,9 +65,8 @@ Liquid Glass**. Это сознательное отступление от `pro
 
 ## Повтор r2 — восстановление после незавершённого запуска
 
-Этот бриф заблокирован и НЕ стоит в исполняемой очереди third. Координатор
-переносит его в tasks/third/ только после слияния PR #80 (ADR 0110,
-AnimatedView / AnimatedPressableView) в fix/som-50-template-picker.
+PR #80 (ADR 0110, AnimatedView / AnimatedPressableView) влит в
+fix/som-50-template-picker 05.10.2026 — зависимость снята.
 Не обходить зависимость копированием motion.tsx и не вливать fix/* PR.
 
 PR #81 закрыт без слияния: это автосохранённый WIP 4e47dda96728263c79f609ac06e1cc86bfbcf6f9.
