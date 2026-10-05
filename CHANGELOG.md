@@ -9,6 +9,10 @@
 
 ## Не выпущено
 
+- SOM-26, исправлено: отдельным PR удалены 12 PNG и служебные generated-артефакты,
+  ошибочно включённые в #88 вопреки ADR 0066; исправлен текстовый отчёт.
+  [Проверки](app/review/00-som-26-calm-today-fix/README.md); native/приёмка открыты.
+
 - [SOM-39 / draft PR #89](https://github.com/anuar02/panda-trainer/pull/89), бриф 21: самописная панель заменена системным NativeTabs с Liquid Glass
   iOS 26, сворачиванием при прокрутке, SF Symbols/Material и положительным бейджем
   Сегодня. Отдельная action «+» ограничена API; кнопка в шапке сохранена.
