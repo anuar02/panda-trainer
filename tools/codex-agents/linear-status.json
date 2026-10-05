@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-05T08:05Z",
+  "updated_at": "2026-10-05T08:28Z",
   "updated_by": "coordinator",
   "done": 11,
   "groups": {
@@ -12,9 +12,9 @@
     {
       "id": "SOM-31",
       "title": "Довести ввод подходов и мини-группы до production",
-      "status": "In Progress",
+      "status": "In Review",
       "milestone": "05",
-      "group": "agents"
+      "group": "owner"
     },
     {
       "id": "SOM-26",

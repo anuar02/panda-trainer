@@ -1,0 +1,17 @@
+Нет доступных автономных задач: открытых agent/* PR и начатых рабочих задач нет; оставшаяся работа заблокирована зависимостями и внешними проверками.
+
+SOM-39: полный retry 18-r2 в tasks/blocked; ждёт разрешённого слияния #80 fix/som-39-animated-classname в fix/som-50-template-picker. Координатору запрещено вливать fix/*; PR80 OPEN/CONFLICTING. После merge проверить отсутствие agent/r2 и перенести бриф в third.
+SOM-19: live Apple/Google, Keychain, два телефона.
+SOM-26, SOM-31: native геометрия/клавиатуры/status bar/максимальный текст, accessibility и визуальная приёмка.
+SOM-32: planned values/prev и одобрение владельца.
+SOM-35: native история.
+SOM-38: native FPS/память/WebP/Rive и подтверждённая calm-карта.
+SOM-39: native движение/крупный текст/parity; SOM-54 — решение о голосе вне v1.
+SOM-40: cloud restore, EU/DNS/SMTP/retention и окружение пилота.
+SOM-41: native SQLite/files/offline, cloud/Auth/deletion/backup и подтверждение специалиста.
+SOM-50: native клавиатуры, VoiceOver/TalkBack, accessibility/parity и одобрение владельца.
+SOM-73: installed push/EAS/APNs/FCM и deployment.
+SOM-17, SOM-43…49: приёмка экранов только владельцем; в очередь не ставить.
+SOM-42: сборки/устройства/полевой пилот после зависимостей и приёмок.
+SOM-63: интервью; SOM-64: после пилота.
+Платные сервисы и реальные данные клиентов не разрешены.
