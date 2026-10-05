@@ -1,0 +1,84 @@
+/* Сегодня — спокойная версия (решение владельца 05.10.2026):
+   блок «Сейчас», лента «Дальше», «Нужен ответ», прошедшие одной строкой.
+   Не действует в режиме instrument. */
+
+:root:not([data-visual="instrument"]) .today-head { padding-bottom: 16px; align-items: center; }
+:root:not([data-visual="instrument"]) .today-head__date { font-size: .8125rem; font-weight: 500; color: var(--sec); margin-bottom: 4px; }
+:root:not([data-visual="instrument"]) .today-head__title { font-size: 1.75rem; }
+:root:not([data-visual="instrument"]) .today-inbox__count { background: var(--amber); color: #111110; }
+
+:root:not([data-visual="instrument"]) .today-focus {
+  margin: 0 16px;
+  padding: 18px;
+  border-radius: var(--r-card-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+.today-focus__eyebrow { display: flex; align-items: center; gap: 8px; font-size: .8125rem; font-weight: 600; color: var(--accent-ink, var(--accent)); }
+.today-focus__eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.today-focus.is-now .today-focus__eyebrow { color: #ff7a52; }
+.today-focus.is-now .today-focus__eyebrow i { box-shadow: 0 0 0 4px rgba(255, 122, 82, .18); }
+.today-focus__open { display: block; width: 100%; margin-top: 10px; text-align: left; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; }
+.today-focus__time { display: block; font-family: var(--disp); font-weight: 800; font-size: 2.375rem; line-height: 1; letter-spacing: -1px; }
+.today-focus__time small { font-size: 1.25rem; font-weight: 600; letter-spacing: -.4px; color: var(--sec); }
+.today-focus__name { display: block; margin-top: 10px; font-size: 1.25rem; font-weight: 700; letter-spacing: -.3px; }
+.today-focus__program { margin-top: 6px; font-size: .875rem; color: var(--sec); }
+.today-focus__people { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.today-person { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px 0 4px; border-radius: var(--r-pill); background: var(--sunken); font-size: .875rem; font-weight: 600; }
+.today-person b { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: .6875rem; color: #111110; }
+.today-person.is-ok b { background: var(--mint); }
+.today-person.is-wait b { background: var(--amber); }
+.today-person.is-out { color: var(--sec); text-decoration: line-through; }
+.today-person.is-out b { background: var(--border); color: var(--sec); }
+.today-focus .segments, .today-focus .today-flags { margin-top: 10px; }
+:root:not([data-visual="instrument"]) .today-focus__cta { width: 100%; margin-top: 14px; }
+
+:root:not([data-visual="instrument"]) .today-section { padding: 0 0 4px; }
+.today-label { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 20px 6px; font-family: var(--ui); font-size: .8125rem; font-weight: 600; color: var(--sec); letter-spacing: 0; }
+
+.today-timeline { padding: 0 16px; }
+.today-row { display: grid; grid-template-columns: 52px minmax(0, 1fr); column-gap: 12px; }
+.today-row__time { padding-top: 13px; text-align: right; }
+.today-row__time time { display: block; font-size: 1rem; font-weight: 650; letter-spacing: -.2px; color: var(--ink); }
+.today-row__time small { display: block; margin-top: 3px; font-size: .78rem; color: var(--sec); }
+.today-row__body { position: relative; min-height: 58px; padding: 11px 0 12px 16px; border-left: 2px solid var(--hair); }
+.today-row__body::before { content: ''; position: absolute; left: -6px; top: 18px; width: 10px; height: 10px; border-radius: 50%; background: var(--canvas); border: 2px solid var(--border-button, var(--border)); }
+.today-row__name { display: block; padding: 0; background: none; border: 0; color: var(--ink); font: inherit; font-size: 1.03rem; font-weight: 650; text-align: left; cursor: pointer; }
+.today-row__meta { margin-top: 3px; font-size: .875rem; line-height: 1.4; color: var(--sec); }
+.today-row.is-cancelled .today-row__name, .today-row.is-cancelled time { color: var(--sec); text-decoration: line-through; }
+.today-flags { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; }
+.today-flag { font-size: .8125rem; font-weight: 600; color: var(--sec); }
+.today-flag.is-amber { color: var(--amber-ink); }
+.today-flag.is-mint { color: var(--mint-ink); }
+.today-flag.is-danger { color: var(--danger); }
+
+:root:not([data-visual="instrument"]) .today-timeline .today-gap {
+  grid-template-columns: 52px minmax(0, 1fr) 32px;
+  column-gap: 12px;
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+  background: none;
+  margin: 0;
+}
+:root:not([data-visual="instrument"]) .today-timeline .today-gap::before { display: none; }
+:root:not([data-visual="instrument"]) .today-timeline .today-gap__time { text-align: right; font-family: var(--ui); font-weight: 500; font-size: .78rem; color: var(--sec); }
+:root:not([data-visual="instrument"]) .today-timeline .today-gap__time small,
+:root:not([data-visual="instrument"]) .today-timeline .today-gap__main small { display: none; }
+:root:not([data-visual="instrument"]) .today-timeline .today-gap__main { align-self: stretch; display: flex; align-items: center; padding-left: 16px; border-left: 2px dashed var(--border); }
+:root:not([data-visual="instrument"]) .today-timeline .today-gap__main strong { font-size: .84rem; font-weight: 500; color: var(--sec); }
+:root:not([data-visual="instrument"]) .today-timeline .today-conflict { margin: 4px 0 4px 64px; }
+.today-free-after { margin: 0 0 0 64px; padding: 10px 0 4px 16px; border-left: 2px dashed var(--border); font-size: .84rem; color: var(--sec); }
+.today-done { padding: 18px 20px 4px; font-size: .9375rem; color: var(--sec); }
+
+.today-replies { padding-bottom: 4px; }
+.today-reply { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; column-gap: 12px; align-items: center; width: calc(100% - 32px); min-height: 64px; margin: 0 16px; padding: 10px 2px; border: 0; border-bottom: 1px solid var(--hair); background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.today-reply:last-child { border-bottom: 0; }
+.today-reply__when b { display: block; font-size: 1.0625rem; font-weight: 650; }
+.today-reply__when small, .today-reply__main small { display: block; margin-top: 2px; font-size: .8125rem; color: var(--sec); }
+.today-reply__main strong { display: block; font-size: 1.03rem; font-weight: 650; }
+.today-reply__cta { font-size: .8125rem; font-weight: 600; color: var(--amber-ink); }
+
+:root:not([data-visual="instrument"]) .today .today-past { margin: 10px 0 0; border-bottom: 0; }
+:root:not([data-visual="instrument"]) .today .today-past__toggle { min-height: 44px; padding: 0 20px; font-size: .8125rem; font-weight: 500; color: var(--sec); background: none; }
+:root:not([data-visual="instrument"]) .today .today-past__list { padding-top: 4px; }

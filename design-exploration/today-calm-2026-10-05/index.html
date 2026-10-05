@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сегодня — упрощение</title>
+<link rel="stylesheet" href="../../prototype-fresh/css/fonts.css">
+<link rel="stylesheet" href="../../prototype-fresh/css/tokens.css">
+<link rel="stylesheet" href="../../prototype-fresh/css/theme-dark.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #2a2b30; color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
+  [data-theme="light"] body { background: #d9d6cf; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .page-head { max-width: 1240px; margin: 0 auto; padding: 28px 16px 8px; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; color: #f2f2f3; }
+  [data-theme="light"] .page-head { color: #111110; }
+  .page-head h1 { font: 800 22px/1.2 var(--disp); }
+  .page-head p { font-size: 14px; opacity: .75; margin-top: 6px; max-width: 640px; line-height: 1.45; }
+  .theme-toggle { padding: 10px 16px; border-radius: 999px; background: rgba(255,255,255,.12); font-weight: 600; font-size: 14px; }
+  [data-theme="light"] .theme-toggle { background: rgba(0,0,0,.08); }
+
+  .stage { max-width: 1240px; margin: 0 auto; padding: 16px; display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+  .variant { display: flex; flex-direction: column; gap: 12px; width: 390px; max-width: 100%; }
+  .variant__label { color: #f2f2f3; }
+  [data-theme="light"] .variant__label { color: #111110; }
+  .variant__label b { font: 800 18px/1.2 var(--disp); display: block; }
+  .variant__label span { font-size: 13px; opacity: .75; line-height: 1.45; display: block; margin-top: 4px; }
+
+  .phone { position: relative; width: 390px; max-width: 100%; height: 844px; border-radius: 44px; overflow: hidden; background: var(--canvas); box-shadow: 0 30px 60px -20px rgba(0,0,0,.55), 0 0 0 10px #111; }
+  .status { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 34px; font-weight: 600; font-size: 15px; }
+  .scroll { position: absolute; inset: 50px 0 0; overflow-y: auto; padding-bottom: 120px; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { display: none; }
+
+  .head { display: flex; align-items: flex-start; justify-content: space-between; padding: 10px 20px 16px; }
+  .head__title { font: 800 28px/1.1 var(--disp); letter-spacing: -.4px; }
+  .head__sub { margin-top: 6px; font-size: 14px; color: var(--sec); }
+  .head__date { font-size: 13px; color: var(--sec); font-weight: 500; margin-bottom: 4px; }
+  .head__actions { display: flex; gap: 8px; }
+  .icon-btn { position: relative; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--surface); box-shadow: var(--shadow-card); }
+  .badge { position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--amber); color: #111; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+
+  .attention { margin: 0 16px 14px; display: flex; align-items: center; gap: 10px; width: calc(100% - 32px); min-height: 48px; padding: 0 14px; border-radius: 14px; background: var(--amber-soft); color: var(--ink); font-size: 15px; font-weight: 600; text-align: left; }
+  .attention i { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); flex: none; }
+  .attention span { flex: 1; }
+  .attention svg { color: var(--sec); }
+
+  .past { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 20px 10px; color: var(--sec); font-size: 13px; font-weight: 500; text-align: left; }
+  .past svg { color: var(--mint-ink); }
+  .past em { margin-left: auto; font-style: normal; color: var(--accent); font-weight: 600; }
+  [data-theme="dark"] .past em { color: #8c9eff; }
+
+  /* Variant A — single timeline */
+  .tl { position: relative; padding: 0 16px; }
+  .tl__row { display: grid; grid-template-columns: 52px 1fr; column-gap: 12px; }
+  .tl__time { padding-top: 14px; text-align: right; }
+  .tl__time b { display: block; font-size: 16px; font-weight: 650; letter-spacing: -.2px; }
+  .tl__time small { display: block; margin-top: 3px; font-size: 12.5px; color: var(--sec); }
+  .tl__body { position: relative; padding: 12px 0 12px 16px; border-left: 2px solid var(--hair); min-height: 56px; }
+  .tl__body::before { content: ''; position: absolute; left: -6px; top: 19px; width: 10px; height: 10px; border-radius: 50%; background: var(--canvas); border: 2px solid var(--border-button, var(--border)); }
+  .tl__name { font-size: 16.5px; font-weight: 650; letter-spacing: -.1px; }
+  .tl__meta { margin-top: 3px; font-size: 14px; color: var(--sec); line-height: 1.4; }
+  .tl__meta strong { color: var(--ink); font-weight: 600; }
+  .now-line { position: relative; display: grid; grid-template-columns: 52px 1fr; column-gap: 12px; align-items: center; height: 22px; }
+  .now-line time { text-align: right; font-size: 12.5px; font-weight: 700; color: #ff7a52; }
+  .now-line i { height: 2px; background: #ff7a52; border-radius: 2px; position: relative; margin-left: -7px; }
+  .now-line i::before { content: ''; position: absolute; left: -2px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #ff7a52; }
+  .tl__row.is-now .tl__body { border-left-color: transparent; padding-right: 0; }
+  .tl__row.is-now .tl__body::before { display: none; }
+  .focus { margin-left: -16px; padding: 14px 16px 16px; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .focus__eyebrow { font-size: 13px; font-weight: 600; color: #8c9eff; }
+  [data-theme="light"] .focus__eyebrow { color: var(--accent); }
+  .focus__name { margin-top: 4px; font: 750 21px/1.2 var(--ui); letter-spacing: -.3px; }
+  .rsvp { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 14px; color: var(--sec); }
+  .rsvp span { display: inline-flex; align-items: center; gap: 6px; }
+  .rsvp i { width: 7px; height: 7px; border-radius: 50%; }
+  .cta { margin-top: 14px; width: 100%; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 9px; font-size: 16px; font-weight: 700; color: #fff; background: linear-gradient(180deg, #5a73ff, #3d57e6); }
+  .gap { display: grid; grid-template-columns: 52px 1fr; column-gap: 12px; }
+  .gap__body { display: flex; align-items: center; gap: 8px; min-height: 40px; margin-left: 0; padding-left: 16px; border-left: 2px dashed var(--border); font-size: 13.5px; color: var(--sec); }
+  .gap__body button { margin-left: auto; width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--sec); }
+  .gap__time { text-align: right; font-size: 12.5px; color: var(--sec); padding-top: 12px; }
+
+  /* Variant B — focus + list */
+  .fb { margin: 0 16px; padding: 18px 18px 18px; border-radius: 26px; background: var(--surface); box-shadow: var(--shadow-card); }
+  .fb__eyebrow { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #ff7a52; }
+  .fb__eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: #ff7a52; box-shadow: 0 0 0 4px rgba(255,122,82,.18); }
+  .fb__time { margin-top: 10px; font: 800 38px/1 var(--disp); letter-spacing: -1px; }
+  .fb__time small { font: 600 20px/1 var(--disp); color: var(--sec); letter-spacing: -.4px; }
+  .fb__name { margin-top: 10px; font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
+  .people { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .person { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px 0 4px; border-radius: 999px; background: var(--sunken); font-size: 14px; font-weight: 600; }
+  .person b { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; color: #111; }
+  .person.is-out { color: var(--sec); text-decoration: line-through; }
+  .section-label { display: flex; justify-content: space-between; padding: 22px 20px 6px; font-size: 13px; font-weight: 600; color: var(--sec); }
+  .list { margin: 0 16px; }
+  .item { display: grid; grid-template-columns: 58px 1fr auto; column-gap: 12px; align-items: center; min-height: 64px; padding: 10px 2px; border-bottom: 1px solid var(--hair); text-align: left; width: 100%; }
+  .item:last-child { border-bottom: 0; }
+  .item__time b { display: block; font-size: 17px; font-weight: 650; }
+  .item__time small { display: block; margin-top: 2px; font-size: 12.5px; color: var(--sec); }
+  .item__name { font-size: 16.5px; font-weight: 650; }
+  .item__meta { margin-top: 2px; font-size: 14px; color: var(--sec); }
+  .item__flag { font-size: 13px; font-weight: 600; color: var(--amber-ink); }
+  .free { display: grid; grid-template-columns: 58px 1fr auto; column-gap: 12px; align-items: center; min-height: 44px; padding: 0 2px; border-bottom: 1px solid var(--hair); color: var(--sec); font-size: 13.5px; }
+  .free span:first-child { font-size: 12.5px; }
+  .free button { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--sec); }
+
+  .tabbar { position: absolute; left: 14px; right: 14px; bottom: 22px; height: 64px; border-radius: 32px; display: flex; justify-content: space-around; align-items: center; background: var(--glass); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); box-shadow: 0 0 0 1px var(--glass-border), 0 12px 30px -12px rgba(0,0,0,.5); }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 600; color: var(--sec); }
+  .tab.is-on { color: #8c9eff; }
+  [data-theme="light"] .tab.is-on { color: var(--accent); }
+
+  .notes { max-width: 1240px; margin: 8px auto 48px; padding: 0 16px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); color: #f2f2f3; }
+  [data-theme="light"] .notes { color: #111110; }
+  .notes section { background: rgba(255,255,255,.06); border-radius: 18px; padding: 18px; }
+  [data-theme="light"] .notes section { background: rgba(255,255,255,.6); }
+  .notes h2 { font: 800 15px/1.3 var(--disp); margin-bottom: 10px; }
+  .notes li { font-size: 14px; line-height: 1.5; margin-left: 18px; opacity: .9; }
+  @media (max-width: 440px) { .phone { height: 780px; box-shadow: 0 0 0 6px #111; } }
+</style>
+</head>
+<body>
+<header class="page-head">
+  <div>
+    <h1>«Сегодня» тренера — два способа разгрузить экран</h1>
+    <p>Те же данные, что в прототипе (пн 14 сентября, сейчас 20:30, 7 занятий, 2 запроса). Каждое занятие — один раз, нет панды-сводки, счётчиков-дублей и подписей «Индивидуальное». Нажмите, чтобы сравнить темы.</p>
+  </div>
+  <button class="theme-toggle" id="theme">Светлая тема</button>
+</header>
+
+<main class="stage">
+  <!-- Variant A -->
+  <div class="variant">
+    <div class="variant__label"><b>A · Лента дня</b><span>Одна хронология с колонкой времени и линией «сейчас». Текущее занятие раскрыто прямо в ленте, остальное — строки.</span></div>
+    <div class="phone">
+      <div class="status"><span class="num">20:30</span><span>●●● ▮</span></div>
+      <div class="scroll">
+        <div class="head">
+          <div>
+            <h2 class="head__title">Сегодня</h2>
+            <p class="head__sub">Пн, 14 сентября · <span class="num">7</span> занятий</p>
+          </div>
+          <div class="head__actions">
+            <button class="icon-btn" aria-label="Входящие, 2 запроса"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="badge num">2</span></button>
+            <button class="icon-btn" aria-label="Создать занятие"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </div>
+
+        <button class="attention"><i></i><span>2 запроса на перенос ждут ответа</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg></button>
+
+        <button class="past"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Прошло 5 занятий</span><em>Показать</em></button>
+
+        <div class="tl">
+          <div class="tl__row is-now">
+            <div class="tl__time"><b class="num">20:00</b><small class="num">21:00</small></div>
+            <div class="tl__body">
+              <div class="focus">
+                <p class="focus__eyebrow">Идёт · ещё <span class="num">30</span> мин</p>
+                <h3 class="focus__name">Мини-группа</h3>
+                <div class="rsvp">
+                  <span><i style="background:var(--mint)"></i>Алия</span>
+                  <span><i style="background:var(--amber)"></i>Дана ждёт</span>
+                  <span><i style="background:var(--danger)"></i>Мади отменил</span>
+                </div>
+                <button class="cta"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Начать тренировку</button>
+              </div>
+            </div>
+          </div>
+          <div class="now-line"><time class="num">20:30</time><i></i></div>
+          <div class="gap"><div class="gap__time num">21:00</div><div class="gap__body"><span>Свободно <span class="num">15</span> мин</span><button aria-label="Добавить занятие"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
+          <div class="tl__row">
+            <div class="tl__time"><b class="num">21:15</b><small class="num">22:00</small></div>
+            <div class="tl__body"><p class="tl__name">Айгерим</p><p class="tl__meta">Растяжка · Низ А</p></div>
+          </div>
+          <div class="gap"><div class="gap__time num">22:00</div><div class="gap__body"><span>Дальше свободно</span><button aria-label="Добавить занятие"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
+        </div>
+      </div>
+      <nav class="tabbar">
+        <span class="tab is-on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Сегодня</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Расписание</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M21.5 20c-.4-2.2-1.6-3.8-3.3-4.7"/></svg>Клиенты</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>Библиотека</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.2-6 8-6s7 2 8 6"/></svg>Профиль</span>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Variant B -->
+  <div class="variant">
+    <div class="variant__label"><b>B · Сейчас и дальше</b><span>Крупный блок «Сейчас» с одной кнопкой, ниже — короткий список «Дальше». Прошедшие — одной строкой в конце.</span></div>
+    <div class="phone">
+      <div class="status"><span class="num">20:30</span><span>●●● ▮</span></div>
+      <div class="scroll">
+        <div class="head">
+          <div>
+            <p class="head__date">Пн, 14 сентября</p>
+            <h2 class="head__title">Сегодня</h2>
+          </div>
+          <div class="head__actions">
+            <button class="icon-btn" aria-label="Входящие, 2 запроса"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg><span class="badge num">2</span></button>
+            <button class="icon-btn" aria-label="Создать занятие"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+          </div>
+        </div>
+
+        <section class="fb">
+          <p class="fb__eyebrow"><i></i>Сейчас · ещё <span class="num">30</span> мин</p>
+          <p class="fb__time num">20:00<small> – 21:00</small></p>
+          <h3 class="fb__name">Мини-группа</h3>
+          <div class="people">
+            <span class="person"><b style="background:var(--mint)">А</b>Алия</span>
+            <span class="person"><b style="background:var(--amber)">Д</b>Дана · ждёт</span>
+            <span class="person is-out"><b style="background:var(--sunken);color:var(--sec)">М</b>Мади</span>
+          </div>
+          <button class="cta"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>Начать тренировку</button>
+        </section>
+
+        <div class="section-label"><span>Дальше</span><span class="num">до 22:00</span></div>
+        <div class="list">
+          <div class="free"><span class="num">21:00</span><span>Свободно <span class="num">15</span> мин</span><button aria-label="Добавить занятие"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>
+          <button class="item"><span class="item__time"><b class="num">21:15</b><small class="num">22:00</small></span><span><p class="item__name">Айгерим</p><p class="item__meta">Растяжка · Низ А</p></span><span></span></button>
+        </div>
+
+        <div class="section-label"><span>Нужен ответ</span></div>
+        <div class="list">
+          <button class="item"><span class="item__time"><b class="num">Вт</b><small>перенос</small></span><span><p class="item__name">Арман</p><p class="item__meta">Вт <span class="num">14:00</span> → Ср <span class="num">11:30</span></p></span><span class="item__flag">Ответить</span></button>
+          <button class="item"><span class="item__time"><b class="num">Чт</b><small>перенос</small></span><span><p class="item__name">Айгерим</p><p class="item__meta">Чт <span class="num">18:00</span> → Пт <span class="num">19:00</span></p></span><span class="item__flag">Ответить</span></button>
+        </div>
+
+        <button class="past" style="margin-top:14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Прошло 5 занятий</span><em>Показать</em></button>
+      </div>
+      <nav class="tabbar">
+        <span class="tab is-on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Сегодня</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Расписание</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M21.5 20c-.4-2.2-1.6-3.8-3.3-4.7"/></svg>Клиенты</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>Библиотека</span>
+        <span class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.2-6 8-6s7 2 8 6"/></svg>Профиль</span>
+      </nav>
+    </div>
+  </div>
+</main>
+
+<div class="notes">
+  <section>
+    <h2>Убрано с экрана</h2>
+    <ul>
+      <li>Карточка с пандой, фразой, полосой прогресса и счётчиками — она повторяла ленту. Панда остаётся в пустом дне и празднике после тренировки.</li>
+      <li>Приветствие «Добрый вечер, Данияр» и время в заголовке (часы уже в статус-баре).</li>
+      <li>Блок «План дня · 7 занятий» — число переехало в подзаголовок.</li>
+      <li>Счётчик запросов в трёх местах → один: бейдж на «Входящих» + одна строка (A) или раздел «Нужен ответ» (B).</li>
+      <li>«до 21:00» дважды у текущего занятия, «Индивидуальное» в каждой строке, шевроны, «Последнее занятие до …».</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Типографика</h2>
+    <ul>
+      <li>Два уровня вместо пяти: крупно — время и имя (16–21 px, жирно; в B время 38 px), мелко — всё остальное (13–14 px).</li>
+      <li>Вторичный текст — цвет <code>--sec</code>, не почти невидимый <code>--ter</code>.</li>
+      <li>Время — табличные цифры, выровнены в колонку: взгляд идёт сверху вниз по времени.</li>
+      <li>Свободное время — тонкая пунктирная линия, не карточка.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Что выбрать</h2>
+    <ul>
+      <li>A — если важнее видеть весь день и «окна» одним взглядом.</li>
+      <li>B — если между подходами нужен один ответ: что сейчас и куда нажать. Запросы видны сразу как задачи.</li>
+      <li>Можно смешать: например, блок «Сейчас» из B и лента из A.</li>
+    </ul>
+  </section>
+</div>
+<script>
+  const btn = document.getElementById('theme');
+  btn.addEventListener('click', () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme === 'dark';
+    root.dataset.theme = dark ? 'light' : 'dark';
+    btn.textContent = dark ? 'Тёмная тема' : 'Светлая тема';
+  });
+</script>
+</body>
+</html>
