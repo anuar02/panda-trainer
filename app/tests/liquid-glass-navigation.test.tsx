@@ -1,51 +1,66 @@
-import type { ComponentProps } from 'react';
-import { act, fireEvent, render } from '@testing-library/react-native';
-import {
-  Keyboard,
-  Text,
-  StyleSheet,
-  AccessibilityInfo,
-  Platform,
-} from 'react-native';
-import {
-  ClientProfileScreen,
-  TrainerProfileScreen,
-} from '../src/features/profiles/profile-screens';
-import { FloatingTabBar, routes } from '../src/features/navigation/role-tabs';
-import {
-  TabBarLayoutProvider,
-  useTabBarLayout,
-} from '../src/features/navigation/tab-bar-layout';
+import type { PropsWithChildren } from 'react';
+import { fireEvent, render } from '@testing-library/react-native';
+import { Platform } from 'react-native';
+import { RoleTabs } from '../src/features/navigation/role-tabs';
 import { ru as mockRu } from '../src/lib/i18n/ru';
+import mockTokens from '../src/ui/tokens.json';
+import {
+  createWorkoutState,
+  workoutReducer,
+  type WorkoutState,
+} from '../src/domain/workout';
 
-jest.mock('expo-router', () => ({ Tabs: () => null }));
-jest.mock('expo-glass-effect', () => {
-  const { View } =
+let mockWorkout: { hydrated: boolean; state: WorkoutState } | null = null;
+
+let mockScheme: 'dark' | 'light' = 'dark';
+let mockScheduling: {
+  hydrated: boolean;
+  readError: boolean;
+  state: {
+    requests: Record<string, { state: string; awaiting: string | null }>;
+  };
+} | null = null;
+
+jest.mock('expo-router/unstable-native-tabs', () => {
+  const { Text, View } =
     jest.requireActual<typeof import('react-native')>('react-native');
+  const Trigger = Object.assign(
+    (props: PropsWithChildren<{ name: string }>) => (
+      <View {...props} testID={`trigger-${props.name}`} />
+    ),
+    {
+      Label: (props: PropsWithChildren) => <Text {...props} />,
+      Icon: (props: object) => <View {...props} testID="native-icon" />,
+      Badge: (props: PropsWithChildren) => (
+        <Text {...props} testID="native-badge" />
+      ),
+    },
+  );
   return {
-    GlassView: View,
-    isLiquidGlassAvailable: () => true,
-    isGlassEffectAPIAvailable: () => true,
+    NativeTabs: Object.assign(
+      (props: PropsWithChildren) => <View {...props} testID="native-tabs" />,
+      {
+        Trigger,
+        BottomAccessory: (props: PropsWithChildren) => (
+          <View {...props} testID="bottom-accessory" />
+        ),
+      },
+    ),
   };
 });
 jest.mock('react-native-safe-area-context', () => {
   const { View } =
     jest.requireActual<typeof import('react-native')>('react-native');
   return {
-    SafeAreaView: View,
-    useSafeAreaInsets: () => ({ top: 0, bottom: 34, left: 0, right: 0 }),
+    SafeAreaView: (props: PropsWithChildren) => (
+      <View {...props} testID="dock-safe-area" />
+    ),
   };
 });
 jest.mock('@/ui/theme', () => ({
   useTheme: () => ({
-    scheme: 'dark',
-    colors: {
-      canvas: '#0b0c0e',
-      surface: '#151619',
-      border: '#292a30',
-      accent: '#6f86ff',
-      secondary: '#a3a4ab',
-    },
+    scheme: mockScheme,
+    colors: mockTokens.colors[mockScheme],
   }),
 }));
 jest.mock('react-i18next', () => ({
@@ -54,126 +69,139 @@ jest.mock('react-i18next', () => ({
       mockRu.tabs[key.slice(5) as keyof typeof mockRu.tabs] ?? key,
   }),
 }));
+jest.mock('@/features/scheduling-demo/provider', () => ({
+  useOptionalSchedulingDemo: () => mockScheduling,
+}));
 jest.mock('@/features/workout-demo', () => {
-  const { Pressable } =
+  const { View } =
     jest.requireActual<typeof import('react-native')>('react-native');
   return {
-    WorkoutDock: () => (
-      <Pressable testID="resume-dock" accessibilityRole="button" />
-    ),
+    WorkoutDock: () => <View testID="resume-dock" />,
+    useOptionalWorkoutDemo: () => mockWorkout,
   };
 });
 
-function InsetProbe() {
-  const { bottomInset } = useTabBarLayout();
-  return <Text testID="reserved-inset">{bottomInset}</Text>;
-}
-
-function props(role: 'trainer' | 'client') {
-  return {
-    role,
-    state: {
-      index: 0,
-      routes: routes[role].map((route) => ({
-        name: route.name,
-        key: route.name,
-      })),
-    },
-    navigation: {
-      navigate: jest.fn(),
-      emit: jest.fn().mockReturnValue({ defaultPrevented: false }),
-    },
-    insets: { top: 0, bottom: 34, left: 0, right: 0 },
-  } as unknown as ComponentProps<typeof FloatingTabBar>;
-}
-
+beforeEach(() => {
+  mockScheme = 'dark';
+  mockScheduling = null;
+  mockWorkout = {
+    hydrated: true,
+    state: workoutReducer(createWorkoutState(), {
+      type: 'open',
+      sessionId: 's1',
+    }),
+  };
+});
 afterEach(() => jest.restoreAllMocks());
 
 test.each(['trainer', 'client'] as const)(
-  'floating panel keeps %s tab events and targets accessible',
+  '%s uses automatic native insets, scroll minimization and the current app theme',
   async (role) => {
-    jest.replaceProperty(Platform, 'OS', 'ios');
-    jest
-      .spyOn(AccessibilityInfo, 'isReduceTransparencyEnabled')
-      .mockResolvedValue(false);
-    const tabProps = props(role);
-    const view = await render(
-      <TabBarLayoutProvider>
-        <FloatingTabBar {...tabProps} />
-      </TabBarLayoutProvider>,
+    const view = await render(<RoleTabs role={role} />);
+    let props = view.getByTestId('native-tabs').props;
+    expect(props.minimizeBehavior).toBe('onScrollDown');
+    expect(props.disableTransparentOnScrollEdge).toBe(true);
+    expect(props.labelVisibilityMode).toBe('labeled');
+    expect(props.tintColor).toBe(mockTokens.colors.dark.accent);
+    expect(props.unstable_nativeProps).toEqual(
+      expect.objectContaining({ colorScheme: 'dark' }),
     );
-    expect(view.getByTestId('tab-bar-glass')).toBeVisible();
-    const tabs = view.getAllByRole('tab');
-    expect(tabs).toHaveLength(5);
-    expect(tabs.every((tab) => tab.props.accessibilityLabel.length > 0)).toBe(
-      true,
+    for (const trigger of view.getAllByTestId(/^trigger-/)) {
+      expect(trigger.props.disableAutomaticContentInsets).not.toBe(true);
+      expect(trigger.props.disableScrollToTop).not.toBe(true);
+    }
+    mockScheme = 'light';
+    await view.rerender(<RoleTabs role={role} />);
+    props = view.getByTestId('native-tabs').props;
+    expect(props.tintColor).toBe(mockTokens.colors.light.accent);
+    expect(props.unstable_nativeProps).toEqual(
+      expect.objectContaining({ colorScheme: 'light' }),
     );
-    await fireEvent.press(tabs[1]!);
-    expect(tabProps.navigation.navigate).toHaveBeenCalledWith(
-      routes[role][1].name,
-      undefined,
-    );
-    await fireEvent(tabs[2]!, 'longPress');
-    expect(tabProps.navigation.emit).toHaveBeenLastCalledWith({
-      type: 'tabLongPress',
-      target: routes[role][2].name,
-    });
-    expect(view.queryByTestId('resume-dock') !== null).toBe(role === 'trainer');
   },
 );
 
-test('keyboard releases measured dock and panel reservation and cleans subscriptions', async () => {
-  const listeners = new Map<string, () => void>();
-  const removals: jest.Mock[] = [];
-  jest.spyOn(Keyboard, 'isVisible').mockReturnValue(false);
-  jest.spyOn(Keyboard, 'addListener').mockImplementation((event, listener) => {
-    listeners.set(event, listener as () => void);
-    const remove = jest.fn(() => listeners.delete(event));
-    removals.push(remove);
-    return { remove } as unknown as ReturnType<typeof Keyboard.addListener>;
+test.each(['26.0', '26.0.1', '26.6.1'])(
+  'iOS %s trainer dock belongs to the native bottom accessory',
+  async (version) => {
+    jest.replaceProperty(Platform, 'OS', 'ios');
+    jest.spyOn(Platform, 'Version', 'get').mockReturnValue(version);
+    const view = await render(<RoleTabs role="trainer" />);
+    expect(view.getByTestId('bottom-accessory')).toContainElement(
+      view.getByTestId('resume-dock'),
+    );
+  },
+);
+
+test.each([
+  ['ios', '18.0'],
+  ['android', 35],
+  ['web', 0],
+] as const)(
+  '%s %s trainer dock consumes normal layout space outside native tabs',
+  async (os, version) => {
+    jest.replaceProperty(Platform, 'OS', os);
+    jest.spyOn(Platform, 'Version', 'get').mockReturnValue(version);
+    const view = await render(<RoleTabs role="trainer" />);
+    expect(view.queryByTestId('bottom-accessory')).toBeNull();
+    const tabs = view.getByTestId('native-tabs');
+    const dock = view.getByTestId('resume-dock');
+    expect(tabs).not.toContainElement(dock);
+    let ancestor = dock.parent;
+    while (ancestor) {
+      expect(ancestor).not.toHaveStyle({ position: 'absolute' });
+      ancestor = ancestor.parent;
+    }
+  },
+);
+
+test.each(['ios', 'android', 'web'] as const)(
+  '%s client navigation does not include a workout dock',
+  async (os) => {
+    jest.replaceProperty(Platform, 'OS', os);
+    jest.spyOn(Platform, 'Version', 'get').mockReturnValue('26.0');
+    const view = await render(<RoleTabs role="client" />);
+    expect(view.queryByTestId('resume-dock')).toBeNull();
+    expect(view.queryByTestId('bottom-accessory')).toBeNull();
+  },
+);
+
+test('portable dock applies bottom safe area only while the journal is visible', async () => {
+  jest.replaceProperty(Platform, 'OS', 'android');
+  const view = await render(<RoleTabs role="trainer" />);
+  const safeArea = () => view.getByTestId('dock-safe-area');
+  expect(safeArea().props.edges).toEqual(['left', 'right']);
+  await fireEvent(view.getByTestId('resume-dock'), 'layout', {
+    nativeEvent: { layout: { height: 78, width: 390, x: 0, y: 0 } },
   });
-  const view = await render(
-    <TabBarLayoutProvider>
-      <InsetProbe />
-      <FloatingTabBar {...props('trainer')} />
-    </TabBarLayoutProvider>,
-  );
-  await fireEvent(view.getByTestId('floating-tab-bar'), 'layout', {
-    nativeEvent: { layout: { height: 160, width: 366, x: 0, y: 0 } },
+  expect(safeArea().props.edges).toEqual(['bottom', 'left', 'right']);
+  await fireEvent(view.getByTestId('resume-dock'), 'layout', {
+    nativeEvent: { layout: { height: 0, width: 390, x: 0, y: 0 } },
   });
-  expect(view.getByTestId('reserved-inset')).toHaveTextContent('210');
-  await act(async () => listeners.get('keyboardDidShow')?.());
-  expect(view.queryByTestId('floating-tab-bar')).toBeNull();
-  expect(view.queryByTestId('resume-dock')).toBeNull();
-  expect(view.getByTestId('reserved-inset')).toHaveTextContent('0');
-  await act(async () => listeners.get('keyboardDidHide')?.());
-  expect(view.getByTestId('resume-dock')).toBeVisible();
-  expect(view.getByTestId('reserved-inset')).toHaveTextContent('210');
-  await view.unmount();
-  expect(removals).toHaveLength(2);
-  expect(removals.every((remove) => remove.mock.calls.length === 1)).toBe(true);
+  expect(safeArea().props.edges).toEqual(['left', 'right']);
 });
 
-test.each(['trainer', 'client'] as const)(
-  '%s profile reserves measured floating panel space',
-  async (role) => {
-    const Profile =
-      role === 'trainer' ? TrainerProfileScreen : ClientProfileScreen;
-    const view = await render(
-      <TabBarLayoutProvider>
-        <Profile />
-        <FloatingTabBar {...props(role)} />
-      </TabBarLayoutProvider>,
-    );
-    await fireEvent(view.getByTestId('floating-tab-bar'), 'layout', {
-      nativeEvent: { layout: { height: 160, width: 366, x: 0, y: 0 } },
-    });
-    let scroll = view.getByText('profiles.calm').parent;
-    while (scroll && !('contentContainerStyle' in scroll.props))
-      scroll = scroll.parent;
-    expect(scroll).not.toBeNull();
-    expect(
-      StyleSheet.flatten(scroll?.props.contentContainerStyle).paddingBottom,
-    ).toBe(210);
-  },
-);
+test('iOS 26 does not mount an empty native accessory without an unfinished journal', async () => {
+  jest.replaceProperty(Platform, 'OS', 'ios');
+  jest.spyOn(Platform, 'Version', 'get').mockReturnValue('26.0.1');
+  mockWorkout = { hydrated: true, state: createWorkoutState() };
+  const view = await render(<RoleTabs role="trainer" />);
+  expect(view.queryByTestId('bottom-accessory')).toBeNull();
+  const state = workoutReducer(createWorkoutState(), {
+    type: 'open',
+    sessionId: 's1',
+  });
+  mockWorkout = { hydrated: false, state };
+  await view.rerender(<RoleTabs role="trainer" />);
+  expect(view.queryByTestId('bottom-accessory')).toBeNull();
+  mockWorkout = { hydrated: true, state };
+  await view.rerender(<RoleTabs role="trainer" />);
+  expect(view.getByTestId('bottom-accessory')).toBeTruthy();
+  const journal = state.sessions.s1;
+  if (!journal) throw new Error('Missing journal fixture');
+  mockWorkout = {
+    hydrated: true,
+    state: { ...state, sessions: { s1: { ...journal, finished: true } } },
+  };
+  await view.rerender(<RoleTabs role="trainer" />);
+  expect(view.queryByTestId('bottom-accessory')).toBeNull();
+});
