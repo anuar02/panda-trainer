@@ -51,29 +51,49 @@ react-native-screens, не приватный UIKit API. `disableTransparentOnSc
 Автоматические content insets NativeTabs не отключаются: iOS корректирует первый
 ScrollView, Android оборачивает сцену в safe-area снизу, web размещает свои сцены.
 Старый TabBarLayoutProvider, оценка высоты, keyboard/layout listeners удалены.
-`useTabBarLayout` оставлен как совместимый hook: у экранов с автоматическими
-insets он возвращает ноль. Для native iOS Сегодня он читает измеренный bottom
-из SafeAreaInsetsContext внутри native-сцены (см. ниже); собственную высоту
-панели не оценивает. Stack-экраны за пределами NativeTabsInsetsProvider сохраняют ноль.
-Никаких угаданных native-высот или двойного резервирования safe area не вводим.
+`useTabBarLayout` оставлен как совместимый hook и возвращает ноль: ручное
+резервирование системного bottom inset больше не применяется.
 
-Выявлено при независимом review: на Сегодня MotionHeader предшествует ScrollView
-(`trainer-today-screen.tsx:455,531`). В установленном react-native-screens
-`ios/helpers/scroll-view/RNSScrollViewFinder.mm:5–19` проходит только subviews[0],
-не соседние ветви; `RNSScrollViewHelper.mm:6–12` использует этот путь для insets.
-Поэтому автоматическое обнаружение списка Сегодня не обеспечено: сворачивание
-именно этого экрана остаётся известным ограничением. Для защиты последнего
-элемента общий hook резервирует фактический системный bottom inset только на
-iOS native-маршруте today; остальные списки не получают двойного отступа.
-Эта защита покрыта synthetic-тестом, устройство ещё требует проверки.
-Публичный `ScrollViewMarker` требует wrapper вокруг целевого ScrollView и явного
-`contentInsetAdjustmentBehavior="automatic"`. Установить его из props layout
-невозможно. Бриф разрешает изменение trainer-today только для удаления «+» и
-запрещает motion.tsx; такую правку не делаем вне разрешённых границ. Нужна
-отдельная разрешённая интеграция маркера в экраны с шапкой перед списком, затем
-native-проверка. Общая защита insets не регистрирует scroll target и не исправляет
-сворачивание. Остальные экраны также проверяются на устройстве; одного
-minimizeBehavior недостаточно, чтобы заявлять выполнение этого критерия.
+### Исправление #89: явный основной scroll target (05.10.2026)
+
+Первоначальный бриф 21 не разрешал менять header-first presentation; его
+[исторический отчёт](../../../app/review/21-som-39-native-liquid-glass-tabs/README.md)
+сохраняет обнаруженное ограничение и временную защиту measured inset.
+Следующий бриф SOM-39 явно разрешил техническую регистрацию основных списков.
+Подход: [ADR 0114](0114-native-tab-scroll-target-registration.md).
+Navigation adapter `NativeTabScrollView` оборачивает только основной вертикальный
+MotionScrollView в публичный `ScrollViewMarker` из `react-native-screens/experimental`
+на iOS внутри NativeTabsInsetsProvider и задаёт `contentInsetAdjustmentBehavior="automatic"`.
+На Android/web и за пределами NativeTabs возвращается прежний MotionScrollView
+без дополнительных view/insets. Горизонтальный список Library не отмечается;
+шторки, fixed header, «+», dock и motion-политика не меняются. Marker занимает
+оставшееся место (`flex: 1`), непосредственный native-потомок — RN ScrollView:
+EntranceContext.Provider в MotionScrollView не создаёт UIView.
+
+Маркер не ищет список через шапку: `RNSScrollViewMarkerComponentView` разрешает
+непосредственный UIScrollView/RCTScrollViewComponentView и на willMoveToWindow
+поднимается к первому `registerDescendantScrollView:fromMarker:` ancestor.
+`RNSTabsScreenComponentView` вызывает setContentScrollView:forEdge:All и сохраняет
+weak cache. `RNSTabsScreenViewController.findContentScrollView` через
+RNSContainerItemSupport выбирает cache раньше nested container и header-first
+heuristic. Automatic inset задан явно, потому что старый RNSScrollViewHelper
+всё ещё обходит только первую цепочку. Удалён временный measured Today padding;
+существующие внутренние отступы содержимого остаются.
+
+Native-реализация marker и регистрация tabs требуют RNS_GAMMA_ENABLED. Уже
+подключённый expo-router plugin устанавливает ENV['RNS_GAMMA_ENABLED'] ||= '1'
+при iOS prebuild; новые dependencies/config не нужны. Stale native-клиент,
+собранный без Gamma, требует пересборки. JS export не доказывает эту конфигурацию
+установленного бинарника. Marker регистрируется при входе в window, сбрасывает
+флаг при выходе, не отслеживает замену direct child в том же window. Adapter
+держит один ScrollView постоянного типа; loading Today размонтирует marker целиком,
+а переход demo/server меняет presentation вместе со списком. Cache weak; явного
+unregister API нет. Реальные порядок Fabric mount/unmount, UIKit cache и
+эффекты автоматических insets при fixed header проверяются на устройстве.
+
+[Новый отчёт](../../../app/review/01-som-39-native-liquid-glass-tabs-fix/README.md)
+содержит таблицу всех десяти вкладок и отдельные результаты проверок; наличие
+props и synthetic tests не заявляется доказанным сворачиванием на iPhone.
 
 Неизменённый WorkoutDock тренера на iOS 26 помещён в BottomAccessory и следует
 системной панели. На Android/web/iOS <26 этот API отсутствует; dock находится

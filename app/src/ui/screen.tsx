@@ -1,5 +1,5 @@
 import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
-import { MotionScrollView } from './motion';
+import { NativeTabScrollView } from '@/features/navigation/native-tab-scroll-view';
 import type { PropsWithChildren } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ export function Screen({
   const { bottomInset } = useTabBarLayout();
   return (
     <SafeAreaView edges={['top', 'left', 'right']} className="flex-1 bg-canvas">
-      <MotionScrollView
+      <NativeTabScrollView
         contentContainerClassName="grow gap-section px-page pb-section pt-page"
         contentContainerStyle={
           bottomInset ? { paddingBottom: bottomInset } : undefined
@@ -26,7 +26,7 @@ export function Screen({
           {subtitle && <Text className="text-secondary">{subtitle}</Text>}
         </View>
         {children}
-      </MotionScrollView>
+      </NativeTabScrollView>
     </SafeAreaView>
   );
 }

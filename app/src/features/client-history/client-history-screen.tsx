@@ -1,8 +1,8 @@
+import { NativeTabScrollView as ScrollView } from '@/features/navigation/native-tab-scroll-view';
 import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
 import {
   MotionHeader,
   Shimmer,
-  MotionScrollView as ScrollView,
   MotionPressable as Pressable,
 } from '@/ui/motion';
 

@@ -1,3 +1,4 @@
+import { NativeTabScrollView } from '@/features/navigation/native-tab-scroll-view';
 import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
 import {
   MotionScrollView as ScrollView,
@@ -160,7 +161,7 @@ export function TrainerLibraryScreen({
       testID={`trainer-library-${scenario}`}
     >
       {header}
-      <ScrollView
+      <NativeTabScrollView
         motionKey={scenario}
         contentContainerStyle={[
           s.body,
@@ -526,7 +527,7 @@ export function TrainerLibraryScreen({
               )}
           </View>
         )}
-      </ScrollView>
+      </NativeTabScrollView>
       <Sheet
         open={equipmentOpen}
         title={t('trainerLibrary.equipment')}

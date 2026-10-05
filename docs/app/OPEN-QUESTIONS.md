@@ -23,13 +23,17 @@
 пять вкладок и существующая «+» в шапке Сегодня. Отдельный action не реализован.
 На iOS 26 dock использует BottomAccessory; на платформах без этого API сохранён
 в обычном layout под панелью. Это размещение требует визуального одобрения.
-На Сегодня header-first структура не даёт SDK обнаружить ScrollView: нужны
-ScrollViewMarker и automatic inset в самом экране. Общий hook защищает нижний
-элемент measured system inset в разрешённой области navigation. Бриф ограничивает его правки
-удалением «+»; требуется отдельный разрешённый scope. До этого сворачивание и
-приёмка последней строки Сегодня остаются открытыми.
+Технический пункт регистрации списка закрыт разрешённым scope исправления #89:
+основные вертикальные списки всех десяти вкладок используют публичный marker
+на iOS внутри NativeTabs и automatic inset; measured system bottom-padding
+Сегодня удалён. Отдельного продуктового решения для этого исправления не нужно.
+Server Today вне NativeTabs не получает marker или принудительные insets.
+Остаются проверки устройства: сворачивание/возврат, insets последней строки,
+состояния/unmount, активный dock и приёмка. Gamma включается установленным
+expo-router plugin при prebuild; старый native-клиент может требовать пересборки.
 [ADR 0113](decisions/0113-native-system-tabs.md),
-[отчёт](../../app/review/21-som-39-native-liquid-glass-tabs/README.md).
+[новый отчёт](../../app/review/01-som-39-native-liquid-glass-tabs-fix/README.md).
+Исторические ограничения #89: [отчёт брифа 21](../../app/review/21-som-39-native-liquid-glass-tabs/README.md).
 
 ## SOM-32: выборочное обновление личной программы
 
