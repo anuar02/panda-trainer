@@ -2,6 +2,7 @@
 
 Дата: 05.10.2026. База: `5901402`, после брифа 18 / PR #83.
 Ветка: `agent/19-som-31-workout-follow-theme`.
+Draft PR: https://github.com/anuar02/panda-trainer/pull/84.
 Решение владельца: [ADR 0109](../../../docs/app/decisions/0109-workout-follows-app-theme.md).
 
 ## Реализация

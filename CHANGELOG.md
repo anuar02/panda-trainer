@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-31, бриф 19: журнал, ввод подходов, отдых, dock и шторки следуют теме
+- [SOM-31 / draft PR #84](https://github.com/anuar02/panda-trainer/pull/84), бриф 19: журнал, ввод подходов, отдых, dock и шторки следуют теме
   «Авто / Тёмная / Светлая»; прежние тёмные стили сохранены тестом, светлые роли
   проверены на контраст. [ADR 0109](docs/app/decisions/0109-workout-follows-app-theme.md),
   [отчёт](app/review/19-som-31-workout-follow-theme/README.md); native/приёмка открыты.
