@@ -9,6 +9,11 @@
 
 ## Не выпущено
 
+- [SOM-31 / draft PR #83](https://github.com/anuar02/panda-trainer/pull/83), бриф 18: активное упражнение выравнивается под шапкой по событиям ввода,
+  не перебивая ручной жест; компактная карточка и крупный текст с отдельно
+  прокручиваемыми сведениями, фиксированный dock. Шрифты и тема сохранены.
+  [Отчёт](app/review/18-som-31-workout-active-exercise-fit/README.md); native/приёмка открыты.
+
 - [SOM-38 / draft PR #79](https://github.com/anuar02/panda-trainer/pull/79): выбранные WebP-клипы панды через expo-image в местах прототипа,
   постер при загрузке/ошибке, отключение при calm/reduce и уходе с экрана.
   stretch/listen без места; clipboard/front остаются PNG. Шесть клипов ≤300 КБ,
