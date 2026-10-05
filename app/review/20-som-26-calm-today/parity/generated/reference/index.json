@@ -1,0 +1,63 @@
+{
+ "baseURL": "http://127.0.0.1:33147",
+ "viewport": "390x844@2x",
+ "motion": "finite-finished-infinite-paused-at-start",
+ "fixtures": "fresh-page-cleared-local-storage-per-shot",
+ "errors": [],
+ "shots": [
+  {
+   "screen": "t-today",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__normal__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-today",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__empty__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-today",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__loading__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-today",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-today__offline__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-today",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-today__normal__dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-today",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-today__normal__light.png",
+   "width": 390,
+   "height": 844
+  }
+ ]
+}

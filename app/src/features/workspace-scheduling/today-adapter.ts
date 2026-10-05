@@ -8,6 +8,11 @@ export type TrainerTodaySessionRow = {
   groupSessionId: string | null;
   name: string;
   participantNames: string[];
+  participants: {
+    id: string;
+    name: string;
+    status: 'confirmed' | 'pending' | 'cancelled';
+  }[];
   programName: string | null;
   start: string;
   end: string;
@@ -36,10 +41,21 @@ export type TrainerTodayAgendaItem =
       endsAtUtc: string;
       durationMinutes: number;
     };
+export type TrainerTodayRequestRow = {
+  id: string;
+  sessionId: string;
+  name: string;
+  fromDate: string;
+  fromStart: string;
+  toDate: string;
+  toStart: string;
+};
 export type TrainerTodayAgenda = {
   date: string;
   clock: string;
   rows: TrainerTodaySessionRow[];
+  focusRow: TrainerTodaySessionRow | null;
+  requests: TrainerTodayRequestRow[];
   pastRows: TrainerTodaySessionRow[];
   items: TrainerTodayAgendaItem[];
   pendingRequestCount: number;
@@ -103,6 +119,16 @@ export function workspaceTodayAgenda(
       groupSessionId: session.groupSessionId,
       name: session.groupSessionId ? groupTitle : (names[0] ?? ''),
       participantNames: names,
+      participants: session.bookings.map((booking) => ({
+        id: booking.id,
+        name: booking.client_name,
+        status:
+          booking.status === 'confirmed'
+            ? 'confirmed'
+            : booking.status === 'proposed'
+              ? 'pending'
+              : 'cancelled',
+      })),
       programName: programNames.every((name) => name === programName)
         ? programName
         : null,
@@ -113,11 +139,12 @@ export function workspaceTodayAgenda(
       durationMinutes:
         (Date.parse(session.endsAtUtc) - Date.parse(session.startsAtUtc)) /
         60_000,
-      role: current.some((item) => item.id === session.id)
-        ? 'now'
-        : session.id === next
-          ? 'next'
-          : null,
+      role:
+        current[0]?.id === session.id
+          ? 'now'
+          : session.id === next
+            ? 'next'
+            : null,
       past:
         cancelled ||
         (Date.parse(session.endsAtUtc) <= timestamp &&
@@ -127,6 +154,22 @@ export function workspaceTodayAgenda(
       pendingProposalIds,
     };
   });
+  const focusRow = rows.find((row) => row.role !== null) ?? null;
+  const requests = proposals.map((proposal): TrainerTodayRequestRow => ({
+    id: proposal.id,
+    sessionId: proposal.booking.group_session_id
+      ? `${proposal.booking.group_session_id}:${new Date(proposal.booking.starts_at).toISOString()}:${new Date(proposal.booking.ends_at).toISOString()}`
+      : proposal.booking.id,
+    name: proposal.booking.client_name,
+    fromDate: workspaceDateKey(new Date(proposal.booking.starts_at), timezone),
+    fromStart: scheduleClock(
+      workspaceMinuteOfDay(new Date(proposal.booking.starts_at), timezone),
+    ),
+    toDate: workspaceDateKey(new Date(proposal.proposed_starts_at), timezone),
+    toStart: scheduleClock(
+      workspaceMinuteOfDay(new Date(proposal.proposed_starts_at), timezone),
+    ),
+  }));
   const clusters: TrainerTodaySessionRow[][] = [];
   for (const row of rows.filter((item) => !item.cancelled)) {
     const previous = clusters[clusters.length - 1];
@@ -148,14 +191,19 @@ export function workspaceTodayAgenda(
   );
   const pastRows = pastClusters.flat();
   const items: TrainerTodayAgendaItem[] = [];
-  let cursor: number | null = pastClusters.length ? timestamp : null;
+  let cursor: number | null = focusRow
+    ? Date.parse(focusRow.endsAtUtc)
+    : pastClusters.length
+      ? timestamp
+      : null;
   for (const cluster of clusters.filter(
     (value) => !pastClusters.includes(value),
   )) {
-    const start = Math.min(
-      ...cluster.map((row) => Date.parse(row.startsAtUtc)),
-    );
-    const active = cluster.filter((row) => !row.cancelled);
+    const rest = cluster.filter((row) => row !== focusRow);
+    if (!rest.length) continue;
+    const start = Math.min(...rest.map((row) => Date.parse(row.startsAtUtc)));
+    const active = rest.filter((row) => !row.cancelled);
+    const overlapActive = cluster.filter((row) => !row.cancelled);
     const end = active.length
       ? Math.max(...active.map((row) => Date.parse(row.endsAtUtc)))
       : start;
@@ -163,19 +211,22 @@ export function workspaceTodayAgenda(
       items.push({
         kind: 'gap',
         start: scheduleClock(workspaceMinuteOfDay(new Date(cursor), timezone)),
-        end: cluster[0]?.start ?? '',
+        end: rest[0]?.start ?? '',
         startsAtUtc: new Date(cursor).toISOString(),
         endsAtUtc: new Date(start).toISOString(),
         durationMinutes: (start - cursor) / 60_000,
       });
     const overlapStart = Math.max(
-      ...active.map((row) => Date.parse(row.startsAtUtc)),
+      ...overlapActive.map((row) => Date.parse(row.startsAtUtc)),
     );
     const overlapEnd = Math.min(
-      ...active.map((row) => Date.parse(row.endsAtUtc)),
+      ...overlapActive.map((row) => Date.parse(row.endsAtUtc)),
     );
-    cluster.forEach((row, index) => {
-      if (index > 0 && overlapEnd > overlapStart) {
+    rest.forEach((row, index) => {
+      if (
+        (index > 0 || rest.length < cluster.length) &&
+        overlapEnd > overlapStart
+      ) {
         items.push({
           kind: 'overlap',
           startsAtUtc: new Date(overlapStart).toISOString(),
@@ -202,6 +253,8 @@ export function workspaceTodayAgenda(
     date,
     clock: scheduleClock(workspaceMinuteOfDay(now, timezone)),
     rows,
+    focusRow,
+    requests,
     pastRows,
     items,
     pendingRequestCount: proposals.length,
