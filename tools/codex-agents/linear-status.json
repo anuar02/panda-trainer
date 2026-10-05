@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-05T07:22Z",
+  "updated_at": "2026-10-05T07:31Z",
   "updated_by": "coordinator",
   "done": 11,
   "groups": {
@@ -9,6 +9,13 @@
     "people": "Люди, решения, пилот"
   },
   "issues": [
+    {
+      "id": "SOM-39",
+      "title": "Принять крупный текст, спокойный интерфейс и движение",
+      "status": "In Progress",
+      "milestone": "09",
+      "group": "agents"
+    },
     {
       "id": "SOM-31",
       "title": "Довести ввод подходов и мини-группы до production",
@@ -21,13 +28,6 @@
       "title": "Подключить Today, неделю и создание занятия к серверу",
       "status": "In Progress",
       "milestone": "04",
-      "group": "agents"
-    },
-    {
-      "id": "SOM-39",
-      "title": "Принять крупный текст, спокойный интерфейс и движение",
-      "status": "In Progress",
-      "milestone": "09",
       "group": "agents"
     },
     {
