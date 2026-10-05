@@ -13,7 +13,29 @@
   компонентах с анимированным стилем (iPhone: нет отступов/рядов/фонов);
   [x] `AnimatedView`/`AnimatedPressableView` + `animatedStyle`, тесты 3201/3201,
   симулятор: кнопки входа в норме. [ ] Release на iPhone, все экраны и
-  одобрение владельца. [ADR 0107](decisions/0107-animated-styles-outside-nativewind.md).
+  одобрение владельца. [ADR 0110](decisions/0110-animated-styles-outside-nativewind.md).
+
+- 05.10.2026 — SOM-31, бриф 19: [x] журнал, ввод подходов, отдых, dock, заметки,
+  шторки и production-ввод следуют теме; [x] устранён forced-dark; [x] исходные
+  тёмные стили зафиксированы тестом; [x] обе темы/контраст/черновик проверяются.
+  [ADR 0109](decisions/0109-workout-follows-app-theme.md),
+  [отчёт](../../app/review/19-som-31-workout-follow-theme/README.md).
+  [ ] Native status bar, визуальное сравнение и одобрение владельца; экран не принят.
+
+- 05.10.2026 — SOM-31, бриф 18: [x] событийное выравнивание активной карточки,
+  ожидание drag/momentum и reduce motion; [x] компактная карточка и фиксированный
+  dock, раздельная прокрутка сведений при крупном тексте; [x] расчётные проверки
+  393×852 / 375×667 и synthetic tests. [ADR 0108](decisions/0108-workout-active-exercise-fit.md),
+  [отчёт](../../app/review/18-som-31-workout-active-exercise-fit/README.md).
+  [ ] Не проверено на iPhone: native размеры/клавиатура/шторки/максимальный текст,
+  visual parity, VoiceOver и одобрение владельца. SOM-31 целиком и экран не приняты.
+- 05.10.2026 — SOM-26, бриф 18: [x] Клиенты → Дата → Время → Программа,
+  возврат по чипу и строке даты сохраняет выбор; [x] смена даты очищает только
+  недоступное начало; [x] тесты шагов и восстановления pending, ru-ресурсы.
+  [ADR 0107](decisions/0107-session-date-and-time-steps.md),
+  [отчёт](../../app/review/18-som-26-schedule-time-step/README.md).
+  [ ] Native, визуальная сверка всех состояний и одобрение владельца;
+  SOM-26 целиком и экран не приняты.
 
 - 04.10.2026 — SOM-38, бриф 17 (решение владельца 05.10 из брифа):
   [x] выбранные WebP/постеры, явные места, static gates и teardown плееров;
