@@ -1,3 +1,4 @@
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
 import {
   MotionScrollView as ScrollView,
   MotionPressable as Pressable,
@@ -79,6 +80,7 @@ export function TrainerLibraryScreen({
   onArchiveExercise?: (exercise: LibraryExercise) => void;
   header?: ReactNode;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const [tab, setTab] = useState<'exercises' | 'templates'>(initialTab);
@@ -160,7 +162,10 @@ export function TrainerLibraryScreen({
       {header}
       <ScrollView
         motionKey={scenario}
-        contentContainerStyle={s.body}
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={s.heading}>

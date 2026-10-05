@@ -1,3 +1,4 @@
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
 import {
   MotionHeader,
   Shimmer,
@@ -49,6 +50,7 @@ export function WorkspaceClientsScreen({
   onOpen: (id: string) => void;
   onBack: () => void;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const [query, setQuery] = useState('');
@@ -268,7 +270,10 @@ export function WorkspaceClientsScreen({
         </View>
       </View>
       <ScrollView
-        contentContainerStyle={s.body}
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         {error && (

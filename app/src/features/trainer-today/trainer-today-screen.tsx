@@ -1,3 +1,4 @@
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
 import {
   GrowX,
   AgendaMotion,
@@ -141,6 +142,7 @@ export function TrainerTodayScreen({
   scenario?: TodayScenario;
   data?: TrainerTodayData;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const { fontScale, width } = useWindowDimensions();
   const s = getTodayStyles(fontScale, width);
   const calmMode = useCalmMode();
@@ -809,7 +811,10 @@ export function TrainerTodayScreen({
           />
           <ScrollView
             motionKey={scenario}
-            contentContainerStyle={s.body}
+            contentContainerStyle={[
+              s.body,
+              bottomInset ? { paddingBottom: bottomInset } : undefined,
+            ]}
             showsVerticalScrollIndicator={false}
           >
             {scenario === 'offline' && (

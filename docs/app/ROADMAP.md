@@ -9,6 +9,14 @@
 
 ## Где остановились
 
+- 05.10.2026 — SOM-39, бриф 18 r2: [x] плавающая навигация Liquid Glass обеих ролей,
+  fallback/reduce transparency и общий нижний отступ по измерению панели, safe area
+  и dock; [x] dependency ADR 0110 снята #80; [x] `npm run check`: 3295 tests.
+  [ADR 0111](decisions/0111-floating-liquid-glass-tabbar.md),
+  [отчёт](../../app/review/18-som-39-liquid-glass-tabbar-r2/README.md).
+  [ ] Настоящее стекло/касание, клавиатура/шторки/VoiceOver на iPhone, визуальное
+  сравнение и одобрение владельца. SOM-39 целиком и экраны не приняты.
+
 - 05.10.2026 — SOM-39, регрессия #77/#78: [x] `className` терялся на Animated-
   компонентах с анимированным стилем (iPhone: нет отступов/рядов/фонов);
   [x] `AnimatedView`/`AnimatedPressableView` + `animatedStyle`, тесты 3201/3201,
