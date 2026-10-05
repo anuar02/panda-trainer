@@ -49,6 +49,7 @@ const mount = (
 const programStep = async () => {
   await press('Продолжить');
   await press('Продолжить');
+  await press('Продолжить');
 };
 
 test('in-flight creation locks submission, close, steps, collision acknowledgement and program changes', async () => {

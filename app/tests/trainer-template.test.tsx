@@ -136,6 +136,7 @@ test('template to wizard persists selected program and creates the matching jour
   );
   await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
   expect(
     screen.getByRole('button', { name: /Сила 5×5/ }).props.accessibilityState
       .selected,

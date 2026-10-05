@@ -391,6 +391,17 @@ function WorkspaceCreateSessionContent({
           }
           initialDraft={restoredDraft ?? undefined}
           disabled={blocked}
+          isStartAvailable={(draft) => {
+            const target = resolveWorkspaceLocalTime(
+              draft.date,
+              draft.start,
+              timezone,
+            );
+            return (
+              target.status === 'unique' &&
+              Date.parse(target.startsAtUtc) > Date.now()
+            );
+          }}
           getCollisions={(draft) => {
             const target = resolveWorkspaceLocalTime(
               draft.date,
