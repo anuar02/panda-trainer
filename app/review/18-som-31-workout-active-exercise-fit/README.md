@@ -110,6 +110,27 @@ normal composer `66.85 × scale + 54 + buttonHeight`.
   «сделано / не проверено / требует одобрения владельца».
 - GitHub CI и последующее слияние выполняет внешний скрипт; здесь не объявлены зелёными.
 
+## Повторная проверка CI, 05.10.2026
+
+- В брифе повторного запуска хвост лога отсутствовал. `gh run list --branch
+  agent/18-som-31-workout-active-exercise-fit --limit 10` показал отменённые,
+  а не упавшие запуски: 37279100905, 37279240166, 37279753628.
+- `gh run view 37279753628 --log`: `The operation was canceled` на этапе
+  `npm ci`; проверки приложения и базы пропущены. Оснований менять код,
+  тесты или migrations по этому логу нет.
+- `git fetch origin agent/18-som-31-workout-active-exercise-fit fix/som-50-template-picker`
+  и `git merge --ff-only origin/agent/18-som-31-workout-active-exercise-fit`
+  — получены уже опубликованные merge базы и исправления документов/ADR 0108,
+  локальная ветка обновлена до `e058750b`.
+- `cd app && npm run check > /tmp/som31-ci-recheck.log 2>&1` на обновлённой
+  ветке — PASS, exit 0: TypeScript, ESLint, Prettier, 251 suites / 3214 tests.
+- `gh run view 37279912392 --json status,conclusion,jobs` — новый CI в процессе:
+  app выполняет `npm run check`, database — `supabase start`. Итоговый CI,
+  SQL/pgTAP/concurrency/types пока не подтверждены.
+- Live Linear прочитан: SOM-31 In Progress, duplicateOf null, blockedBy SOM-30,
+  blocks SOM-32; проект trainerApp. Linear не изменён.
+- Нативные проверки и приёмка владельца по-прежнему открыты; не проверено на iPhone.
+
 ## Интеграция координатором
 
 Свежая база с PR #82 влита; документальные конфликты разрешены с сохранением обеих записей. ADR журнала перенумерован в 0108, поскольку 0107 уже занят шагами даты/времени. Production-код не изменён. Финальная проверка — GitHub CI на merge-коммите.
