@@ -1,6 +1,6 @@
 # План разработки приложения
 
-Обновлено: 4 октября 2026.
+Обновлено: 5 октября 2026.
 
 Стек: React Native (Expo) + Supabase ([ADR 0001](decisions/0001-react-native-expo.md),
 [ADR 0002](decisions/0002-supabase.md)). Цель первой версии — пилот с 3–5 настоящими
@@ -8,6 +8,12 @@
 только с отдельного согласия владельца.
 
 ## Где остановились
+
+- 05.10.2026 — SOM-39, регрессия #77/#78: [x] `className` терялся на Animated-
+  компонентах с анимированным стилем (iPhone: нет отступов/рядов/фонов);
+  [x] `AnimatedView`/`AnimatedPressableView` + `animatedStyle`, тесты 3201/3201,
+  симулятор: кнопки входа в норме. [ ] Release на iPhone, все экраны и
+  одобрение владельца. [ADR 0107](decisions/0107-animated-styles-outside-nativewind.md).
 
 - 04.10.2026 — SOM-38, бриф 17 (решение владельца 05.10 из брифа):
   [x] выбранные WebP/постеры, явные места, static gates и teardown плееров;

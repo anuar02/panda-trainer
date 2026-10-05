@@ -9,6 +9,11 @@
 
 ## Не выпущено
 
+- SOM-39, исправлено: после #77/#78 на iPhone пропадали отступы, ряды и фоны
+  кнопок/карточек — NativeWind отбрасывал `className`, когда анимированный стиль
+  шёл в тот же `style`. Новые `AnimatedView`/`AnimatedPressableView` передают его
+  отдельно. [ADR 0107](docs/app/decisions/0107-animated-styles-outside-nativewind.md).
+
 - [SOM-38 / draft PR #79](https://github.com/anuar02/panda-trainer/pull/79): выбранные WebP-клипы панды через expo-image в местах прототипа,
   постер при загрузке/ошибке, отключение при calm/reduce и уходе с экрана.
   stretch/listen без места; clipboard/front остаются PNG. Шесть клипов ≤300 КБ,

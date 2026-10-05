@@ -12,6 +12,7 @@ import {
   useEffect,
   useLayoutEffect,
   useState,
+  type ComponentProps,
   type Ref,
   type PropsWithChildren,
 } from 'react';
@@ -44,8 +45,31 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-if ((Animated.View as unknown) !== View)
-  cssInterop(Animated.View, { className: 'style' });
+type AnimatedStyle = ComponentProps<typeof Animated.View>['style'];
+type AnimatedViewProps = ComponentProps<typeof Animated.View> & {
+  animatedStyle?: AnimatedStyle;
+};
+export function AnimatedView({
+  style,
+  animatedStyle,
+  ...props
+}: AnimatedViewProps) {
+  return <Animated.View {...props} style={[style, animatedStyle]} />;
+}
+cssInterop(AnimatedView, { className: 'style' });
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+type AnimatedPressableViewProps = Omit<PressableProps, 'style'> & {
+  style?: StyleProp<ViewStyle>;
+  animatedStyle?: AnimatedStyle;
+};
+export function AnimatedPressableView({
+  style,
+  animatedStyle,
+  ...props
+}: AnimatedPressableViewProps) {
+  return <AnimatedPressable {...props} style={[style, animatedStyle]} />;
+}
+cssInterop(AnimatedPressableView, { className: 'style' });
 
 export const motion = {
   sheetDuration: 420,
@@ -164,9 +188,9 @@ export function MotionView({
     ],
   }));
   return (
-    <Animated.View {...props} style={[props.style, animatedStyle]}>
+    <AnimatedView {...props} animatedStyle={animatedStyle}>
       {children}
-    </Animated.View>
+    </AnimatedView>
   );
 }
 
@@ -343,7 +367,7 @@ export function MotionGroup({
         ? motion.inviteStagger
         : motion.rowStagger;
   return (
-    <Animated.View {...props}>
+    <AnimatedView {...props}>
       {blocks(children).map((child, index) => (
         <MotionBlock
           key={isValidElement(child) ? (child.key ?? index) : index}
@@ -360,12 +384,9 @@ export function MotionGroup({
           {child}
         </MotionBlock>
       ))}
-    </Animated.View>
+    </AnimatedView>
   );
 }
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-if (AnimatedPressable !== Pressable)
-  cssInterop(AnimatedPressable, { className: 'style' });
 export function MotionPressable({
   motionKind = 'row',
   style,
@@ -410,7 +431,7 @@ export function MotionPressable({
     );
   };
   return (
-    <AnimatedPressable
+    <AnimatedPressableView
       {...props}
       disabled={disabled}
       onPressIn={(event) => {
@@ -421,10 +442,8 @@ export function MotionPressable({
         update(false);
         onPressOut?.(event);
       }}
-      style={[
-        typeof style === 'function' ? style({ pressed }) : style,
-        animatedStyle,
-      ]}
+      style={typeof style === 'function' ? style({ pressed }) : style}
+      animatedStyle={animatedStyle}
     />
   );
 }
@@ -517,7 +536,7 @@ export function TabMotion({
     opacity: reduced ? (selected ? 0 : 1) : 1 - opacity.value,
   }));
   return (
-    <Animated.View {...props} style={[props.style, animatedStyle]}>
+    <AnimatedView {...props} animatedStyle={animatedStyle}>
       {inactive ? (
         <>
           <Animated.View style={activeStyle}>{children}</Animated.View>
@@ -528,7 +547,7 @@ export function TabMotion({
       ) : (
         children
       )}
-    </Animated.View>
+    </AnimatedView>
   );
 }
 export function PulseDot({ color, pulse }: { color: string; pulse: boolean }) {
@@ -614,7 +633,7 @@ export function Shimmer({ style, children, ...props }: ViewProps) {
     transform: [{ translateX: (-2 + progress.value * 6) * width }],
   }));
   return (
-    <Animated.View
+    <AnimatedView
       {...props}
       onLayout={(event) => {
         setWidth(event.nativeEvent.layout.width);
@@ -655,7 +674,7 @@ export function Shimmer({ style, children, ...props }: ViewProps) {
           ))}
         </Svg>
       </Animated.View>
-    </Animated.View>
+    </AnimatedView>
   );
 }
 
@@ -686,8 +705,8 @@ export function GrowX({ children, ...props }: PropsWithChildren<ViewProps>) {
     transformOrigin: 'left center',
   }));
   return (
-    <Animated.View {...props} style={[props.style, animatedStyle]}>
+    <AnimatedView {...props} animatedStyle={animatedStyle}>
       {children}
-    </Animated.View>
+    </AnimatedView>
   );
 }
