@@ -1,3 +1,4 @@
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
 import {
   MotionHeader,
   Shimmer,
@@ -47,6 +48,7 @@ export function ClientProgressScreen({
   scenario?: DemoScenario;
   data?: ClientProgressData;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const { t, i18n } = useTranslation();
   const demoContext = useOptionalWorkoutDemo();
   const demo = data ? null : demoContext;
@@ -106,7 +108,13 @@ export function ClientProgressScreen({
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
       </MotionHeader>
-      <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
+      >
         {(
           data
             ? data.loading
