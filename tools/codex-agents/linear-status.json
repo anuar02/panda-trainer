@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-04T21:39Z",
+  "updated_at": "2026-10-05T07:22Z",
   "updated_by": "coordinator",
   "done": 11,
   "groups": {
@@ -10,15 +10,29 @@
   },
   "issues": [
     {
-      "id": "SOM-38",
-      "title": "Интегрировать утверждённую панду и принять Rive",
-      "status": "In Review",
-      "milestone": "09",
-      "group": "owner"
+      "id": "SOM-31",
+      "title": "Довести ввод подходов и мини-группы до production",
+      "status": "In Progress",
+      "milestone": "05",
+      "group": "agents"
+    },
+    {
+      "id": "SOM-26",
+      "title": "Подключить Today, неделю и создание занятия к серверу",
+      "status": "In Progress",
+      "milestone": "04",
+      "group": "agents"
     },
     {
       "id": "SOM-39",
       "title": "Принять крупный текст, спокойный интерфейс и движение",
+      "status": "In Progress",
+      "milestone": "09",
+      "group": "agents"
+    },
+    {
+      "id": "SOM-38",
+      "title": "Интегрировать утверждённую панду и принять Rive",
       "status": "In Review",
       "milestone": "09",
       "group": "owner"
@@ -98,20 +112,6 @@
       "title": "Подключить серверную библиотеку, поиск и архивирование",
       "status": "In Review",
       "milestone": "03",
-      "group": "owner"
-    },
-    {
-      "id": "SOM-26",
-      "title": "Подключить Today, неделю и создание занятия к серверу",
-      "status": "In Review",
-      "milestone": "04",
-      "group": "owner"
-    },
-    {
-      "id": "SOM-31",
-      "title": "Довести ввод подходов и мини-группы до production",
-      "status": "In Review",
-      "milestone": "05",
       "group": "owner"
     },
     {
