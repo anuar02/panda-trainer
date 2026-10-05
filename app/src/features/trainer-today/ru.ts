@@ -1,4 +1,6 @@
 export const trainerToday = {
+  journalStatusFailed:
+    'Не удалось загрузить статусы журналов. Показаны последние загруженные данные.',
   until: 'до {{time}}',
   resumeJournal: 'Продолжить журнал',
   consentPending: 'Ждём согласия',

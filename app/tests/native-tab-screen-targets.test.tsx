@@ -163,3 +163,13 @@ test('generic error screen marks primary scroll only in native tabs', async () =
   );
   expect(screen.getAllByTestId('native-scroll-marker')).toHaveLength(1);
 });
+
+jest.mock('../src/features/workspace-scheduling/today-journal-hook', () => ({
+  useTodayFinishedBookingIds: () => ({
+    finishedIds: new Set<string>(),
+    scoped: false,
+    failed: false,
+    loading: false,
+    retry: jest.fn(),
+  }),
+}));

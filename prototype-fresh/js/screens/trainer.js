@@ -486,10 +486,13 @@ const Trainer = (() => {
     const focusRole = active.length ? 'now' : 'next';
 
     const isToday = date === DB.TODAY;
-    const settled = (s) => s.status === 'cancelled' || (toMin(s.end) <= now && Store.logging.status(s.id) !== 'draft' && !awaitsTrainer(sessionRequest(s)));
+    const settled = (s) => s.status === 'cancelled' || Store.logging.status(s.id) === 'finished' || (toMin(s.end) <= now && Store.logging.status(s.id) !== 'draft' && !awaitsTrainer(sessionRequest(s)));
     const isPast = (item) => isToday && (item.type === 'overlap' ? item.g.sessions : [item.s]).every(settled);
     const pastItems = items.filter(isPast);
-    const pastSessions = pastItems.flatMap(item => item.type === 'overlap' ? item.g.sessions : [item.s]).sort(byStart);
+    const pastSessions = pastItems.flatMap(item => item.type === 'overlap' ? item.g.sessions : [item.s]);
+    if (isToday) all.filter(s => Store.logging.status(s.id) === 'finished' && !pastSessions.includes(s)).forEach(s => pastSessions.push(s));
+    pastSessions.sort(byStart);
+    const pastIds = new Set(pastSessions.map(s => s.id));
     const pastLive = pastSessions.filter(s => s.status !== 'cancelled').length;
     const pastOpen = Boolean(Store.get().todayPastOpen);
     const pastLabel = `${pastLive ? `Прошло ${pastLive} ${DB.plural(pastLive, ['занятие', 'занятия', 'занятий'])}` : 'Прошедших занятий нет'}${pastSessions.length > pastLive ? ` · ${pastSessions.length - pastLive} ${DB.plural(pastSessions.length - pastLive, ['отмена', 'отмены', 'отмен'])}` : ''}`;
@@ -499,23 +502,26 @@ const Trainer = (() => {
     </section>` : '';
 
     let html = '';
-    let cursor = focusSession ? toMin(focusSession.end) : (isToday && pastItems.length ? now : null);
+    const timelineSessions = [];
+    let cursor = focusSession ? toMin(focusSession.end) : (isToday && pastSessions.length ? now : null);
     items.filter(item => !pastItems.includes(item)).forEach(item => {
-      const sessions = (item.type === 'overlap' ? item.g.sessions : [item.s]).slice().sort(byStart);
+      const sessions = (item.type === 'overlap' ? item.g.sessions : [item.s]).filter(s => !pastIds.has(s.id)).sort(byStart);
       const rest = sessions.filter(s => s !== focusSession);
       if (!rest.length) return;
       const liveRest = rest.filter(s => s.status !== 'cancelled');
       const start = Math.min(...rest.map(s => toMin(s.start)));
       const end = liveRest.length ? Math.max(...liveRest.map(s => toMin(s.end))) : start;
       if (cursor != null && start > cursor) html += gapMarker(cursor, start, date);
-      const ov = item.type === 'overlap' ? overlapInfo(item.g) : null;
+      const overlap = item.type === 'overlap' ? { ...item.g, sessions } : null;
+      const ov = overlap ? overlapInfo(overlap) : null;
       rest.forEach((s, i) => {
-        if (ov && (i || rest.length < sessions.length)) html += overlapLink(ov, item.g, date);
+        if (ov && (i || rest.length < sessions.length)) html += overlapLink(ov, overlap, date);
         html += todayRow(s);
+        if (s.status !== 'cancelled') timelineSessions.push(s);
       });
       if (liveRest.length) cursor = cursor == null ? end : Math.max(cursor, end);
     });
-    const lastEnd = live.length ? Math.max(...live.map(s => toMin(s.end))) : null;
+    const lastEnd = timelineSessions.length ? toMin(timelineSessions[timelineSessions.length - 1].end) : null;
     if (html && lastEnd != null && isToday) html += `<p class="today-free-after">Дальше свободно</p>`;
     return {
       focus: focusSession ? todayFocus(focusSession, focusRole) : '',

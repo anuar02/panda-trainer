@@ -437,3 +437,13 @@ test.each(['light', 'dark'] as const)(
     }
   },
 );
+
+jest.mock('../src/features/workspace-scheduling/today-journal-hook', () => ({
+  useTodayFinishedBookingIds: () => ({
+    finishedIds: new Set<string>(),
+    scoped: false,
+    failed: false,
+    loading: false,
+    retry: jest.fn(),
+  }),
+}));

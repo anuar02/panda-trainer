@@ -9,6 +9,12 @@
 
 ## Не выпущено
 
+- SOM-26, исправлено: завершённые журналы уходят в «Прошло» в эталоне, демо
+  и серверном «Сегодня»; фокус выбирается среди незавершённых, сообщение
+  «позади» не противоречит ленте, «до …» соответствует её последней
+  неотменённой строке. [ADR 0115](docs/app/decisions/0115-finished-journals-are-past-on-today.md),
+  [проверки](app/review/22-som-26-today-finished-sessions/README.md); native/приёмка открыты.
+
 - [SOM-39 / draft PR #91](https://github.com/anuar02/panda-trainer/pull/91), исправление #89: основные списки десяти вкладок явно зарегистрированы
   через публичный ScrollViewMarker на iOS NativeTabs; шапки и содержимое сохранены,
   временный measured bottom-padding Сегодня удалён.
