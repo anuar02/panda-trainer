@@ -5,7 +5,12 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react';
-import { Pressable, type PressableProps, type ViewProps } from 'react-native';
+import {
+  type PressableProps,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native';
 import Animated, {
   Easing,
   ReduceMotion,
@@ -18,7 +23,12 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { motion, useMotionDisabled } from '@/ui/motion';
+import {
+  AnimatedPressableView,
+  AnimatedView,
+  motion,
+  useMotionDisabled,
+} from '@/ui/motion';
 
 export const workoutMotion = {
   newDuration: 1200,
@@ -223,7 +233,7 @@ export function WorkoutEffect({
   });
   const hasHalo = kind === 'mic' || kind === 'hold-mic';
   return (
-    <Animated.View {...props} style={[props.style, style]}>
+    <AnimatedView {...props} animatedStyle={style}>
       {hasHalo && (
         <Animated.View
           pointerEvents="none"
@@ -246,11 +256,10 @@ export function WorkoutEffect({
         />
       )}
       {children}
-    </Animated.View>
+    </AnimatedView>
   );
 }
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export function WorkoutStep({
   onPressIn,
   onPressOut,
@@ -282,14 +291,14 @@ export function WorkoutStep({
     );
   };
   return (
-    <AnimatedPressable
+    <AnimatedPressableView
       {...props}
-      style={[
+      style={
         typeof props.style === 'function'
           ? props.style({ pressed })
-          : props.style,
-        style,
-      ]}
+          : props.style
+      }
+      animatedStyle={style}
       onPressIn={(event) => {
         setPressed(true);
         target(0.88);
@@ -324,14 +333,14 @@ export function WorkoutRestFill({
   const style = useAnimatedStyle(() => ({
     width: `${disabled ? value : progress.value}%`,
   }));
-  return <Animated.View {...props} style={[props.style, style]} />;
+  return <AnimatedView {...props} animatedStyle={style} />;
 }
 export function WorkoutRow({
   selected,
   children,
   ...props
-}: Omit<PressableProps, 'children'> &
-  PropsWithChildren<{ selected: boolean }>) {
+}: Omit<PressableProps, 'children' | 'style'> &
+  PropsWithChildren<{ selected: boolean; style?: StyleProp<ViewStyle> }>) {
   const disabled = useMotionDisabled();
   const { colors } = useTheme();
   const opacity = useSharedValue(selected ? 1 : 0);
@@ -350,7 +359,7 @@ export function WorkoutRow({
     opacity: disabled ? Number(selected) : opacity.value,
   }));
   return (
-    <AnimatedPressable {...props}>
+    <AnimatedPressableView {...props}>
       <Animated.View
         pointerEvents="none"
         style={[
@@ -366,7 +375,7 @@ export function WorkoutRow({
         ]}
       />
       {children}
-    </AnimatedPressable>
+    </AnimatedPressableView>
   );
 }
 export function useNewWorkoutExercises(
@@ -458,8 +467,8 @@ export function WorkoutHoldMotion({
   }));
   if ((!presence.mounted || disabled) && !visible) return null;
   return (
-    <Animated.View {...props} pointerEvents="none" style={[props.style, style]}>
+    <AnimatedView {...props} pointerEvents="none" animatedStyle={style}>
       {children}
-    </Animated.View>
+    </AnimatedView>
   );
 }

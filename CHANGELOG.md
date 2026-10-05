@@ -9,6 +9,11 @@
 
 ## Не выпущено
 
+- SOM-39, исправлено: после #77/#78 на iPhone пропадали отступы, ряды и фоны
+  кнопок/карточек — NativeWind отбрасывал `className`, когда анимированный стиль
+  шёл в тот же `style`. Новые `AnimatedView`/`AnimatedPressableView` передают его
+  отдельно. [ADR 0110](docs/app/decisions/0110-animated-styles-outside-nativewind.md).
+
 - [SOM-31 / draft PR #84](https://github.com/anuar02/panda-trainer/pull/84), бриф 19: журнал, ввод подходов, отдых, dock и шторки следуют теме
   «Авто / Тёмная / Светлая»; прежние тёмные стили сохранены тестом, светлые роли
   проверены на контраст. [ADR 0109](docs/app/decisions/0109-workout-follows-app-theme.md),
