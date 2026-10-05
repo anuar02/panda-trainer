@@ -123,4 +123,4 @@
 | [0104](0104-prototype-panda-reanimated-motion.md) | CSS-движение PNG-панды на UI-потоке Reanimated | Реализовано; native/parity/owner acceptance открыты | 04.10.2026 |
 | [0106](0106-approved-panda-webp-clips.md) | Выбранные WebP-клипы панды в крупных моментах | Реализовано; native/parity/owner acceptance открыты | 04.10.2026 |
 
-| [0107](0108-workout-active-exercise-fit.md) | Активная карточка журнала в viewport, событийная прокрутка и крупный текст | Решение владельца 05.10; native/приёмка открыты | 05.10.2026 |
+| [0108](0108-workout-active-exercise-fit.md) | Активная карточка журнала в viewport, событийная прокрутка и крупный текст | Решение владельца 05.10; native/приёмка открыты | 05.10.2026 |

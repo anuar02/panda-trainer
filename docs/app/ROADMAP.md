@@ -12,7 +12,7 @@
 - 05.10.2026 — SOM-31, бриф 18: [x] событийное выравнивание активной карточки,
   ожидание drag/momentum и reduce motion; [x] компактная карточка и фиксированный
   dock, раздельная прокрутка сведений при крупном тексте; [x] расчётные проверки
-  393×852 / 375×667 и synthetic tests. [ADR 0107](decisions/0108-workout-active-exercise-fit.md),
+  393×852 / 375×667 и synthetic tests. [ADR 0108](decisions/0108-workout-active-exercise-fit.md),
   [отчёт](../../app/review/18-som-31-workout-active-exercise-fit/README.md).
   [ ] Не проверено на iPhone: native размеры/клавиатура/шторки/максимальный текст,
   visual parity, VoiceOver и одобрение владельца. SOM-31 целиком и экран не приняты.
