@@ -9,7 +9,7 @@
 
 ## Не выпущено
 
-- SOM-39, бриф 21: самописная панель заменена системным NativeTabs с Liquid Glass
+- [SOM-39 / draft PR #89](https://github.com/anuar02/panda-trainer/pull/89), бриф 21: самописная панель заменена системным NativeTabs с Liquid Glass
   iOS 26, сворачиванием при прокрутке, SF Symbols/Material и положительным бейджем
   Сегодня. Отдельная action «+» ограничена API; кнопка в шапке сохранена.
   Сворачивание Сегодня требует отдельной интеграции ScrollViewMarker сверх границ брифа.
