@@ -9,6 +9,10 @@
 
 ## Не выпущено
 
+- SOM-26, эталон: спокойный «Сегодня» в `prototype-fresh` — блок «Сейчас», лента
+  «Дальше», раздел «Нужен ответ», прошедшие одной строкой; убраны карточка-сводка,
+  «План дня» и повторы счётчиков. [ADR 0112](docs/app/decisions/0112-calm-today-screen.md).
+
 - [SOM-39 / draft PR #86](https://github.com/anuar02/panda-trainer/pull/86), бриф 18 r2: плавающая Liquid Glass-навигация обеих ролей, theme fallback,
   reduce transparency и общий измеряемый отступ контента с учётом safe area/dock.
   Исключение владельца 05.10.2026 — [ADR 0111](docs/app/decisions/0111-floating-liquid-glass-tabbar.md).

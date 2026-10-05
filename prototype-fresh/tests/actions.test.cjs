@@ -190,9 +190,27 @@ test('today folds finished sessions into one toggle and keeps current ones visib
   const closed = a.run('Trainer.today()');
   assert.match(closed, /Прошло 5 занятий/);
   assert.match(closed, /id="today-past-list" hidden/);
-  assert.match(closed, /Идёт сейчас/);
+  assert.match(closed, /class="today-focus is-now"/);
+  assert.match(closed, /Сейчас · ещё/);
   a.action('today.past');
   assert.match(a.run('Trainer.today()'), /aria-expanded="true"/);
+});
+
+test('calm today shows each session once, replies once and no summary card', () => {
+  const a = app();
+  const html = a.run('Trainer.today()');
+  assert.doesNotMatch(html, /class="buddy"/);
+  assert.doesNotMatch(html, /План дня/);
+  assert.doesNotMatch(html, /Индивидуальное/);
+  assert.match(html, /<span>Дальше<\/span>/);
+  assert.match(html, /<span>Нужен ответ<\/span>/);
+  const replies = html.match(/class="today-reply"/g) || [];
+  assert.equal(replies.length, a.run("Store.reschedule.awaiting('trainer').length"));
+  const sessions = a.run('DB.byDate(DB.TODAY).map(s => s.id)');
+  for (const id of sessions) {
+    const count = (html.match(new RegExp(`data-session="${id}"`, 'g')) || []).length;
+    assert.equal(count, 1, `session ${id} rendered ${count} times`);
+  }
 });
 
 test('prototype-only notices are gone from app screens', () => {
