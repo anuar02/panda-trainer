@@ -1,7 +1,7 @@
 import { useReducer, type PropsWithChildren } from 'react';
 import { withTiming } from 'react-native-reanimated';
 import { motion } from '../src/ui/motion';
-import { Dimensions, StyleSheet } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet } from 'react-native';
 import {
   act,
   fireEvent,
@@ -265,7 +265,7 @@ test('failed restoration offers retry without opening a fresh editable journal',
 });
 
 test.each([1.34, 2])(
-  'journal remains editable at fontScale %s and scrolls its actions',
+  'journal keeps input editable and its dock fixed at fontScale %s',
   async (fontScale) => {
     const originalWindow = Dimensions.get('window');
     const originalScreen = Dimensions.get('screen');
@@ -286,7 +286,7 @@ test.each([1.34, 2])(
         screen.getByRole('button', { name: 'Завершить' }).parent,
       ).toBeTruthy();
       expect(
-        within(screen.getByTestId('workout-scroll')).getByRole('button', {
+        within(screen.getByTestId('workout-dock')).getByRole('button', {
           name: 'Завершить',
         }),
       ).toBeTruthy();
@@ -369,3 +369,83 @@ test('deleting the first note preserves the remaining note without replaying ris
       .mock.calls.filter((call) => call[1]?.duration === 400),
   ).toHaveLength(0);
 });
+
+test('screen aligns the active card on opening, next, manual selection and recording, never typing', async () => {
+  const scrollTo = jest
+    .spyOn(ScrollView.prototype, 'scrollTo')
+    .mockImplementation(() => undefined);
+  try {
+    await render(<Harness />);
+    await fireEvent(screen.getByTestId('workout-body'), 'layout', {
+      nativeEvent: { layout: { y: 100 } },
+    });
+    expect(scrollTo).toHaveBeenLastCalledWith({
+      y: 112,
+      animated: expect.any(Boolean),
+    });
+    scrollTo.mockClear();
+    await fireEvent.changeText(screen.getByTestId('workout-composer-kg'), '60');
+    expect(scrollTo).not.toHaveBeenCalled();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Записать подход 1' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    scrollTo.mockClear();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Дальше: Отжимания' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    scrollTo.mockClear();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Приседания со штангой' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    scrollTo.mockClear();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Приседания со штангой' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+  } finally {
+    scrollTo.mockRestore();
+  }
+});
+
+test.each([573, 461])(
+  'overflow scrolls metadata with composer outside it in viewport %s',
+  async (height) => {
+    await render(<Harness />);
+    await fireEvent(screen.getByTestId('workout-scroll'), 'layout', {
+      nativeEvent: { layout: { height } },
+    });
+    await fireEvent(screen.getByTestId('workout-active-composer'), 'layout', {
+      nativeEvent: { layout: { height: 318 } },
+    });
+    await fireEvent(
+      screen.getByTestId('workout-active-details'),
+      'contentSizeChange',
+      343,
+      480,
+    );
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId('workout-active-exercise').props.style,
+      ).height,
+    ).toBe(height);
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId('workout-active-details').props.style,
+      ).maxHeight,
+    ).toBe(height - 348);
+    expect(
+      within(screen.getByTestId('workout-active-details')).queryByTestId(
+        'workout-composer-kg',
+      ),
+    ).toBeNull();
+    expect(
+      within(screen.getByTestId('workout-active-composer')).getByRole(
+        'button',
+        { name: 'Записать подход 1' },
+      ),
+    ).toBeTruthy();
+  },
+);
