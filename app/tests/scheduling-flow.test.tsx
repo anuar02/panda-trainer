@@ -113,6 +113,7 @@ test('editor proposal reaches client card and calendar, survives provider remoun
   );
   await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
   await fireEvent.press(
     screen.getByRole('button', { name: 'Назначить программу позже' }),
   );

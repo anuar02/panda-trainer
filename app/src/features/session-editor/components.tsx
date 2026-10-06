@@ -12,6 +12,7 @@ export function ChoiceRow({
   selected,
   onPress,
   last = false,
+  disabled = false,
 }: {
   title: string;
   meta?: string;
@@ -20,6 +21,7 @@ export function ChoiceRow({
   selected: boolean;
   onPress: () => void;
   last?: boolean;
+  disabled?: boolean;
 }) {
   const { colors, scheme } = useTheme();
   const dark = scheme === 'dark';
@@ -28,7 +30,8 @@ export function ChoiceRow({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={title}
-      accessibilityState={{ selected }}
+      accessibilityState={{ selected, disabled }}
+      disabled={disabled}
       onPress={onPress}
       className="flex-row items-center gap-[14px] px-3 py-[14px]"
       style={{

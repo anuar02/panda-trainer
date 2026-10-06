@@ -34,7 +34,9 @@ function RescheduleForm({
       <Text className="text-[14px] leading-[20.3px] text-secondary">
         {t('sessionEditor.sessionSummary', {
           name: session.clientName,
-          count: minutes(session.end) - minutes(session.start),
+          count:
+            session.durationMinutes ??
+            minutes(session.end) - minutes(session.start),
         })}
       </Text>
       <View className="gap-1 rounded-[14px] bg-sunken p-[14px]">
@@ -91,6 +93,7 @@ export function RescheduleSheet(props: RescheduleSheetProps) {
   return (
     <Sheet
       open={props.open}
+      stackBehavior={props.stackBehavior}
       title={t(
         props.counter ? 'sessionEditor.counter' : 'sessionEditor.reschedule',
       )}

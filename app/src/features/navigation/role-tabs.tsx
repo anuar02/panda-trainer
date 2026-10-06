@@ -1,161 +1,167 @@
-import { Tabs } from 'expo-router';
-import type { ComponentProps } from 'react';
-import { Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
+import { Platform, View } from 'react-native';
+import { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/ui/theme';
-import { Icon } from '@/ui/icons';
-import { WorkoutDock } from '@/features/workout-demo';
-type BottomTabBarProps = Parameters<
-  NonNullable<ComponentProps<typeof Tabs>['tabBar']>
->[0];
+import { WorkoutDock, useOptionalWorkoutDemo } from '@/features/workout-demo';
+import {
+  getWorkoutSession,
+  workoutSessions,
+  type WorkoutState,
+} from '@/domain/workout';
+import { useOptionalSchedulingDemo } from '@/features/scheduling-demo/provider';
+import { NativeTabsInsetsProvider } from './tab-bar-layout';
+
 export const routes = {
   trainer: [
-    { name: 'today', label: 'today', icon: 'home' },
-    { name: 'schedule', label: 'schedule', icon: 'calendar' },
-    { name: 'clients', label: 'clients', icon: 'users' },
-    { name: 'library', label: 'library', icon: 'layers' },
-    { name: 'trainer-profile', label: 'profile', icon: 'user' },
+    { name: 'today', label: 'today', sf: 'house', md: 'home' },
+    {
+      name: 'schedule',
+      label: 'schedule',
+      sf: 'calendar',
+      md: 'calendar_month',
+    },
+    { name: 'clients', label: 'clients', sf: 'person.2', md: 'group' },
+    {
+      name: 'library',
+      label: 'library',
+      sf: 'square.stack',
+      md: 'library_books',
+    },
+    {
+      name: 'trainer-profile',
+      label: 'profile',
+      sf: 'person.crop.circle',
+      md: 'account_circle',
+    },
   ],
   client: [
-    { name: 'home', label: 'home', icon: 'home' },
-    { name: 'program', label: 'program', icon: 'dumbbell' },
-    { name: 'history', label: 'history', icon: 'list' },
-    { name: 'progress', label: 'progress', icon: 'trend' },
-    { name: 'client-profile', label: 'profile', icon: 'user' },
+    { name: 'home', label: 'home', sf: 'house', md: 'home' },
+    { name: 'program', label: 'program', sf: 'dumbbell', md: 'fitness_center' },
+    { name: 'history', label: 'history', sf: 'list.bullet', md: 'list' },
+    {
+      name: 'progress',
+      label: 'progress',
+      sf: 'chart.line.uptrend.xyaxis',
+      md: 'trending_up',
+    },
+    {
+      name: 'client-profile',
+      label: 'profile',
+      sf: 'person.crop.circle',
+      md: 'account_circle',
+    },
   ],
 } as const;
-export function FloatingTabBar({
-  role,
-  state,
-  navigation,
-  insets,
-}: BottomTabBarProps & { role: keyof typeof routes }) {
-  const { t } = useTranslation();
-  const { scheme, colors } = useTheme();
-  const { fontScale } = useWindowDimensions();
-  const dark = scheme === 'dark';
-  const fontSize = role === 'trainer' ? 10 : 12;
-  const accent = dark ? '#6f86ff' : '#2b48d6';
-  const secondary = dark ? '#a3a4ab' : '#545868';
-  return (
-    <View
-      style={{
-        backgroundColor: colors.canvas,
-        paddingHorizontal: 12,
-        paddingBottom: Math.max(10, insets.bottom),
-      }}
-    >
-      {role === 'trainer' && <WorkoutDock />}
-      <View
-        accessibilityLabel={t('tabs.navigation')}
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          padding: 6,
-          borderRadius: 26,
-          backgroundColor: dark
-            ? 'rgba(21,22,25,0.95)'
-            : 'rgba(252,252,253,0.9)',
-          boxShadow: dark
-            ? '0 14px 34px -14px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.07)'
-            : '0 14px 34px -14px rgba(15,18,40,0.35), 0 0 0 1px rgba(20,24,50,0.08)',
-        }}
-      >
-        {routes[role].map((item) => {
-          const route = state.routes.find((entry) => entry.name === item.name);
-          if (!route) return null;
-          const selected = state.routes[state.index ?? 0]?.key === route.key;
-          return (
-            <Pressable
-              key={route.key}
-              accessibilityRole="tab"
-              accessibilityLabel={t(`tabs.${item.label}`).replace('\u00ad', '')}
-              accessibilityState={{ selected }}
-              onPress={() => {
-                const event = navigation.emit({
-                  type: 'tabPress',
-                  target: route.key,
-                  canPreventDefault: true,
-                });
-                if (!selected && !event.defaultPrevented)
-                  navigation.navigate(route.name, route.params);
-              }}
-              onLongPress={() =>
-                navigation.emit({ type: 'tabLongPress', target: route.key })
-              }
-              style={{
-                flexGrow: 1,
-                flexBasis: fontScale > 1.3 ? '33%' : '20%',
-                minHeight: Math.max(
-                  54,
-                  22 + 3 + fontSize * 1.45 * fontScale + 10,
-                ),
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 3,
-                borderRadius: 20,
-              }}
-            >
-              {selected && (
-                <View
-                  pointerEvents="none"
-                  style={{
-                    position: 'absolute',
-                    top: 5,
-                    bottom: 5,
-                    left: '6%',
-                    right: '6%',
-                    borderRadius: 16,
-                    backgroundColor: dark
-                      ? 'rgba(111,134,255,0.16)'
-                      : 'rgba(43,72,214,0.1)',
-                  }}
-                />
-              )}
-              <Icon
-                name={item.icon}
-                size={22}
-                strokeWidth={selected ? 2.3 : 1.8}
-                color={selected ? accent : secondary}
-              />
-              <Text
-                style={{
-                  fontFamily: selected ? 'Inter_700Bold' : 'Inter_600SemiBold',
-                  fontSize,
-                  lineHeight: fontSize * 1.45,
-                  letterSpacing: role === 'trainer' ? -0.15 : 0.05,
-                  color: selected ? (dark ? '#8c9eff' : '#2238b0') : secondary,
-                  textAlign: 'center',
-                }}
-              >
-                {t(`tabs.${item.label}`)}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
+
+export function getTabBadgeValue(count: number | null | undefined) {
+  return typeof count === 'number' && Number.isSafeInteger(count) && count > 0
+    ? String(count)
+    : undefined;
+}
+
+export function hasWorkoutDock(
+  workout: { hydrated: boolean; state: WorkoutState } | null,
+) {
+  if (!workout?.hydrated) return false;
+  const { state } = workout;
+  const active = state.activeSessionId
+    ? state.sessions[state.activeSessionId]
+    : undefined;
+  const journal =
+    active && !active.finished
+      ? active
+      : (state.catalog ?? workoutSessions)
+          .filter((session) => session.date === '2026-09-14')
+          .sort(
+            (a, b) =>
+              b.start.localeCompare(a.start) || a.id.localeCompare(b.id),
+          )
+          .map((session) => state.sessions[session.id])
+          .find((entry) => entry && !entry.finished);
+  return Boolean(
+    journal &&
+    !journal.finished &&
+    getWorkoutSession(journal.sessionId, state.catalog),
   );
 }
+
+function PortableWorkoutDock() {
+  const [visible, setVisible] = useState(false);
+  return (
+    <SafeAreaView
+      edges={visible ? ['bottom', 'left', 'right'] : ['left', 'right']}
+    >
+      <View
+        onLayout={({ nativeEvent }) =>
+          setVisible(nativeEvent.layout.height > 0)
+        }
+      >
+        <WorkoutDock />
+      </View>
+    </SafeAreaView>
+  );
+}
+
 export function RoleTabs({ role }: { role: keyof typeof routes }) {
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { scheme, colors } = useTheme();
+  const scheduling = useOptionalSchedulingDemo();
+  const workout = useOptionalWorkoutDemo();
+  const dockVisible = hasWorkoutDock(workout);
+  const count =
+    role === 'trainer' && scheduling?.hydrated && !scheduling.readError
+      ? Object.values(scheduling.state.requests).filter(
+          (request) =>
+            request.awaiting === 'trainer' &&
+            (request.state === 'pending' || request.state === 'counter'),
+        ).length
+      : undefined;
+  const badge = getTabBadgeValue(count);
+  const accessory =
+    Platform.OS === 'ios' && parseFloat(String(Platform.Version)) >= 26;
   return (
-    <Tabs
-      initialRouteName={routes[role][0].name}
-      tabBar={(props) => <FloatingTabBar {...props} role={role} />}
-      screenOptions={{
-        headerShown: false,
-        sceneStyle: { backgroundColor: colors.canvas },
-      }}
-    >
-      {routes[role].map((route) => (
-        <Tabs.Screen
-          key={route.name}
-          name={route.name}
-          options={{ title: t(`tabs.${route.label}`) }}
-        />
-      ))}
-    </Tabs>
+    <NativeTabsInsetsProvider>
+      <View style={{ flex: 1, backgroundColor: colors.canvas }}>
+        <NativeTabs
+          tintColor={colors.accent}
+          iconColor={{ default: colors.secondary, selected: colors.accent }}
+          labelStyle={{
+            default: { color: colors.secondary },
+            selected: { color: colors.accent },
+          }}
+          backgroundColor={Platform.OS === 'ios' ? undefined : colors.surface}
+          minimizeBehavior="onScrollDown"
+          labelVisibilityMode="labeled"
+          disableTransparentOnScrollEdge
+          unstable_nativeProps={{ colorScheme: scheme }}
+        >
+          {routes[role].map((route) => {
+            const label = t(`tabs.${route.label}`).replace('\u00ad', '');
+            return (
+              <NativeTabs.Trigger
+                key={route.name}
+                name={route.name}
+                accessibilityLabel={label}
+                contentStyle={{ backgroundColor: colors.canvas }}
+              >
+                <NativeTabs.Trigger.Icon sf={route.sf} md={route.md} />
+                <NativeTabs.Trigger.Label>{label}</NativeTabs.Trigger.Label>
+                {route.name === 'today' && badge !== undefined && (
+                  <NativeTabs.Trigger.Badge>{badge}</NativeTabs.Trigger.Badge>
+                )}
+              </NativeTabs.Trigger>
+            );
+          })}
+          {role === 'trainer' && accessory && dockVisible && (
+            <NativeTabs.BottomAccessory>
+              <WorkoutDock />
+            </NativeTabs.BottomAccessory>
+          )}
+        </NativeTabs>
+        {role === 'trainer' && !accessory && <PortableWorkoutDock />}
+      </View>
+    </NativeTabsInsetsProvider>
   );
 }

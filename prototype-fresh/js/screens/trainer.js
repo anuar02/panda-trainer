@@ -213,9 +213,8 @@ const Trainer = (() => {
       : 'Входящие: нет запросов, требующих ответа';
     return `<header class="today-head">
       <div class="today-head__main">
-        <p class="today-head__hello">${esc(greeting())}, ${esc(DB.trainer.name)}</p>
+        <p class="today-head__date">${esc(DB.fmtDateLong(Store.get().day))}</p>
         <h1 class="today-head__title">Сегодня</h1>
-        <p class="today-head__sub">${esc(DB.fmtDateLong(Store.get().day))}<span class="today-head__dot">·</span><time class="num">${esc(DB.NOW_TIME)}</time></p>
       </div>
       <div class="today-head__actions">
         <button class="today-inbox" ${act('tab', { id: 't-inbox' })} aria-label="${esc(inboxLabel)}" title="Входящие">
@@ -229,38 +228,26 @@ const Trainer = (() => {
     </header>`;
   }
 
-  function greeting() {
-    const h = Math.floor(toMin(DB.NOW_TIME) / 60);
-    return h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 18 ? 'Добрый день' : 'Добрый вечер';
-  }
+  const dowShort = (iso) => DB.fmtDateLong(iso).split(',')[0];
 
-  function todayBuddy(all) {
-    const live = all.filter(s => s.status !== 'cancelled');
-    const now = toMin(DB.NOW_TIME);
-    const isToday = Store.get().day === DB.TODAY;
-    const done = live.filter(s => s.date < DB.TODAY || (isToday && toMin(s.end) <= now)).length;
-    const ongoing = isToday ? live.filter(s => toMin(s.start) <= now && now < toMin(s.end)).length : 0;
-    const left = live.length - done - ongoing;
-    const pending = pendingTrainer().length;
-    const pct = live.length ? Math.round(done / live.length * 100) : 0;
-    const mood = 'calm';
-    const line = !live.length ? 'Свободный день — можно восстановиться.'
-      : left === 0 && !ongoing ? 'Все занятия позади. Отличная работа!'
-      : ongoing ? `Сейчас идёт ${ongoing} ${DB.plural(ongoing, ['занятие', 'занятия', 'занятий'])}.`
-      : done === 0 ? `Впереди ${left} ${DB.plural(left, ['занятие', 'занятия', 'занятий'])}. Разминаемся!`
-      : `Осталось ${left} ${DB.plural(left, ['занятие', 'занятия', 'занятий'])} — вы в ритме.`;
-    return `<section class="buddy" aria-label="Сводка дня">
-      <div class="buddy__face">${Mascot.face(mood, 58)}</div>
-      <div class="buddy__main">
-        <p class="buddy__line">${esc(line)}</p>
-        <div class="buddy__bar" role="img" aria-label="По времени завершилось ${done} из ${live.length}"><i style="--p:${pct}%"></i></div>
-        <div class="buddy__stats">
-          <span><b class="num">${done}</b> позади</span>
-          <span><b class="num">${left}</b> впереди</span>
-          ${ongoing ? `<span><b class="num">${ongoing}</b> сейчас</span>` : ''}
-          ${pending && !UI.isInstrument() ? `<button class="buddy__req" ${act('tab', { id: 't-inbox' })}><b class="num">${pending}</b> ${DB.plural(pending, ['запрос', 'запроса', 'запросов'])}</button>` : ''}
-        </div>
-      </div>
+  /* ── «Нужен ответ»: every request awaiting the trainer, listed once ───────── */
+
+  function todayReplies() {
+    const list = pendingTrainer();
+    if (!list.length) return '';
+    return `<section class="today-replies" aria-label="Нужен ответ">
+      <h2 class="today-label"><span>Нужен ответ</span></h2>
+      ${list.map(r => {
+        const c = client(r.clientId);
+        const name = c ? c.short : 'Клиент';
+        const from = r.from, to = r.counter || r.to;
+        return `<button class="today-reply" ${act('sheet.open', { id: 'todayRequest', rid: r.id })}
+          aria-label="Перенос: ${esc(name)}, ${esc(DB.fmtDateLong(from.date))} ${from.start} → ${esc(DB.fmtDateLong(to.date))} ${to.start}. Ответить">
+          <span class="today-reply__when"><b>${esc(dowShort(from.date))}</b><small>перенос</small></span>
+          <span class="today-reply__main"><strong>${esc(name)}</strong><small>${esc(dowShort(from.date))} <span class="num">${from.start}</span> → ${esc(dowShort(to.date))} <span class="num">${to.start}</span></small></span>
+          <span class="today-reply__cta">Ответить</span>
+        </button>`;
+      }).join('')}
     </section>`;
   }
 
@@ -409,10 +396,80 @@ const Trainer = (() => {
     </div>`;
   }
 
+  function sessionFlags(s, c) {
+    const r = sessionRequest(s);
+    const flags = [];
+    if (s.status === 'cancelled') flags.push(['Отменено', '']);
+    else if (r && ['pending', 'counter'].includes(r.state)) flags.push(r.awaiting === 'trainer' ? ['Ждёт вашего ответа', 'is-amber'] : ['Ждём ответа клиента', '']);
+    else if (s.status === 'proposed') flags.push(['Ждём согласия', 'is-amber']);
+    if (s.kind !== 'group' && c) {
+      const att = Store.get().attendance[s.id + ':' + c.id];
+      if (att === 'present') flags.push(['Присутствовал', 'is-mint']);
+      if (att === 'noshow') flags.push(['Неявка', 'is-danger']);
+    }
+    const journal = Store.logging.status(s.id);
+    if (journal) flags.push([journal === 'finished' ? 'Журнал завершён' : 'Журнал в работе', '']);
+    return flags.length ? `<p class="today-flags">${flags.map(([t, cls]) => `<span class="today-flag ${cls}">${esc(t)}</span>`).join('')}</p>` : '';
+  }
+
+  function todayRow(s) {
+    const group = s.kind === 'group';
+    const c = s.clientId ? client(s.clientId) : null;
+    const title = group ? s.title : (c ? c.short : s.title);
+    const cancelled = s.status === 'cancelled';
+    const meta = group
+      ? `<p class="today-row__meta">${esc(groupSummary(s) || participantNames(s))}</p>`
+      : `<p class="today-row__meta">${UI.ProgramPreview(s.clientId, s.program, 'trainer', s.id)}</p>`;
+    return `<article class="today-row${cancelled ? ' is-cancelled' : ''}" data-session="${s.id}">
+      <div class="today-row__time"><time class="num">${s.start}</time><small class="num">${s.end}</small></div>
+      <div class="today-row__body">
+        <button class="today-row__name" ${act('sheet.open', { id: 'session', sid: s.id })}
+          aria-label="Занятие ${esc(title)}, ${s.start}–${s.end}">${esc(title)}</button>
+        ${meta}
+        ${sessionFlags(s, c)}
+      </div>
+    </article>`;
+  }
+
+  function todayFocus(s, role) {
+    const group = s.kind === 'group';
+    const c = s.clientId ? client(s.clientId) : null;
+    const title = group ? s.title : (c ? c.short : s.title);
+    const left = toMin(s.end) - nowMin();
+    const eyebrow = role === 'now'
+      ? `Сейчас · ещё ${humanDur(Math.max(left, 0))}`
+      : s.date === DB.TODAY ? `Следующее · ${relHint(toMin(s.start) - nowMin()).toLowerCase() || 'скоро'}` : `Следующее · ${DB.fmtDate(s.date)}`;
+    const people = group
+      ? `<div class="today-focus__people">${s.participants.map(p => {
+          const pc = client(p.clientId);
+          if (!pc) return '';
+          const state = p.reply === 'confirmed' ? 'ok' : p.reply === 'pending' ? 'wait' : 'out';
+          return `<span class="today-person is-${state}"><b>${esc(initials(pc.short))}</b>${esc(pc.short)}${state === 'wait' ? ' · ждёт' : ''}</span>`;
+        }).join('')}</div>`
+      : `<p class="today-focus__program">${UI.ProgramPreview(s.clientId, s.program, 'trainer', s.id)}</p>`;
+    const journalStatus = Store.logging.status(s.id);
+    const progress = Store.logging.sessionProgress(s.id);
+    const sameAsDock = journalStatus === 'draft' && Store.logging.resumable()?.sessionId === s.id;
+    const entryLabel = journalStatus === 'draft' ? 'Продолжить журнал' : Store.logging.label(s.id);
+    const cta = sameAsDock ? '' : `<button class="btn ${journalStatus === 'draft' ? 'btn--soft' : 'btn--primary'} today-focus__cta" ${act('logging.open', { id: s.id })}>
+        ${Icon.get('play', { size: 20, sw: 2.4 })}<span>${esc(entryLabel)}</span></button>`;
+    return `<section class="today-focus${role === 'now' ? ' is-now' : ''}" data-session="${s.id}" aria-label="${role === 'now' ? 'Идёт сейчас' : 'Следующее занятие'}">
+      <p class="today-focus__eyebrow"><i aria-hidden="true"></i>${esc(eyebrow)}</p>
+      <button class="today-focus__open" ${act('sheet.open', { id: 'session', sid: s.id })} aria-label="Занятие ${esc(title)}, ${s.start}–${s.end}">
+        <span class="today-focus__time num">${s.start}<small> – ${s.end}</small></span>
+        <span class="today-focus__name">${esc(title)}</span>
+      </button>
+      ${people}
+      ${sessionFlags(s, c)}
+      ${progress?.total ? UI.Segments(progress.done, progress.total) : ''}
+      ${cta}
+    </section>`;
+  }
+
   function todayAgenda(date) {
-    if (UI.isInstrument()) return instrumentAgenda(date);
+    if (UI.isInstrument()) return { focus: '', timeline: instrumentAgenda(date), past: '', until: '' };
     const all = DB.byDate(date);
-    if (!all.length) return '';
+    if (!all.length) return { focus: '', timeline: '', past: '', until: '' };
     const now = nowMin();
 
     const groups = DB.overlapGroups(date);
@@ -422,49 +479,56 @@ const Trainer = (() => {
     groups.forEach(g => items.push({ type: 'overlap', g, at: g.sessions[0].start }));
     items.sort((a, b) => a.at.localeCompare(b.at));
 
-    // Completion is a journal state, not attendance. Stop treating its time slot
-    // as the current workout, without deleting the booking or changing charges.
     const live = all.filter(s => s.status !== 'cancelled' && Store.logging.status(s.id) !== 'finished');
     const active = live.filter(s => toMin(s.start) <= now && now < toMin(s.end)).sort(byStart);
     const upcoming = live.filter(s => toMin(s.start) > now).sort(byStart);
-    const role = {};
-    if (active.length) active.forEach(s => { role[s.id] = 'now'; });
-    else if (upcoming.length) role[upcoming[0].id] = 'next';
+    const focusSession = active[0] || upcoming[0] || null;
+    const focusRole = active.length ? 'now' : 'next';
 
     const isToday = date === DB.TODAY;
-    const settled = (s) => s.status === 'cancelled' || (toMin(s.end) <= now && Store.logging.status(s.id) !== 'draft' && !awaitsTrainer(sessionRequest(s)));
+    const settled = (s) => s.status === 'cancelled' || Store.logging.status(s.id) === 'finished' || (toMin(s.end) <= now && Store.logging.status(s.id) !== 'draft' && !awaitsTrainer(sessionRequest(s)));
     const isPast = (item) => isToday && (item.type === 'overlap' ? item.g.sessions : [item.s]).every(settled);
     const pastItems = items.filter(isPast);
-    const pastSessions = pastItems.flatMap(item => item.type === 'overlap' ? item.g.sessions : [item.s]).sort(byStart);
+    const pastSessions = pastItems.flatMap(item => item.type === 'overlap' ? item.g.sessions : [item.s]);
+    if (isToday) all.filter(s => Store.logging.status(s.id) === 'finished' && !pastSessions.includes(s)).forEach(s => pastSessions.push(s));
+    pastSessions.sort(byStart);
+    const pastIds = new Set(pastSessions.map(s => s.id));
     const pastLive = pastSessions.filter(s => s.status !== 'cancelled').length;
     const pastOpen = Boolean(Store.get().todayPastOpen);
     const pastLabel = `${pastLive ? `Прошло ${pastLive} ${DB.plural(pastLive, ['занятие', 'занятия', 'занятий'])}` : 'Прошедших занятий нет'}${pastSessions.length > pastLive ? ` · ${pastSessions.length - pastLive} ${DB.plural(pastSessions.length - pastLive, ['отмена', 'отмены', 'отмен'])}` : ''}`;
-    const pastBlock = pastSessions.length ? `<section class="today-past${pastOpen ? ' is-open' : ''}">
+    const past = pastSessions.length ? `<section class="today-past${pastOpen ? ' is-open' : ''}">
       <button type="button" class="today-past__toggle" ${act('today.past')} aria-expanded="${pastOpen}" aria-controls="today-past-list">${Icon.get('check', { size: 16, sw: 2.4 })}<span>${pastLabel}</span><span class="today-past__hint">${pastOpen ? 'Скрыть' : 'Показать'}</span></button>
-      <div class="today-past__list" id="today-past-list"${pastOpen ? '' : ' hidden'}>${pastSessions.map(s => todayEntry(s, null)).join('')}</div>
+      <div class="today-past__list today-timeline" id="today-past-list"${pastOpen ? '' : ' hidden'}>${pastSessions.map(todayRow).join('')}</div>
     </section>` : '';
 
-    let html = pastBlock;
-    let cursor = isToday && pastItems.length ? now : null; // end of the merged union of occupied intervals so far
+    let html = '';
+    const timelineSessions = [];
+    let cursor = focusSession ? toMin(focusSession.end) : (isToday && pastSessions.length ? now : null);
     items.filter(item => !pastItems.includes(item)).forEach(item => {
-      const sessions = (item.type === 'overlap' ? item.g.sessions : [item.s]).slice().sort(byStart);
-      const liveSessions = sessions.filter(s => s.status !== 'cancelled');
-      const start = Math.min(...sessions.map(s => toMin(s.start)));
-      const end = liveSessions.length ? Math.max(...liveSessions.map(s => toMin(s.end))) : start;
+      const sessions = (item.type === 'overlap' ? item.g.sessions : [item.s]).filter(s => !pastIds.has(s.id)).sort(byStart);
+      const rest = sessions.filter(s => s !== focusSession);
+      if (!rest.length) return;
+      const liveRest = rest.filter(s => s.status !== 'cancelled');
+      const start = Math.min(...rest.map(s => toMin(s.start)));
+      const end = liveRest.length ? Math.max(...liveRest.map(s => toMin(s.end))) : start;
       if (cursor != null && start > cursor) html += gapMarker(cursor, start, date);
-
-      const ov = item.type === 'overlap' ? overlapInfo(item.g) : null;
-      if (ov) {
-        sessions.forEach((s, i) => {
-          if (i) html += overlapLink(ov, item.g, date);
-          html += todayEntry(s, role[s.id] || null);
-        });
-      } else {
-        sessions.forEach(s => { html += todayEntry(s, role[s.id] || null); });
-      }
-      if (liveSessions.length) cursor = cursor == null ? end : Math.max(cursor, end);
+      const overlap = item.type === 'overlap' ? { ...item.g, sessions } : null;
+      const ov = overlap ? overlapInfo(overlap) : null;
+      rest.forEach((s, i) => {
+        if (ov && (i || rest.length < sessions.length)) html += overlapLink(ov, overlap, date);
+        html += todayRow(s);
+        if (s.status !== 'cancelled') timelineSessions.push(s);
+      });
+      if (liveRest.length) cursor = cursor == null ? end : Math.max(cursor, end);
     });
-    return `<div class="today-agenda">${html}</div>`;
+    const lastEnd = timelineSessions.length ? toMin(timelineSessions[timelineSessions.length - 1].end) : null;
+    if (html && lastEnd != null && isToday) html += `<p class="today-free-after">Дальше свободно</p>`;
+    return {
+      focus: focusSession ? todayFocus(focusSession, focusRole) : '',
+      timeline: html ? `<div class="today-timeline">${html}</div>` : '',
+      past,
+      until: lastEnd != null ? fmtHM(lastEnd) : '',
+    };
   }
 
   /* ── Сегодня ─────────────────────────────────────────────────────────────── */
@@ -506,16 +570,15 @@ const Trainer = (() => {
         action: Btn('Добавить занятие', { kind: 'primary', size: 'compact', a: 'tab', args: { id: 't-new' }, icon: 'plus' }),
       }), { pad: true })}</div>`;
     } else {
-      const count = all.length;
-      body += todayBuddy(all);
-      body += `<section class="today-section">
-        <div class="today-section__head">
-          <h2 class="today-section__title">План дня</h2>
-          <span class="today-section__count">${count} ${DB.plural(count, ['занятие', 'занятия', 'занятий'])}</span>
-        </div>
-        ${todayAgenda(st.day)}
-        ${live.length ? `<p class="today-end">Последнее занятие до ${fmtHM(Math.max(...live.map(s => toMin(s.end))))}</p>` : ''}
+      const agenda = todayAgenda(st.day);
+      body += agenda.focus;
+      if (agenda.timeline) body += `<section class="today-section">
+        <h2 class="today-label"><span>${UI.isInstrument() ? 'План дня' : 'Дальше'}</span>${agenda.until ? `<span class="num">до ${agenda.until}</span>` : ''}</h2>
+        ${agenda.timeline}
       </section>`;
+      else if (!agenda.focus && live.length) body += `<p class="today-done">Все занятия на сегодня позади</p>`;
+      body += todayReplies();
+      body += agenda.past;
     }
     return shell(body);
   }

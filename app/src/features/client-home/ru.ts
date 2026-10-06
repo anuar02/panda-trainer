@@ -1,4 +1,8 @@
 export const clientHome = {
+  packages: 'Пакеты',
+  activeUnits: 'из {{units}} занятий',
+  serverDue: 'Долг: {{amount}}',
+  namedGreeting: 'Привет, {{name}}',
   trainerLabel: 'Ваш тренер',
   trainer: 'Данияр',
   initials: 'ДС',

@@ -1,7 +1,13 @@
 # Модель данных (Supabase / Postgres)
 
-Статус: проект схемы v1 до первой миграции (29.09.2026). После каждой миграции
-документ обновляется; источник истины — `supabase/migrations/`.
+Статус 01.10.2026: четыре таблицы раздела «Люди и доступ» реализованы миграцией
+`20261001090000_identity_and_workspaces.sql`; три таблицы библиотеки — миграциями
+`20261001100000_exercise_library.sql` и `20261001101000_starter_catalog.sql`.
+Расписание — миграция `20261001110000_schedule_foundation.sql`.
+Личные копии программ — `20261001130000_client_programs.sql`.
+Журнал и заметки — `20261001140000_workout_journal.sql`.
+Остальные таблицы пока проект.
+Источник истины — `supabase/migrations/`. [Границы записи, типы и seed](decisions/0025-identity-rls-foundation.md).
 
 Основа: `trainer-crm-agent-plan.md` §3–§4 и `prototype-fresh/SYNC-DESIGN.md`.
 
@@ -25,27 +31,72 @@
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
 | `profiles` | `user_id` → `auth.users`, `display_name`, `locale` | Один пользователь может быть и тренером, и клиентом |
-| `trainer_workspaces` | `owner_user_id`, `name`, `timezone` | Одно пространство на тренера в v1 |
+| `trainer_workspaces` | `owner_user_id`, `name`, `timezone`, `training_focus`, `working_days`, `day_start`, `day_end`, `usual_session_minutes` | Одно пространство на тренера в v1; рабочие предпочтения из welcome |
 | `client_records` | `workspace_id`, `user_id null`, `display_name`, `phone null`, `archived_at` | Карточка создаётся до регистрации клиента |
-| `invitations` | `client_record_id`, `token_hash`, `expires_at`, `accepted_by null`, `accepted_at null` | Токен — только хэш; принятие через RPC |
+| `invitations` | `client_record_id`, `token_hash`, `expires_at`, `accepted_by null`, `accepted_at null`, `revoked_at null` | Токен — только хэш; принятие через RPC |
+
+У всех четырёх таблиц есть revision и audit-поля. INSERT/UPDATE доступны только
+для безопасных полей через column grants; прямое изменение владельца, workspace,
+связи user_id и audit-полей закрыто. Клиент читает свою карточку, но не пишет её.
+Метаданные invitations читает только владелец без token_hash; создание и принятие
+реализованы через RPC SOM-21; прямые записи приглашений закрыты. profiles читает/меняет только сам пользователь.
+created_by допускает null для системных операций без JWT; Data API не может его
+подменить. Версия повышается триггером, проверка base_revision относится к будущим RPC.
+
+`complete_trainer_onboarding` создаёт профиль/пространство/каталог/первого клиента
+одной транзакцией; повтор сохраняет прежние данные. Настройки рабочего времени
+не запрещают запись вне них. [ADR 0033](decisions/0033-atomic-trainer-onboarding.md).
 
 ### Библиотека и программы
 
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
-| `exercises` | `workspace_id`, `name`, `name_normalized`, `muscle_group`, `measure` (`reps`/`seconds`), `bodyweight`, `archived_at` | Уникальность по `(workspace_id, name_normalized)` среди неархивных |
+| `exercises` | `workspace_id`, `name`, `name_normalized`, `muscle_group`, `equipment`, `source_key null`, `measure` (`reps`/`seconds`), `bodyweight`, `archived_at` | Уникальность по `(workspace_id, name_normalized)` среди неархивных |
 | `workout_templates` | `workspace_id`, `name`, `revision`, `archived_at` | Имя не идентификатор |
-| `template_exercises` | `template_id`, `exercise_id`, `position`, `planned_sets`, `planned_reps`, `planned_seconds`, `planned_weight_g`, `note` | |
+| `template_exercises` | `workspace_id`, `template_id`, `exercise_id`, `position`, `planned_sets`, `planned_reps`, `planned_seconds`, `planned_weight_g`, `rest_seconds`, `note` | |
 | `client_programs` | `client_record_id`, `base_template_id`, `base_template_revision`, `name`, `revision` | Личная копия шаблона |
 | `client_program_exercises` | как `template_exercises` + `client_program_id` | |
+
+Реализованы exercises, workout_templates и template_exercises. Каталог из 81
+упражнения копируется в новое пространство; источник и границы —
+[ADR 0026](decisions/0026-workspace-library.md). Шаблон хранит ссылки на упражнения
+того же workspace, включая архивные. Клиент не получает прямого доступа к
+библиотеке тренера. planned_reps/planned_seconds хранят строку числа или диапазона;
+ровно одно поле заполнено и соответствует единице упражнения. Единица недоступна
+для прямого UPDATE, чтобы не нарушать сохранённые планы. У строк состава есть
+своя revision; изменение состава также повышает revision шаблона.
+
+client_programs и client_program_exercises реализованы как неизменяемые копии
+шаблона: имя/описание, версия источника, планы и метаданные упражнений, включая
+инструкции. Клиент читает только свои копии. assign_client_program создаёт новый
+ID, сохраняет прежние копии и безопасно повторяет команду по request_id;
+прямая запись закрыта. [ADR 0029](decisions/0029-client-program-snapshots.md).
+Клиентский transport и решение владельца №5 остаются открытыми.
+
+С SOM-23 запись шаблонов/состава закрыта для прямых запросов, включая column
+grants. save_workout_template атомарно заменяет состав с проверкой revision;
+archive_workout_template сохраняет строки. Приватные receipts позволяют повторить
+успешную команду без дубликатов. [ADR 0028](decisions/0028-atomic-template-commands.md).
 
 ### Расписание
 
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
-| `group_sessions` | `workspace_id`, `starts_at` | Общий старт мини-группы |
+| `group_sessions` | `workspace_id`, `starts_at`, `ends_at` | Общее время мини-группы при создании |
 | `bookings` | `workspace_id`, `client_record_id`, `group_session_id null`, `starts_at`, `ends_at`, `status` (`proposed`/`confirmed`/`cancelled_by_client`/`cancelled_by_trainer`), `revision` | Запись одного клиента |
 | `schedule_proposals` | `booking_id`, `author_user_id`, `proposed_starts_at`, `proposed_ends_at`, `base_revision`, `status` (`pending`/`accepted`/`declined`/`withdrawn`/`stale`) | Прежнее время действует до принятия |
+
+Три таблицы расписания включают RLS. Прямая запись закрыта; create_booking_set
+создаёт предложенные bookings для активных своих клиентов, при нескольких
+участниках — общую group_session. Коллизии требуют явного подтверждения тренера.
+Внутренние request_id/request_payload закрыты column grants.
+[Блокировки, повторы и границы](decisions/0027-server-schedule-foundation.md).
+schedule_proposals пока хранит контракт; RPC переноса относятся к SOM-27.
+В SOM-27 реализованы confirm_booking и cancel_booking для отдельной записи:
+подтверждает клиент, отменяет клиент или владелец. Проверяются revision и
+завершённый журнал; отмена не меняет остальных участников, pending proposals
+становятся withdrawn. Приватный receipt привязан к actor/workspace/request_id.
+[ADR 0031](decisions/0031-booking-status-commands.md). RPC переноса ещё открыты.
 
 ### Журнал тренировки
 
@@ -58,16 +109,56 @@
 | `private_notes` | `workout_instance_id` или `client_record_id`, `text` | Только тренер, у клиента нет политики чтения |
 | `sync_operations` | `operation_id` (PK), `user_id`, `device_id`, `kind`, `entity_id`, `base_revision`, `applied_at`, `result` | Журнал применённых операций, гарантирует «ровно один раз» |
 
+Шесть таблиц журнала реализованы. IDs задаёт устройство; связи booking/program
+проверяют workspace и клиента. workout_instances хранит started_at и ревизию
+программы-источника; workout_exercises — снимки техники/плана, skipped и ссылку
+на заменённую строку того же журнала. Добавление без плана допускает planned_sets=0.
+Результаты допускают незаполненные значения; NULL не равен нулю. Подтверждение
+введённого подхода остаётся правилом будущей команды, не признаком наличия строки.
+Все прямые записи закрыты. Клиент читает только свой завершённый журнал, включая
+подходы и открытые заметки. private_notes и sync_operations читает только владелец.
+Таблица receipts ещё не означает реализованную синхронизацию.
+[ADR 0030](decisions/0030-journal-read-isolation.md).
+
 ### Деньги и посещения
+
+SOM-33 реализован миграцией `20261003090000_attendance_credit_ledger.sql`.
 
 | Таблица | Ключевые поля | Примечание |
 | --- | --- | --- |
-| `purchases` | `client_record_id`, `title`, `units_total`, `price_minor`, `currency`, `expires_on null` | Условия зафиксированы на момент покупки |
-| `payment_entries` | `purchase_id`, `amount_minor`, `paid_on`, `source` (`manual`), `author_user_id`, `reverses_id null` | Исправление — новая запись-сторно |
-| `attendance` | `booking_id` (unique), `attended_at`, `marked_by`, `undone_at null` | Посещение отдельно от оплаты и списания |
-| `credit_entries` | `client_record_id`, `purchase_id null`, `booking_id null`, `kind` (`grant`/`consume`/`restore`/`charge_late_cancel`), `units`, `reason null`, `idempotency_key` (unique) | Остаток = сумма записей; `charge_late_cancel` требует причину |
+| `client_purchases` | `workspace_id`, `client_record_id`, `title`, `units`, `price_minor bigint`, `currency`, `expires_on null` | Неизменяемые условия, KZT; создание добавляет grant |
+| `attendance_records` | `booking_id`, `service_date`, `status` (`present`/`noshow`/`undone`), `revision`, `cycle` | Одна текущая запись на booking; дата снимка в timezone пространства |
+| `attendance_revisions` | `attendance_id`, `revision`, `cycle`, `status`, `service_date`, `reason null` | Неизменяемая история отметок и исправлений |
+| `credit_entries` | `purchase_id`, `attendance_id null`, `booking_id null`, `cycle null`, `kind`, `units`, `reason null`, `reverses_entry_id null` | Signed ledger: grant, consume −1, restore +1, charge_late_cancel −1 |
+| `payment_entries` | `purchase_id`, `kind` (`payment`/`reversal`), `amount_minor bigint`, `paid_on`, `method`, `source`, `reason`, `reverses_entry_id` | SOM-34 foundation: positive payment и exact negative reversal; immutable |
+| `private.billing_command_receipts` | `workspace_id`, `actor_user_id`, `request_id`, `command`, `payload`, `result` | Actor-scoped неизменяемые receipts; клиентского API нет |
 
-Представление `client_balances`: остаток единиц по пакетам и сумма долга по покупкам.
+Остаток пакета — сумма credit_entries, без изменяемого счётчика. Автовыбор:
+ближайший expires_on, затем created_at/id; бессрочные пакеты последними.
+Eligibility использует scheduled service_date включительно, независимо от времени
+отметки; последующая привязка и штраф за неявку используют сохранённую дату.
+Отметка без списания разрешена явно; отсутствие подходящего пакета при автовыборе
+оставляет посещение непривязанным, без минуса. Поздняя привязка списывает один раз.
+Исправление добавляет restore исходного consume или связанного штрафа за неявку.
+Новый цикл отметки не изменяется повтором receipt старого цикла.
+
+Неявка и отмена не списывают автоматически. Явный штраф требует публичную причину;
+сам по себе он не создаёт посещение. Для отменённого booking без attendance штраф
+однократный; отдельная отмена такого штрафа пока не реализована. Composite FK
+проверяют workspace/client/booking/purchase. RLS разрешает чтение владельцу и
+связанному клиенту только своей карточки; actor IDs закрыты column grants.
+Прямые записи запрещены, owner RPC сериализуются на workspace lock.
+
+`payment_entries` реализована независимой foundation SOM-34. Положительная
+оплата принадлежит exact workspace/client/purchase; полное отрицательное сторно
+сохраняет сумму, валюту и способ исходной оплаты, требует публичную причину и
+возможно один раз. Способы: Kaspi, Перевод, Наличные; source=manual, currency=KZT.
+Actor ID закрыт; владелец/связанный клиент читают safe product columns, прямых
+записей нет. SQL trigger проверяет exact reversal и запрещает reversal of reversal.
+Payment RPC, долг и `client_balances` пока отсутствуют; правило переплаты ожидает
+ответа владельца. Денежные записи не меняют session credits и расписание.
+[ADR 0053](decisions/0053-attendance-credit-ledger.md),
+[ADR 0054](decisions/0054-manual-payment-history.md).
 
 ### Уведомления и аудит
 
@@ -101,13 +192,27 @@
 
 | Функция | Что гарантирует |
 | --- | --- |
-| `accept_invitation(token)` | Срок, одноразовость, привязка к существующей карточке |
+| `create_client_record(client_name, client_phone, request_id)` | Реализована: непривязанная карточка владельца workspace, приватный receipt, повтор без дубликата и отказ при смене payload |
+| `complete_trainer_onboarding(display_name, workspace_name, selected_focus, selected_days, starts_at, ends_at, session_minutes, first_client_name, first_client_phone)` | Реализована: атомарная первая настройка, actor из auth.uid, повтор без дубликатов и сохранение прежних значений |
+| `issue_client_invitation(p_client_record_id, p_token, p_request_id)` | Реализована: только владелец, SHA-256, 7 дней, замена старых ссылок, безопасный повтор без продления срока |
+| `revoke_client_invitation(p_invitation_id, p_request_id)` | Реализована: отзыв неиспользованной ссылки владельцем и повтор по request_id |
+| `accept_invitation(p_token)` | Реализована: срок, отзыв, одноразовая привязка прежней карточки; тот же аккаунт может повторить, другой — нет |
+| `list_my_client_connections()` | Реализована: только собственные активные карточки и отображаемые имена связанных тренеров; без расширения прямого RLS |
+| `assign_client_program(client_record_id, template_id, expected_template_revision, request_id)` | Реализована: новая полная копия, проверка версии/связей, неизменные прежние копии и повтор без дубликатов |
+| `save_workout_template(template_id, expected_revision, name, description, exercises, request_id)` | Реализована: атомарный состав, проверка версии, повтор по приватному receipt |
+| `archive_workout_template(template_id, expected_revision, request_id)` | Реализована: архив с проверкой версии, сохранением состава и безопасным повтором |
+| `create_booking_set(client_record_ids, starts_at, ends_at, collision_ack, request_id)` | Реализована: только владелец, tenant-safe создание, предупреждение о пересечении, сериализация и повтор без дубликатов |
 | `propose_time(booking_id, starts_at, ends_at, base_revision)` | Устаревшая ревизия → отказ с причиной |
 | `respond_to_proposal(proposal_id, accept)` | Атомарная смена времени и ревизии |
-| `cancel_booking(booking_id, reason)` | Отмена одного участника не трогает группу |
+| `confirm_booking(booking_id, expected_revision, request_id)` | Реализована: клиент подтверждает свою proposed-запись, проверка версии и безопасный повтор |
+| `cancel_booking(booking_id, expected_revision, request_id)` | Реализована: отмена клиентом/тренером сохраняет остальных участников, проверяет версию; без автоматического списания |
 | `apply_operations(ops jsonb)` | Каждая операция журнала применяется один раз; конфликты возвращаются, а не затираются |
-| `mark_attended(booking_id, purchase_id null, idempotency_key)` | Одно списание; блокировка пакета; без пакета — непривязанное посещение |
-| `undo_attendance(booking_id, reason)` | Возврат единицы ровно один раз, история сохраняется |
+| `create_client_purchase(client_record_id, title, units, price_minor, request_id, expires_on null)` | Реализована: фиксированные условия и grant атомарно, безопасный повтор |
+| `mark_attended(booking_id, expected_booking_revision, request_id, charge false, purchase_id null)` | Реализована: explicit debit, без двойного списания и отрицательного остатка |
+| `mark_no_show(booking_id, expected_booking_revision, request_id)` | Реализована: неявка без автоматического списания |
+| `bind_attendance_purchase(attendance_id, expected_attendance_revision, expected_booking_revision, request_id, purchase_id null)` | Реализована: позднее однократное списание по сохранённой дате |
+| `undo_attendance(attendance_id, expected_attendance_revision, expected_booking_revision, reason, request_id)` | Реализована: однократный restore и append-only история |
+| `charge_late_cancellation(booking_id, expected_booking_revision, reason, request_id, purchase_id null)` | Реализована: явный штраф за отмену/неявку, без посещения |
 | `add_payment(purchase_id, amount_minor, paid_on, idempotency_key)` | Сумма > 0, запись автора |
 
 ## Инварианты, покрытые тестами (`supabase/tests`)
@@ -115,9 +220,116 @@
 - [ ] Тренер A не читает и не меняет данные тренера B, даже зная ID.
 - [ ] Клиент не получает `private_notes` и чужие подходы, в том числе в своей группе.
 - [ ] Повторное `accept_invitation` другим аккаунтом отклоняется.
-- [ ] Двойной `mark_attended` списывает одну единицу; параллельные вызовы не уходят в минус.
-- [ ] `undo_attendance` возвращает единицу один раз.
+- [x] Двойной `mark_attended` списывает одну единицу; параллельные вызовы не уходят в минус.
+- [x] `undo_attendance` возвращает единицу один раз.
 - [ ] Повтор `apply_operations` с тем же `operation_id` не создаёт второй подход.
 - [ ] Устаревший перенос не перезаписывает более новое согласованное время.
 - [ ] Архивированное упражнение остаётся в прошлых журналах и шаблонах.
 - [ ] Пересечение `start < other_end and end > other_start`; касание концов — не пересечение.
+
+## SOM-29 sync additions
+
+New migration adds owner-only `workout_sync_conflicts` (both versions and revision)
+and `workout_correction_drafts` (finished-edit envelopes), plus immutable envelope
+receipts on SOM-28 sync_operations. apply_operations checks each operation and
+serializes replay; server errors do not discard following operations. Source device
+and requested position preserve deterministic merged set order. Finished data stay
+unchanged until an explicit later correction flow. [ADR 0062](decisions/0062-sqlite-journal-outbox.md).
+SQL runtime and generated type drift remain unverified in this container.
+
+## SOM-32 explicit correction
+
+`workout_correction_drafts` сохраняет original operation и добавляет applied_at /
+applied_request_id. Приватные immutable receipts/audit связаны tenant composite FK;
+public journal/exercise last_correction_request_id указывает конкретную команду.
+Owner-only list/review/apply RPC сериализуется с обычным sync, проверяет original
+provenance, выбранные conflict snapshots и ожидаемые версии. Журнал остаётся
+finished с исходным timestamp; личная программа, booking/attendance/financial
+данные не изменяются. Прямой authenticated DML закрыт.
+[ADR 0090](decisions/0090-explicit-finished-journal-correction.md),
+[needs-local-db gate](../../app/review/som-32-explicit-correction-server/README.md).
+
+## SOM-36: клиентский overview read
+
+`get_my_client_overview(client_record_id, starts_on, ends_on)` возвращает только
+active linkage context, сегодняшний день в workspace timezone, decimal-string
+remaining/active units и due minor, а также date/count для подтверждённых
+посещений в полуоткрытом периоде до 366 дней. Остаток включает неистёкшие пакеты,
+долг — все, включая истёкшие, с учётом payment reversal. Полные ledger rows,
+приватные причины/receipts, draft journals и чужие карточки не входят в RPC.
+Это stable read; он не изменяет bookings, attendance, credits или payments.
+Migration: `20261004110100_client_overview_reads.sql`; runtime/type drift pending CI.
+[ADR 0097](decisions/0097-client-overview-and-read-lifetimes.md).
+
+## SOM-37: in-app notification event contract v1
+
+`notifications` belongs to `workspace_id` + `recipient_user_id` + role and an
+exact tenant `client_record_id`. Only the recipient with a current owner/active
+client relationship can read. Direct authenticated DML is denied. Read state is
+monotonic, server-owned; `mark_notification_read` accepts an own workspace/event
+and retains the first timestamp under replay/concurrent retry.
+
+| Source transition | Kind | Stable `event_key` | Recipient |
+| --- | --- | --- | --- |
+| Booking insert | `booking_requested` / `booking_confirmed` | `booking:<id>:<revision>` | Linked counterpart, excluding actor |
+| Booking confirm/cancel/time change | `booking_confirmed` / `booking_cancelled` / `booking_rescheduled` | `booking:<id>:<revision>` | Linked counterpart |
+| Proposal insert/counter/decline/withdraw | `reschedule_requested` / `reschedule_declined` / `reschedule_withdrawn` | `proposal:<id>:<revision>` | Linked counterpart |
+| First finished transition | `workout_finished` | `finished:<workout-id>` | Linked client |
+| Applied, client-visible finished correction audit | `workout_corrected` | `correction:<request-id>` | Linked client |
+
+Accepted proposals emit the booking time event once; stale/accepted proposal
+status itself adds no duplicate. No-op writes and command receipt replay emit
+nothing. Triggers run inside the existing command transaction; rollback removes
+events and unique recipient/workspace/event keys prevent duplicate delivery rows.
+No existing writer, lock, booking policy or financial rule is replaced. Existing
+historical events are not backfilled, and unlinked cards have no client recipient.
+Private-only note edits/conflict resolutions and unfinished/draft writes emit
+nothing. A public note correction/removal can signal changed visible finished
+content, but never copies note text or the correction envelope into an event.
+
+Payload is exactly `{ "version": 1 }`. The row adds kind, target type/UUID,
+client-card UUID, tenant, recipient, role, event key, created_at and read_at;
+no private notes, phones, email, journal values, auth tokens, conflict snapshots,
+financial amounts or arbitrary strings are transported. SOM-73 can use the
+stable event key and recipient for its separate delivery receipt; this migration
+provides no push transport/tokens/scheduler or push delivery guarantee.
+
+`notification_feed` returns at most 50 rows, ordered `(created_at DESC, id DESC)`;
+`has_more` is computed with one lookahead row; the paired cursor contains the last
+full server timestamp and UUID. `unread_count` counts the entire own selected
+role/workspace/client feed in the same stable SQL snapshot, never only loaded
+pages. New realtime signals reconcile the first page and explicitly retain
+`has_more`; older pages remain accessible. RLS scopes every read. A trainer who
+also has client cards gets separate role feeds. `notification_target` checks the
+same recipient/relationship fence and returns only current own booking metadata
+or the availability of a still-finished own workout. Removed/unfinished targets
+remain an honest unavailable event; cascade deletion/revoked relationships remove
+or hide the event.
+
+Realtime publishes this safe table. App subscriptions use INSERT/UPDATE only;
+DELETE key events are excluded: DEFAULT replica identity cannot provide the
+same recipient/RLS guarantee.
+Deletion/revocation is reconciled on focus/foreground/reconnect. An isolated client/channel verifies JWT
+identity, expected caller session, user and observed token refresh; it treats
+changes as invalidations rather than applying websocket row payloads. Foreground,
+focus and subscribe/reconnect trigger server reconciliation. Controller generations
+fence old reads/counts/errors; read flags never regress when rows are merged.
+
+## SOM-73: private push bindings and delivery state
+
+Additive push migration adds `private.push_devices` (installation UUID, owner,
+JWT session, capability digest, Expo token, platform and generation) and
+`private.push_deliveries` (notification/device unique key, captured generation,
+state, bounded attempts/due, lease, ticket and allowlisted error code). A third `private.push_installations` capability/sequence tombstone fences late
+RPC commands even after unregister; it contains no user or token. All three enable
+RLS; raw tables have no anon/authenticated grants. Authenticated device RPCs use
+JWT ownership plus installation proof; own metadata excludes tokens. Only
+service_role can invoke scheduler/claim/completion. Device tokens and delivery
+state are intentionally outside the existing public export contract; that export
+is not claimed complete by this task. No deletion policy or existing writer changed.
+
+Scheduled `booking_reminder` / `daily_plan` extend the existing safe version-1
+feed; existing recipient RLS, read RPC and private visibility remain unchanged.
+Own push open repeats SOM-37 target authorization. Unknown external send outcome
+is a retained delivery state, not a success or automatic retry.
+See [PUSH-V1](PUSH-V1.md) for scheduling, atomic claims, ambiguity and deployment.

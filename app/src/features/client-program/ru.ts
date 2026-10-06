@@ -1,4 +1,16 @@
 export const clientProgram = {
+  sessionLabel: '{{date}} · {{start}}–{{end}}',
+  onSiteLabel:
+    '{{date}} в {{start}} тренер подберёт упражнения на месте. Ниже — план следующего занятия.',
+  currentPlan: 'Текущий план от тренера',
+  secondsTarget: '{{value}} сек',
+  setsOnly: 'План: {{sets}} подходов',
+  rest: 'Отдых',
+  equipment: 'Оборудование',
+  muscleGroup: 'Группа мышц',
+  bodyweight: 'С собственным весом',
+  instructionStep: '{{position}}. {{instruction}}',
+  close: 'Закрыть',
   title: 'Программа',
   trainerLabel: 'Ваш тренер',
   trainer: 'Данияр',

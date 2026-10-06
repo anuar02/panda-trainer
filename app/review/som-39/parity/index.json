@@ -1,0 +1,654 @@
+{
+  "viewport": "390x844@2x",
+  "systemTheme": "light",
+  "accepted": false,
+  "errors": [],
+  "captures": [
+    {
+      "screen": "t-today",
+      "route": "today",
+      "theme": "auto",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-today__normal__auto-dark.png",
+      "app": "app/t-today__normal__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Сегодня"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Сегодня",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "28.35px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 32.296875,
+          "width": 238,
+          "height": 28.34375
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-today",
+      "route": "today",
+      "theme": "auto",
+      "scenario": "empty",
+      "scenarioInvariant": false,
+      "reference": "reference/t-today__empty__auto-dark.png",
+      "app": "app/t-today__empty__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Сегодня"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Сегодня",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "28.35px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 32.296875,
+          "width": 238,
+          "height": 28.34375
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-today",
+      "route": "today",
+      "theme": "auto",
+      "scenario": "loading",
+      "scenarioInvariant": false,
+      "reference": "reference/t-today__loading__auto-dark.png",
+      "app": "app/t-today__loading__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-today",
+      "route": "today",
+      "theme": "auto",
+      "scenario": "offline",
+      "scenarioInvariant": false,
+      "reference": "reference/t-today__offline__auto-dark.png",
+      "app": "app/t-today__offline__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Сегодня"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Сегодня",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "28.35px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 32.296875,
+          "width": 238,
+          "height": 28.34375
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-today",
+      "route": "today",
+      "theme": "dark",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-today__normal__dark.png",
+      "app": "app/t-today__normal__dark.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Сегодня"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Сегодня",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "28.35px",
+          "color": "rgb(242, 242, 243)",
+          "x": 22,
+          "y": 32.296875,
+          "width": 238,
+          "height": 28.34375
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-today",
+      "route": "today",
+      "theme": "light",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-today__normal__light.png",
+      "app": "app/t-today__normal__light.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Сегодня"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Сегодня",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "27px",
+          "lineHeight": "28.35px",
+          "color": "rgb(18, 20, 32)",
+          "x": 22,
+          "y": 32.296875,
+          "width": 238,
+          "height": 28.34375
+        }
+      ],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-session",
+      "route": "session/s1",
+      "theme": "auto",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-session__normal__auto-dark.png",
+      "app": "app/t-session__normal__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Дана Ержанова",
+        "Приседания со штангой"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Дана Ержанова",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "24px",
+          "lineHeight": "27.6px",
+          "color": "rgb(242, 242, 243)",
+          "x": 18,
+          "y": 58,
+          "width": 297.34375,
+          "height": 27.59375
+        },
+        {
+          "text": "Приседания со штангой",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "20px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 35,
+          "y": 214.890625,
+          "width": 286,
+          "height": 24
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-session",
+      "route": "session/s1",
+      "theme": "auto",
+      "scenario": "empty",
+      "scenarioInvariant": false,
+      "reference": "reference/t-session__empty__auto-dark.png",
+      "app": "app/t-session__empty__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Дана Ержанова",
+        "Приседания со штангой"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Дана Ержанова",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "24px",
+          "lineHeight": "27.6px",
+          "color": "rgb(242, 242, 243)",
+          "x": 18,
+          "y": 58,
+          "width": 297.34375,
+          "height": 27.59375
+        },
+        {
+          "text": "Приседания со штангой",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "20px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 35,
+          "y": 214.890625,
+          "width": 286,
+          "height": 24
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-session",
+      "route": "session/s1",
+      "theme": "auto",
+      "scenario": "loading",
+      "scenarioInvariant": false,
+      "reference": "reference/t-session__loading__auto-dark.png",
+      "app": "app/t-session__loading__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Дана Ержанова",
+        "Приседания со штангой"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Дана Ержанова",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "24px",
+          "lineHeight": "27.6px",
+          "color": "rgb(242, 242, 243)",
+          "x": 18,
+          "y": 58,
+          "width": 297.34375,
+          "height": 27.59375
+        },
+        {
+          "text": "Приседания со штангой",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "20px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 35,
+          "y": 214.890625,
+          "width": 286,
+          "height": 24
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-session",
+      "route": "session/s1",
+      "theme": "auto",
+      "scenario": "offline",
+      "scenarioInvariant": false,
+      "reference": "reference/t-session__offline__auto-dark.png",
+      "app": "app/t-session__offline__auto.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Дана Ержанова",
+        "Приседания со штангой"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Дана Ержанова",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "24px",
+          "lineHeight": "27.6px",
+          "color": "rgb(242, 242, 243)",
+          "x": 18,
+          "y": 58,
+          "width": 297.34375,
+          "height": 27.59375
+        },
+        {
+          "text": "Приседания со штангой",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "20px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 35,
+          "y": 214.890625,
+          "width": 286,
+          "height": 24
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-session",
+      "route": "session/s1",
+      "theme": "dark",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-session__normal__dark.png",
+      "app": "app/t-session__normal__dark.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Дана Ержанова",
+        "Приседания со штангой"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Дана Ержанова",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "24px",
+          "lineHeight": "27.6px",
+          "color": "rgb(242, 242, 243)",
+          "x": 18,
+          "y": 58,
+          "width": 297.34375,
+          "height": 27.59375
+        },
+        {
+          "text": "Приседания со штангой",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "20px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 35,
+          "y": 214.890625,
+          "width": 286,
+          "height": 24
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-session",
+      "route": "session/s1",
+      "theme": "light",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-session__normal__light.png",
+      "app": "app/t-session__normal__light.png",
+      "status": "captured-not-approved",
+      "headings": [
+        "Дана Ержанова",
+        "Приседания со штангой"
+      ],
+      "headingMetrics": [
+        {
+          "text": "Дана Ержанова",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "24px",
+          "lineHeight": "27.6px",
+          "color": "rgb(242, 242, 243)",
+          "x": 18,
+          "y": 58,
+          "width": 297.34375,
+          "height": 27.59375
+        },
+        {
+          "text": "Приседания со штангой",
+          "fontFamily": "Montserrat_800ExtraBold",
+          "fontSize": "20px",
+          "lineHeight": "24px",
+          "color": "rgb(242, 242, 243)",
+          "x": 35,
+          "y": 214.890625,
+          "width": 286,
+          "height": 24
+        }
+      ],
+      "tabs": []
+    },
+    {
+      "screen": "t-profile",
+      "route": "trainer-profile",
+      "theme": "auto",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-profile__normal__auto-dark.png",
+      "app": "app/t-profile__normal__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-profile",
+      "route": "trainer-profile",
+      "theme": "auto",
+      "scenario": "empty",
+      "scenarioInvariant": false,
+      "reference": "reference/t-profile__empty__auto-dark.png",
+      "app": "app/t-profile__empty__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-profile",
+      "route": "trainer-profile",
+      "theme": "auto",
+      "scenario": "loading",
+      "scenarioInvariant": false,
+      "reference": "reference/t-profile__loading__auto-dark.png",
+      "app": "app/t-profile__loading__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-profile",
+      "route": "trainer-profile",
+      "theme": "auto",
+      "scenario": "offline",
+      "scenarioInvariant": false,
+      "reference": "reference/t-profile__offline__auto-dark.png",
+      "app": "app/t-profile__offline__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-profile",
+      "route": "trainer-profile",
+      "theme": "dark",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-profile__normal__dark.png",
+      "app": "app/t-profile__normal__dark.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "t-profile",
+      "route": "trainer-profile",
+      "theme": "light",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/t-profile__normal__light.png",
+      "app": "app/t-profile__normal__light.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Сегодня",
+        "Распи­сание",
+        "Клиенты",
+        "Библиотека",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "c-profile",
+      "route": "client-profile",
+      "theme": "auto",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/c-profile__normal__auto-light.png",
+      "app": "app/c-profile__normal__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Главная",
+        "Программа",
+        "История",
+        "Прогресс",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "c-profile",
+      "route": "client-profile",
+      "theme": "auto",
+      "scenario": "empty",
+      "scenarioInvariant": false,
+      "reference": "reference/c-profile__empty__auto-light.png",
+      "app": "app/c-profile__empty__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Главная",
+        "Программа",
+        "История",
+        "Прогресс",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "c-profile",
+      "route": "client-profile",
+      "theme": "auto",
+      "scenario": "loading",
+      "scenarioInvariant": false,
+      "reference": "reference/c-profile__loading__auto-light.png",
+      "app": "app/c-profile__loading__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Главная",
+        "Программа",
+        "История",
+        "Прогресс",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "c-profile",
+      "route": "client-profile",
+      "theme": "auto",
+      "scenario": "offline",
+      "scenarioInvariant": false,
+      "reference": "reference/c-profile__offline__auto-light.png",
+      "app": "app/c-profile__offline__auto.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Главная",
+        "Программа",
+        "История",
+        "Прогресс",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "c-profile",
+      "route": "client-profile",
+      "theme": "dark",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/c-profile__normal__dark.png",
+      "app": "app/c-profile__normal__dark.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Главная",
+        "Программа",
+        "История",
+        "Прогресс",
+        "Профиль"
+      ]
+    },
+    {
+      "screen": "c-profile",
+      "route": "client-profile",
+      "theme": "light",
+      "scenario": "normal",
+      "scenarioInvariant": false,
+      "reference": "reference/c-profile__normal__light.png",
+      "app": "app/c-profile__normal__light.png",
+      "status": "captured-not-approved",
+      "headings": [],
+      "headingMetrics": [],
+      "tabs": [
+        "Главная",
+        "Программа",
+        "История",
+        "Прогресс",
+        "Профиль"
+      ]
+    }
+  ]
+}

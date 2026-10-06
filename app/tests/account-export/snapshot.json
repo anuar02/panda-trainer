@@ -1,0 +1,475 @@
+{
+  "format": "panda-trainer-workspace",
+  "version": 1,
+  "workspace_id": "41000000-0000-4000-8000-000000000001",
+  "owner_user_id": "41000000-0000-4000-8000-000000000002",
+  "exported_at": "2026-10-03T12:34:56.123456+00:00",
+  "limitations": [
+    "server_only_no_local_pending",
+    "operational_receipts_excluded",
+    "no_unstored_revision_history",
+    "auth_credentials_excluded"
+  ],
+  "collections": {
+    "profiles": [
+      {
+        "user_id": "41000000-0000-4000-8000-000000000002",
+        "display_name": "Synthetic value",
+        "locale": "ru",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "trainer_workspaces": [
+      {
+        "id": "41000000-0000-4000-8000-000000000001",
+        "owner_user_id": "41000000-0000-4000-8000-000000000002",
+        "name": "Synthetic workspace",
+        "timezone": "Asia/Almaty",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002",
+        "training_focus": ["strength"],
+        "working_days": [1, 3, 5],
+        "day_start": "07:00:00",
+        "day_end": "21:00:00",
+        "usual_session_minutes": 60
+      }
+    ],
+    "client_records": [
+      {
+        "id": "41000000-0000-4000-8000-000000000012",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "user_id": "41000000-0000-4000-8000-000000000003",
+        "display_name": "Shared synthetic client",
+        "phone": null,
+        "archived_at": "2026-10-03T12:34:56.123456+00:00",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "invitations": [
+      {
+        "id": "41000000-0000-4000-8000-000000000013",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "expires_at": "2026-10-03T12:34:56.123456+00:00",
+        "accepted_by": null,
+        "accepted_at": null,
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002",
+        "revoked_at": null
+      }
+    ],
+    "exercises": [
+      {
+        "id": "41000000-0000-4000-8000-000000000014",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "source_key": null,
+        "name": "Synthetic squat",
+        "name_normalized": "synthetic squat",
+        "muscle_group": "Synthetic value",
+        "equipment": "Synthetic value",
+        "measure": "reps",
+        "bodyweight": false,
+        "aliases": ["Synthetic instruction"],
+        "instructions": ["Synthetic instruction"],
+        "archived_at": "2026-10-03T12:34:56.123456+00:00",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "workout_templates": [
+      {
+        "id": "41000000-0000-4000-8000-000000000015",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "name": "Synthetic value",
+        "name_normalized": "Synthetic value",
+        "description": "Synthetic value",
+        "archived_at": "2026-10-03T12:34:56.123456+00:00",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "template_exercises": [
+      {
+        "id": "41000000-0000-4000-8000-000000000016",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "template_id": "41000000-0000-4000-8000-000000000015",
+        "exercise_id": "41000000-0000-4000-8000-000000000014",
+        "position": 1,
+        "planned_sets": 1,
+        "planned_reps": "8\u201310",
+        "planned_seconds": null,
+        "planned_weight_g": 40000,
+        "rest_seconds": 1,
+        "note": null,
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "group_sessions": [
+      {
+        "id": "41000000-0000-4000-8000-000000000017",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "starts_at": "2026-10-03T12:34:56.123456+00:00",
+        "ends_at": "2026-10-03T12:34:56.123456+00:00",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "bookings": [
+      {
+        "id": "41000000-0000-4000-8000-000000000018",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "group_session_id": "41000000-0000-4000-8000-000000000017",
+        "starts_at": "2026-10-03T12:34:56.123456+00:00",
+        "ends_at": "2026-10-03T12:34:56.123456+00:00",
+        "status": "confirmed",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "schedule_proposals": [
+      {
+        "id": "41000000-0000-4000-8000-000000000019",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "booking_id": "41000000-0000-4000-8000-000000000018",
+        "author_user_id": "41000000-0000-4000-8000-000000000002",
+        "proposed_starts_at": "2026-10-03T12:34:56.123456+00:00",
+        "proposed_ends_at": "2026-10-03T12:34:56.123456+00:00",
+        "base_revision": 1,
+        "status": "declined",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "client_programs": [
+      {
+        "id": "41000000-0000-4000-8000-000000000020",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "base_template_id": "41000000-0000-4000-8000-000000000015",
+        "base_template_revision": 1,
+        "name": "Synthetic value",
+        "description": "Synthetic value",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "client_program_exercises": [
+      {
+        "id": "41000000-0000-4000-8000-000000000021",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_program_id": "41000000-0000-4000-8000-000000000020",
+        "exercise_id": "41000000-0000-4000-8000-000000000014",
+        "exercise_name_snapshot": "Synthetic value",
+        "measure_snapshot": "reps",
+        "bodyweight_snapshot": false,
+        "muscle_group_snapshot": "Synthetic value",
+        "equipment_snapshot": "Synthetic value",
+        "instructions_snapshot": ["Synthetic instruction"],
+        "source_key_snapshot": null,
+        "position": 1,
+        "planned_sets": 1,
+        "planned_reps": "8\u201310",
+        "planned_seconds": null,
+        "planned_weight_g": 40000,
+        "rest_seconds": 1,
+        "note": null,
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "workout_instances": [
+      {
+        "id": "41000000-0000-4000-8000-000000000022",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "booking_id": "41000000-0000-4000-8000-000000000018",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "source_program_id": "41000000-0000-4000-8000-000000000020",
+        "source_program_revision": null,
+        "started_at": "2026-10-03T12:34:56.123456+00:00",
+        "finished_at": null,
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "workout_exercises": [
+      {
+        "id": "41000000-0000-4000-8000-000000000023",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "workout_instance_id": "41000000-0000-4000-8000-000000000022",
+        "exercise_id": "41000000-0000-4000-8000-000000000014",
+        "exercise_name_snapshot": "Synthetic value",
+        "measure_snapshot": "reps",
+        "bodyweight_snapshot": false,
+        "muscle_group_snapshot": "Synthetic value",
+        "equipment_snapshot": "Synthetic value",
+        "instructions_snapshot": ["Synthetic instruction"],
+        "source_key_snapshot": null,
+        "position": 1,
+        "planned_sets": 1,
+        "planned_reps": "8\u201310",
+        "planned_seconds": null,
+        "planned_weight_g": 40000,
+        "rest_seconds": 1,
+        "note": null,
+        "replaced_from_id": null,
+        "skipped": false,
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002",
+        "source_device_id": null
+      }
+    ],
+    "set_results": [
+      {
+        "id": "41000000-0000-4000-8000-000000000024",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "workout_instance_id": "41000000-0000-4000-8000-000000000022",
+        "workout_exercise_id": "41000000-0000-4000-8000-000000000023",
+        "position": 1,
+        "reps": 0,
+        "seconds": null,
+        "weight_g": 0,
+        "author_user_id": "41000000-0000-4000-8000-000000000002",
+        "device_id": "41000000-0000-4000-8000-000000000091",
+        "revision": 1,
+        "deleted_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002",
+        "requested_position": 0
+      }
+    ],
+    "session_notes": [
+      {
+        "id": "41000000-0000-4000-8000-000000000025",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "workout_instance_id": "41000000-0000-4000-8000-000000000022",
+        "text": "Synthetic shared trainer note",
+        "author_user_id": "41000000-0000-4000-8000-000000000002",
+        "device_id": "41000000-0000-4000-8000-000000000091",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "private_notes": [
+      {
+        "id": "41000000-0000-4000-8000-000000000026",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "workout_instance_id": null,
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "text": "Synthetic private trainer note",
+        "author_user_id": "41000000-0000-4000-8000-000000000002",
+        "device_id": "41000000-0000-4000-8000-000000000091",
+        "revision": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "booking_programs": [
+      {
+        "id": "41000000-0000-4000-8000-000000000027",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "booking_id": "41000000-0000-4000-8000-000000000018",
+        "base_template_id": "41000000-0000-4000-8000-000000000015",
+        "base_template_revision": 1,
+        "name": "Synthetic value",
+        "description": "Synthetic value",
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "booking_program_exercises": [
+      {
+        "id": "41000000-0000-4000-8000-000000000028",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "booking_program_id": "41000000-0000-4000-8000-000000000027",
+        "exercise_id": "41000000-0000-4000-8000-000000000014",
+        "exercise_name_snapshot": "Synthetic value",
+        "measure_snapshot": "reps",
+        "bodyweight_snapshot": false,
+        "muscle_group_snapshot": "Synthetic value",
+        "equipment_snapshot": "Synthetic value",
+        "instructions_snapshot": ["Synthetic instruction"],
+        "source_key_snapshot": null,
+        "position": 1,
+        "planned_sets": 1,
+        "planned_reps": "8\u201310",
+        "planned_seconds": null,
+        "planned_weight_g": 40000,
+        "rest_seconds": 1,
+        "note": null,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "client_purchases": [
+      {
+        "id": "41000000-0000-4000-8000-000000000029",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "title": "Synthetic value",
+        "units": 10,
+        "price_minor": "9223372036854775807",
+        "currency": "KZT",
+        "expires_on": "2026-12-31",
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "attendance_records": [
+      {
+        "id": "41000000-0000-4000-8000-000000000030",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "booking_id": "41000000-0000-4000-8000-000000000018",
+        "service_date": "2026-10-03",
+        "status": "undone",
+        "revision": 2,
+        "cycle": 1,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "updated_at": "2026-10-03T12:34:56.123456+00:00"
+      }
+    ],
+    "attendance_revisions": [
+      {
+        "id": "41000000-0000-4000-8000-000000000031",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "attendance_id": "41000000-0000-4000-8000-000000000030",
+        "revision": 2,
+        "cycle": 1,
+        "status": "undone",
+        "service_date": "2026-10-03",
+        "reason": null,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "credit_entries": [
+      {
+        "id": "41000000-0000-4000-8000-000000000032",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "purchase_id": "41000000-0000-4000-8000-000000000029",
+        "attendance_id": null,
+        "booking_id": null,
+        "cycle": null,
+        "kind": "grant",
+        "units": 10,
+        "reason": null,
+        "reverses_entry_id": null,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "payment_entries": [
+      {
+        "id": "41000000-0000-4000-8000-000000000033",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "purchase_id": "41000000-0000-4000-8000-000000000029",
+        "kind": "payment",
+        "amount_minor": "9223372036854775807",
+        "currency": "KZT",
+        "paid_on": "2026-10-03",
+        "method": "Kaspi",
+        "source": "manual",
+        "reason": null,
+        "reverses_entry_id": null,
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      },
+      {
+        "id": "41000000-0000-4000-8000-000000000100",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "client_record_id": "41000000-0000-4000-8000-000000000012",
+        "purchase_id": "41000000-0000-4000-8000-000000000029",
+        "kind": "reversal",
+        "amount_minor": "-9223372036854775807",
+        "currency": "KZT",
+        "paid_on": "2026-10-03",
+        "method": "Kaspi",
+        "source": "manual",
+        "reason": "Synthetic reversal",
+        "reverses_entry_id": "41000000-0000-4000-8000-000000000033",
+        "created_at": "2026-10-03T12:34:56.123456+00:00",
+        "created_by": "41000000-0000-4000-8000-000000000002"
+      }
+    ],
+    "workout_sync_conflicts": [
+      {
+        "id": "41000000-0000-4000-8000-000000000034",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "workout_instance_id": "41000000-0000-4000-8000-000000000022",
+        "entity_id": "41000000-0000-4000-8000-000000000024",
+        "kind": "upsert_set",
+        "current_version": {
+          "workspace_id": "41000000-0000-4000-8000-000000000001",
+          "reps": 8,
+          "weight_g": 40000,
+          "revision": 1
+        },
+        "incoming_operation": {
+          "kind": "upsert_set",
+          "device_id": "41000000-0000-4000-8000-000000000092",
+          "payload": {
+            "reps": 9,
+            "seconds": null,
+            "weight_g": 41000
+          }
+        },
+        "expected_revision": 1,
+        "resolved_at": null,
+        "selected_version": null
+      }
+    ],
+    "workout_correction_drafts": [
+      {
+        "id": "41000000-0000-4000-8000-000000000035",
+        "workspace_id": "41000000-0000-4000-8000-000000000001",
+        "workout_instance_id": "41000000-0000-4000-8000-000000000022",
+        "operation": {
+          "kind": "set_note",
+          "payload": {
+            "text": "Synthetic late private correction",
+            "shared": false
+          }
+        },
+        "created_at": "2026-10-03T12:34:56.123456+00:00"
+      }
+    ]
+  }
+}

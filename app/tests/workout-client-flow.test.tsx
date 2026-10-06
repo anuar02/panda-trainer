@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import {
   fireEvent,
@@ -15,6 +16,10 @@ import {
 import { ClientHistoryScreen } from '../src/features/client-history/client-history-screen';
 import { ClientProgressScreen } from '../src/features/client-progress/client-progress-screen';
 
+jest.mock('../src/ui/sheet', () => ({
+  Sheet: ({ open, children }: PropsWithChildren<{ open: boolean }>) =>
+    open ? children : null,
+}));
 jest.mock('react-native-safe-area-context', () => {
   const { View } =
     jest.requireActual<typeof import('react-native')>('react-native');

@@ -61,6 +61,13 @@ test.each(['normal', 'empty', 'loading', 'offline'] as const)(
   },
 );
 
+test('template use stays disabled when the real workspace route has no scheduling action', async () => {
+  await render(<TemplateScreen id="t4" onBack={() => {}} />);
+  expect(
+    screen.getByRole('button', { name: 'Создать занятие с этим планом' }),
+  ).toBeDisabled();
+});
+
 test.each(['missing', 'constructor', undefined])(
   'invalid template %s cannot create a session',
   async (id) => {
@@ -127,6 +134,7 @@ test('template to wizard persists selected program and creates the matching jour
   await waitFor(() =>
     expect(screen.getByRole('button', { name: 'Продолжить' })).toBeEnabled(),
   );
+  await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Продолжить' }));
   expect(

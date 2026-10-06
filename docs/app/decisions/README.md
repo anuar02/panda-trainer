@@ -31,5 +31,106 @@
 | [0020](0020-linear-coordination.md) | Linear для координации работы агентов | Принято | 30.09.2026 |
 | [0021](0021-linear-roadmap-import.md) | Полный roadmap в Linear с отдельной приёмкой | Принято | 30.09.2026 |
 
+| [0022](0022-fixed-picker-sheet.md) | Фиксированные области шторки выбора упражнений | Принято | 30.09.2026 |
+| [0023](0023-live-font-scale.md) | Пересчёт текста при изменении Dynamic Type | Принято | 01.10.2026 |
+| [0024](0024-picker-overflow.md) | Доступная прокрутка picker при нехватке высоты | Принято | 01.10.2026 |
+| [0025](0025-identity-rls-foundation.md) | Базовая схема идентичности и границы записи | Принято | 01.10.2026 |
+
+| [0026](0026-workspace-library.md) | Библиотека пространства и сохранение архивных ссылок | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0027](0027-server-schedule-foundation.md) | Серверное создание занятия и сериализация пересечений | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0028](0028-atomic-template-commands.md) | Атомарное сохранение шаблона и защита от устаревшей правки | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0029](0029-client-program-snapshots.md) | Назначение программы как новая неизменяемая копия | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0030](0030-journal-read-isolation.md) | Изоляция серверного журнала и заметок | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0031](0031-booking-status-commands.md) | Подтверждение и отмена отдельной записи | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0032](0032-auth-runtime-and-login.md) | Реализация входа и хранения сессии | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0033](0033-atomic-trainer-onboarding.md) | Атомарная настройка тренера | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0034](0034-client-invitations.md) | Одноразовые приглашения и связи клиента | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0035](0035-authenticated-library-editor.md) | Реальная библиотека и редактор шаблонов | Принято технически; приёмка по ADR | 01.10.2026 |
+| [0036](0036-reduced-linear-updates.md) | Без обязательных обновлений Linear после каждой задачи | Принято владельцем | 01.10.2026 |
+| [0037](0037-workspace-schedule-reads.md) | Чтение серверного расписания и границы недели | Принято технически; UI-интеграция и приёмка открыты | 01.10.2026 |
+
+| [0050](0050-client-visible-api-audit-privacy.md) | Ограничить прямой API-доступ к audit-полям | Принято технически; native/owner приёмка открыта | 02.10.2026 |
+| [0051](0051-connected-action-sheet-stacking.md) | Сохранить родительскую шторку при вложенных действиях | Принято технически; native/owner приёмка открыта | 02.10.2026 |
+| [0052](0052-booking-request-resolution.md) | Безопасно завершать сохранённые запросы занятия | Принято технически; native/owner приёмка открыта | 02.10.2026 |
+
+| [0053](0053-attendance-credit-ledger.md) | Посещения и неизменяемый ledger занятий | Принято технически; app-интеграция открыта | 03.10.2026 |
+
+| [0054](0054-manual-payment-history.md) | Неизменяемая история ручных оплат | Schema foundation; payment RPC/debt открыты | 03.10.2026 |
+
 Новая запись: скопировать [TEMPLATE.md](TEMPLATE.md) в `NNNN-короткое-имя.md`,
 добавить строку в таблицу, упомянуть в `CHANGELOG.md`.
+
+| [0055](0055-attendance-billing-transport.md) | Typed attendance/purchase transport with lossless minor money | Accepted technically; UI integration open | 03.10.2026 |
+
+- [0063 — Настройка спокойного интерфейса и доступное движение](0063-calm-mode-and-accessible-motion.md) — SOM-39; нативная/визуальная приёмка открыты.
+| [0061](0061-journal-conflicts-and-client-visibility.md) | Конфликты журнала на двух устройствах, видимость черновика и ввод результатов | Принято владельцем | 03.10.2026 |
+
+| [0062](0062-sqlite-journal-outbox.md) | SQLite journal outbox и пакетный RPC | Реализовано; SQL/native проверки открыты | 03.10.2026 |
+
+| [0068](0068-workout-preload-and-scoped-recovery.md) | Предзагрузка снимка занятия и scoped восстановление | Реализовано; SQL/native/parity и owner acceptance открыты | 03.10.2026 |
+| [0064](0064-pilot-data-region-retention-and-invites.md) | Регион данных пилота, сроки хранения и домен приглашений | Принято владельцем | 03.10.2026 |
+| [0065](0065-push-notifications-v1.md) | Push-уведомления в первой версии | Принято владельцем | 03.10.2026 |
+| [0066](0066-screenshots-outside-git-and-proprietary-license.md) | Снимки экранов вне git и закрытая лицензия | Принято владельцем | 03.10.2026 |
+| [0067](0067-free-tier-pilot-budget.md) | Бюджет пилота: только бесплатные тарифы | Принято владельцем | 03.10.2026 |
+
+| [0069](0069-owner-scoped-server-workspace-export.md) | Owner-scoped серверный экспорт workspace | Реализовано; SQL/runtime и приёмка открыты | 03.10.2026 |
+
+| [0074](0074-session-fenced-export-file-delivery.md) | Session-fenced server export и явная доставка JSON | Реализовано; native/web/parity и owner acceptance открыты | 03.10.2026 |
+
+| [0079](0079-trainer-client-read-fencing.md) | Owner/session-fenced чтение клиентов, bounded pagination и runtime validation | Реализовано; live/native/parity и owner acceptance открыты | 03.10.2026 |
+
+| [0075](0075-session-fenced-schedule-read.md) | Runtime validation и session fencing чтения расписания | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+
+| [0076](0076-client-history-session-fencing.md) | Session fence клиентской истории и пагинации | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+
+| [0082](0082-program-assignment-session-fencing.md) | Session fence и durable retry назначения программы | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+| [0080](0080-pure-local-export-envelope.md) | Pure local export и SQL conflict/correction relations r2 | Технический контракт; collector/runtime/owner acceptance открыты | 03.10.2026 |
+
+| [0078](0078-validated-session-fenced-library-reads.md) | Validated session-fenced чтение библиотеки и шаблонов | Реализовано; runtime и owner acceptance открыты | 03.10.2026 |
+
+| [0086](0086-financial-command-session-fencing.md) | Session fence финансовых mutations и сохранение durable retry | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
+| [0087](0087-production-workout-finish-outbox.md) | Production finish через существующий outbox и подтверждённый snapshot | Runtime и приёмка владельца открыты | 04.10.2026 |
+| [0084](0084-scoped-sqlite-outbox-snapshot.md) | Scoped read-only SQLite snapshot через очередь outbox | Реализовано технически; native/runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0090](0090-explicit-finished-journal-correction.md) | Явное применение correction draft завершённого журнала, immutable receipt и отдельная durable команда | Техническое решение; local DB/native/owner acceptance открыты | 04.10.2026 |
+
+| [0085](0085-template-mutation-session-fencing.md) | Template mutation session fence и durable pending-clear recovery | Реализовано технически; runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0087](0087-schedule-presentation-session-lifecycle.md) | Schedule presentation и provider ограничены login/caller lifecycle | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
+
+| [0088](0088-client-creation-session-fencing.md) | Client creation session/caller fence и in-memory retry | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
+
+| [0093](0093-booking-command-session-and-recovery.md) | Booking status/reschedule session fence и exact pending recovery | Реализовано технически; live/native/owner acceptance открыты | 04.10.2026 |
+| [0092](0092-account-export-source-coverage.md) | Read-only account export v2, явные source gaps и historical file outcome | Реализовано технически; runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0091](0091-exercise-mutation-session-and-replay.md) | Exercise mutation session fence и durable UUID replay | Реализовано технически; SQL/runtime/owner acceptance открыты | 04.10.2026 |
+| [0089](0089-terminal-finish-current-recovery.md) | Продолжение ввода после доказанного current finish resolution | Реализовано; runtime и owner acceptance открыты | 04.10.2026 |
+
+| [0094](0094-template-editor-caller-lifetime.md) | Lifetime вызывающего редактора шаблона | Реализовано технически; runtime и приёмка открыты | 04.10.2026 |
+| [0095](0095-financial-presentation-and-client-totals.md) | Financial presentation lifecycle и scoped totals карточки клиента | Реализовано технически; SQL/runtime/parity/owner acceptance открыты | 04.10.2026 |
+| [0096](0096-invitation-caller-session-and-intent.md) | Caller session и поколение pending приглашения | Реализовано технически; runtime и приёмка открыты | 04.10.2026 |
+
+| [0097](0097-client-overview-and-read-lifetimes.md) | Client overview aggregates и read lifetimes | Реализовано технически; SQL/runtime/owner acceptance открыты | 04.10.2026 |
+
+| [0098](0098-transactional-notification-feed.md) | Transactional notification feed and scoped Realtime | Implemented; verification pending | 04.10.2026 |
+| [0099](0099-push-device-leases-and-due-evaluation.md) | Push devices, leased Expo delivery and current due evaluation | Реализовано технически; push rollout не выполнен |
+| [0100](0100-post-workout-program-update-by-trainer.md) | Обновление личной программы после тренировки по предложению тренеру | Принято |
+| [0101](0101-account-deletion-keeps-trainer-history.md) | Удаление аккаунта клиента сохраняет историю у тренеров | Принято |
+
+| [0103](0103-durable-account-deletion-and-local-proof.md) | Durable account deletion, local file proof и scoped writer fences | Реализовано технически; SQL/native/legal/owner acceptance открыты | 04.10.2026 |
+| [0102](0102-program-update-receipts-and-sources.md) | Выборочное обновление программы из проверенного journal/booking source, immutable receipt и caller recovery | Реализовано технически; DB runtime/native/owner acceptance открыты | 04.10.2026 |
+
+| [0104](0104-prototype-panda-reanimated-motion.md) | CSS-движение PNG-панды на UI-потоке Reanimated | Реализовано; native/parity/owner acceptance открыты | 04.10.2026 |
+| [0106](0106-approved-panda-webp-clips.md) | Выбранные WebP-клипы панды в крупных моментах | Реализовано; native/parity/owner acceptance открыты | 04.10.2026 |
+
+| [0108](0108-workout-active-exercise-fit.md) | Активная карточка журнала в viewport, событийная прокрутка и крупный текст | Решение владельца 05.10; native/приёмка открыты | 05.10.2026 |
+
+| [0109](0109-workout-follows-app-theme.md) | Журнал следует теме приложения; заменяет правило журнала из ADR 0007 | Принято | 05.10.2026 |
+
+| [0111](0111-floating-liquid-glass-tabbar.md) | Плавающая Liquid Glass-навигация обеих ролей | Заменено ADR 0113 | 05.10.2026 |
+
+| [0113](0113-native-system-tabs.md) | NativeTabs: системное стекло и сворачивание вместо самописной панели | Реализовано; отдельная «+» ограничена API, native/приёмка открыты | 05.10.2026 |
+
+| [0114](0114-native-tab-scroll-target-registration.md) | Явная регистрация основных списков NativeTabs | Техническая интеграция; native/приёмка открыты | 05.10.2026 |
+
+| [0115](0115-finished-journals-are-past-on-today.md) | Завершённые журналы относятся к прошедшим на «Сегодня» | Принято владельцем; приёмка экрана открыта | 05.10.2026 |

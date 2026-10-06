@@ -40,8 +40,41 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: '2.118.0'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+        working-directory: app
       - run: supabase start --workdir .
       - run: supabase db lint --local --fail-on warning --workdir .
       - run: supabase test db --workdir .
+      - run: python3 supabase/tests/schedule_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/template_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/program_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/booking_status_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/booking_plan_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/booking_reschedule_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/booking_request_resolution_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/attendance_credit_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/onboarding_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/invitation_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/payment_command_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/som22_exercise_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/notification_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/push_concurrency.py --container supabase_db_trainerApp
+      - run: python3 supabase/tests/workout_sync_concurrency.py
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - run: python3 supabase/tests/som31_prepare_workout_concurrency.py
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - run: python3 supabase/tests/workout_correction_concurrency.py
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - run: python3 supabase/tests/auth_email_smoke.py --workdir . --container supabase_db_trainerApp
+      - run: npm run db:types:check
+        working-directory: app
       - if: always()
         run: supabase stop --workdir .

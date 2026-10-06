@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useId, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, useWindowDimensions } from 'react-native';
 import Svg, {
   Circle,
   Defs,
@@ -22,6 +22,7 @@ import { GradientBackground } from '@/ui/gradient-background';
 import { useTheme } from '@/ui/theme';
 import { useOptionalWorkoutDemo } from './provider';
 import { useWorkoutRuntime } from './runtime';
+import { WorkoutEffect } from '@/features/workout/workout-motion';
 import { runtimeExercise } from './runtime-state';
 
 export function WorkoutDock() {
@@ -29,6 +30,7 @@ export function WorkoutDock() {
   const { t } = useTranslation();
   const { scheme } = useTheme();
   const gradientId = useId().replace(/:/g, '');
+  const { fontScale } = useWindowDimensions();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [pressed, setPressed] = useState(false);
   const dark = scheme === 'dark';
@@ -219,7 +221,9 @@ export function WorkoutDock() {
           }}
         />
       )}
-      <View
+      <WorkoutEffect
+        kind="dock"
+        active={!!rest && !rest.done}
         style={{
           width: 42,
           height: 42,
@@ -248,11 +252,18 @@ export function WorkoutDock() {
           />
         </Svg>
         <Icon name="play" size={16} color={onDark} />
-      </View>
+      </WorkoutEffect>
       <View style={{ flex: 1, gap: 2 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: fontScale > 1.3 ? 'wrap' : 'nowrap',
+            alignItems: 'baseline',
+            gap: 8,
+          }}
+        >
           <Text
-            numberOfLines={1}
+            numberOfLines={fontScale > 1.3 ? undefined : 1}
             style={{
               flexShrink: 1,
               color: onDark,
@@ -278,7 +289,7 @@ export function WorkoutDock() {
           )}
         </View>
         <Text
-          numberOfLines={1}
+          numberOfLines={fontScale > 1.3 ? undefined : 1}
           style={{
             color: error
               ? '#ffb4a8'

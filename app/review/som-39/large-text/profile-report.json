@@ -1,0 +1,15 @@
+{
+  "profileChecks": [
+    {
+      "role": "trainer",
+      "enabled": true,
+      "persistedAfterReload": true
+    },
+    {
+      "role": "client",
+      "enabled": true,
+      "persistedAfterReload": true
+    }
+  ],
+  "errors": []
+}

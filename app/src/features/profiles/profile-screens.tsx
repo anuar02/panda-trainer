@@ -1,4 +1,8 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import { NativeTabScrollView as ScrollView } from '@/features/navigation/native-tab-scroll-view';
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
+import { GrowX, Shimmer, MotionPressable as Pressable } from '@/ui/motion';
+
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -8,6 +12,7 @@ import { Text } from '@/ui/text';
 import { Icon } from '@/ui/icons';
 import { GradientBackground } from '@/ui/gradient-background';
 import { useTheme } from '@/ui/theme';
+import { useCalmModePreference } from '@/ui/calm-mode';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
 import { styles as s } from './styles';
 import type { profiles } from './ru';
@@ -68,6 +73,7 @@ function Lead({
 export function ProfilePreferences() {
   const tx = useProfileText();
   const { colors, appearance, setAppearance } = useTheme();
+  const { calmMode, setCalmMode, error } = useCalmModePreference();
   const surface = {
     backgroundColor: colors.surface,
     borderColor: colors.border,
@@ -75,18 +81,32 @@ export function ProfilePreferences() {
   return (
     <View>
       <Pressable
-        disabled
+        onPress={() => setCalmMode(!calmMode)}
         accessibilityRole="switch"
         accessibilityLabel={tx('calm')}
-        accessibilityHint={tx('unavailable')}
-        accessibilityState={{ checked: false, disabled: true }}
+        accessibilityState={{ checked: calmMode }}
+        aria-checked={calmMode}
         style={[s.preference, surface]}
       >
         <Text style={s.preferenceLabel}>{tx('calm')}</Text>
-        <View style={[s.track, { backgroundColor: colors.secondary }]}>
-          <View style={[s.thumb, { backgroundColor: colors.surface }]} />
+        <View
+          style={[
+            s.track,
+            { backgroundColor: calmMode ? colors.accent : colors.secondary },
+          ]}
+        >
+          <View
+            style={[
+              s.thumb,
+              {
+                backgroundColor: colors.surface,
+                alignSelf: calmMode ? 'flex-end' : 'flex-start',
+              },
+            ]}
+          />
         </View>
       </Pressable>
+      {error && <Text accessibilityRole="alert">{tx('calmSaveError')}</Text>}
       <View
         style={[s.preference, s.theme, surface]}
         accessibilityLabel={tx('theme')}
@@ -132,7 +152,7 @@ function RoleSwitch() {
       <Button
         label={t('common.backToRoles')}
         variant="ghost"
-        onPress={() => router.replace('/')}
+        onPress={() => router.replace('/demo')}
       />
     </View>
   );
@@ -143,7 +163,9 @@ export function TrainerProfileScreen({
 }: {
   scenario?: DemoScenario;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const tx = useProfileText();
+  const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const rows = [
     { icon: 'layers', title: 'library' },
@@ -160,7 +182,13 @@ export function TrainerProfileScreen({
       <View style={s.trainerHeader}>
         <Text style={s.trainerTitle}>{tx('title')}</Text>
       </View>
-      <ScrollView contentContainerStyle={s.trainerBody}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[
+          s.trainerBody,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
+      >
         <View style={s.trainerPerson}>
           <Lead trainer>{tx('trainerInitials')}</Lead>
           <View style={s.personText}>
@@ -186,7 +214,7 @@ export function TrainerProfileScreen({
             </Card>
           ))}
         </View>
-        <Card flush style={s.rows}>
+        <Card rows flush style={s.rows}>
           {rows.map((row, index) => (
             <Pressable
               key={row.title}
@@ -217,6 +245,12 @@ export function TrainerProfileScreen({
           ))}
         </Card>
         <ProfilePreferences />
+        <Text className="text-secondary">{t('accountExport.demo')}</Text>
+        <Button
+          label={t('accountExport.title')}
+          variant="secondary"
+          onPress={() => router.push('/auth/account')}
+        />
         <RoleSwitch />
       </ScrollView>
     </SafeAreaView>
@@ -228,6 +262,7 @@ export function ClientProfileScreen({
 }: {
   scenario?: DemoScenario;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const tx = useProfileText();
   const { colors, scheme } = useTheme();
   const secondary = { color: colors.secondary };
@@ -263,7 +298,13 @@ export function ClientProfileScreen({
           <Icon name="bell" size={22} color={colors.ink} />
         </Pressable>
       </View>
-      <ScrollView contentContainerStyle={s.body}>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
+      >
         {scenario === 'loading' ? (
           <View
             style={s.clientContent}
@@ -285,7 +326,7 @@ export function ClientProfileScreen({
                 >
                   <View style={[s.lead, { backgroundColor: colors.sunken }]} />
                   <View style={s.skeletonLines}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonLine,
                         { backgroundColor: colors.sunken },
@@ -368,13 +409,13 @@ export function ClientProfileScreen({
                       </Text>
                     </View>
                     <View style={[s.meter, { backgroundColor: colors.sunken }]}>
-                      <View style={s.meterValue}>
+                      <GrowX style={s.meterValue}>
                         <GradientBackground
                           start="#7b8ff5"
                           end="#2b48d6"
                           radius={4}
                         />
-                      </View>
+                      </GrowX>
                     </View>
                     <View style={[s.payment, { borderTopColor: hair }]}>
                       <Text style={[s.detailLabel, secondary]}>

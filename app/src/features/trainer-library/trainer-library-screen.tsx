@@ -1,7 +1,13 @@
+import { NativeTabScrollView } from '@/features/navigation/native-tab-scroll-view';
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
+import {
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
 import type { Template, TemplateDraft } from '@/domain/templates';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ExerciseDetailsSheet } from './exercise-details-sheet';
-import { Image, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Image, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Svg, { Path } from 'react-native-svg';
@@ -14,8 +20,10 @@ import { parity } from '@/ui/parity-tokens';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
 import {
   matches,
+  normalize,
   media,
   type LibraryExercise,
+  type LibraryMediaMap,
   type LibraryTemplate,
 } from './fixtures';
 import { styles as s } from './styles';
@@ -52,6 +60,12 @@ export function TrainerLibraryScreen({
   onResume,
   draft,
   initialTab = 'exercises',
+  suppliedExercises,
+  templateExercises,
+  suppliedMedia,
+  onCreateExercise,
+  onArchiveExercise,
+  header,
 }: {
   scenario?: DemoScenario;
   onOpenTemplate: (id: string) => void;
@@ -60,7 +74,14 @@ export function TrainerLibraryScreen({
   onResume?: () => void;
   draft?: TemplateDraft | null;
   initialTab?: 'exercises' | 'templates';
+  suppliedExercises?: LibraryExercise[];
+  templateExercises?: LibraryExercise[];
+  suppliedMedia?: LibraryMediaMap;
+  onCreateExercise?: (name: string) => void;
+  onArchiveExercise?: (exercise: LibraryExercise) => void;
+  header?: ReactNode;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const [tab, setTab] = useState<'exercises' | 'templates'>(initialTab);
@@ -72,7 +93,11 @@ export function TrainerLibraryScreen({
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [demos, setDemos] = useState(false);
   const [selected, setSelected] = useState<LibraryExercise | null>(null);
-  const exercises = t('trainerLibrary.exerciseData', { returnObjects: true });
+  const exercises: LibraryExercise[] =
+    suppliedExercises ??
+    t('trainerLibrary.exerciseData', { returnObjects: true });
+  const allExercises: LibraryExercise[] = templateExercises ?? exercises;
+  const exerciseMedia = suppliedMedia ?? media;
   const templates =
     suppliedTemplates ??
     t('trainerLibrary.templateData', { returnObjects: true });
@@ -93,11 +118,12 @@ export function TrainerLibraryScreen({
         (!group || e.group === group) &&
         (!equipment || e.equipment === equipment) &&
         (!onlyFavorites || favorites.includes(e.id)) &&
-        (!demos || media[e.id]),
+        (!demos || exerciseMedia[e.id]),
     )
     .sort(
       (a, b) =>
-        Number(Boolean(media[b.id])) - Number(Boolean(media[a.id])) ||
+        Number(Boolean(exerciseMedia[b.id])) -
+          Number(Boolean(exerciseMedia[a.id])) ||
         a.name.localeCompare(b.name, 'ru'),
     );
   const plans = templates.filter((p) =>
@@ -106,7 +132,9 @@ export function TrainerLibraryScreen({
       [
         p.name,
         'description' in p ? p.description : '',
-        ...p.exercises.map((e) => exercises.find((x) => x.id === e.id)?.name),
+        ...p.exercises.map(
+          (e) => allExercises.find((x) => x.id === e.id)?.name,
+        ),
       ].join(' '),
     ),
   );
@@ -132,8 +160,13 @@ export function TrainerLibraryScreen({
       style={s.root}
       testID={`trainer-library-${scenario}`}
     >
-      <ScrollView
-        contentContainerStyle={s.body}
+      {header}
+      <NativeTabScrollView
+        motionKey={scenario}
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={s.heading}>
@@ -269,6 +302,7 @@ export function TrainerLibraryScreen({
             </ScrollView>
             <View style={[s.filters, { borderColor: colors.border }]}>
               <Pressable
+                motionKind="chip"
                 style={[s.filter, { width: 122 }]}
                 accessibilityRole="button"
                 onPress={() => setEquipmentOpen(true)}
@@ -280,6 +314,7 @@ export function TrainerLibraryScreen({
                 <Icon name="chevD" size={12} color={colors.secondary} />
               </Pressable>
               <Pressable
+                motionKind="chip"
                 accessibilityRole="button"
                 accessibilityState={{ selected: onlyFavorites }}
                 onPress={() => setOnlyFavorites(!onlyFavorites)}
@@ -300,6 +335,7 @@ export function TrainerLibraryScreen({
                 </Text>
               </Pressable>
               <Pressable
+                motionKind="chip"
                 style={s.filter}
                 accessibilityRole="button"
                 accessibilityState={{ selected: demos }}
@@ -344,8 +380,11 @@ export function TrainerLibraryScreen({
                   onPress={() => setSelected(e)}
                 >
                   <View style={[s.thumb, { backgroundColor: colors.sunken }]}>
-                    {media[e.id] ? (
-                      <Image source={media[e.id]?.image} style={s.thumbnail} />
+                    {exerciseMedia[e.id] ? (
+                      <Image
+                        source={exerciseMedia[e.id]?.image}
+                        style={s.thumbnail}
+                      />
                     ) : (
                       <Icon
                         name="dumbbell"
@@ -359,7 +398,7 @@ export function TrainerLibraryScreen({
                     <Text style={[s.small, secondary]}>
                       {t('trainerLibrary.groupEquipment', e)}
                     </Text>
-                    {media[e.id] && (
+                    {exerciseMedia[e.id] && (
                       <Text style={[s.demoText, { color: accent }]}>
                         {t('trainerLibrary.demo')}
                       </Text>
@@ -436,7 +475,7 @@ export function TrainerLibraryScreen({
                         {String(i + 1).padStart(2, '0')}
                       </Text>
                       <Text style={s.previewText}>
-                        {exercises.find((x) => x.id === e.id)?.name}
+                        {allExercises.find((x) => x.id === e.id)?.name}
                       </Text>
                     </View>
                   ))}
@@ -473,9 +512,22 @@ export function TrainerLibraryScreen({
               variant="soft"
               onPress={reset}
             />
+            {tab === 'exercises' &&
+              query.trim().length > 0 &&
+              onCreateExercise &&
+              !exercises.some(
+                (exercise) =>
+                  normalize(exercise.name).trim() === normalize(query).trim(),
+              ) && (
+                <Button
+                  label={t('workout.createExercise', { name: query.trim() })}
+                  variant="soft"
+                  onPress={() => onCreateExercise(query.trim())}
+                />
+              )}
           </View>
         )}
-      </ScrollView>
+      </NativeTabScrollView>
       <Sheet
         open={equipmentOpen}
         title={t('trainerLibrary.equipment')}
@@ -498,6 +550,8 @@ export function TrainerLibraryScreen({
       <ExerciseDetailsSheet
         selected={selected}
         onClose={() => setSelected(null)}
+        suppliedMedia={exerciseMedia}
+        onArchiveExercise={onArchiveExercise}
       />
     </SafeAreaView>
   );

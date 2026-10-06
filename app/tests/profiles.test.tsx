@@ -72,5 +72,5 @@ test('trainer scenarios retain prototype profile content', async () => {
   await view.rerender(<TrainerProfileScreen scenario="empty" />);
   expect(screen.getByText('6')).toBeTruthy();
   await fireEvent.press(screen.getByRole('button', { name: 'Сменить роль' }));
-  expect(router.replace).toHaveBeenCalledWith('/');
+  expect(router.replace).toHaveBeenCalledWith('/demo');
 });

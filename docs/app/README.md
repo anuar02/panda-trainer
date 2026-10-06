@@ -32,6 +32,11 @@
 6. [UI-PARITY.md](UI-PARITY.md): как приложение должно совпасть с прототипом, эталонные
    снимки и замеры, чек-лист для каждого экрана.
 
+Проекты документов SOM-41 для review: [политика](privacy/PRIVACY-POLICY-DRAFT.md),
+[карта данных](privacy/DATA-LIFECYCLE.md),
+[handoff удаления](privacy/ACCOUNT-DELETION-HANDOFF.md). Не опубликованы;
+export/delete и юридическая приёмка открыты.
+
 ## Как отслеживаются изменения
 
 Рабочие задачи координируются в [Linear: trainerApp](https://linear.app/something-great/project/trainerapp-827feca01ff7).

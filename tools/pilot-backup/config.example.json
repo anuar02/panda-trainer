@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "source": {"host": "pilot-db.example.invalid", "port": 5432, "database": "postgres", "user": "backup_operator"},
+  "source_allowlist": [{"host": "pilot-db.example.invalid", "port": 5432, "database": "postgres", "user": "backup_operator"}],
+  "target": {"host": "disposable-db.example.invalid", "port": 5432, "database": "restore_test", "user": "restore_operator", "kind": "disposable-test"},
+  "target_allowlist": [{"host": "disposable-db.example.invalid", "port": 5432, "database": "restore_test", "user": "restore_operator"}],
+  "encryption_recipient": "REPLACE_WITH_PUBLIC_AGE_RECIPIENT",
+  "retention_days": 6,
+  "storage": {"enabled": false, "bucket": "", "prefix": "pilot-backups/", "endpoint": "", "region": "eu-central-1", "eu_confirmed": false, "private_confirmed": false, "retention_confirmed": false}
+}

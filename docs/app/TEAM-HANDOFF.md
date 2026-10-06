@@ -6,6 +6,69 @@
 
 ## Текущая волна
 
+03.10 — shared mutation/Today: today_attendance_scope исследовал retained-route
+риск и написал coordinator/status hook/tests; purchase_contract начал shared
+session controls. Оба worker runs остановлены лимитом сервиса; root закончил
+сохранённые файлы, интегрировал Today/Schedule/Create/layout, исправил refs/effects,
+late navigation и tests, выполнил финальные проверки/docs/commit.
+1093 tests / 117 suites, all-platform export, 12 capture pairs и synthetic
+Today→Schedule exact recovery проходят. Native/owner acceptance, creation form,
+overpayment и SOM-53 journal decision остаются открытыми; goal продолжается.
+
+03.10 — SOM-33 purchase read: purchase_contract владел только panel/strings/UItests;
+purchase_projection_review — чистыми helpers/domain tests. Root — route/detail
+composition, i18n, route tests, browser/parity/export, docs и commit.
+1078 tests / 115 suites, all-platform export, 6 client capture pairs проходят.
+Prototype не содержит creation form: вопрос задан, зависимая форма ожидает ответа.
+Payment/debt и aggregate header не выдумывать; scope/retry/invalid ledger проверены.
+Следующий независимый пакет — attendance в real Today, затем оставшиеся roadmap
+задачи с подтверждёнными decisions; native/owner acceptance открыты.
+
+03.10 — SOM-33 attendance UI/recovery: три свежих исполнителя без истории:
+attendance_controls — controlled sheets/i18n/tests; attendance_projection — pure
+ledger projections/tests и независимое ревью интеграции; attendance_recovery —
+commands/storage/hooks/tests. Root — schedule adapter/integration, cross-command
+locks, browser lost-response/DB evidence, parity/export, ADR/docs и коммит.
+1065 tests / 112 suites проходят; replay после reload не дублирует charge,
+correction возвращает credit, no-show penalty отдельная, второй участник не меняется.
+Следующий независимый scope — production purchase creation/client package data;
+payment RPC/debt ждут ответа о переплате, journal ждёт SOM-53. Native/owner
+acceptance и live Linear недоступны; SOM-33/SOM-34 не закрывать.
+
+03.10 — SOM-33 сохранён в 147a097; independent payment foundation — ff4b953.
+Attendance transport verified1037 tests/108 suites; проверенный пакет оформляет root.
+Следующий SOM-34: payment_scope —
+новая migration/payment pgTAP без зависимости от решения о переплате;
+billing_security — attendance/purchase app transport и tests. Root — ревью,
+вопрос переплаты владельцу, isolated checks, ADR/types/docs и отдельные коммиты.
+Новые worker threads недоступны из-за лимита; ограниченные billing-контексты
+продолжены с новым точным scope.
+
+03.10 — SOM-33: billing_schema владеет новой миграцией и pgTAP;
+billing_security — отдельным concurrent runner; billing_contract — read-only
+проверкой инвариантов. Root — решения владельца, ADR/документация, изолированная
+БД, generated types, CI и коммит проверенного пакета. Владелец подтвердил возврат
+списания при исправлении и expiry по запланированной дате занятия включительно.
+SOM-34 следует за ledger; production journal и native/owner acceptance открыты.
+
+01.10 — SOM-25 сохранён в a02dfcd. Свежий template_commands владел только
+миграцией/pgTAP SOM-23; root проверил column grants, поправил revision/rollback
+проверки, перенёс библиотечный тест на новую границу записи и добавил реальные
+конкурентные проверки. 148 pgTAP и 342 app tests проходят. Следующий SOM-24 —
+отдельный контекст и новая копия программы без изменения старых данных.
+
+01.10 — SOM-22 сохранён в 550e718. Свежий schedule_schema создал только SQL/pgTAP
+SOM-25; root выполнил ревью, исправил retry/fixtures, добавил реальные concurrent
+tests, типы/CI и документацию. Проверки — ROADMAP. Следующий пакет SOM-23 должен
+использовать свежий контекст и сохранить открытые auth/transport ограничения.
+
+01.10 — после native-пакетов SOM-50 координатор завершил SOM-18. Для SOM-22
+schema_audit ведёт только новую миграцию и pgTAP; координатор — каталог эталона,
+ревью, изолированную БД, типы, документацию, коммиты и Linear. navigation_audit
+читает правила SOM-25 без записи. Production auth ждёт решения SOM-60.
+Каждый проверенный пакет коммитится отдельно; коммит не завершает сессию.
+
+
 30.09 — отдельный template route и выбор программы в мастере занятия. Общая
 ExerciseDetailsSheet вынесена из Library; новые route/UI/integration tests.
 Следующий пакет — конструктор, копирование и черновики; не считать шаблоны

@@ -14,24 +14,29 @@ export type CreateSessionScreenProps = {
   templates: readonly EditorTemplate[];
   dates: readonly string[];
   today: string;
+  initialDraft?: SessionDraft;
   initialDate?: string;
   initialStart?: string;
+  initialDuration?: number;
   initialClientId?: string;
   initialProgram?: string;
+  isStartAvailable?: (draft: SessionDraft) => boolean;
   getCollisions: (draft: SessionDraft) => readonly EditorCollision[];
-  onCreate: (draft: SessionDraft) => EditorResult;
+  onCreate: (draft: SessionDraft) => EditorResult | Promise<EditorResult>;
   onClose: () => void;
   disabled?: boolean;
   storageError?: string;
 };
 export type RescheduleSession = {
   id: string;
+  durationMinutes?: number;
   date: string;
   start: string;
   end: string;
   clientName: string;
 };
 export type RescheduleSheetProps = {
+  stackBehavior?: 'push' | 'switch' | 'replace';
   open: boolean;
   session: RescheduleSession;
   counter?: boolean;

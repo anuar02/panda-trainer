@@ -1,15 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import {
+  MotionHeader,
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/ui/button';
@@ -19,22 +31,109 @@ import { Text } from '@/ui/text';
 import { useTheme } from '@/ui/theme';
 import { useToast } from '@/ui/toast';
 import { trainerLibrary } from '@/features/trainer-library/ru';
-import { matches, media } from '@/features/trainer-library/fixtures';
+import {
+  matches,
+  media,
+  type LibraryExercise,
+  type LibraryMediaMap,
+} from '@/features/trainer-library/fixtures';
 import { styles as libraryStyles } from '@/features/trainer-library/styles';
 import type { TemplateError } from '@/domain/templates';
-import { useTemplates } from './provider';
+import {
+  nextTemplateEditorScope,
+  useOptionalTemplates,
+  type TemplateEditorStore,
+} from './provider';
+const PickerTextInput =
+  Platform.OS === 'web' ? TextInput : BottomSheetTextInput;
 export function TemplateEditorScreen({
   onLeave,
   onSaved,
+  store: suppliedStore,
+  suppliedExercises,
+  suppliedMedia,
+  header,
+  callerScope,
 }: {
   onLeave: () => void;
   onSaved: (id: string) => void;
+  store?: TemplateEditorStore;
+  suppliedExercises?: LibraryExercise[];
+  suppliedMedia?: LibraryMediaMap;
+  header?: ReactNode;
+  callerScope?: string;
 }) {
-  const store = useTemplates();
+  const contextStore = useOptionalTemplates();
+  const store = suppliedStore ?? contextStore;
+  if (!store) throw new Error('TemplateProvider is required');
+  const suppliedScope = useMemo(
+    () => (suppliedStore ? nextTemplateEditorScope() : 0),
+    [suppliedStore],
+  );
+  return (
+    <TemplateEditorForm
+      key={`${store.scope ?? suppliedScope}:${callerScope ?? ''}`}
+      store={store}
+      onLeave={onLeave}
+      onSaved={onSaved}
+      suppliedExercises={suppliedExercises}
+      suppliedMedia={suppliedMedia}
+      header={header}
+    />
+  );
+}
+function TemplateEditorForm({
+  store,
+  onLeave,
+  onSaved,
+  suppliedExercises,
+  suppliedMedia,
+  header,
+}: {
+  store: TemplateEditorStore;
+  onLeave: () => void;
+  onSaved: (id: string) => void;
+  suppliedExercises?: LibraryExercise[];
+  suppliedMedia?: LibraryMediaMap;
+  header?: ReactNode;
+}) {
+  const mounted = useRef(false);
+  const attempt = useRef(0);
+  const locked = useRef(false);
+  const latest = useRef(store);
+  useLayoutEffect(() => {
+    latest.current = store;
+  }, [store]);
+  useLayoutEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      attempt.current += 1;
+    };
+  }, []);
+  const capture = () => {
+    const ticket = ++attempt.current;
+    const validScope = store.capture?.() ?? (() => true);
+    const startingDraft = store.draft;
+    return () =>
+      mounted.current &&
+      ticket === attempt.current &&
+      validScope() &&
+      (latest.current.draft === startingDraft || latest.current.draft === null);
+  };
+  const leave = () => {
+    if (!mounted.current) return;
+    mounted.current = false;
+    attempt.current += 1;
+    onLeave();
+  };
   const { t } = useTranslation();
   const { colors, scheme } = useTheme();
   const toast = useToast();
   const [sheet, setSheet] = useState<'picker' | 'discard' | null>(null);
+  useLayoutEffect(() => {
+    attempt.current += 1;
+  }, [sheet]);
   const [query, setQuery] = useState('');
   const [error, setError] = useState<{
     key: TemplateError;
@@ -42,15 +141,17 @@ export function TemplateEditorScreen({
   } | null>(null);
   const [edited, setEdited] = useState(false);
   const updateDraft: typeof store.update = (next) => {
+    if (store.pendingSave) return;
     setEdited(true);
     store.update(next);
   };
   const initialized = useRef(false);
   const nameInput = useRef<TextInput>(null);
   useEffect(() => {
-    if (store.ready && !initialized.current) {
-      initialized.current = true;
-      if (!store.draft) store.begin();
+    if (!mounted.current) return;
+    if (store.busy && !locked.current) initialized.current = false;
+    if (store.ready && !store.busy && !initialized.current) {
+      initialized.current = store.draft !== null || store.begin();
     }
   }, [store]);
   const draft = store.draft;
@@ -121,7 +222,17 @@ export function TemplateEditorScreen({
     updateDraft({ ...draft, exercises });
   };
   const save = async () => {
-    const result = await store.save();
+    if (!mounted.current || locked.current || store.busy) return;
+    const isCurrent = capture();
+    locked.current = true;
+    const result: Awaited<ReturnType<typeof store.save>> = await store
+      .save()
+      .catch(() => ({
+        ok: false as const,
+        error: 'storage' as const,
+      }));
+    locked.current = false;
+    if (!isCurrent()) return;
     if (result.ok) {
       toast(t('templateEditor.saved'));
       onSaved(result.template.id);
@@ -131,7 +242,10 @@ export function TemplateEditorScreen({
         nameInput.current?.focus();
     }
   };
-  const filtered = trainerLibrary.exerciseData.filter((e) =>
+  const exerciseCatalog: LibraryExercise[] =
+    suppliedExercises ?? trainerLibrary.exerciseData;
+  const exerciseMedia = suppliedMedia ?? media;
+  const filtered = exerciseCatalog.filter((e) =>
     matches(query, [e.name, e.group, ...e.aliases].join(' ')),
   );
   return (
@@ -140,19 +254,27 @@ export function TemplateEditorScreen({
       style={s.root}
       testID="template-editor"
     >
+      {header}
       <KeyboardAvoidingView
         style={s.root}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={s.topbar}>
-          {iconButton('chevL', t('trainerLibrary.back'), onLeave)}
+        <MotionHeader style={s.topbar}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t('trainerLibrary.back')}
+            onPress={leave}
+            style={libraryStyles.iconButton}
+          >
+            <Icon name="chevL" size={24} color={colors.ink} />
+          </Pressable>
           <Text style={s.topTitle}>
             {t(draft.id ? 'templateEditor.editing' : 'templateEditor.title')}
           </Text>
           {iconButton('trash', t('templateEditor.discard'), () =>
             setSheet('discard'),
           )}
-        </View>
+        </MotionHeader>
         <ScrollView
           contentContainerStyle={s.body}
           keyboardShouldPersistTaps="handled"
@@ -186,7 +308,7 @@ export function TemplateEditorScreen({
               placeholderTextColor={colors.secondary}
               value={draft.name}
               maxLength={80}
-              editable={!store.busy}
+              editable={!store.busy && !store.pendingSave}
               onChangeText={(name) => updateDraft({ ...draft, name })}
             />
           </View>
@@ -205,7 +327,7 @@ export function TemplateEditorScreen({
               multiline
               maxLength={400}
               value={draft.description}
-              editable={!store.busy}
+              editable={!store.busy && !store.pendingSave}
               onChangeText={(description) =>
                 updateDraft({ ...draft, description })
               }
@@ -292,7 +414,7 @@ export function TemplateEditorScreen({
                                 ? 'decimal-pad'
                                 : 'number-pad'
                           }
-                          editable={!store.busy}
+                          editable={!store.busy && !store.pendingSave}
                           onChangeText={(value) =>
                             updateExercise(index, { [key]: value })
                           }
@@ -429,30 +551,68 @@ export function TemplateEditorScreen({
           variant="soft"
           label={t('templateEditor.discard')}
           disabled={store.busy}
-          onPress={() =>
-            void store.discard().then((ok) => {
-              if (ok) {
-                setSheet(null);
-                onLeave();
-              }
-            })
-          }
+          onPress={() => {
+            if (!mounted.current || locked.current || store.busy) return;
+            const isCurrent = capture();
+            locked.current = true;
+            void store
+              .discard()
+              .catch(() => false)
+              .then((ok) => {
+                locked.current = false;
+                if (!isCurrent()) return;
+                if (!ok) setError({ key: 'storage' });
+                if (ok) {
+                  setSheet(null);
+                  leave();
+                }
+              });
+          }}
         />
       </Sheet>
       <Sheet
         open={sheet === 'picker'}
         title={t('templateEditor.add')}
         onClose={() => setSheet(null)}
+        fixedContent={{
+          header: (
+            <>
+              <Text style={[s.pickerHint, secondary]}>
+                {t('templateEditor.pickerHint')}
+              </Text>
+              <View
+                style={[
+                  s.pickerSearch,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: scheme === 'dark' ? '#3a3b42' : '#c9cad0',
+                  },
+                ]}
+              >
+                <Icon name="search" size={20} color={colors.secondary} />
+                <PickerTextInput
+                  style={[s.pickerInput, { color: colors.ink }]}
+                  value={query}
+                  onChangeText={setQuery}
+                  accessibilityLabel={t('templateEditor.search')}
+                  placeholder={t('templateEditor.searchPlaceholder')}
+                  placeholderTextColor={colors.secondary}
+                />
+              </View>
+            </>
+          ),
+          footer: (
+            <Button
+              label={t('templateEditor.done', {
+                count: t('trainerLibrary.exercises', {
+                  count: draft.exercises.length,
+                }),
+              })}
+              onPress={() => setSheet(null)}
+            />
+          ),
+        }}
       >
-        <Text style={secondary}>{t('templateEditor.pickerHint')}</Text>
-        <TextInput
-          style={input}
-          value={query}
-          onChangeText={setQuery}
-          accessibilityLabel={t('templateEditor.search')}
-          placeholder={t('templateEditor.searchPlaceholder')}
-          placeholderTextColor={colors.secondary}
-        />
         {!filtered.length && (
           <View style={s.empty}>
             <Text>{t('templateEditor.noResults')}</Text>
@@ -463,12 +623,16 @@ export function TemplateEditorScreen({
           const selected = draft.exercises.some((x) => x.id === e.id);
           return (
             <Pressable
+              motionKind="chip"
               key={e.id}
               accessibilityRole="button"
               accessibilityLabel={e.name}
               accessibilityState={{ selected }}
               disabled={store.busy}
-              style={[s.pickerRow, { borderColor: colors.border }]}
+              style={[
+                s.pickerRow,
+                { borderColor: scheme === 'dark' ? '#212227' : '#efefeb' },
+              ]}
               onPress={() => {
                 if (!selected && draft.exercises.length >= 50) {
                   toast(t('templateEditor.errors.limit'));
@@ -484,42 +648,54 @@ export function TemplateEditorScreen({
                           id: e.id,
                           name: e.name,
                           sets: '3',
-                          reps: e.id === 'e20' ? '30' : '10',
+                          reps: (e.sourceKey ?? e.id) === 'e20' ? '30' : '10',
                           target: '',
                           rest: '90',
-                          unit: e.id === 'e20' ? 'сек' : 'повт',
+                          unit:
+                            e.measure === 'seconds' ||
+                            (!e.measure && (e.sourceKey ?? e.id) === 'e20')
+                              ? 'сек'
+                              : 'повт',
                         },
                       ],
                 });
               }}
             >
               <View style={[s.thumb, { backgroundColor: colors.sunken }]}>
-                {media[e.id] ? (
-                  <Image source={media[e.id]!.image} style={s.thumb} />
+                {exerciseMedia[e.id] ? (
+                  <Image source={exerciseMedia[e.id]!.image} style={s.thumb} />
                 ) : (
                   <Icon name="dumbbell" size={24} color={colors.secondary} />
                 )}
               </View>
               <View style={s.grow}>
                 <Text style={s.exerciseTitle}>{e.name}</Text>
-                <Text style={[s.small, secondary]}>{e.group}</Text>
+                <Text style={[s.small, secondary, { marginTop: 4 }]}>
+                  {t('trainerLibrary.groupEquipment', e)}
+                </Text>
               </View>
-              <Icon
-                name={selected ? 'check' : 'plus'}
-                size={18}
-                color={selected ? colors.accent : colors.secondary}
-              />
+              <View
+                style={[
+                  s.pickerCheck,
+                  {
+                    backgroundColor: selected ? colors.accent : 'transparent',
+                    borderColor: selected
+                      ? colors.accent
+                      : scheme === 'dark'
+                        ? '#3a3b42'
+                        : '#c9cad0',
+                  },
+                ]}
+              >
+                <Icon
+                  name={selected ? 'check' : 'plus'}
+                  size={18}
+                  color={selected ? '#ffffff' : colors.secondary}
+                />
+              </View>
             </Pressable>
           );
         })}
-        <Button
-          label={t('templateEditor.done', {
-            count: t('trainerLibrary.exercises', {
-              count: draft.exercises.length,
-            }),
-          })}
-          onPress={() => setSheet(null)}
-        />
       </Sheet>
     </SafeAreaView>
   );
@@ -620,6 +796,29 @@ const s = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15.95,
   },
+  pickerHint: {
+    fontSize: 15,
+    lineHeight: 22.5,
+    fontFamily: 'Inter_500Medium',
+    marginTop: 8,
+  },
+  pickerSearch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    marginTop: 16,
+  },
+  pickerInput: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 48,
+    paddingVertical: 12,
+    fontSize: 13,
+    fontFamily: 'Inter_400Regular',
+  },
   pickerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -628,10 +827,18 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     paddingVertical: 8,
   },
+  pickerCheck: {
+    width: 28,
+    height: 28,
+    borderWidth: 1,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   thumb: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },

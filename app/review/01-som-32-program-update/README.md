@@ -1,0 +1,117 @@
+# SOM-32 · Выборочное обновление личной программы
+
+Дата: 04.10.2026. Ветка: `agent/01-som-32-program-update`.
+Base: `fix/som-50-template-picker`, `8ca8fc0` (#71), перепроверена через fetch.
+Implementation commit: `9025953`; [draft PR #72](https://github.com/anuar02/panda-trainer/pull/72),
+head/base/draft и branch push проверены через `gh pr view`.
+Только synthetic данные. Статус: реализация для review; **needs-local-db**;
+SOM-32, экран и этап не объявлены принятыми.
+
+## Результат и критерии
+
+| Критерий брифа | Сделано / доказательство / внешний gate |
+| --- | --- |
+| Finish → явный выбор | Action только у server-finished participant, после сохранённых результатов; отдельный Sheet, реальные server plan/fact, checkboxes, вес, reps/seconds, sets; program-update-screen и existing finish screen suites |
+| Нет выбора / отмена | Controller не dispatches при пустом selection; dismiss disposes transport, сохраняет неизвестный intent; UI/controller/hook/store regressions |
+| Только сохранённое | Server читает set_results; deleted, unknown weight, zero reps/seconds исключены; last saved position + 1 и last valid result; pgTAP assertions, SQL runtime не проверен локально |
+| Новая immutable копия | Additive command копирует source; unselected order/metadata, replacement position, append/skip; прежний journal/template/program не меняются; pgTAP, runtime CI PASS |
+| Происхождение | Private immutable receipt: source kind/ID/revision, booking snapshot/template revision, journal/current revision, chosen keys и exercise snapshots/facts |
+| Реальный источник SOM-31 | prepare_workout_journal использует booking snapshot без source_program_id; command поддерживает первую личную копию из него и строго доказанное соответствие существующей личной программе; pgTAP вызывает existing prepare/save/finish RPC |
+| Exact replay / rollback / stale | Request UUID + exact canonical JSON; identical result; changed payload/foreign/duplicate/malformed/archived/stale отклоняются; constraint rollback проверяется pgTAP, runtime CI PASS |
+| Assignment/correction concurrency | Advisory workspace → workspace row → request lock; extended existing CI program_concurrency.py: identical concurrent retry, correction-before-update, assignment-before-update, update-before-waiting-assignment |
+| Caller/session lifetime | JWT sub/session_id fence с verified refresh и explicit bearer; actor/workspace/workout/client закреплены; late success/error, relogin, correction revision, dismiss/unmount regressions |
+| Pending и неизвестный результат | Scoped AsyncStorage key + exact program/revisions/selected keys/UUID; conditional clear; read failure после receipt не считается отказом; повтор использует прежний ID |
+| Readback / клиент | После validated receipt заново читается current context; existing client programme focus/retry API/RLS видит новую copy и сохраняет доступ к old history; actual two-phone read требует внешней проверки |
+| Correction → повторное предложение | Correction сама не создаёт копию; новая review revision и same-journal provenance допускают новый explicit update; pgTAP flow и hook revision tests |
+| Attendance/payment/finish retry | Эти writers и finish/correction transport/functions не изменены; full app suite перепроверяет их regressions |
+| SQL/types CI | Новая migration и generator-format Functions добавлены; Docker/psql локально отсутствуют; GitHub CI: lint/pgTAP/concurrency/type generation PASS |
+| Parity/accessibility/owner | Labels/action/Sheet и checkbox roles подключены; screenshot comparison, real native gesture/screen reader и принятие владельцем **не проверены** |
+
+## Контекст и границы
+
+Прочитаны root/app AGENTS, app CLAUDE, Linear guide/workflow,
+README/CONVENTIONS/ROADMAP/PROJECT-MEMORY/UI-PARITY/OPEN-QUESTIONS/DELIVERY-PLAN,
+ADR 0007/0029/0061/0090/0100, existing finish-r2/correction reports,
+CODEX-PLAN §4, sheets programUpdate, trainer finished action, store programs и
+SYNC-DESIGN. Новое техническое решение:
+[ADR 0102](../../../docs/app/decisions/0102-program-update-receipts-and-sources.md).
+
+`command -v graft` — exit 1, executable и graph отсутствуют; graph ask/build
+невозможны. Доступного Linear connector среди tools нет; live project/issue,
+relations и duplicate search не прочитаны. Бриф и repository delivery map
+использованы как scope; Linear/status/comments/project updates не менялись.
+
+Existing assignment/correction/finish transports не переписывались. Минимальные
+изменения existing: finished action в entry screen, три screen-test mocks нового
+модуля, public Functions types, i18n registration и INSERT timestamp trigger
+программы. Последний сохраняет existing latest-read ordering при assignment,
+который начал транзакцию раньше update, но получил workspace lock позже.
+Old migrations, prototype, deps/workflows, account deletion/export/settings/Auth/
+push/financial/scheduling/invitation writers и agent rules не изменены.
+
+## Проверки в контейнере
+
+- `cd app && npm run check` — PASS: TypeScript strict, ESLint max-warnings=0,
+  Prettier и **240 suites / 3048 tests**. Финальная проверка после integration fixes.
+- Targeted `npm test -- --runTestsByPath tests/program-update-{domain,service,controller,store,session}.test.ts tests/program-update-{hook,screen}.test.tsx`
+  — PASS: **7 suites / 43 tests**, отдельные domain/controller/transport/UI/store/session lifetimes.
+- `python3 -m py_compile supabase/tests/program_concurrency.py` — PASS,
+  только Python syntax, **не PostgreSQL runtime evidence**.
+- `git diff --check` — PASS.
+- `CI=1 npm run export` — PASS: iOS, Android и web bundles, 71 web routes; dist не коммитится.
+- `command -v docker`, `command -v psql` — executable отсутствуют;
+  `supabase test db`, DB lint, generated type drift и race harness **не запускались**.
+- pgTAP содержит 49 assertions; existing workflow уже запускает programme harness;
+  CI workflows не менялись. Настоящие SQL проверки обязательны перед merge.
+- Новые application files проверены на comments/`any`: отсутствуют.
+  PNG, secrets, real client data и новые dependencies не добавлялись.
+
+## Product/parity ограничения и внешние проверки
+
+В прототипе обычный вес/reps не является отдельной option; last valid values
+добавления/замены записываются в prev. Бриф и ADR 0100 требуют перенос факта.
+Снятый по умолчанию values checkbox использует last saved approach в planned
+fields; partial finish не сокращает план. Неоднозначность и консервативные limits
+записаны в OPEN-QUESTIONS. Это не новое одобренное правило.
+
+Если исходный personal programme не указан, существующая личная копия должна
+полностью совпадать со снимком занятия либо иметь receipt того же журнала.
+Другие назначения/несопоставимые планы отклоняются, будущие booking plans
+автоматически не перестраиваются. Без snapshot/валидного source обновление
+недоступно. Нет создания пустой программы, нет add/replace без валидного saved fact.
+
+UI использует existing Sheet/Button/Text/theme/prototype icons. Эталон read-only:
+`prototype-fresh/js/sheets.js:435`, `js/screens/trainer.js:1144`,
+`css/fresh.css:1292–1294`. Full spec содержит существующие общие tokens, но не
+отдельный capture programUpdate. Новые plan/fact строки и значения/checkbox layout
+требуют визуальной сверки; совпадение с прототипом не заявлено.
+
+Открыты: два телефона, авиарежим, реальные AsyncStorage/SQLite/crash/reopen и Auth,
+установленные iOS/Android, gesture/safe-area/font-scale/screen-reader проверки,
+dark/light/default 390×844 parity и одобрение владельца. Только owner принимает
+экран; synthetic tests/export не закрывают эти gates.
+
+## GitHub CI
+
+Первый полный запуск [37207347151](https://github.com/anuar02/panda-trainer/actions/runs/37207347151)
+применил migration, но DB lint остановился на `private.program_update_context`:
+JSONB local initializer `options := '[]'` имел неявный text cast. Исправлено
+явным `'[]'::jsonb`; pgTAP/concurrency/types в этом запуске не дошли до исполнения.
+Повторный запуск проверит исправление; green SQL или приёмка экрана пока не заявлены.
+
+Run [37207761045](https://github.com/anuar02/panda-trainer/actions/runs/37207761045):
+SQL lint PASS; new pgTAP fixture stopped before assertions because it assumed
+template revision 1. Fixture now uses revision returned by save_workout_template
+for assignment and booking; production code unchanged. Repeat runtime pending.
+
+Run [37208372644](https://github.com/anuar02/panda-trainer/actions/runs/37208372644):
+app check/Expo/export PASS; DB lint PASS. pgTAP fixture's private-table privilege
+inspection required reset role because authenticated cannot resolve private schema.
+The privilege assertion now runs as postgres while checking authenticated rights;
+no grants were broadened. Repeat runtime pending.
+
+Client outcome distinguishes unknown dispatch from a validated receipt whose
+readback/storage recovery is incomplete: the latter explicitly reports a saved
+server copy, retains the same intent, and cannot be discarded as a rejection.
+
+Run [37209153635](https://github.com/anuar02/panda-trainer/actions/runs/37209153635) на `8391013`: app check/Expo/export PASS; database lint, весь pgTAP (включая 49 новых assertions), existing program_concurrency.py с новыми races, все остальные concurrency harnesses и generated types PASS. Предыдущие runtime gates закрыты этим запуском. Native/parity/owner gates остаются открытыми.

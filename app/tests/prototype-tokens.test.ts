@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import tokens from '../src/ui/tokens.json';
+import { motion } from '../src/ui/motion';
 
 type Specification = {
   variables: Record<string, string>;
@@ -38,6 +39,10 @@ describe.each(['light', 'dark'] as const)('%s prototype tokens', (scheme) => {
       expect(`${tokens.radius[name]}px`).toBe(spec.variables[`--r-${name}`]);
     },
   );
+
+  test('sheet duration matches the recorded prototype', () => {
+    expect(`${motion.sheetDuration}ms`).toBe(spec.variables['--dur-sheet']);
+  });
 
   test('body size and line height match the base card text', () => {
     expect(`${tokens.fontSize.body}px`).toBe(spec.classes.card?.['font-size']);

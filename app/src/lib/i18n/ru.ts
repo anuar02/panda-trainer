@@ -1,3 +1,11 @@
+import { accountDeletionRu } from '@/features/account-deletion/strings';
+import { programUpdateRu } from '@/features/program-update/strings';
+import { notificationsRu } from '@/features/notifications/ru';
+import { accountExportRu } from '@/features/account-export/strings';
+import { trainerBillingRu } from '@/features/trainer-billing/ru';
+import { trainerPurchasesRu } from '@/features/trainer-billing/purchases-ru';
+import { trainerBillingPurchaseRu } from '@/features/trainer-billing/purchase-create-ru';
+import { trainerPaymentsRu } from '@/features/trainer-payments/ru';
 import { templateEditor } from '@/features/template-editor/ru';
 import { trainerInbox } from '@/features/trainer-inbox/ru';
 import { sessionEditorRu } from '@/features/session-editor/ru';
@@ -14,8 +22,34 @@ import { trainerLibrary } from '@/features/trainer-library/ru';
 import { profiles } from '@/features/profiles/ru';
 import { workoutRu } from '@/features/workout/workout-copy';
 import { workoutDemo } from '@/features/workout-demo/ru';
+import { onboardingRu } from '@/features/onboarding/strings';
+import { workspaceClientsRu } from '@/features/workspace-clients/strings';
+import { workspaceClientDetailsRu } from '@/features/workspace-clients/details-strings';
+import { invitationsRu } from '@/features/invitations/strings';
+import { workspaceLibraryRu } from '@/features/workspace-library/strings';
+import { workspaceSchedulingRu } from '@/features/workspace-scheduling/strings';
+
+import { workoutPreloadRu } from '@/features/workout-preload/strings';
+import { workoutCorrectionsRu } from '@/features/workout-corrections/strings';
 
 export const ru = {
+  accountDeletion: accountDeletionRu,
+  programUpdate: programUpdateRu,
+  push: { signIn: 'Войдите, чтобы открыть уведомление' },
+  notifications: notificationsRu,
+  accountExport: accountExportRu,
+  workoutPreload: workoutPreloadRu,
+  workoutCorrections: workoutCorrectionsRu,
+  trainerBilling: trainerBillingRu,
+  trainerPurchases: trainerPurchasesRu,
+  trainerBillingPurchase: trainerBillingPurchaseRu,
+  trainerPayments: trainerPaymentsRu,
+  ...onboardingRu,
+  invitations: invitationsRu,
+  workspaceLibrary: workspaceLibraryRu,
+  workspaceScheduling: workspaceSchedulingRu,
+  workspaceClients: workspaceClientsRu,
+  workspaceClientDetails: workspaceClientDetailsRu,
   trainerInbox,
   sessionEditor: sessionEditorRu,
   clientDetails,
@@ -30,8 +64,110 @@ export const ru = {
   trainerLibrary,
   templateEditor,
   profiles,
+  workoutEntry: {
+    finishTitle: 'Завершить журнал?',
+    finishHint:
+      'Сохраним только подтверждённые результаты. Пустые подходы и черновики не считаются выполненными. Посещение и списание не изменятся.',
+    finishSummary: '{{done}} из {{total}} записано · {{missing}} без записи',
+    finishEmpty: 'Упражнений нет · подходы не записаны',
+    finishConfirm: 'Сохранить записанное и завершить',
+    continueInput: 'Продолжить ввод',
+    finish: 'Завершить',
+    finishLocal: 'Завершение сохранено на телефоне · ожидает отправки',
+    finishApplied: 'Журнал завершён · подтверждено сервером',
+    finishNotFinished: 'Сохранена текущая версия · журнал не завершён',
+    finishError: 'Не удалось завершить журнал',
+    finishResults: 'Записанные результаты',
+    finishDrafts: 'Черновиков: {{count}}',
+    minus: '−',
+    plus: '+',
+    count: '{{done}}/{{total}}',
+    weight: 'Вес, кг',
+    reps: 'Повторы',
+    seconds: 'Секунды',
+    less: '{{label}}: меньше',
+    more: '{{label}}: больше',
+    now: 'Сейчас · {{index}} из {{total}}',
+    set: 'Подход {{index}}',
+    recorded: 'Записан {{index}}',
+    recordedValue: 'Записан {{index}} · {{value}}',
+    draft: 'Черновик',
+    hint: 'Сегодняшний результат',
+    edit: 'Править',
+    repeat: 'Как в прошлый раз',
+    save: 'Записать подход {{index}}',
+    undo: 'Отменить последнюю запись',
+    exercises: 'Упражнения',
+    add: 'Добавить упражнение',
+    replace: 'Заменить упражнение',
+    onlyHere: 'Только в этом занятии. Программа не изменится.',
+    draftHint:
+      'Поля сохраняются как черновик. Подтвердите сегодняшний результат.',
+    greyHint: 'Серые цифры — прошлый раз, это подсказка, не запись.',
+    invalid:
+      'Введите неотрицательные числа. Вес — до трёх знаков после запятой.',
+    saveError: 'Не удалось сохранить на телефоне. Повторите попытку.',
+    unprepared:
+      'Ввод доступен после загрузки журнала с сервера. Завершение и исправление — отдельно.',
+    conflict: 'Сохранены обе версии. Выберите результат.',
+    rejected: 'Запись отклонена сервером и сохранена на телефоне.',
+    correction: 'Правка сохранена как черновик исправления.',
+    unknownVersion: 'Версия недоступна',
+    device: 'Устройство: {{id}}',
+    current: 'Выбрать текущую версию',
+    incoming: 'Выбрать мою версию',
+  },
   workout: workoutRu,
   workoutDemo,
+  auth: {
+    title: 'Войдите в свой блокнот',
+    subtitle:
+      'Продолжите с помощью электронной почты или аккаунта Apple или Google.',
+    codeTitle: 'Введите код',
+    codeSubtitle: 'Мы отправили шестизначный код на {{email}}.',
+    emailLabel: 'Электронная почта',
+    emailPlaceholder: 'name@example.com',
+    emailHint: 'Укажите адрес, к которому у вас есть доступ.',
+    codeLabel: 'Код из письма',
+    codePlaceholder: '000000',
+    codeHint: 'Введите шестизначный одноразовый код из письма.',
+    sendCode: 'Получить код',
+    verifyCode: 'Продолжить',
+    changeEmail: 'Изменить адрес',
+    resendCode: 'Отправить код ещё раз',
+    resendCountdown: 'Повторить через {{seconds}} с',
+    apple: 'Продолжить с Apple',
+    google: 'Продолжить с Google',
+    or: 'или',
+    privacyNote: 'Пароль не нужен. Используйте одноразовый код из письма.',
+    unavailable:
+      'Вход пока не настроен. Попробуйте позже или обратитесь к владельцу приложения.',
+    restoring: 'Восстанавливаем вход…',
+    retry: 'Повторить',
+    accountTitle: 'Вы вошли',
+    accountSubtitle: 'Аккаунт подтверждён',
+    signOut: 'Выйти',
+    switchAccount: 'Сменить аккаунт',
+    sessionError: 'Не удалось восстановить вход. Повторите попытку.',
+    actionError:
+      'Не удалось выполнить действие. Проверьте соединение и попробуйте ещё раз.',
+    codeError: 'Код неверный или срок его действия истёк.',
+    providerError:
+      'Не удалось войти через выбранный сервис. Попробуйте ещё раз.',
+    callbackError: 'Не удалось завершить вход. Начните ещё раз.',
+    demo: 'Посмотреть демо',
+    demoTitle: 'Демонстрация',
+    demoHint: 'Вымышленные данные. Выберите роль для просмотра.',
+    accountPending:
+      'Подключение рабочего пространства готовится. Демо использует только вымышленные данные.',
+    workspaceReady: 'Рабочее пространство: {{name}}',
+    connectedTrainer: 'Ваш тренер: {{name}}',
+    openClients: 'Открыть клиентов',
+    inviteNeeded: 'Откройте приглашение тренера',
+    inviteNeededHint:
+      'Для подключения к своей карточке нужна ссылка от вашего тренера.',
+    backToSetup: 'Вернуться к настройке',
+  },
   common: {
     appName: 'Тренировочный блокнот',
     trainer: 'Тренер',

@@ -1,8 +1,17 @@
 # Приложение
 
-Каркас этапа 1: Expo SDK 57, TypeScript strict, Expo Router, NativeWind 4.
-Это навигация и пустые состояния; вход, данные и серверные запросы появятся на этапе 2.
-Выбор роли пока меняет только навигацию и не даёт никаких прав в базе.
+Expo SDK 57, TypeScript strict, Expo Router, NativeWind 4 и Supabase Auth.
+Начальный маршрут открывает вход; `/auth/account` требует действующей сессии.
+`/auth/onboarding` создаёт профиль и пространство; `/workspace/clients` и
+`/workspace/client/[id]` читают реальные карточки, программы и записи через RLS.
+`/workspace/library` читает реальные упражнения и шаблоны, поддерживает создание
+своего упражнения, архивирование и серверный редактор с черновиком по аккаунту.
+[ADR 0035](../docs/app/decisions/0035-authenticated-library-editor.md).
+Из карточки клиента можно назначить шаблон новой личной программой; сохранённая
+команда позволяет безопасно повторить запрос после потери ответа.
+[Проверки и ограничения SOM-24](review/workspace-programs/README.md).
+Остальные бизнес-сценарии пока используют вымышленные данные через отдельный `/demo`.
+Выбор роли в демо меняет только навигацию и не даёт никаких прав в базе.
 
 ## Запуск
 
@@ -20,6 +29,9 @@ npm run android
 `npm run export` проверяет бандлы iOS/Android и статический web-export.
 Для локальной iOS-сборки SDK 57 нужен Xcode 26.4+; Android требует установленного SDK.
 Не использовать EAS и платные сервисы без согласования.
+
+Native Auth использует Quick Crypto: нужен локальный development build
+(`npx expo run:ios` / `npx expo run:android`), Expo Go не поддерживается.
 
 ## Устройство
 
@@ -39,10 +51,31 @@ npm run android
 
 ## Окружение
 
-Каркас открывается без `.env`. На этапе 2 скопировать `.env.example` в `.env.local`:
+Без `.env` доступно демо, а вход сообщает об отсутствии конфигурации.
+Для локального входа скопировать `.env.example` в `.env.local`:
 только URL и публичный anon key локального Supabase. Никаких service role / secret keys.
 Для iOS-симулятора подходит `127.0.0.1`, Android-эмулятора — `10.0.2.2`, телефона —
 LAN-адрес компьютера. Не коммитить `.env.local`.
 
+Код письма доступен в локальном Mailpit. Apple/Google требуют настройки provider
+credentials и redirect allowlist в Supabase; native callback —
+`panda-trainer://auth/callback`, web — `/auth/callback` на origin приложения.
+Production-домен приглашений пока не выбран. `EXPO_PUBLIC_INVITATION_BASE_URL`
+остаётся пустым; создание ссылки в UI недоступно без явно настроенного origin.
+Для локальной проверки можно задать HTTP localhost только в development.
+Маршруты `/workspace/invite/[id]` и `/invite/[token]` используют настоящие RPC;
+аккаунт клиента показывает свои связи с тренерами.
+[Отчёт приглашений](review/invitations/README.md).
+Контракт входа и проверенные сценарии:
+[ADR 0032](../docs/app/decisions/0032-auth-runtime-and-login.md),
+[auth review](review/auth/README.md).
+
 Команды локальной базы: [../supabase/README.md](../supabase/README.md).
 Решения и ограничения: [ADR 0006](../docs/app/decisions/0006-app-foundation.md).
+
+## Push v1 (SOM-73)
+
+Native SDK 57 permission/device lifecycle and own notification opening are
+connected at the root. Web does not register; demo events never produce push. Server worker, scheduler,
+leases/tickets/receipts and deployment steps: [PUSH-V1](../docs/app/PUSH-V1.md).
+No cloud credentials, phones, live send or owner acceptance were established.

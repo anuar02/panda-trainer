@@ -1,3 +1,4 @@
+import { useTheme } from '@/ui/theme';
 import { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +12,7 @@ import { Button } from '@/ui/button';
 import { Sheet } from '@/ui/sheet';
 import { Text } from '@/ui/text';
 import { Icon, type IconName } from '@/ui/icons';
-import { workoutStyles as s } from './measurements';
+import { createWorkoutStyles } from './measurements';
 
 export type ExerciseSheetState = {
   mode: 'menu' | 'add' | 'replace';
@@ -34,6 +35,8 @@ export function WorkoutExerciseSheet({
   savedCount: number;
 }) {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const s = createWorkoutStyles(colors);
   const [mode, setMode] = useState(selection.mode);
   const [query, setQuery] = useState('');
   const target = exercises.find(
@@ -71,7 +74,7 @@ export function WorkoutExerciseSheet({
       onPress={onPress}
       style={s.menuItem}
     >
-      <Icon name={icon} size={20} color="#8c9eff" />
+      <Icon name={icon} size={20} color={colors.workoutAccentInk} />
       <View style={s.grow}>
         <Text style={s.bold}>{title}</Text>
         <Text style={[s.small, s.secondary]}>{hint}</Text>
@@ -152,7 +155,7 @@ export function WorkoutExerciseSheet({
           <TextInput
             accessibilityLabel={t('workout.searchExercise')}
             placeholder={t('workout.exercisePlaceholder')}
-            placeholderTextColor="#a3a4ab"
+            placeholderTextColor={colors.secondary}
             value={query}
             onChangeText={setQuery}
             style={s.pickerInput}

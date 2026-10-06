@@ -5,26 +5,49 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react-native';
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import '../src/lib/i18n';
 import { TemplateProvider } from '../src/features/template-editor/provider';
 import { TemplateEditorScreen } from '../src/features/template-editor/screen';
 import { decodeTemplates } from '../src/domain/templates';
+import { trainerLibrary } from '../src/features/trainer-library/ru';
 jest.mock('../src/ui/sheet', () => ({
   Sheet: ({
     open,
     children,
     title,
-  }: PropsWithChildren<{ open: boolean; title: string }>) => {
-    const { Text } =
+    fixedContent,
+    onClose,
+  }: PropsWithChildren<{
+    open: boolean;
+    title: string;
+    fixedContent?: { header: ReactNode; footer: ReactNode };
+    onClose: () => void;
+  }>) => {
+    const { Pressable, Text } =
       jest.requireActual<typeof import('react-native')>('react-native');
     return open ? (
       <>
         <Text>{title}</Text>
+        {fixedContent?.header}
         {children}
+        {fixedContent?.footer}
+        {fixedContent && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Dismiss picker"
+            onPress={onClose}
+          >
+            <Text>Dismiss picker</Text>
+          </Pressable>
+        )}
       </>
     ) : null;
   },
+}));
+jest.mock('@gorhom/bottom-sheet', () => ({
+  BottomSheetTextInput:
+    jest.requireActual<typeof import('react-native')>('react-native').TextInput,
 }));
 jest.mock('react-native-safe-area-context', () => {
   const { View } =
@@ -57,16 +80,29 @@ test('builder creates a timed plan, reorders exercises, persists draft and saves
   );
   await fireEvent.changeText(
     screen.getByLabelText('Поиск упражнений для шаблона'),
+    'планка',
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Планка' }));
+  await waitFor(() =>
+    expect(decodeTemplates(raw)?.draft?.exercises).toHaveLength(1),
+  );
+  await fireEvent.press(screen.getByRole('button', { name: 'Dismiss picker' }));
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Добавить упражнения' }),
+  );
+  expect(
+    screen.getByRole('button', { name: 'Планка' }).props.accessibilityState,
+  ).toMatchObject({ selected: true });
+  expect(
+    screen.getByRole('button', { name: 'Готово · 1 упражнение' }),
+  ).toBeTruthy();
+  await fireEvent.changeText(
+    screen.getByLabelText('Поиск упражнений для шаблона'),
     'присед',
   );
   await fireEvent.press(
     screen.getByRole('button', { name: 'Приседания со штангой' }),
   );
-  await fireEvent.changeText(
-    screen.getByLabelText('Поиск упражнений для шаблона'),
-    'планка',
-  );
-  await fireEvent.press(screen.getByRole('button', { name: 'Планка' }));
   await fireEvent.press(
     screen.getByRole('button', { name: 'Готово · 2 упражнения' }),
   );
@@ -122,4 +158,55 @@ test('discard requires confirmation and invalid empty plan stays in editor', asy
     );
   });
   expect(onLeave).toHaveBeenCalledTimes(1);
+});
+
+test('workspace exercise UUIDs retain source measurement defaults in the picker', async () => {
+  let raw: string | null = null;
+  const timedFixture = trainerLibrary.exerciseData.find(
+    (exercise) => exercise.id === 'e20',
+  )!;
+  const workspaceExercise = {
+    ...timedFixture,
+    id: '00000000-0000-4000-8000-000000000020',
+    sourceKey: 'e20',
+    measure: 'seconds' as const,
+  };
+  await render(
+    <TemplateProvider
+      storage={{
+        getItem: async () => raw,
+        setItem: async (_key, value) => {
+          raw = value;
+        },
+      }}
+    >
+      <TemplateEditorScreen
+        onLeave={() => {}}
+        onSaved={() => {}}
+        suppliedExercises={[workspaceExercise]}
+        suppliedMedia={{}}
+      />
+    </TemplateProvider>,
+  );
+  await waitFor(() =>
+    expect(screen.getByLabelText('Название шаблона')).toBeTruthy(),
+  );
+  await fireEvent.changeText(
+    screen.getByLabelText('Название шаблона'),
+    'План с секундомером',
+  );
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Добавить упражнения' }),
+  );
+  await fireEvent.press(
+    screen.getByRole('button', { name: timedFixture.name }),
+  );
+  await waitFor(() =>
+    expect(decodeTemplates(raw)?.draft?.exercises[0]).toMatchObject({
+      id: workspaceExercise.id,
+      name: timedFixture.name,
+      reps: '30',
+      unit: 'сек',
+    }),
+  );
 });

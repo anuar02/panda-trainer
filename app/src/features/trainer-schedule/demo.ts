@@ -12,6 +12,8 @@ export type ScheduleSession = {
   request?: { date: string; time: string };
   title?: string;
   participantIds?: string[];
+  participantNames?: string[];
+  status?: 'proposed' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
   pending?: boolean;
   replies?: { confirmed: number; pending: number; cancelled: number };
 };

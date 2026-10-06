@@ -12,6 +12,7 @@ import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { vars } from 'nativewind';
 import tokens from './tokens.json';
+import { CalmModeProvider } from './calm-mode';
 export type Appearance = 'auto' | 'light' | 'dark';
 export type Role = 'trainer' | 'client';
 export const appearanceStorageKey = 'panda-trainer.appearance';
@@ -30,7 +31,6 @@ const ThemeContext = createContext<Theme>({
 export function ThemeProvider({
   children,
   role = 'client',
-  workout = false,
 }: PropsWithChildren<{ role?: Role; workout?: boolean }>) {
   const [appearance, updateAppearance] = useState<Appearance>('auto');
   const changed = useRef(false);
@@ -58,9 +58,8 @@ export function ThemeProvider({
       .then(() => AsyncStorage.setItem(appearanceStorageKey, value))
       .catch(() => {});
   }, []);
-  const scheme = workout
-    ? 'dark'
-    : appearance === 'auto'
+  const scheme =
+    appearance === 'auto'
       ? role === 'trainer'
         ? 'dark'
         : 'light'
@@ -83,11 +82,13 @@ export function ThemeProvider({
     [appearance, scheme, colors, setAppearance],
   );
   return (
-    <ThemeContext.Provider value={value}>
-      <View className="flex-1 bg-canvas" style={variables}>
-        {children}
-      </View>
-    </ThemeContext.Provider>
+    <CalmModeProvider role={role}>
+      <ThemeContext.Provider value={value}>
+        <View className="flex-1 bg-canvas" style={variables}>
+          {children}
+        </View>
+      </ThemeContext.Provider>
+    </CalmModeProvider>
   );
 }
 export const useTheme = () => useContext(ThemeContext);

@@ -1,0 +1,218 @@
+[
+  {
+    "pose": "wave",
+    "sourceSha256": "008995683dd7e84402359306423feb0ebdb84be4378c257074d8f8113662fdca",
+    "originalFrames": 62,
+    "startFrame": 0,
+    "endFrame": 61,
+    "frames": 52,
+    "fps": 10,
+    "quality": 60,
+    "durationMs": 5200,
+    "bytes": 445248,
+    "posterBytes": 109116,
+    "seamMae": 3.2842,
+    "originalSeamMae": 3.2842,
+    "attempts": [
+      {
+        "fps": 12,
+        "quality": 60,
+        "bytes": 528960
+      },
+      {
+        "fps": 10,
+        "quality": 60,
+        "bytes": 445248
+      },
+      {
+        "fps": 10,
+        "quality": 50,
+        "bytes": 418738
+      },
+      {
+        "fps": 10,
+        "quality": 40,
+        "bytes": 389736
+      }
+    ],
+    "loop": true
+  },
+  {
+    "pose": "thumbs",
+    "sourceSha256": "9c2abd4a351ce93159c77f339749a91a3103af4267dd6265d4731db4c2e3e106",
+    "originalFrames": 62,
+    "startFrame": 6,
+    "endFrame": 42,
+    "frames": 31,
+    "fps": 10,
+    "quality": 60,
+    "durationMs": 3100,
+    "bytes": 262274,
+    "posterBytes": 108533,
+    "seamMae": 3.227,
+    "originalSeamMae": 3.1542,
+    "attempts": [
+      {
+        "fps": 12,
+        "quality": 60,
+        "bytes": 311866
+      },
+      {
+        "fps": 10,
+        "quality": 60,
+        "bytes": 262274
+      }
+    ],
+    "loop": true
+  },
+  {
+    "pose": "jump",
+    "sourceSha256": "210e05dcfb7d55c574ff18bda691af89baa6ae2046852756756170570123070a",
+    "originalFrames": 62,
+    "startFrame": 1,
+    "endFrame": 54,
+    "frames": 45,
+    "fps": 10,
+    "quality": 50,
+    "durationMs": 4500,
+    "bytes": 286536,
+    "posterBytes": 88698,
+    "seamMae": 3.7356,
+    "originalSeamMae": 3.407,
+    "attempts": [
+      {
+        "fps": 12,
+        "quality": 60,
+        "bytes": 365292
+      },
+      {
+        "fps": 10,
+        "quality": 60,
+        "bytes": 304296
+      },
+      {
+        "fps": 10,
+        "quality": 50,
+        "bytes": 286536
+      }
+    ],
+    "loop": true
+  },
+  {
+    "pose": "sit",
+    "sourceSha256": "d5c3af18885ffa7ed42b9cf4d51896893870bcd887895d08a93e56842edfd2ce",
+    "originalFrames": 62,
+    "startFrame": 6,
+    "endFrame": 58,
+    "frames": 44,
+    "fps": 10,
+    "quality": 40,
+    "durationMs": 4400,
+    "bytes": 283950,
+    "posterBytes": 89560,
+    "seamMae": 2.4832,
+    "originalSeamMae": 3.6778,
+    "attempts": [
+      {
+        "fps": 12,
+        "quality": 60,
+        "bytes": 392044
+      },
+      {
+        "fps": 10,
+        "quality": 60,
+        "bytes": 325590
+      },
+      {
+        "fps": 10,
+        "quality": 50,
+        "bytes": 306102
+      },
+      {
+        "fps": 10,
+        "quality": 40,
+        "bytes": 283950
+      }
+    ],
+    "loop": true
+  },
+  {
+    "pose": "sleep",
+    "sourceSha256": "3479528096aa1118436e6b1b8c7ac2cc151f6e9e154962db1b196dbaac26992f",
+    "originalFrames": 62,
+    "startFrame": 11,
+    "endFrame": 51,
+    "frames": 41,
+    "fps": 12,
+    "quality": 60,
+    "durationMs": 3417,
+    "bytes": 226394,
+    "posterBytes": 70819,
+    "seamMae": 3.511,
+    "originalSeamMae": 3.8185,
+    "attempts": [
+      {
+        "fps": 12,
+        "quality": 60,
+        "bytes": 226394
+      }
+    ],
+    "loop": true
+  },
+  {
+    "pose": "stretch",
+    "sourceSha256": "ca4dac68ccb6befdcb485f37536aff69099c0e7cbc015e5b592ddce51de26ad3",
+    "originalFrames": 62,
+    "startFrame": 8,
+    "endFrame": 49,
+    "frames": 35,
+    "fps": 10,
+    "quality": 60,
+    "durationMs": 3500,
+    "bytes": 298876,
+    "posterBytes": 114629,
+    "seamMae": 2.9934,
+    "originalSeamMae": 3.0975,
+    "attempts": [
+      {
+        "fps": 12,
+        "quality": 60,
+        "bytes": 357392
+      },
+      {
+        "fps": 10,
+        "quality": 60,
+        "bytes": 298876
+      }
+    ],
+    "loop": true
+  },
+  {
+    "pose": "listen",
+    "sourceSha256": "e97ab41926b1fe455ba76e684a3cb37287b520c2fc8c11341d0e32ab41b66fc9",
+    "originalFrames": 48,
+    "startFrame": 3,
+    "endFrame": 45,
+    "frames": 36,
+    "fps": 10,
+    "quality": 60,
+    "durationMs": 3600,
+    "bytes": 281468,
+    "posterBytes": 98385,
+    "seamMae": 2.3904,
+    "originalSeamMae": 2.7823,
+    "attempts": [
+      {
+        "fps": 12,
+        "quality": 60,
+        "bytes": 334938
+      },
+      {
+        "fps": 10,
+        "quality": 60,
+        "bytes": 281468
+      }
+    ],
+    "loop": true
+  }
+]

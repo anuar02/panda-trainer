@@ -1,0 +1,82 @@
+[
+  {
+    "route": "today",
+    "fontScale": 1.34,
+    "calm": false,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 1,
+    "status": "web-simulation-not-native-acceptance"
+  },
+  {
+    "route": "today",
+    "fontScale": 1.34,
+    "calm": true,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 0,
+    "status": "web-simulation-not-native-acceptance"
+  },
+  {
+    "route": "today",
+    "fontScale": 2,
+    "calm": false,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 1,
+    "status": "web-simulation-not-native-acceptance"
+  },
+  {
+    "route": "today",
+    "fontScale": 2,
+    "calm": true,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 0,
+    "status": "web-simulation-not-native-acceptance"
+  },
+  {
+    "route": "session/s1",
+    "fontScale": 1.34,
+    "calm": false,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 1,
+    "status": "web-simulation-not-native-acceptance"
+  },
+  {
+    "route": "session/s1",
+    "fontScale": 1.34,
+    "calm": true,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 0,
+    "status": "web-simulation-not-native-acceptance"
+  },
+  {
+    "route": "session/s1",
+    "fontScale": 2,
+    "calm": false,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 1,
+    "status": "web-simulation-not-native-acceptance"
+  },
+  {
+    "route": "session/s1",
+    "fontScale": 2,
+    "calm": true,
+    "dimensionPatches": 4,
+    "errors": [],
+    "horizontalTextOverflow": [],
+    "mascotImages": 0,
+    "status": "web-simulation-not-native-acceptance"
+  }
+]

@@ -1,6 +1,10 @@
+import {
+  MotionScrollView as ScrollView,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
 import type { Template } from '@/domain/templates';
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import type { DemoScenario } from '@/features/demo/use-demo-scenario';
@@ -9,25 +13,37 @@ import { Icon } from '@/ui/icons';
 import { Text } from '@/ui/text';
 import { useTheme } from '@/ui/theme';
 import { ExerciseDetailsSheet } from './exercise-details-sheet';
-import type { LibraryExercise } from './fixtures';
+import { media, type LibraryExercise, type LibraryMediaMap } from './fixtures';
 import { styles as s } from './styles';
 
 export function TemplateScreen({
   id,
   onBack,
   onUse,
+  onAssignProgram,
+  assignLabel,
+  assignDisabled = false,
+  feedback,
   scenario = 'normal',
   templates: suppliedTemplates,
   onEdit,
   onCopy,
+  suppliedExercises,
+  suppliedMedia,
 }: {
   id?: string;
   templates?: Template[];
   onEdit?: () => void;
   onCopy?: () => void;
   onBack: () => void;
-  onUse: (id: string) => void;
+  onUse?: (id: string) => void;
+  onAssignProgram?: (id: string) => void;
+  assignLabel?: string;
+  assignDisabled?: boolean;
+  feedback?: ReactNode;
   scenario?: DemoScenario;
+  suppliedExercises?: LibraryExercise[];
+  suppliedMedia?: LibraryMediaMap;
 }) {
   const { t, i18n } = useTranslation();
   const { colors, scheme } = useTheme();
@@ -36,7 +52,10 @@ export function TemplateScreen({
   )[] =
     suppliedTemplates ??
     t('trainerLibrary.templateData', { returnObjects: true });
-  const exercises = t('trainerLibrary.exerciseData', { returnObjects: true });
+  const exercises: LibraryExercise[] =
+    suppliedExercises ??
+    t('trainerLibrary.exerciseData', { returnObjects: true });
+  const exerciseMedia = suppliedMedia ?? media;
   const template = templates.find((entry) => entry.id === id);
   const [selected, setSelected] = useState<LibraryExercise | null>(null);
   const secondary = { color: colors.secondary };
@@ -78,9 +97,10 @@ export function TemplateScreen({
           <Icon name="copy" size={22} color={colors.ink} />
         </Pressable>
       </View>
+      {feedback}
       {template ? (
         <>
-          <ScrollView contentContainerStyle={s.body}>
+          <ScrollView motionKey={scenario} contentContainerStyle={s.body}>
             <Text
               style={[
                 s.eyebrow,
@@ -178,9 +198,16 @@ export function TemplateScreen({
             <Button
               labelStyle={d.useText}
               style={d.useButton}
-              label={t('trainerLibrary.use')}
+              label={
+                onAssignProgram ? (assignLabel ?? '') : t('trainerLibrary.use')
+              }
               icon={<Icon name="calendarPlus" size={18} color="#ffffff" />}
-              onPress={() => onUse(template.id)}
+              disabled={onAssignProgram ? assignDisabled : !onUse}
+              onPress={() =>
+                onAssignProgram
+                  ? onAssignProgram(template.id)
+                  : onUse?.(template.id)
+              }
             />
           </View>
         </>
@@ -197,6 +224,7 @@ export function TemplateScreen({
       <ExerciseDetailsSheet
         selected={selected}
         onClose={() => setSelected(null)}
+        suppliedMedia={exerciseMedia}
       />
     </SafeAreaView>
   );

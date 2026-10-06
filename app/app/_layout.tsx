@@ -1,3 +1,7 @@
+import { MotionPolicyProvider } from '@/ui/motion';
+import '@/features/account-deletion/storage-fence';
+import { PushObserver } from '@/features/push/observer';
+import { bootstrapErrorMonitoring } from '@/features/error-monitoring';
 import { TemplateProvider } from '@/features/template-editor/provider';
 import '../global.css';
 import '@/lib/i18n';
@@ -32,6 +36,8 @@ import {
   useSchedulingDemo,
 } from '@/features/scheduling-demo/provider';
 import { WorkoutDemoProvider } from '@/features/workout-demo';
+import { AuthProvider } from '@/features/auth/provider';
+const errorMonitoring = bootstrapErrorMonitoring();
 void SplashScreen.preventAutoHideAsync();
 function Navigation() {
   const { scheme, colors } = useTheme();
@@ -41,6 +47,7 @@ function Navigation() {
       <Stack
         screenOptions={{
           headerShown: false,
+          animation: 'none',
           contentStyle: { backgroundColor: colors.canvas },
         }}
       />
@@ -69,6 +76,7 @@ export default function RootLayout() {
     'inbox',
     'template',
     'template-editor',
+    'workspace',
   ].includes(segments[0] ?? '')
     ? 'trainer'
     : 'client';
@@ -88,26 +96,36 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded || error) void SplashScreen.hideAsync();
   }, [loaded, error]);
+  useEffect(() => {
+    if (error) void errorMonitoring.report({ code: 'APP_FONT_LOAD_FAILED' });
+  }, [error]);
   if (!loaded && !error) return null;
   return (
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
         <ThemeProvider role={role} workout={segments.includes('session')}>
-          <BottomSheetModalProvider>
-            <ToastProvider>
-              {error ? (
-                <SafeAreaView className="flex-1 bg-canvas p-page">
-                  <Text accessibilityRole="alert">{t('common.fontError')}</Text>
-                </SafeAreaView>
-              ) : (
-                <TemplateProvider>
-                  <SchedulingDemoProvider waitForWorkout>
-                    <ConnectedNavigation />
-                  </SchedulingDemoProvider>
-                </TemplateProvider>
-              )}
-            </ToastProvider>
-          </BottomSheetModalProvider>
+          <MotionPolicyProvider>
+            <BottomSheetModalProvider>
+              <ToastProvider>
+                {error ? (
+                  <SafeAreaView className="flex-1 bg-canvas p-page">
+                    <Text accessibilityRole="alert">
+                      {t('common.fontError')}
+                    </Text>
+                  </SafeAreaView>
+                ) : (
+                  <AuthProvider>
+                    <PushObserver />
+                    <TemplateProvider>
+                      <SchedulingDemoProvider waitForWorkout>
+                        <ConnectedNavigation />
+                      </SchedulingDemoProvider>
+                    </TemplateProvider>
+                  </AuthProvider>
+                )}
+              </ToastProvider>
+            </BottomSheetModalProvider>
+          </MotionPolicyProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

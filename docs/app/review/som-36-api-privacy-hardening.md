@@ -1,0 +1,71 @@
+# SOM-36: API privacy hardening design
+
+Status: database, app and trainer/client runtime checks pass; native/owner acceptance open. The initial audit identified direct API exposure of audit identities despite safe transport projections. The new grants and coordinated callers remediate that exposure within the scope below.
+
+## Evidence and actual consumers
+
+| Surface | Existing permission / consumer | Required adjustment |
+| --- | --- | --- |
+| `client_programs`, `client_program_exercises` | Full table SELECT in `20261001130000_client_programs.sql:100-101`; latest-copy client reader already uses explicit projections. Trainer `loadWorkspaceClientDetails`, `workspace-clients/service.ts:67-119`, uses `select('*')` for both copies and exercise rows. Client list uses only client/name/created timestamp. | Replace trainer wildcard reads and full Row-based program types before removing audit-column access. |
+| `workout_instances`, `workout_exercises` | Full table SELECT in `20261001140000_workout_journal.sql:262-266`; `created_by` identifies auth users. Current server-backed consumer is `client-history/service.ts`; its projections omit audit fields. Workout UI currently uses local domain journals rather than these direct table rows. | Column grants can retain current history projections without adding a journal RPC. |
+| `set_results`, `session_notes` | Same full grant; `author_user_id`, `created_by`, `device_id` exposed on permitted finished journals. History service omits them. | Remove these columns from authenticated SELECT, preserving revision/data/timestamps and deleted-set filtering. |
+| `schedule_proposals` | Named grant explicitly includes `author_user_id` in `20261001110000_schedule_foundation.sql:122-123`. `workspace-scheduling/service.ts:201-209,306` reads it and compares with workspace owner to produce `authorRole`. Client already calls redacted `get_my_client_schedule_proposals`. | Add trainer redacted RPC and move trainer consumer before revoking author-column SELECT. |
+
+Graph exhaustive literal queries found no production journal consumer requiring authors/devices. Fixture scripts and concurrency runners execute administrative SQL and do not require authenticated audit grants. Generated Database types describe storage, not permission; they can retain columns while transport types use explicit Pick/result types.
+
+## Smallest safe implementation
+
+Keep existing row policies and commands. Use one new migration plus a trainer transport adjustment and dedicated tests. Do not replace the read/write domain or assignment behavior.
+
+For six journal/personal-copy tables, revoke table-level SELECT from authenticated, then grant SELECT on an explicit list of remaining columns. The exclusion set is `created_by` on every table, plus `author_user_id` and `device_id` on set results and session notes. Revoking a column alone does not override an existing table-level SELECT grant. Inspect all table and column ACLs (including PUBLIC and anon) and remove any explicit sensitive-column grants as well. Leave existing revoked direct writes revoked. Keep existing non-auth origin IDs for compatibility in this narrow change; client display still uses safe snapshot projections. Any further removal of source template/exercise IDs is a separate contract review, not an accidental consequence of this patch.
+
+Trainer personal-copy reads must request explicit safe program/exercise fields; update `WorkspaceClientDetailsData` from complete database Row to the corresponding Pick. The visible trainer program tab needs snapshot names, plan fields and notes, not `created_by`. Preserve created_at DESC / id DESC selection and all old copies.
+
+For proposals, add `get_my_workspace_schedule_proposals(p_workspace_id uuid, p_offset integer default 0, p_limit integer default 500)` returning the same safe columns as the client RPC: id, workspace_id, booking_id, proposed_starts_at, proposed_ends_at, base_revision, status, revision, created_at, updated_at, author_role. It must require non-null auth.uid, validate workspace/page bounds, and authorize exact workspace ownership. Return all pending rows across time because trainer scheduling supplements bookings outside the visible window; order proposed_starts_at then id to preserve existing trainer behavior. No new date filter. Use STABLE SECURITY DEFINER, search_path pg_catalog, schema-qualified references, explicit SELECT list, and author_role calculated by comparing stored author with workspace owner. No auth UUID in output or errors. Grant execute only authenticated and revoke PUBLIC/anon default execute. Existing client RPC keeps active linked-card authorization and its established id ordering.
+
+A shared private projection function is optional and adds no necessary capability: both RPCs can select the same explicit fields with role-specific authorization. Avoid a public definer view that bypasses RLS or a caller-supplied actor ID. A single generalized RPC must not accidentally authorize owners through the client-card path or clients through workspace ownership checks. Two already-established scopes are simpler.
+
+Switch trainer proposal transport from table read to the trainer RPC, convert author_role to existing authorRole, update validation/tests, and remove its author_user_id dependency. Then revoke SELECT(author_user_id) from authenticated on schedule_proposals; retain existing safe column grant. Sensitive author storage remains available to postgres-owned SECURITY DEFINER command/RPC SQL. Authenticated trainer owner and client share the same role, so table grants cannot expose audit columns to trainers while hiding them from clients. There is no current UI need for an owner-only audit RPC.
+
+## Exact verification required before integration
+
+Create owner A, two linked clients in A (with separate own journals/copies), owner B/client B, an archived linked card, an unlinked card, and anonymous claims. Seed finished and unfinished journals, notes/results with distinct auth/device IDs, personal copies, and pending trainer/client proposals, including a proposal outside the visible date window.
+
+- As postgres, inspect `has_table_privilege('authenticated', table, 'SELECT')` false for each replaced table grant and `has_column_privilege` true for safe columns, false for each excluded column. Check PUBLIC/anon and explicit column ACLs. Run catalogue privilege assertions outside restricted roles when private schema names are involved.
+- As authenticated client, safe explicit SELECT returns own permitted finished journal and children and own copies. Direct SELECT sensitive_column, SELECT *, and sensitive column filters/order requests fail 42501. A safe projection of peer/client-B rows returns no rows; unfinished own journal and its children remain absent. Child RLS traversal must continue working with the new column grants.
+- As trainer owner, explicit safe projections still read own journal drafts/results/copies; other workspace remains inaccessible. Wildcard SELECT is intentionally unavailable after transport migration. No direct mutation becomes possible. private_notes and sync_operations remain owner-only, and clients still cannot read them; their grants are outside this client-visible audit patch.
+- Trainer RPC returns both author roles, no author/created_by/device/user IDs, all-time pending rows, stable pagination with valid bounds. Client cannot call it for the trainer workspace; owner B cannot call it for A; anon execute is denied. Null/invalid arguments produce established input errors. Client RPC still sees only its own pending booking rows and active link rules.
+- Proposal command authorization, current revision checks, actor-scoped receipt replay, creation replay after participant detachment, and assignment immutability remain unchanged and pass existing pgTAP/concurrency suites. Command definer SQL must still resolve inaccessible audit columns internally.
+- Trainer transport test proves it calls RPC with workspace/page args, accepts author_role, rejects unexpected auth fields, and resolves out-of-window booking context. Existing schedule hooks/actions and client safe-reader tests pass; full TypeScript check plus generated RPC types are updated.
+
+Run a fresh migration reset, schema lint, dedicated pgTAP, existing database suites, and relevant service/UI tests after Docker resumes. Until those pass, the direct-API exposure is not remediated. This technical proposal does not claim screen parity or owner acceptance.
+
+## Boundary
+
+Identity/workspace/invitation tables have their own auth-link metadata and policies. They are not covered by this narrow journal/copy/proposal change. Archived client cards are still included by existing my_client_record_ids row policies; active context gating in new readers does not change direct-table archive behavior. Changing archived-link access needs its own decision and tests. No client access to template/catalog tables, no new personal-copy active flag, no billing/attendance inference, and no new journal write capability are introduced.
+
+## Implementation checkpoint — 2026-10-02
+
+`20261002130000_api_privacy_hardening.sql` replaces broad grants and adds the
+safe owner proposal RPC. Trainer personal-copy and proposal callers use explicit
+projections/roles; generated types include the RPC. Dedicated pgTAP covers column
+ACLs, denied wildcard/inference requests, owner/client/foreign/anonymous scopes,
+finished versus draft data, private notes, safe RPC paging and definer replay.
+SQL lint passes. The existing 494 database assertions pass after exact historical
+synthetic fixture cleanup. The full suite now passes 574 assertions / 17 files, including 80 new permission
+assertions. App check passes 962 tests / 106 suites after the connected-sheet fix, TypeScript, lint and formatting.
+Restricted-API client regression passes all 29 browser checks. Trainer runtime
+reproduced an existing nested switch/minimize dismissal; the focused stacking fix
+is recorded in ADR 0051 and its fresh runtime verification is still in progress.
+
+The isolated clean reset applied old migrations and seed but its CLI reported a
+storage health timeout. Storage became healthy on its own; migration up then
+successfully applied the new migration. The main project stack was untouched.
+[ADR 0050](../decisions/0050-client-visible-api-audit-privacy.md).
+
+Final continuation: restricted API trainer/client regressions pass 23/34 checks.
+Full app check passes 991 tests / 107 suites, TypeScript, lint and formatting;
+configured web/iOS/Android export passes. The expanded database suite passes
+610 assertions / 18 files, with nine request-resolution concurrency checks,
+clean schema lint and matching generated types. These results supersede the
+pending trainer verification above; native/owner acceptance remains open.

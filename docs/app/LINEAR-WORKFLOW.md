@@ -3,6 +3,11 @@
 Established 2026-09-30 at the owner's request. Follow the repository instructions
 and [baseline guide](../../LINEAR-AGENT-GUIDE.md). Decision: [ADR 0020](decisions/0020-linear-coordination.md).
 
+Owner override, 2026-10-01: routine per-task Linear updates are no longer required.
+Continue reading scope and dependencies, but keep progress, decisions and checks
+in the repository and commit each verified package. Do not automatically write
+issue checkpoints after each task. [ADR 0036](decisions/0036-reduced-linear-updates.md).
+
 ## Project identity
 
 - Project: [trainerApp](https://linear.app/something-great/project/trainerapp-827feca01ff7).
@@ -56,7 +61,7 @@ Observed team states on 2026-09-30 (issue states, not project states):
 | Done | All issue criteria, required checks and applicable owner acceptance satisfied |
 | Canceled / Duplicate | Only with a confirmed reason; link the surviving issue for duplicates |
 
-Within authorized implementation work, update the matching issue's fields and
+When the owner requests synchronization, update the matching issue's fields and
 status to reflect actual progress. Preserve its hierarchy and existing ownership.
 Do not invent assignees, deadlines, estimates, labels, priorities or commitments.
 Do not close a parent because one child is complete. If blocked, record the
@@ -67,7 +72,8 @@ dependency and missing decision; use a blocked state only if the team has one.
 - Linear holds actionable scope, status, ownership and dependency relations.
 - The repository holds code, contracts, ADRs, reproducible checks and evidence.
   ROADMAP keeps stages, current checkpoint and their acceptance criteria.
-  Keep both records aligned when a task changes; investigate contradictions.
+  Investigate contradictions; under the 2026-10-01 preference, repository progress
+  may be newer than Linear until synchronization is requested.
 - Preserve `prototype-fresh/index.html` as the default UI and behavior reference.
   Use `prototype-fresh/review/parity/spec-*.json` for numbers. Follow UI-PARITY
   for themes, states, native checks, accessibility, comparisons and exceptions.
@@ -100,6 +106,6 @@ continue authorized local work, record the pending synchronization locally and
 report exactly which updates remain unsynchronized. Never store credentials,
 tokens, real customer messages or sensitive logs in Linear.
 
-Keep the Linear project document synchronized when these rules change. The
-version-controlled document is the maintained rules source; the project document
-is its discoverable companion. Report any unsynchronized revision explicitly.
+The version-controlled document is the maintained rules source; the Linear
+project document is its discoverable companion. The 2026-10-01 preference is
+recorded locally; the remote companion has not been rewritten for this change.

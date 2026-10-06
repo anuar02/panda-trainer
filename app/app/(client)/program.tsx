@@ -1,5 +1,4 @@
-import { ClientProgramScreen } from '@/features/client-program/client-program-screen';
-import { useDemoScenario } from '@/features/demo/use-demo-scenario';
+import { ClientEntryRoute } from '@/features/client-home/client-entry-route';
 export default function Screen() {
-  return <ClientProgramScreen scenario={useDemoScenario()} />;
+  return <ClientEntryRoute page="program" />;
 }

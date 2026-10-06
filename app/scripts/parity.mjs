@@ -52,6 +52,7 @@ const scenarioScreens = {
   't-profile': 'trainer-profile',
   'c-profile': 'client-profile',
 };
+const scenarioInvariantScreens = new Set(['t-new']);
 for (const screen of selected) {
   if (!(screen in routes))
     throw new Error(`Unknown reference screen: ${screen}`);
@@ -80,6 +81,10 @@ async function serve(directory) {
       const pathname = decodeURIComponent(
         new URL(request.url, 'http://localhost').pathname,
       );
+      if (pathname === '/favicon.ico') {
+        response.writeHead(204).end();
+        return;
+      }
       let file = path.resolve(directory, `.${pathname}`);
       if (!file.startsWith(`${directory}${path.sep}`) && file !== directory) {
         response.writeHead(403).end();
@@ -163,15 +168,23 @@ try {
           route,
           theme,
           scenario,
+          scenarioInvariant: scenarioInvariantScreens.has(screen),
           reference: target ? `reference/${target.file}` : null,
           app: null,
           status: !exists
             ? 'route-missing'
-            : scenario !== 'normal' && !scenarioScreens[screen]
+            : scenario !== 'normal' &&
+                !scenarioScreens[screen] &&
+                !scenarioInvariantScreens.has(screen)
               ? 'state-not-implemented'
               : 'captured-not-approved',
         };
-        if (exists && (scenario === 'normal' || scenarioScreens[screen])) {
+        if (
+          exists &&
+          (scenario === 'normal' ||
+            scenarioScreens[screen] ||
+            scenarioInvariantScreens.has(screen))
+        ) {
           const context = await browser.newContext({
             viewport: { width: 390, height: 844 },
             deviceScaleFactor: 2,
@@ -208,6 +221,16 @@ try {
               )
               .waitFor();
           else await page.getByRole('heading').first().waitFor();
+          if (
+            screen === 't-template-editor' &&
+            process.env.BUILDER_PICKER === '1'
+          ) {
+            await page
+              .getByRole('button', { name: 'Добавить упражнения', exact: true })
+              .click();
+            await page.getByRole('button', { name: /^Готово ·/ }).waitFor();
+            await page.waitForTimeout(350);
+          }
           await page.evaluate(() => document.fonts.ready);
           await page.screenshot({
             path: path.join(output, `app/${screen}__${scenario}__${theme}.png`),

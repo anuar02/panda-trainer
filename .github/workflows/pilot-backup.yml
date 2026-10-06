@@ -1,0 +1,77 @@
+name: Pilot backup (gated, nightly disabled)
+on:
+  workflow_dispatch:
+# Enable only after the gate in docs/app/pilot/BACKUP-RESTORE.md is signed off.
+#  schedule:
+#    - cron: '17 1 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: pilot-backup-storage
+  cancel-in-progress: false
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    environment: pilot-backup
+    timeout-minutes: 25
+    env:
+      PILOT_BACKUP_ENABLED: ${{ vars.PILOT_BACKUP_ENABLED }}
+      PILOT_BACKUP_CONFIG: ${{ secrets.PILOT_BACKUP_CONFIG }}
+      PILOT_SOURCE_PASSWORD: ${{ secrets.PILOT_SOURCE_PASSWORD }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.PILOT_STORAGE_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.PILOT_STORAGE_SECRET_ACCESS_KEY }}
+      AWS_EC2_METADATA_DISABLED: 'true'
+      AWS_PAGER: ''
+    steps:
+      - name: Require configured environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$PILOT_BACKUP_ENABLED" = 'true'
+          test -n "$PILOT_BACKUP_CONFIG"
+          test -n "$PILOT_SOURCE_PASSWORD"
+          test -n "$AWS_ACCESS_KEY_ID"
+          test -n "$AWS_SECRET_ACCESS_KEY"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install CLI tools
+        run: |
+          bash tools/pilot-backup/install-clients.sh
+          command -v aws
+      - name: Write private configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/som40-backup/tmp"
+          printf 'TMPDIR=%s\n' "$RUNNER_TEMP/som40-backup/tmp" >> "$GITHUB_ENV"
+          python3 - <<'PY'
+          import os, pathlib
+          path = pathlib.Path(os.environ['RUNNER_TEMP']) / 'som40-backup/config.json'
+          path.write_text(os.environ['PILOT_BACKUP_CONFIG'])
+          PY
+      - name: Rotate, dump, encrypt and upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          config="$RUNNER_TEMP/som40-backup/config.json"
+          python3 tools/pilot-backup/backup.py --config "$config" retention
+          python3 tools/pilot-backup/backup.py --config "$config" dump --output-dir "$RUNNER_TEMP/som40-backup/bundles"
+          for bundle in "$RUNNER_TEMP/som40-backup/bundles"/*; do
+            python3 tools/pilot-backup/backup.py --config "$config" verify "$bundle"
+            python3 tools/pilot-backup/backup.py --config "$config" upload "$bundle"
+          done
+      - name: Retention after success or failure
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          config="$RUNNER_TEMP/som40-backup/config.json"
+          if test -f "$config"; then
+            python3 tools/pilot-backup/backup.py --config "$config" retention
+          fi
+      - name: Remove all runner copies
+        if: always()
+        shell: bash
+        run: rm -rf -- "$RUNNER_TEMP/som40-backup"

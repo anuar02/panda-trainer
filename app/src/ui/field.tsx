@@ -15,11 +15,11 @@ export function Field({ label, error, ...props }: Props) {
         selectionColor={colors.accent}
         className={`min-h-button rounded-field border bg-surface px-4 py-3 font-body text-base text-ink ${error ? 'border-danger' : 'border-control'}`}
       />
-      {error && (
+      {error ? (
         <Text accessibilityRole="alert" className="text-danger">
           {error}
         </Text>
-      )}
+      ) : null}
     </View>
   );
 }

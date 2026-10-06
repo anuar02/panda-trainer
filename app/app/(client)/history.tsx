@@ -1,5 +1,4 @@
-import { ClientHistoryScreen } from '@/features/client-history/client-history-screen';
-import { useDemoScenario } from '@/features/demo/use-demo-scenario';
-export default function Route() {
-  return <ClientHistoryScreen scenario={useDemoScenario()} />;
+import { ClientEntryRoute } from '@/features/client-home/client-entry-route';
+export default function Screen() {
+  return <ClientEntryRoute page="history" />;
 }

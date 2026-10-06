@@ -32,7 +32,7 @@ export function ProfileScreen({ role }: { role: 'trainer' | 'client' }) {
       <Button
         label={t('common.backToRoles')}
         variant="secondary"
-        onPress={() => router.replace('/')}
+        onPress={() => router.replace('/demo')}
       />
     </Screen>
   );

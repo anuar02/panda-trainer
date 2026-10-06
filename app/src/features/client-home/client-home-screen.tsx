@@ -1,3 +1,13 @@
+import { NativeTabScrollView as ScrollView } from '@/features/navigation/native-tab-scroll-view';
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
+import {
+  MotionHeader,
+  Shimmer,
+  GrowX,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
+import { DemoNotificationEntry } from '@/features/notifications/demo';
 import {
   schedulingToday,
   schedulingNow,
@@ -6,8 +16,8 @@ import {
 import { workoutClients, workoutExercises } from '@/domain/workout/fixtures';
 import { useOptionalSchedulingDemo } from '@/features/scheduling-demo/provider';
 import { SchedulingSessionSheet } from '@/features/scheduling-demo/session-sheet';
-import { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
@@ -24,11 +34,51 @@ import { homeBookings, homePackage, type HomeScenario } from './fixtures';
 import { styles as s } from './styles';
 import type { clientHome } from './ru';
 
+export type ClientHomeBookingRow = {
+  id: string;
+  date: string;
+  start: string;
+  end: string;
+  today: boolean;
+  programName: string | null;
+  programPreview?: string;
+  group: boolean;
+  status: 'proposed' | 'confirmed';
+  hasProposal?: boolean;
+};
+export type ClientHomeData = {
+  clientName: string;
+  trainerName: string;
+  timezone: string;
+  bookings: readonly ClientHomeBookingRow[];
+  loading?: boolean;
+  requests?: ReactNode;
+  notificationAction?: ReactNode;
+  facts?: ReactNode;
+  onSelectBooking: (booking: ClientHomeBookingRow) => void;
+  onProgramPreview?: (booking: ClientHomeBookingRow) => void;
+  onOpenHistory?: () => void;
+  renderActions?: (booking: ClientHomeBookingRow) => ReactNode;
+};
 export function ClientHomeScreen({
+  scenario = 'normal',
+  data,
+}: {
+  scenario?: HomeScenario;
+  data?: ClientHomeData;
+}) {
+  return data ? (
+    <ControlledClientHome data={data} />
+  ) : (
+    <DemoClientHomeScreen scenario={scenario} />
+  );
+}
+function DemoClientHomeScreen({
   scenario = 'normal',
 }: {
   scenario?: HomeScenario;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const { t, i18n } = useTranslation();
   const demo = useOptionalSchedulingDemo();
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
@@ -209,7 +259,7 @@ export function ClientHomeScreen({
       style={s.root}
       testID={`client-home-${scenario}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader motionKey={scenario} style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <Text style={s.initials}>{tx('initials')}</Text>
@@ -223,17 +273,15 @@ export function ClientHomeScreen({
             </Text>
           </View>
         </View>
-        <Pressable
-          disabled
-          accessibilityRole="button"
-          accessibilityLabel={tx('notifications')}
-          accessibilityState={{ disabled: true }}
-          style={s.iconButton}
-        >
-          <Icon name="bell" color={colors.ink} size={22} />
-        </Pressable>
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
+        <DemoNotificationEntry />
+      </MotionHeader>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
+      >
         {actionError ? (
           <Text accessibilityRole="alert">{actionError}</Text>
         ) : null}
@@ -265,20 +313,20 @@ export function ClientHomeScreen({
                     row > 0 && { borderTopWidth: 1, borderTopColor: hair },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.skeletonMain}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },
@@ -298,6 +346,7 @@ export function ClientHomeScreen({
               <View style={s.empty}>
                 <Mascot
                   pose="sit"
+                  clipPlace="empty"
                   size={170}
                   style={s.emptyMascot}
                   resizeMode="contain"
@@ -356,6 +405,7 @@ export function ClientHomeScreen({
                     ]}
                   />
                   <Mascot
+                    clipPlace="client-hero"
                     pose={
                       next.id === transferSessionId && transfer
                         ? 'clipboard'
@@ -487,7 +537,7 @@ export function ClientHomeScreen({
                     </Text>
                   </View>
                   <View style={[s.meter, { backgroundColor: colors.sunken }]}>
-                    <View
+                    <GrowX
                       style={[
                         s.meterFill,
                         {
@@ -613,6 +663,299 @@ export function ClientHomeScreen({
           onPress={() => setCancelOpen(false)}
         />
       </Sheet>
+    </SafeAreaView>
+  );
+}
+
+function ControlledClientHome({ data }: { data: ClientHomeData }) {
+  const { bottomInset } = useTabBarLayout();
+  const { t, i18n } = useTranslation();
+  const { colors, scheme } = useTheme();
+  const tx = (key: keyof typeof clientHome) => t(`clientHome.${key}`);
+  const fmt = (date: string, weekday = false) =>
+    new Intl.DateTimeFormat(i18n.language, {
+      ...(weekday ? { weekday: 'short' as const } : {}),
+      day: 'numeric',
+      month: 'short',
+      timeZone: 'UTC',
+    })
+      .format(new Date(`${date}T12:00:00Z`))
+      .replaceAll('.', '');
+  const next = data.bookings[0];
+  const hair = scheme === 'light' ? '#efefeb' : '#212227';
+  const preview = (row: ClientHomeBookingRow) =>
+    row.programPreview ?? row.programName ?? tx('onsite');
+  const initials = data.trainerName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('');
+  return (
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      style={s.root}
+      testID={`client-home-${data.loading ? 'loading' : next ? 'normal' : 'empty'}`}
+    >
+      <MotionHeader style={s.topbar}>
+        <View style={s.trainer}>
+          <View style={s.avatar}>
+            <Text style={s.initials}>{initials}</Text>
+          </View>
+          <View>
+            <Text className="font-medium text-secondary" style={s.trainerText}>
+              {tx('trainerLabel')}
+            </Text>
+            <Text className="font-bold" style={s.trainerText}>
+              {data.trainerName}
+            </Text>
+          </View>
+        </View>
+        {data.notificationAction ?? (
+          <Pressable
+            disabled
+            accessibilityRole="button"
+            accessibilityLabel={tx('notifications')}
+            accessibilityState={{ disabled: true }}
+            style={s.iconButton}
+          >
+            <Icon name="bell" color={colors.ink} size={22} />
+          </Pressable>
+        )}
+      </MotionHeader>
+      <ScrollView
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
+      >
+        {data.loading ? (
+          <View
+            style={s.page}
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel={tx('loading')}
+          >
+            <Card flush style={s.skeletonCard}>
+              {[0, 1, 2, 3].map((row) => (
+                <View
+                  key={row}
+                  style={[
+                    s.skeletonRow,
+                    row > 0 && { borderTopWidth: 1, borderTopColor: hair },
+                  ]}
+                >
+                  <Shimmer
+                    style={[
+                      s.skeletonCircle,
+                      { backgroundColor: colors.sunken },
+                    ]}
+                  />
+                  <View style={s.skeletonMain}>
+                    <Shimmer
+                      style={[
+                        s.skeletonTitle,
+                        { backgroundColor: colors.sunken },
+                      ]}
+                    />
+                    <Shimmer
+                      style={[
+                        s.skeletonMeta,
+                        { backgroundColor: colors.sunken },
+                      ]}
+                    />
+                  </View>
+                </View>
+              ))}
+            </Card>
+          </View>
+        ) : (
+          <>
+            {next && (
+              <Text style={[s.encouragement, { color: colors.accent }]}>
+                {tx(next.today ? 'encouragement' : 'soon')}
+              </Text>
+            )}
+            <Text accessibilityRole="header" style={s.title}>
+              {t('clientHome.namedGreeting', { name: data.clientName })}
+            </Text>
+            {!next ? (
+              <View style={s.page}>
+                <View style={s.empty}>
+                  <Mascot
+                    pose="sit"
+                    clipPlace="empty"
+                    size={170}
+                    style={s.emptyMascot}
+                    resizeMode="contain"
+                    accessible={false}
+                  />
+                  <Text style={s.emptyTitle}>{tx('empty')}</Text>
+                  <Text className="text-secondary" style={s.emptyHint}>
+                    {tx('emptyHint')}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <>
+                <View style={s.page}>
+                  <Card flush>
+                    <View style={s.hero}>
+                      <GradientBackground
+                        radius={24}
+                        radials={[
+                          {
+                            color: '#e0561b',
+                            opacity: 0.14,
+                            cx: 1.1,
+                            cy: 0,
+                            rx: 260,
+                            ry: 200,
+                            stop: 0.7,
+                          },
+                          {
+                            color: '#ffb23d',
+                            opacity: 0.22,
+                            cx: 1,
+                            cy: 0.3,
+                            rx: 220,
+                            ry: 160,
+                            stop: 0.7,
+                          },
+                        ]}
+                      />
+                      <Mascot
+                        clipPlace="client-hero"
+                        pose={
+                          next.hasProposal || next.status === 'proposed'
+                            ? 'clipboard'
+                            : 'wave'
+                        }
+                        size={92}
+                        style={s.mascot}
+                        resizeMode="contain"
+                        accessible={false}
+                      />
+                      <View style={s.top}>
+                        <Text
+                          className="font-strong text-secondary"
+                          style={s.small}
+                        >
+                          {tx(next.today ? 'today' : 'next')}
+                        </Text>
+                        <StatusPill
+                          label={
+                            next.hasProposal
+                              ? tx('hasTransfer')
+                              : next.status === 'proposed'
+                                ? t('schedulingDemo.awaiting')
+                                : tx('confirmed')
+                          }
+                          tone={
+                            next.hasProposal || next.status === 'proposed'
+                              ? 'warning'
+                              : 'success'
+                          }
+                        />
+                      </View>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={t('clientHome.bookingSummary', {
+                          date: fmt(next.date, true),
+                          start: next.start,
+                          end: next.end,
+                        })}
+                        onPress={() => data.onSelectBooking(next)}
+                      >
+                        <Text
+                          className="font-medium text-secondary"
+                          style={[s.small, s.date]}
+                        >
+                          {fmt(next.date, true)}
+                        </Text>
+                        <Text style={s.when}>
+                          {t('clientHome.timeStart', { start: next.start })}
+                          <Text style={[s.when, s.end]}>{next.end}</Text>
+                        </Text>
+                      </Pressable>
+                      <View style={s.meta}>
+                        <Pressable
+                          disabled={!data.onProgramPreview}
+                          accessibilityRole="button"
+                          accessibilityLabel={preview(next)}
+                          onPress={() => data.onProgramPreview?.(next)}
+                        >
+                          <Text style={s.program}>{preview(next)}</Text>
+                        </Pressable>
+                        <Text className="text-secondary" style={s.small}>
+                          {tx(next.group ? 'group' : 'individual')}
+                        </Text>
+                      </View>
+                      {data.renderActions && (
+                        <View style={s.actions}>
+                          {data.renderActions(next)}
+                        </View>
+                      )}
+                    </View>
+                  </Card>
+                </View>
+                {data.requests}
+                {data.facts}
+                {data.bookings.length > 1 && (
+                  <View style={s.section}>
+                    <Text style={s.sectionTitle}>{tx('upcoming')}</Text>
+                    <Card flush>
+                      {data.bookings.slice(1).map((row, index) => (
+                        <Pressable
+                          key={row.id}
+                          accessibilityRole="button"
+                          onPress={() => data.onSelectBooking(row)}
+                          testID={`home-upcoming-${row.id}`}
+                          style={[
+                            s.upcoming,
+                            index > 0 && {
+                              borderTopWidth: 1,
+                              borderTopColor: hair,
+                            },
+                          ]}
+                        >
+                          <Text style={s.rowTitle}>
+                            {t('clientHome.upcomingBooking', {
+                              date: fmt(row.date),
+                              start: row.start,
+                            })}
+                          </Text>
+                          <Text
+                            className="font-medium text-secondary"
+                            style={s.rowMeta}
+                          >
+                            {t('clientHome.upcomingProgram', {
+                              program: preview(row),
+                              group: row.group ? tx('groupSuffix') : '',
+                            })}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </Card>
+                  </View>
+                )}
+              </>
+            )}
+          </>
+        )}
+        {(data.loading || !next) && data.requests}
+        {!data.loading && !next && data.facts}
+        {data.onOpenHistory && !data.loading && (
+          <View style={s.history}>
+            <Button
+              label={tx('history')}
+              variant="soft"
+              icon={<Icon name="list" color={colors.ink} size={18} />}
+              onPress={data.onOpenHistory}
+            />
+          </View>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }

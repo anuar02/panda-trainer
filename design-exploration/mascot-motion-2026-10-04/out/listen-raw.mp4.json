@@ -1,0 +1,12 @@
+{
+  "request_id": "3bbd6d6b-0a53-4f1e-b002-ba9598f3288e",
+  "url": "https://d3u0tzju9qaucj.cloudfront.net/2e3af233-4fbc-4917-b34a-fe4d39f6b88f/7aa7f7c5-c638-4c60-9f3a-3443ce29be59.mp4",
+  "input": {
+    "prompt": "Flat 2D vector cartoon animation of the exact character from the start frame: a compact red panda with a dark brown headband and an orange wristband. The panda is listening attentively: it tilts its head to one side, one ear perks up and twitches, eyes curious and focused, a small nod, then it tilts its head back and returns exactly to the starting pose. Keep the character, proportions, colors and flat style identical to the image: no shading, no gradients, no texture, no 3D, no new objects, no text, no speech bubbles. Static camera, no zoom, no camera movement. Solid flat chroma green background #00B140 for the whole video, no shadows on the background. Seamless loop.",
+    "image_url": "<uploaded keyframe>",
+    "end_image_url": "<uploaded keyframe>",
+    "duration": 4,
+    "resolution": "1080p",
+    "generate_audio": false
+  }
+}

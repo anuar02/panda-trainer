@@ -1,0 +1,63 @@
+{
+ "baseURL": "http://127.0.0.1:60789",
+ "viewport": "390x844@2x",
+ "motion": "finite-finished-infinite-paused-at-start",
+ "fixtures": "fresh-page-cleared-local-storage-per-shot",
+ "errors": [],
+ "shots": [
+  {
+   "screen": "t-client",
+   "scenario": "normal",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__normal__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-client",
+   "scenario": "empty",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__empty__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-client",
+   "scenario": "loading",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__loading__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-client",
+   "scenario": "offline",
+   "theme": "auto",
+   "resolved": "dark",
+   "file": "t-client__offline__auto-dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-client",
+   "scenario": "normal",
+   "theme": "dark",
+   "resolved": "dark",
+   "file": "t-client__normal__dark.png",
+   "width": 390,
+   "height": 844
+  },
+  {
+   "screen": "t-client",
+   "scenario": "normal",
+   "theme": "light",
+   "resolved": "light",
+   "file": "t-client__normal__light.png",
+   "width": 390,
+   "height": 844
+  }
+ ]
+}

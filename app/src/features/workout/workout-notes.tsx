@@ -1,9 +1,12 @@
+import { useTheme } from '@/ui/theme';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { type WorkoutAction, type WorkoutJournal } from '@/domain/workout';
 import { Text } from '@/ui/text';
+import { MotionView } from '@/ui/motion';
+import { workoutMotion } from './workout-motion';
 import { Icon } from '@/ui/icons';
-import { workoutStyles as s } from './measurements';
+import { createWorkoutStyles } from './measurements';
 
 export function WorkoutNotes({
   journal,
@@ -15,17 +18,33 @@ export function WorkoutNotes({
   dispatch: (action: WorkoutAction) => void;
 }) {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const s = createWorkoutStyles(colors);
   const notes = journal.notes?.[journal.active] ?? [];
   if (!notes.length) return null;
   return (
     <View accessibilityLabel={t('workout.notesLabel')} style={s.notes}>
       <View style={s.row}>
-        <Icon name="note" size={17} color="#f7c96a" />
+        <Icon name="note" size={17} color={colors.workoutNoteInk} />
         <Text style={[s.bold, s.grow]}>{t('workout.notes')}</Text>
         <Text>{notes.length}</Text>
       </View>
       {notes.map((note, index) => (
-        <View key={index} style={s.noteRow}>
+        <MotionView
+          key={JSON.stringify([
+            journal.active,
+            note.at,
+            note.text,
+            notes
+              .slice(0, index)
+              .filter(
+                (previous) =>
+                  previous.at === note.at && previous.text === note.text,
+              ).length,
+          ])}
+          duration={workoutMotion.notesDuration}
+          style={s.noteRow}
+        >
           <Text style={[s.small, s.secondary]}>{note.at}</Text>
           <Text style={[s.small, s.grow]}>{note.text}</Text>
           <Pressable
@@ -54,10 +73,10 @@ export function WorkoutNotes({
                 })
               }
             >
-              <Icon name="close" size={15} color="#a3a4ab" />
+              <Icon name="close" size={15} color={colors.secondary} />
             </Pressable>
           )}
-        </View>
+        </MotionView>
       ))}
     </View>
   );

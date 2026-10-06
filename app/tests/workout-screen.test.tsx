@@ -1,5 +1,21 @@
+import { ThemeProvider, tokens, useTheme } from '../src/ui/theme';
 import { useReducer, type PropsWithChildren } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { withTiming } from 'react-native-reanimated';
+import { motion } from '../src/ui/motion';
+import {
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+  Text as NativeText,
+} from 'react-native';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react-native';
 import '../src/lib/i18n';
 import {
   createWorkoutState,
@@ -253,4 +269,227 @@ test('failed restoration offers retry without opening a fresh editable journal',
     screen.getByRole('button', { name: 'Повторить загрузку' }),
   );
   expect(retry).toHaveBeenCalled();
+});
+
+test.each([1.34, 2])(
+  'journal keeps input editable and its dock fixed at fontScale %s',
+  async (fontScale) => {
+    const originalWindow = Dimensions.get('window');
+    const originalScreen = Dimensions.get('screen');
+    await act(async () =>
+      Dimensions.set({
+        window: { ...originalWindow, width: 390, height: 844, fontScale },
+        screen: { ...originalScreen, width: 390, height: 844, fontScale },
+      }),
+    );
+    try {
+      await render(<Harness />);
+      const input = screen.getByTestId('workout-composer-kg');
+      expect(StyleSheet.flatten(input.props.style).minHeight).toBe(
+        48 * fontScale,
+      );
+      expect(StyleSheet.flatten(input.props.style).height).toBeUndefined();
+      expect(
+        screen.getByRole('button', { name: 'Завершить' }).parent,
+      ).toBeTruthy();
+      expect(
+        within(screen.getByTestId('workout-dock')).getByRole('button', {
+          name: 'Завершить',
+        }),
+      ).toBeTruthy();
+      await fireEvent.changeText(input, '60');
+      await fireEvent.press(
+        screen.getByRole('button', { name: 'Записать подход 1' }),
+      );
+      expect(screen.getByLabelText('Записано 1 из 12 подходов')).toBeTruthy();
+      await fireEvent.press(
+        screen.getByRole('button', {
+          name: 'Изменить подход 1: Приседания со штангой',
+        }),
+      );
+      expect(screen.getByTestId('workout-editor-kg').props.value).toBe('60');
+    } finally {
+      await act(async () =>
+        Dimensions.set({ window: originalWindow, screen: originalScreen }),
+      );
+    }
+  },
+);
+
+test('selecting an exercise with existing sets does not replay recorded feedback', async () => {
+  let state = workoutReducer(createWorkoutState(), {
+    type: 'open',
+    sessionId: 's1',
+  });
+  const journal = state.sessions.s1!;
+  const second = journal.plans[journal.active]!.exercises[1]!;
+  state = workoutReducer(state, {
+    type: 'save',
+    clientId: journal.active,
+    exerciseId: second.id,
+    setIndex: 0,
+    value: { kg: 40, reps: 8 },
+  });
+  await render(
+    <WorkoutScreen
+      sessionId="s1"
+      journal={state.sessions.s1!}
+      dispatch={jest.fn()}
+      onMinimize={minimize}
+      onLeave={leave}
+    />,
+  );
+  jest.mocked(withTiming).mockClear();
+  await fireEvent.press(screen.getByRole('button', { name: second.name }));
+  expect(
+    jest
+      .mocked(withTiming)
+      .mock.calls.filter(
+        (call) =>
+          call[1]?.duration === 200 &&
+          call[1]?.easing === motion.standardEasing,
+      ),
+  ).toHaveLength(0);
+});
+test('deleting the first note preserves the remaining note without replaying riseIn', async () => {
+  const opened = workoutReducer(createWorkoutState(), {
+    type: 'open',
+    sessionId: 's1',
+  });
+  const clientId = opened.sessions.s1!.active;
+  await render(
+    <Harness
+      actions={[
+        { type: 'addNote', clientId, text: 'First note', at: '12:30' },
+        { type: 'addNote', clientId, text: 'Second note', at: '12:31' },
+      ]}
+    />,
+  );
+  jest.mocked(withTiming).mockClear();
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Удалить заметку: First note' }),
+  );
+  expect(screen.getByText('Second note')).toBeOnTheScreen();
+  expect(
+    jest
+      .mocked(withTiming)
+      .mock.calls.filter((call) => call[1]?.duration === 400),
+  ).toHaveLength(0);
+});
+
+test('screen aligns the active card on opening, next, manual selection and recording, never typing', async () => {
+  const scrollTo = jest
+    .spyOn(ScrollView.prototype, 'scrollTo')
+    .mockImplementation(() => undefined);
+  try {
+    await render(<Harness />);
+    await fireEvent(screen.getByTestId('workout-body'), 'layout', {
+      nativeEvent: { layout: { y: 100 } },
+    });
+    expect(scrollTo).toHaveBeenLastCalledWith({
+      y: 112,
+      animated: expect.any(Boolean),
+    });
+    scrollTo.mockClear();
+    await fireEvent.changeText(screen.getByTestId('workout-composer-kg'), '60');
+    expect(scrollTo).not.toHaveBeenCalled();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Записать подход 1' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    scrollTo.mockClear();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Дальше: Отжимания' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    scrollTo.mockClear();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Приседания со штангой' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    scrollTo.mockClear();
+    await fireEvent.press(
+      screen.getByRole('button', { name: 'Приседания со штангой' }),
+    );
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+  } finally {
+    scrollTo.mockRestore();
+  }
+});
+
+test.each([573, 461])(
+  'overflow scrolls metadata with composer outside it in viewport %s',
+  async (height) => {
+    await render(<Harness />);
+    await fireEvent(screen.getByTestId('workout-scroll'), 'layout', {
+      nativeEvent: { layout: { height } },
+    });
+    await fireEvent(screen.getByTestId('workout-active-composer'), 'layout', {
+      nativeEvent: { layout: { height: 318 } },
+    });
+    await fireEvent(
+      screen.getByTestId('workout-active-details'),
+      'contentSizeChange',
+      343,
+      480,
+    );
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId('workout-active-exercise').props.style,
+      ).height,
+    ).toBe(height);
+    expect(
+      StyleSheet.flatten(
+        screen.getByTestId('workout-active-details').props.style,
+      ).maxHeight,
+    ).toBe(height - 348);
+    expect(
+      within(screen.getByTestId('workout-active-details')).queryByTestId(
+        'workout-composer-kg',
+      ),
+    ).toBeNull();
+    expect(
+      within(screen.getByTestId('workout-active-composer')).getByRole(
+        'button',
+        { name: 'Записать подход 1' },
+      ),
+    ).toBeTruthy();
+  },
+);
+
+function AppearanceSwitch() {
+  const { setAppearance } = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="switch-theme"
+      onPress={() => setAppearance('dark')}
+    >
+      <NativeText>switch</NativeText>
+    </Pressable>
+  );
+}
+
+test('changing appearance recolors journal and composer without losing the draft', async () => {
+  await render(
+    <ThemeProvider role="client">
+      <AppearanceSwitch />
+      <Harness />
+    </ThemeProvider>,
+  );
+  expect(
+    StyleSheet.flatten(screen.getByTestId('workout-normal').props.style)
+      .backgroundColor,
+  ).toBe(tokens.colors.light.canvas);
+  await fireEvent.changeText(screen.getByTestId('workout-composer-kg'), '52,5');
+  await fireEvent.press(screen.getByRole('button', { name: 'switch-theme' }));
+  expect(
+    StyleSheet.flatten(screen.getByTestId('workout-normal').props.style)
+      .backgroundColor,
+  ).toBe(tokens.colors.dark.canvas);
+  expect(screen.getByTestId('workout-composer-kg').props.value).toBe('52,5');
+  expect(
+    StyleSheet.flatten(screen.getByTestId('workout-composer-kg').props.style)
+      .color,
+  ).toBe(tokens.colors.dark.ink);
 });

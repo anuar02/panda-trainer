@@ -1,5 +1,7 @@
+import { Dimensions, StyleSheet } from 'react-native';
 import type { PropsWithChildren } from 'react';
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -13,7 +15,10 @@ import {
   encodeSchedulingState,
 } from '../src/domain/scheduling';
 import { SchedulingDemoProvider } from '../src/features/scheduling-demo/provider';
-import { TrainerTodayScreen } from '../src/features/trainer-today/trainer-today-screen';
+import {
+  TrainerTodayScreen,
+  calmStyles,
+} from '../src/features/trainer-today/trainer-today-screen';
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
@@ -38,16 +43,21 @@ test.each([false, true])(
         <TrainerTodayScreen />
       </WorkoutDemoProvider>,
     );
+    if (finished) {
+      await waitFor(() => expect(screen.getByText(/Следующее/)).toBeTruthy());
+      await fireEvent.press(screen.getByText('Показать'));
+    }
     await waitFor(() =>
       expect(
         screen.getByText(finished ? 'Журнал завершён' : 'Журнал в работе'),
       ).toBeTruthy(),
     );
-    expect(
-      screen.queryByRole('button', { name: 'Начать тренировку' }),
-    ).toBeNull();
+    if (!finished)
+      expect(
+        screen.queryByRole('button', { name: 'Начать тренировку' }),
+      ).toBeNull();
     await fireEvent.press(
-      screen.getByRole('button', { name: /Участники мини-группы/ }),
+      screen.getByRole('button', { name: 'Занятие Мини-группа, 20:00–21:00' }),
     );
     const label = finished ? 'Посмотреть результаты' : 'Продолжить тренировку';
     await fireEvent.press(
@@ -87,7 +97,7 @@ test('past sessions expand and collapse without changing the current group', asy
 test('group participants open with all original attendance unmarked', async () => {
   await render(<TrainerTodayScreen />);
   await fireEvent.press(
-    screen.getByRole('button', { name: /Участники мини-группы/ }),
+    screen.getByRole('button', { name: 'Занятие Мини-группа, 20:00–21:00' }),
   );
   expect(screen.getByText('Алия Нурлановa')).toBeTruthy();
   expect(screen.getByText('Мади Касымов')).toBeTruthy();
@@ -114,10 +124,7 @@ test('empty and loading omit bookings, offline preserves cached day', async () =
     ),
   ).toBeTruthy();
   expect(screen.getByText('Мини-группа')).toBeTruthy();
-  expect(
-    screen.getByRole('button', { name: 'Создать занятие' }).props
-      .accessibilityState.disabled,
-  ).toBe(false);
+  expect(screen.getByRole('button', { name: 'Создать занятие' })).toBeEnabled();
 });
 
 test('current group starts the canonical group journal', async () => {
@@ -146,7 +153,7 @@ test.each([
       screen.getByRole('button', { name: `Занятие ${name}, ${time}` }),
     );
     await fireEvent.press(
-      screen.getAllByRole('button', { name: 'Начать тренировку' })[1]!,
+      screen.getAllByRole('button', { name: 'Начать тренировку' }).at(-1)!,
     );
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/session/[id]',
@@ -209,9 +216,9 @@ test('shared state removes moved appointments and displays newly created entries
   );
   await waitFor(() => expect(screen.getByText('22:15')).toBeTruthy());
   expect(screen.queryByText('21:15')).toBeNull();
-  expect(screen.getByText('Последнее занятие до 23:00')).toBeTruthy();
+  expect(screen.queryByText('Последнее занятие до 23:00')).toBeNull();
   await fireEvent.press(
-    screen.getByRole('button', { name: 'Занятие Айгерим Бекова, 22:15–23:00' }),
+    screen.getByRole('button', { name: 'Занятие Айгерим, 22:15–23:00' }),
   );
   expect(
     screen.getByRole('button', { name: 'Перенести занятие' }),
@@ -226,8 +233,105 @@ test('request action opens the shared inbox', async () => {
     </SchedulingDemoProvider>,
   );
   await waitFor(() =>
-    expect(screen.getByRole('button', { name: '2 запроса' })).toBeEnabled(),
+    expect(
+      screen.getByRole('button', {
+        name: 'Входящие: 2 запроса требуют ответа',
+      }),
+    ).toBeEnabled(),
   );
-  await fireEvent.press(screen.getByRole('button', { name: '2 запроса' }));
+  await fireEvent.press(
+    screen.getByRole('button', { name: 'Входящие: 2 запроса требуют ответа' }),
+  );
   expect(mockPush).toHaveBeenCalledWith('/inbox');
 });
+
+test.each([1.34, 2])(
+  'Today keeps sessions and group controls at fontScale %s',
+  async (fontScale) => {
+    const originalWindow = Dimensions.get('window');
+    const originalScreen = Dimensions.get('screen');
+    await act(async () =>
+      Dimensions.set({
+        window: { ...originalWindow, width: 390, height: 844, fontScale },
+        screen: { ...originalScreen, width: 390, height: 844, fontScale },
+      }),
+    );
+    try {
+      await render(<TrainerTodayScreen />);
+      const focusStyle = StyleSheet.flatten(
+        screen.getByTestId('today-session-s6').props.style,
+      );
+      expect(focusStyle.height).toBeUndefined();
+      expect(Object.hasOwn(calmStyles.focusTime, 'height')).toBe(false);
+      expect(Object.hasOwn(calmStyles.cta, 'height')).toBe(false);
+      expect(screen.getByText('Мини-группа')).toBeTruthy();
+      await fireEvent.press(
+        screen.getByRole('button', { name: /Прошло 5 занятий/ }),
+      );
+      expect(screen.getByText('09:00')).toBeTruthy();
+      await fireEvent.press(
+        screen.getByRole('button', {
+          name: 'Занятие Мини-группа, 20:00–21:00',
+        }),
+      );
+      expect(screen.getByText('Дана Ержанова')).toBeTruthy();
+    } finally {
+      await act(async () =>
+        Dimensions.set({ window: originalWindow, screen: originalScreen }),
+      );
+    }
+  },
+);
+
+test('demo zero requests remove badge and replies', async () => {
+  const state = createSchedulingState();
+  state.requests = {};
+  const storage = {
+    getItem: async () => encodeSchedulingState(state),
+    setItem: async () => {},
+  };
+  await render(
+    <SchedulingDemoProvider storage={storage}>
+      <TrainerTodayScreen />
+    </SchedulingDemoProvider>,
+  );
+  await waitFor(() =>
+    expect(screen.queryByTestId('today-inbox-count')).toBeNull(),
+  );
+  expect(screen.queryByTestId('today-replies')).toBeNull();
+  expect(screen.queryByText('0')).toBeNull();
+});
+
+test('past journal draft stays visible outside collapsed past and current session stays unique', async () => {
+  const state = workoutReducer(createWorkoutState(), {
+    type: 'open',
+    sessionId: 's1',
+  });
+  const storage = {
+    getItem: async () => JSON.stringify(state),
+    setItem: async () => {},
+  };
+  await render(
+    <WorkoutDemoProvider storage={storage}>
+      <TrainerTodayScreen />
+    </WorkoutDemoProvider>,
+  );
+  await waitFor(() =>
+    expect(screen.getByTestId('today-session-s1')).toBeTruthy(),
+  );
+  expect(screen.getAllByTestId('today-session-s1')).toHaveLength(1);
+  expect(screen.getAllByTestId('today-session-s6')).toHaveLength(1);
+  await fireEvent.press(screen.getByText('Показать'));
+  expect(screen.getAllByTestId('today-session-s1')).toHaveLength(1);
+  expect(screen.getAllByTestId('today-session-s6')).toHaveLength(1);
+});
+
+jest.mock('../src/features/workspace-scheduling/today-journal-hook', () => ({
+  useTodayFinishedBookingIds: () => ({
+    finishedIds: new Set<string>(),
+    scoped: false,
+    failed: false,
+    loading: false,
+    retry: jest.fn(),
+  }),
+}));

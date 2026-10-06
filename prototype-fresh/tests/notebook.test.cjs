@@ -65,11 +65,84 @@ test('today distinguishes ongoing, upcoming and elapsed slots at the same demo t
   const run = app();
   run("DB.NOW_TIME = '20:30'");
   const live = JSON.parse(run('JSON.stringify(DB.byDate(DB.TODAY).filter(s => s.status !== "cancelled"))'));
-  const ahead = live.filter(s => s.start > '20:30').length;
-  const ongoing = live.filter(s => s.start <= '20:30' && s.end > '20:30').length;
-  assert.match(run('Trainer.today()'), new RegExp(`${ahead}</b> впереди`));
-  if (ongoing) assert.match(run('Trainer.today()'), new RegExp(`${ongoing}</b> сейчас`));
+  const ongoing = live.filter(s => s.start <= '20:30' && s.end > '20:30');
+  const ahead = live.filter(s => s.start > '20:30');
+  const html = run('Trainer.today()');
+  if (ongoing.length) assert.match(html, new RegExp(`class="today-focus is-now" data-session="${ongoing[0].id}"`));
+  for (const s of ahead) assert.match(html, new RegExp(`class="today-row" data-session="${s.id}"`));
   run("DB.NOW_TIME = '23:59'");
-  assert.match(run('Trainer.today()'), /0<\/b> впереди/);
-  assert.match(run('Trainer.today()'), /Все занятия позади/);
+  const late = run('Trainer.today()');
+  assert.doesNotMatch(late, /class="today-focus/);
+  assert.match(late, /Все занятия на сегодня позади/);
+});
+
+test('completed current and future journals move to past at 20:30', () => {
+  const run = app();
+  run("DB.NOW_TIME = '20:30'; for (const id of ['s6', 's7']) { Store.logging.open(id); Store.logging.finish(); Store.logging.confirmPartial(); }");
+  assert.equal(run("Store.logging.status('s6')"), 'finished');
+  assert.equal(run("Store.logging.status('s7')"), 'finished');
+  const html = run('Trainer.today()');
+  assert.doesNotMatch(html, /class="today-focus|<span>Дальше<\/span>|до 22:00|Дальше свободно/);
+  assert.match(html, /Все занятия на сегодня позади/);
+  assert.match(html, /Прошло 7 занятий/);
+  const past = html.slice(html.indexOf('id="today-past-list"'));
+  for (const id of ['s6', 's7']) assert.match(past, new RegExp(`data-session="${id}"`));
+});
+
+test('completing the current journal promotes the upcoming unfinished session', () => {
+  const run = app();
+  run("DB.NOW_TIME = '20:30'; Store.logging.open('s6'); Store.logging.finish(); Store.logging.confirmPartial();");
+  const html = run('Trainer.today()');
+  assert.match(html, /class="today-focus" data-session="s7"/);
+  assert.match(html, /Следующее ·/);
+  assert.doesNotMatch(html, /today-focus is-now|<span>Дальше<\/span>|Все занятия на сегодня позади/);
+  assert.match(html, /Прошло 6 занятий/);
+});
+
+test('completed overlap journal leaves its unfinished neighbour in focus', () => {
+  const run = app();
+  run("DB.NOW_TIME = '18:40'; Store.logging.open('s4'); Store.logging.finish(); Store.logging.confirmPartial();");
+  const html = run('Trainer.today()');
+  assert.match(html, /class="today-focus is-now" data-session="s5"/);
+  assert.match(html, /Прошло 4 занятия/);
+  const beforePast = html.slice(0, html.indexOf('class="today-past'));
+  assert.doesNotMatch(beforePast, /data-session="s4"/);
+  assert.match(html.slice(html.indexOf('id="today-past-list"')), /data-session="s4"/);
+});
+
+test('timeline until follows the last displayed noncancelled row, excluding completed journals', () => {
+  const run = app();
+  run("DB.NOW_TIME = '18:40'; Store.logging.open('s7'); Store.logging.finish(); Store.logging.confirmPartial();");
+  const html = run('Trainer.today()');
+  assert.match(html, /<span>Дальше<\/span><span class="num">до 21:00<\/span>/);
+  assert.doesNotMatch(html, /до 22:00/);
+  const timeline = html.slice(html.indexOf('<section class="today-section">'), html.indexOf('class="today-past'));
+  assert.match(timeline, /data-session="s6"/);
+  assert.doesNotMatch(timeline, /data-session="s7"/);
+});
+
+test('timeline until ignores cancelled rows and a focus that ends later', () => {
+  const run = app();
+  run(`DB.NOW_TIME = '20:30';
+    const sessions = DB.byDate(DB.TODAY).map(s => ({ ...s }));
+    sessions.find(s => s.id === 's6').end = '23:00';
+    sessions.find(s => s.id === 's7').status = 'cancelled';
+    DB.byDate = () => sessions;
+    DB.overlapGroups = () => [];
+    Store.logging.open('s1');`);
+  const html = run('Trainer.today()');
+  assert.match(html, /class="today-focus is-now" data-session="s6"/);
+  assert.match(html, /<span>Дальше<\/span><span class="num">до 10:00<\/span>/);
+  assert.doesNotMatch(html, /до 23:00|до 22:00/);
+});
+
+
+test('completed overlap member does not leave a phantom conflict in the timeline', () => {
+  const run = app();
+  run("DB.NOW_TIME = '08:30'; Store.logging.open('s4'); Store.logging.finish(); Store.logging.confirmPartial();");
+  const html = run('Trainer.today()');
+  assert.match(html, /class="today-focus" data-session="s1"/);
+  assert.match(html, /class="today-row" data-session="s5"/);
+  assert.doesNotMatch(html, /class="today-conflict"|Пересечение ·/);
+  assert.match(html.slice(html.indexOf('id="today-past-list"')), /data-session="s4"/);
 });

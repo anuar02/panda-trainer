@@ -1,4 +1,13 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import { NativeTabScrollView as ScrollView } from '@/features/navigation/native-tab-scroll-view';
+import { useTabBarLayout } from '@/features/navigation/tab-bar-layout';
+import {
+  MotionHeader,
+  Shimmer,
+  MotionPressable as Pressable,
+} from '@/ui/motion';
+
+import type { ReactNode } from 'react';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import Svg, { Defs, Ellipse, RadialGradient, Stop } from 'react-native-svg';
@@ -16,17 +25,38 @@ import { progressWeek } from './fixtures';
 import { styles as s } from './styles';
 import type { clientProgress } from './ru';
 
+export type ClientProgressResult = {
+  name: string;
+  unit: 'сек' | 'повт';
+  best: { kg: number; reps: number; date: string };
+  delta: number | null;
+  deltaUnit: 'кг' | 'сек' | 'повт';
+  baselineDate: string | null;
+  series: readonly { date: string; value: number }[];
+};
+export type ClientProgressData = {
+  trainerName: string;
+  results: readonly ClientProgressResult[];
+  loading?: boolean;
+  footer?: ReactNode;
+  onSelectResult?: (result: ClientProgressResult) => void;
+};
 export function ClientProgressScreen({
   scenario = 'normal',
+  data,
 }: {
   scenario?: DemoScenario;
+  data?: ClientProgressData;
 }) {
+  const { bottomInset } = useTabBarLayout();
   const { t, i18n } = useTranslation();
-  const demo = useOptionalWorkoutDemo();
+  const demoContext = useOptionalWorkoutDemo();
+  const demo = data ? null : demoContext;
   const results =
-    scenario !== 'empty' && demo?.hydrated
+    data?.results ??
+    (scenario !== 'empty' && demo?.hydrated
       ? workoutClientProgress(demo.state, 'c1')
-      : [];
+      : []);
   const number = (value: number) =>
     new Intl.NumberFormat(i18n.language).format(value);
   const { colors, scheme } = useTheme();
@@ -39,7 +69,7 @@ export function ClientProgressScreen({
       style={s.root}
       testID={`client-progress-${scenario}`}
     >
-      <View style={s.topbar}>
+      <MotionHeader motionKey={scenario} style={s.topbar}>
         <View style={s.trainer}>
           <View style={s.avatar}>
             <GradientBackground
@@ -47,14 +77,23 @@ export function ClientProgressScreen({
               end={scheme === 'light' ? '#141726' : '#18191d'}
               radius={16}
             />
-            <Text style={s.initials}>{tx('initials')}</Text>
+            <Text style={s.initials}>
+              {data
+                ? data.trainerName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0])
+                    .join('')
+                : tx('initials')}
+            </Text>
           </View>
           <View>
             <Text className="font-medium text-secondary" style={s.trainerText}>
               {tx('trainerLabel')}
             </Text>
             <Text className="font-bold" style={s.trainerText}>
-              {tx('trainer')}
+              {data?.trainerName ?? tx('trainer')}
             </Text>
           </View>
         </View>
@@ -68,16 +107,26 @@ export function ClientProgressScreen({
         >
           <Icon name="bell" color={colors.ink} size={22} />
         </Pressable>
-      </View>
-      <ScrollView contentContainerStyle={s.body}>
-        {scenario === 'loading' || (demo && !demo.hydrated) ? (
+      </MotionHeader>
+      <ScrollView
+        motionKey={scenario}
+        contentContainerStyle={[
+          s.body,
+          bottomInset ? { paddingBottom: bottomInset } : undefined,
+        ]}
+      >
+        {(
+          data
+            ? data.loading
+            : scenario === 'loading' || (demo && !demo.hydrated)
+        ) ? (
           <View
             style={s.page}
             accessible
             accessibilityRole="progressbar"
             accessibilityLabel={tx('loading')}
           >
-            <Card flush style={s.rowsCard}>
+            <Card rows flush style={s.rowsCard}>
               {[0, 1, 2, 3].map((row) => (
                 <View
                   key={row}
@@ -90,20 +139,20 @@ export function ClientProgressScreen({
                     },
                   ]}
                 >
-                  <View
+                  <Shimmer
                     style={[
                       s.skeletonCircle,
                       { backgroundColor: colors.sunken },
                     ]}
                   />
                   <View style={s.rowMain}>
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonTitle,
                         { backgroundColor: colors.sunken },
                       ]}
                     />
-                    <View
+                    <Shimmer
                       style={[
                         s.skeletonMeta,
                         { backgroundColor: colors.sunken },
@@ -116,7 +165,7 @@ export function ClientProgressScreen({
           </View>
         ) : (
           <>
-            {scenario === 'offline' && (
+            {!data && scenario === 'offline' && (
               <Text
                 accessibilityRole="alert"
                 style={[
@@ -142,9 +191,20 @@ export function ClientProgressScreen({
                       key={`${result.name}:${result.unit}`}
                       style={s.resultCard}
                     >
-                      <Text accessibilityRole="header" style={s.resultTitle}>
-                        {result.name}
-                      </Text>
+                      <Pressable
+                        className="min-h-11 justify-center"
+                        accessibilityRole="button"
+                        disabled={!data?.onSelectResult}
+                        accessibilityLabel={t(
+                          'clientProgress.exerciseHistory',
+                          { name: result.name },
+                        )}
+                        onPress={() => data?.onSelectResult?.(result)}
+                      >
+                        <Text accessibilityRole="header" style={s.resultTitle}>
+                          {result.name}
+                        </Text>
+                      </Pressable>
                       <Text style={s.best}>
                         {t(
                           `clientProgress.${result.best.kg ? 'weightedBest' : 'unweightedBest'}`,
@@ -244,37 +304,40 @@ export function ClientProgressScreen({
                 </View>
               )}
             </View>
-            <View style={s.visits}>
-              <Text accessibilityRole="header" style={s.sectionTitle}>
-                {tx('visitsTitle')}
-              </Text>
-              <Card flush style={s.visitsCard}>
-                <View style={s.week}>
-                  {progressWeek.map(({ weekday, day }) => (
-                    <View key={weekday} style={s.column}>
-                      <Text style={[s.weekday, secondary]}>
-                        {t(`clientProgress.weekdays.${weekday}`)}
-                      </Text>
-                      <View
-                        accessible
-                        accessibilityLabel={t('clientProgress.dayLabel', {
-                          weekday: t(`clientProgress.weekdays.${weekday}`),
-                          day,
-                        })}
-                        style={s.day}
-                      >
-                        <Text style={[s.dayText, secondary]}>{day}</Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-                <Text style={[s.footnote, secondary]}>
-                  {tx('visitsFootnote')}
+            {!data && (
+              <View style={s.visits}>
+                <Text accessibilityRole="header" style={s.sectionTitle}>
+                  {tx('visitsTitle')}
                 </Text>
-              </Card>
-            </View>
+                <Card rows flush style={s.visitsCard}>
+                  <View style={s.week}>
+                    {progressWeek.map(({ weekday, day }) => (
+                      <View key={weekday} style={s.column}>
+                        <Text style={[s.weekday, secondary]}>
+                          {t(`clientProgress.weekdays.${weekday}`)}
+                        </Text>
+                        <View
+                          accessible
+                          accessibilityLabel={t('clientProgress.dayLabel', {
+                            weekday: t(`clientProgress.weekdays.${weekday}`),
+                            day,
+                          })}
+                          style={s.day}
+                        >
+                          <Text style={[s.dayText, secondary]}>{day}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                  <Text style={[s.footnote, secondary]}>
+                    {tx('visitsFootnote')}
+                  </Text>
+                </Card>
+              </View>
+            )}
           </>
         )}
+        {data?.footer}
       </ScrollView>
     </SafeAreaView>
   );

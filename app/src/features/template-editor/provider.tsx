@@ -31,9 +31,14 @@ export const builtInTemplates: Template[] = trainerLibrary.templateData.map(
     })),
   }),
 );
+let editorScope = 0;
+export const nextTemplateEditorScope = () => ++editorScope;
 type Storage = Pick<typeof AsyncStorage, 'getItem' | 'setItem'>;
 type Status = 'loading' | 'saved' | 'saving' | 'error';
-type Value = {
+export type TemplateEditorStore = {
+  scope?: number;
+  pendingSave?: boolean;
+  capture?: () => () => boolean;
   templates: Template[];
   draft: TemplateDraft | null;
   ready: boolean;
@@ -46,7 +51,7 @@ type Value = {
   save: () => Promise<TemplateResult>;
   retry: () => void;
 };
-const Context = createContext<Value | null>(null);
+const Context = createContext<TemplateEditorStore | null>(null);
 const catalog = (state: TemplateState) => [
   ...builtInTemplates.map((t) => state.items.find((x) => x.id === t.id) ?? t),
   ...state.items.filter((t) => !builtInTemplates.some((x) => x.id === t.id)),
@@ -66,6 +71,7 @@ export function TemplateProvider({
   const locked = useRef(false);
   const mounted = useRef(false);
   const revision = useRef(0);
+  const [scope, setScope] = useState(nextTemplateEditorScope);
   const writes = useRef(Promise.resolve(true));
   useEffect(() => {
     let active = true;
@@ -138,7 +144,8 @@ export function TemplateProvider({
     if (mounted.current) setBusy(false);
     return ok;
   };
-  const value: Value = {
+  const value: TemplateEditorStore = {
+    scope,
     templates: catalog(state),
     draft: state.draft,
     ready,
@@ -150,6 +157,7 @@ export function TemplateProvider({
       if (!available.current || locked.current) return false;
       const template = catalog(current.current).find((t) => t.id === id);
       if (id && !template) return false;
+      setScope(nextTemplateEditorScope());
       update(beginTemplate(template, copy));
       return true;
     },
