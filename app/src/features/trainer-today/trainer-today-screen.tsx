@@ -8,11 +8,13 @@ import {
 } from '@/ui/motion';
 import { Mascot } from '@/ui/mascot';
 import { useState, type ReactNode } from 'react';
-import type {
-  TrainerTodayAgenda,
-  TrainerTodaySessionRow,
-  TrainerTodayAgendaItem,
+import {
+  journalTodayAgenda,
+  type TrainerTodayAgenda,
+  type TrainerTodaySessionRow,
+  type TrainerTodayAgendaItem,
 } from '@/features/workspace-scheduling/today-adapter';
+import { useTodayFinishedBookingIds } from '@/features/workspace-scheduling/today-journal-hook';
 import { router } from 'expo-router';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -98,6 +100,36 @@ export function TrainerTodayScreen({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const journal = useJournalLabels();
   const workout = useOptionalWorkoutDemo();
+  const serverFinished = useTodayFinishedBookingIds(
+    data?.agenda.rows.flatMap((row) =>
+      row.participants
+        .filter((participant) => participant.status !== 'cancelled')
+        .map((participant) => participant.id),
+    ) ?? [],
+  );
+  const bookingFinished = (id: string) =>
+    data && serverFinished.scoped
+      ? serverFinished.finishedIds.has(id)
+      : Boolean(workout?.state.sessions[id]?.finished);
+  const finished = (id: string) => {
+    const row = data?.agenda.rows.find((row) => row.id === id);
+    if (!row?.groupSessionId) return bookingFinished(id);
+    const participants = row.participants.filter(
+      (participant) => participant.status !== 'cancelled',
+    );
+    return (
+      participants.length > 0 &&
+      participants.every((participant) => bookingFinished(participant.id))
+    );
+  };
+  const journalStatus = (id: string) =>
+    finished(id) ? t('trainerToday.journalFinished') : journal.status(id);
+  const agenda = data
+    ? journalTodayAgenda(data.agenda, data.timezone, {
+        finished,
+        draft: journal.draft,
+      })
+    : null;
   const templates = useOptionalTemplates()?.templates ?? builtInTemplates;
   const programName = (program: string | null) =>
     templates.find((template) => template.id === program)?.name ?? program;
@@ -153,12 +185,15 @@ export function TrainerTodayScreen({
     cancelled: session.cancelled,
     pending:
       session.replies.pending > 0 || session.pendingProposalIds.length > 0,
-    past: session.past && !journal.draft(session.id),
+    past:
+      session.cancelled ||
+      finished(session.id) ||
+      (session.past && !journal.draft(session.id)),
     participants: session.participants,
     open: () => data?.onSelectSession(session),
   });
   const rows: CalmSession[] = data
-    ? data.agenda.rows.map(fromServer)
+    ? agenda!.rows.map(fromServer)
     : state.sessions
         .filter((session) => session.date === schedulingToday)
         .sort((a, b) => a.start.localeCompare(b.start))
@@ -177,9 +212,11 @@ export function TrainerTodayScreen({
           cancelled: session.status === 'cancelled',
           pending: session.status === 'proposed',
           past:
-            (session.status === 'cancelled' || session.end <= schedulingNow) &&
-            !journal.draft(session.id) &&
-            !pending.some((request) => request.sessionId === session.id),
+            session.status === 'cancelled' ||
+            finished(session.id) ||
+            (session.end <= schedulingNow &&
+              !journal.draft(session.id) &&
+              !pending.some((request) => request.sessionId === session.id)),
           participants: session.participants.map((p) => ({
             id: p.clientId,
             name: person(p.clientId),
@@ -196,19 +233,15 @@ export function TrainerTodayScreen({
                   }),
         }));
   const clock = data?.agenda.clock ?? schedulingNow;
-  const live = rows.filter(
-    (row) =>
-      !row.cancelled &&
-      journal.status(row.id) !== t('trainerToday.journalFinished'),
-  );
+  const live = rows.filter((row) => !row.cancelled && !row.past);
   const focus = data
-    ? data.agenda.focusRow
-      ? fromServer(data.agenda.focusRow)
+    ? agenda!.focusRow
+      ? fromServer(agenda!.focusRow)
       : undefined
     : (live.find((row) => row.start <= clock && row.end > clock) ??
       live.find((row) => row.start > clock));
   const active = data
-    ? data.agenda.focusRow?.role === 'now'
+    ? agenda!.focusRow?.role === 'now'
     : focus !== undefined && focus.start <= clock && focus.end > clock;
   const past = rows.filter((row) => row.past && row.id !== focus?.id);
   const upcoming = rows.filter((row) => !row.past && row.id !== focus?.id);
@@ -242,7 +275,7 @@ export function TrainerTodayScreen({
   const flags = (row: CalmSession) =>
     row.cancelled ||
     row.pending ||
-    journal.status(row.id) ||
+    journalStatus(row.id) ||
     pending.some((request) => request.sessionId === row.id) ? (
       <View style={c.flags}>
         {row.cancelled && (
@@ -263,8 +296,8 @@ export function TrainerTodayScreen({
             </Text>
           )
         )}
-        {journal.status(row.id) && (
-          <Text style={[c.flag, secondary]}>{journal.status(row.id)}</Text>
+        {journalStatus(row.id) && (
+          <Text style={[c.flag, secondary]}>{journalStatus(row.id)}</Text>
         )}
       </View>
     ) : null;
@@ -356,7 +389,7 @@ export function TrainerTodayScreen({
   const timeline: ReactNode[] = [];
   let cursor = focus?.end;
   if (data) {
-    data.agenda.items.forEach((item, index) => {
+    agenda!.items.forEach((item, index) => {
       if (item.kind === 'session') {
         if (
           item.row.id !== focus?.id &&
@@ -408,6 +441,17 @@ export function TrainerTodayScreen({
       timeline.push(entry(row));
       if (!row.cancelled && (!cursor || row.end > cursor)) cursor = row.end;
     });
+  const timelineEnd = data
+    ? agenda!.items
+        .flatMap((item) =>
+          item.kind === 'session' &&
+          !item.row.cancelled &&
+          upcoming.some((row) => row.id === item.row.id)
+            ? [item.row.end]
+            : [],
+        )
+        .at(-1)
+    : upcoming.filter((row) => !row.cancelled).at(-1)?.end;
   const sheetPeople =
     selected === 'group'
       ? (['aliya', 'madi', 'dana'] as const)
@@ -533,6 +577,21 @@ export function TrainerTodayScreen({
             contentContainerStyle={{ paddingBottom: bottomInset }}
             showsVerticalScrollIndicator={false}
           >
+            {data && serverFinished.failed && (
+              <View
+                key="journal-status-error"
+                style={[s.notice, { backgroundColor: colors.surface }]}
+              >
+                <Text style={s.noticeText}>
+                  {t('trainerToday.journalStatusFailed')}
+                </Text>
+                <Button
+                  label={t('common.retry')}
+                  variant="soft"
+                  onPress={serverFinished.retry}
+                />
+              </View>
+            )}
             {scenario === 'offline' && (
               <View
                 key="offline"
@@ -781,11 +840,13 @@ export function TrainerTodayScreen({
                     )}
                   </View>
                 )}
-                {!focus && live.length > 0 && (
-                  <Text key="all-past" style={[c.label, secondary]}>
-                    {t('trainerToday.allPast')}
-                  </Text>
-                )}
+                {!focus &&
+                  timeline.length === 0 &&
+                  rows.some((row) => !row.cancelled) && (
+                    <Text key="all-past" style={[c.label, secondary]}>
+                      {t('trainerToday.allPast')}
+                    </Text>
+                  )}
                 {timeline.length > 0 && (
                   <>
                     <View key="further" style={c.sectionLabel}>
@@ -795,16 +856,11 @@ export function TrainerTodayScreen({
                       >
                         {t('trainerToday.further')}
                       </Text>
-                      <Text style={[c.labelText, secondary]}>
-                        {t('trainerToday.until', {
-                          time:
-                            data?.agenda.endTime ??
-                            live.reduce(
-                              (last, row) => (row.end > last ? row.end : last),
-                              '',
-                            ),
-                        })}
-                      </Text>
+                      {timelineEnd && (
+                        <Text style={[c.labelText, secondary]}>
+                          {t('trainerToday.until', { time: timelineEnd })}
+                        </Text>
+                      )}
                     </View>
                     <MotionGroup
                       key="timeline"

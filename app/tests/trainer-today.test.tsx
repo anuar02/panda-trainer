@@ -43,6 +43,10 @@ test.each([false, true])(
         <TrainerTodayScreen />
       </WorkoutDemoProvider>,
     );
+    if (finished) {
+      await waitFor(() => expect(screen.getByText(/Следующее/)).toBeTruthy());
+      await fireEvent.press(screen.getByText('Показать'));
+    }
     await waitFor(() =>
       expect(
         screen.getByText(finished ? 'Журнал завершён' : 'Журнал в работе'),
@@ -321,3 +325,13 @@ test('past journal draft stays visible outside collapsed past and current sessio
   expect(screen.getAllByTestId('today-session-s1')).toHaveLength(1);
   expect(screen.getAllByTestId('today-session-s6')).toHaveLength(1);
 });
+
+jest.mock('../src/features/workspace-scheduling/today-journal-hook', () => ({
+  useTodayFinishedBookingIds: () => ({
+    finishedIds: new Set<string>(),
+    scoped: false,
+    failed: false,
+    loading: false,
+    retry: jest.fn(),
+  }),
+}));

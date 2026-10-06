@@ -53,6 +53,7 @@ export type TrainerTodayRequestRow = {
 export type TrainerTodayAgenda = {
   date: string;
   clock: string;
+  nowUtc?: string;
   rows: TrainerTodaySessionRow[];
   focusRow: TrainerTodaySessionRow | null;
   requests: TrainerTodayRequestRow[];
@@ -68,6 +69,134 @@ export type TrainerTodayAgenda = {
   };
   endTime: string | null;
 };
+
+export function journalTodayAgenda(
+  agenda: TrainerTodayAgenda,
+  timezone: string,
+  journal: {
+    finished: (id: string) => boolean;
+    draft: (id: string) => boolean;
+  },
+): TrainerTodayAgenda {
+  const rows = agenda.rows.map((row) => ({
+    ...row,
+    past:
+      row.cancelled ||
+      journal.finished(row.id) ||
+      (row.past && !journal.draft(row.id)),
+  }));
+  if (
+    rows.every((row, index) => row.past === agenda.rows[index]?.past) &&
+    !rows.some((row) => journal.finished(row.id))
+  )
+    return agenda;
+  const timestamp = agenda.nowUtc ? Date.parse(agenda.nowUtc) : null;
+  const live = rows.filter((row) => !row.cancelled && !row.past);
+  const current = live.filter((row) =>
+    timestamp === null
+      ? row.role === 'now'
+      : Date.parse(row.startsAtUtc) <= timestamp &&
+        Date.parse(row.endsAtUtc) > timestamp,
+  );
+  const focusRow =
+    current[0] ??
+    live.find((row) =>
+      timestamp === null
+        ? row.start > agenda.clock
+        : Date.parse(row.startsAtUtc) > timestamp,
+    ) ??
+    null;
+  rows.forEach((row) => {
+    row.role =
+      row.id === focusRow?.id ? (current.length ? 'now' : 'next') : null;
+  });
+  const clusters: TrainerTodaySessionRow[][] = [];
+  for (const row of rows.filter((item) => !item.past && !item.cancelled)) {
+    const previous = clusters[clusters.length - 1];
+    if (
+      previous &&
+      Date.parse(row.startsAtUtc) <
+        Math.max(...previous.map((item) => Date.parse(item.endsAtUtc)))
+    )
+      previous.push(row);
+    else clusters.push([row]);
+  }
+
+  clusters.sort(
+    (a, b) =>
+      Date.parse(a[0]?.startsAtUtc ?? '') - Date.parse(b[0]?.startsAtUtc ?? ''),
+  );
+  const pastRows = rows.filter((row) => row.past);
+  const items: TrainerTodayAgendaItem[] = [];
+  let cursor: number | null = focusRow
+    ? Date.parse(focusRow.endsAtUtc)
+    : pastRows.length
+      ? (timestamp ?? null)
+      : null;
+  for (const cluster of clusters) {
+    const rest = cluster.filter((row) => row !== focusRow);
+    if (!rest.length) continue;
+    const start = Math.min(...rest.map((row) => Date.parse(row.startsAtUtc)));
+    const active = rest.filter((row) => !row.cancelled);
+    const overlapActive = cluster.filter((row) => !row.cancelled);
+    const end = active.length
+      ? Math.max(...active.map((row) => Date.parse(row.endsAtUtc)))
+      : start;
+    if (cursor !== null && start > cursor)
+      items.push({
+        kind: 'gap',
+        start: scheduleClock(workspaceMinuteOfDay(new Date(cursor), timezone)),
+        end: rest[0]?.start ?? '',
+        startsAtUtc: new Date(cursor).toISOString(),
+        endsAtUtc: new Date(start).toISOString(),
+        durationMinutes: (start - cursor) / 60_000,
+      });
+    const overlapStart = Math.max(
+      ...overlapActive.map((row) => Date.parse(row.startsAtUtc)),
+    );
+    const overlapEnd = Math.min(
+      ...overlapActive.map((row) => Date.parse(row.endsAtUtc)),
+    );
+    rest.forEach((row, index) => {
+      if (
+        (index > 0 || rest.length < cluster.length) &&
+        overlapEnd > overlapStart
+      ) {
+        items.push({
+          kind: 'overlap',
+          startsAtUtc: new Date(overlapStart).toISOString(),
+          endsAtUtc: new Date(overlapEnd).toISOString(),
+          durationMinutes: (overlapEnd - overlapStart) / 60_000,
+        });
+      }
+      items.push({ kind: 'session', row });
+    });
+    if (active.length) cursor = cursor === null ? end : Math.max(cursor, end);
+  }
+  const total = rows.filter((row) => !row.cancelled).length;
+  const past = pastRows.filter((row) => !row.cancelled).length;
+  const endTime =
+    items
+      .flatMap((item) =>
+        item.kind === 'session' && !item.row.cancelled ? [item.row.end] : [],
+      )
+      .at(-1) ?? null;
+  return {
+    ...agenda,
+    rows,
+    focusRow,
+    pastRows,
+    items,
+    endTime,
+    summary: {
+      total,
+      past,
+      current: current.length,
+      future: total - past - current.length,
+      progressPercent: total ? Math.round((past / total) * 100) : 0,
+    },
+  };
+}
 
 export function workspaceTodayAgenda(
   schedule: WorkspaceSchedule,
@@ -252,6 +381,7 @@ export function workspaceTodayAgenda(
   return {
     date,
     clock: scheduleClock(workspaceMinuteOfDay(now, timezone)),
+    nowUtc: now.toISOString(),
     rows,
     focusRow,
     requests,
